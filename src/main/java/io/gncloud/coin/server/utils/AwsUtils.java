@@ -1,0 +1,78 @@
+package io.gncloud.coin.server.utils;
+
+import com.amazonaws.auth.profile.ProfileCredentialsProvider;
+import com.amazonaws.services.ecs.AmazonECS;
+import com.amazonaws.services.ecs.AmazonECSClientBuilder;
+import com.amazonaws.services.ecs.model.ContainerOverride;
+import com.amazonaws.services.ecs.model.RunTaskRequest;
+import com.amazonaws.services.ecs.model.RunTaskResult;
+import com.amazonaws.services.ecs.model.TaskOverride;
+import io.gncloud.coin.server.model.RequestTask;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.PostMapping;
+
+import java.text.SimpleDateFormat;
+
+/*
+ * create joonwoo 2018. 3. 21.
+ * 
+ */
+@Component("awsUtils")
+public class AwsUtils {
+
+    @Value("${aws.ProfileName}")
+    private String awsProfileName;
+    @Value("${aws.ecs.difinition.name}")
+    private String taskDifiniName;
+    @Value("${aws.ecs.difinition.version}")
+    private String taskDifiniVersion;
+    @Value("${aws.ecs.difinition.container}")
+    private String container;
+    @Value("${aws.ecs.clusterId}")
+    private String clusterId;
+
+
+    private AmazonECS client;
+
+    @PostMapping
+    public void setup(){
+        client = AmazonECSClientBuilder.standard()
+                .withCredentials(new ProfileCredentialsProvider(awsProfileName))
+                .build();
+    }
+
+    public RunTaskResult runTask(RequestTask task){
+        String start = "";
+        String end = "";
+        if(task.getStart() != null){
+            start = new SimpleDateFormat("yyyy-mm-dd").format(task.getStart());
+        }
+        if(task.getEnd() != null){
+            end = new SimpleDateFormat("yyyy-mm-dd").format(task.getEnd());
+        }
+
+        RunTaskRequest runTaskRequest = new RunTaskRequest();
+        TaskOverride taskOverride = new TaskOverride();
+        ContainerOverride containerOverride = new ContainerOverride();
+        containerOverride.withName(container)
+                .withCommand("python3"
+                        , "run.py"
+                        , task.getTaskId()
+                        , task.getExchangeName()
+                        , task.getBaseCurrency()
+                        , String.valueOf(task.getCapitalBase())
+                        , String.valueOf(task.isLive())
+                        , start
+                        , end
+                        , task.getDataFrequency());
+        taskOverride.withContainerOverrides(containerOverride);
+
+        runTaskRequest.withTaskDefinition(taskDifiniName + ":" + taskDifiniVersion)
+                .withOverrides(taskOverride)
+                .withCluster(clusterId);
+        return client.runTask(runTaskRequest);
+    }
+
+
+}

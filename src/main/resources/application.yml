@@ -3,3 +3,12 @@
 #
 
 
+aws:
+  ProfileName: "gncloud"
+  ecs:
+    clusterId: "coincloud"
+    difinition:
+      name: "tradebot"
+      version: "5"
+      container: "tradebot"
+
