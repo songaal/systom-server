@@ -1,0 +1,29 @@
+<configuration scan="true" scanPeriod="10 seconds">
+    <property name="log.path" value="logs/"/>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>[%date %level] \(%file:%line\) %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="systemlog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/system.log</file>
+
+        <encoder>
+            <pattern>[%date %level] \(%file:%line\) %msg%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>${log.path}/system.%d{yyyy-MM-dd}.log</FileNamePattern>
+            <MaxHistory>30</MaxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <logger name="org.springframework" level="INFO" additivity="false" />
+
+    <root level="debug">
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="systemlog" />
+    </root>
+
+</configuration>
