@@ -10,9 +10,8 @@ import com.amazonaws.services.ecs.model.TaskOverride;
 import io.gncloud.coin.server.model.RequestTask;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.PostMapping;
 
-import java.text.SimpleDateFormat;
+import javax.annotation.PostConstruct;
 
 /*
  * create joonwoo 2018. 3. 21.
@@ -35,7 +34,7 @@ public class AwsUtils {
 
     private AmazonECS client;
 
-    @PostMapping
+    @PostConstruct
     public void setup(){
         client = AmazonECSClientBuilder.standard()
                 .withCredentials(new ProfileCredentialsProvider(awsProfileName))
@@ -43,14 +42,6 @@ public class AwsUtils {
     }
 
     public RunTaskResult runTask(RequestTask task){
-        String start = "";
-        String end = "";
-        if(task.getStart() != null){
-            start = new SimpleDateFormat("yyyy-mm-dd").format(task.getStart());
-        }
-        if(task.getEnd() != null){
-            end = new SimpleDateFormat("yyyy-mm-dd").format(task.getEnd());
-        }
 
         RunTaskRequest runTaskRequest = new RunTaskRequest();
         TaskOverride taskOverride = new TaskOverride();
@@ -63,8 +54,8 @@ public class AwsUtils {
                         , task.getBaseCurrency()
                         , String.valueOf(task.getCapitalBase())
                         , String.valueOf(task.isLive())
-                        , start
-                        , end
+                        , task.getStart()
+                        , task.getEnd()
                         , task.getDataFrequency());
         taskOverride.withContainerOverrides(containerOverride);
 

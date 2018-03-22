@@ -9,6 +9,12 @@ aws:
     clusterId: "coincloud"
     difinition:
       name: "tradebot"
-      version: "5"
+      version: "6"
       container: "tradebot"
 
+spring:
+  datasource:
+    url: "jdbc:mysql://gncloudinstance.cygcygiwvnc8.ap-northeast-2.rds.amazonaws.com:3306/coincloud"
+    username: "gncloud"
+    password: "gnc=1151"
+    driver-class-name: "com.mysql.jdbc.Driver"

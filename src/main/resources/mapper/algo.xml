@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="algos">
+
+    <select id="getAlgo" parameterType="Algo" resultType="Algo">
+        SELECT ALGO_ID
+             , USER_ID
+             , SOURCE
+             , CREATE_TIME
+          FROM algos
+         WHERE 1=1
+        <choose>
+            <when test="algoId != null and algoId != ''">
+                and algo_id = #{algoId}
+            </when>
+            <when test="userId != null and userId != ''">
+                and user_id = #{userId}
+            </when>
+        </choose>
+    </select>
+
+    <insert id="insertAlgo" parameterType="Algo">
+        INSERT INTO algos(ALGO_ID, USER_ID, SOURCE, CREATE_TIME)
+        values(
+            #{algoId},
+            #{userId},
+            #{source},
+            now()
+        )
+    </insert>
+
+    <update id="updateAlgo" parameterType="Algo">
+        UPDATE algos
+           SET source = #{source}
+         WHERE algo_id = #{algoId}
+    </update>
+
+    <delete id="deleteAlgo" parameterType="String">
+        DELETE algos
+         WHERE algo_id = #{algoId}
+    </delete>
+</mapper>

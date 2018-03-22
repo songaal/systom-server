@@ -5,7 +5,6 @@ package io.gncloud.coin.server.model;
  * 
  */
 
-import java.util.Date;
 // ECS TASK RUN
 public class RequestTask {
 
@@ -16,8 +15,8 @@ public class RequestTask {
     private float capitalBase;
     private boolean live;
     private boolean simulationOrder;
-    private Date start;
-    private Date end;
+    private String start;
+    private String end;
     private String dataFrequency;
 
 
@@ -78,19 +77,19 @@ public class RequestTask {
         this.simulationOrder = simulationOrder;
     }
 
-    public Date getStart() {
+    public String getStart() {
         return start;
     }
 
-    public void setStart(Date start) {
+    public void setStart(String start) {
         this.start = start;
     }
 
-    public Date getEnd() {
+    public String getEnd() {
         return end;
     }
 
-    public void setEnd(Date end) {
+    public void setEnd(String end) {
         this.end = end;
     }
 

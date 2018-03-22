@@ -1,26 +1,45 @@
 package io.gncloud.coin.server.service;
 
+import io.gncloud.coin.server.config.Env;
 import io.gncloud.coin.server.exception.ParameterException;
 import io.gncloud.coin.server.model.RequestTask;
 import io.gncloud.coin.server.utils.AwsUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.Date;
-import java.util.UUID;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 
 /*
  * create joonwoo 2018. 3. 21.
  * 
  */
 @Service
-public class TaskService {
+public class TasksService {
 
-    @Resource(name = "awkUtils")
+    @Resource(name = "awsUtils")
     private AwsUtils awsUtils;
 
-    public void backTestMode(String userId, String exchangeName, String baseCurrency, float capitalBase,
-                             String dataFrequency, Date start, Date end) throws ParameterException {
+    private final String ALGO_PATH = "/algos";
+
+
+    public File fileWrite(String taskId, String source) throws IOException {
+        File sourceDirectory = new File(Env.getCoinHome() + ALGO_PATH);
+        if(!sourceDirectory.isDirectory()){
+            sourceDirectory.mkdirs();
+        }
+        File AlgoSource = new File(sourceDirectory.getPath() + "/" + taskId + ".py");
+        OutputStreamWriter ouput = new OutputStreamWriter(new FileOutputStream(AlgoSource));
+        ouput.write(source);
+        ouput.flush();
+        ouput.close();
+        return AlgoSource;
+    }
+
+    public void backTestMode(String taskId, String exchangeName, String baseCurrency, float capitalBase,
+                             String dataFrequency, String start, String end) throws ParameterException {
 
         if(exchangeName == null || "".equals(exchangeName)){
             throw new ParameterException("exchangeName");
@@ -41,7 +60,7 @@ public class TaskService {
             throw new ParameterException("end");
         }
 
-        String taskId = UUID.randomUUID().toString();
+
         RequestTask task = new RequestTask();
         task.setTaskId(taskId);
         task.setExchangeName(exchangeName);
@@ -54,7 +73,7 @@ public class TaskService {
         awsUtils.runTask(task);
     }
 
-    public void liveMode(String userId, String exchangeName, String baseCurrency, float capitalBase, boolean simulationOrder) throws ParameterException {
+    public void liveMode(String algoId, String exchangeName, String baseCurrency, float capitalBase, boolean simulationOrder) throws ParameterException {
         if(exchangeName == null || "".equals(exchangeName)){
             throw new ParameterException("exchangeName");
         }
@@ -65,9 +84,9 @@ public class TaskService {
             throw new ParameterException("capitalBase");
         }
 
-        String taskId = UUID.randomUUID().toString();
+
         RequestTask task = new RequestTask();
-        task.setTaskId(taskId);
+        task.setTaskId(algoId);
         task.setExchangeName(exchangeName);
         task.setBaseCurrency(baseCurrency);
         task.setCapitalBase(capitalBase);
