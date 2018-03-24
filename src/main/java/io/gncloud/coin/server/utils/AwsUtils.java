@@ -42,21 +42,11 @@ public class AwsUtils {
     }
 
     public RunTaskResult runTask(RequestTask task){
-
         RunTaskRequest runTaskRequest = new RunTaskRequest();
         TaskOverride taskOverride = new TaskOverride();
         ContainerOverride containerOverride = new ContainerOverride();
         containerOverride.withName(container)
-                .withCommand("python3"
-                        , "run.py"
-                        , task.getTaskId()
-                        , task.getExchangeName()
-                        , task.getBaseCurrency()
-                        , String.valueOf(task.getCapitalBase())
-                        , String.valueOf(task.isLive())
-                        , task.getStart()
-                        , task.getEnd()
-                        , task.getDataFrequency());
+                         .withCommand(task.getCommand());
         taskOverride.withContainerOverrides(containerOverride);
 
         runTaskRequest.withTaskDefinition(taskDifiniName + ":" + taskDifiniVersion)

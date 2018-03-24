@@ -91,6 +91,7 @@ public class TasksService {
         task.setBaseCurrency(baseCurrency);
         task.setCapitalBase(capitalBase);
         task.setSimulationOrder(simulationOrder);
+        task.setLive(true);
 
         awsUtils.runTask(task);
     }

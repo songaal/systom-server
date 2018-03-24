@@ -5,8 +5,14 @@ package io.gncloud.coin.server.model;
  * 
  */
 
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+
 // ECS TASK RUN
 public class RequestTask {
+    private static org.slf4j.Logger logger = LoggerFactory.getLogger(RequestTask.class);
 
     private String taskId;
     private String userId;
@@ -99,5 +105,25 @@ public class RequestTask {
 
     public void setDataFrequency(String dataFrequency) {
         this.dataFrequency = dataFrequency;
+    }
+
+    public List<String> getCommand(){
+        List<String> cmd = new ArrayList<>();
+        cmd.add("python3");
+        cmd.add("run.py");
+        cmd.add(this.getTaskId());
+        cmd.add(this.getExchangeName());
+        cmd.add(this.getBaseCurrency());
+        cmd.add(String.valueOf(this.getCapitalBase()));
+        cmd.add(String.valueOf(this.isLive()));
+        if(this.isLive()){
+            cmd.add(String.valueOf(this.simulationOrder));
+        }else{
+            cmd.add(this.getStart());
+            cmd.add(this.getEnd());
+            cmd.add(this.getDataFrequency());
+        }
+        logger.debug("request Parameter >> {}", cmd);
+        return cmd;
     }
 }

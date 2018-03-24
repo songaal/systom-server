@@ -1,23 +1,21 @@
 package io.gncloud.coin.server.api;
 
 import io.gncloud.coin.server.exception.ParameterException;
+import io.gncloud.coin.server.model.RequestTask;
 import io.gncloud.coin.server.service.AlgosService;
 import io.gncloud.coin.server.service.TasksService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /*
  * create joonwoo 2018. 3. 21.
  * 
  */
 @RestController
-@RequestMapping("/v1/tasks")
+@RequestMapping(value = "/v1/tasks", produces = "application/json")
 public class TasksController {
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(TasksController.class);
@@ -50,6 +48,19 @@ public class TasksController {
         } catch (ParameterException e){
             logger.error("Bad Request:", e);
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch(Exception e){
+            logger.error("System Error:", e);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping(value = "/aaa")
+    public ResponseEntity<?> createTask(@RequestBody RequestTask task){
+        try{
+
+
+
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch(Exception e){
             logger.error("System Error:", e);
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
