@@ -22,13 +22,13 @@
 		- /algos (POST)
 	- #### 파라미터 
 		- userId
-		- source
+		- code
  
 - ## 알고리즘 수정
 	- #### 경로
 		- /algos/{algoId} (PUT)
 	- #### 파라미터 
-		- source
+		- code
  
 - ## 알고리즘 실행
 	- #### 경로
@@ -55,7 +55,7 @@ curl -X POST \
   -H 'content-type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW' \
   -H 'postman-token: 62d602c8-c447-e7c3-c501-65ccbbeab63f' \
   -F userId=joonwoo \
-  -F 'source=def initialize(context):
+  -F 'code=def initialize(context):
     print('\''----------initialize--------'\'')
     context.asset = symbol('\''btc_usdt'\'')
 

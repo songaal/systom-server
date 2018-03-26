@@ -5,12 +5,19 @@
 
 aws:
   ProfileName: "gncloud"
+  region:
   ecs:
     clusterId: "coincloud"
     difinition:
       name: "tradebot"
       version: "6"
       container: "tradebot"
+  congnito:
+    poolId:
+    clientappId:
+    fedPoolId:
+    customDomain:
+
 
 spring:
   datasource:
@@ -18,3 +25,4 @@ spring:
     username: "gncloud"
     password: "gnc=1151"
     driver-class-name: "com.mysql.jdbc.Driver"
+

@@ -1,14 +1,17 @@
 package io.gncloud.coin.server.api;
 
-import io.gncloud.coin.server.exception.ParameterException;
+import io.gncloud.coin.server.exception.AbstractException;
 import io.gncloud.coin.server.model.RequestTask;
+import io.gncloud.coin.server.model.Task;
 import io.gncloud.coin.server.service.AlgosService;
 import io.gncloud.coin.server.service.TasksService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /*
  * create joonwoo 2018. 3. 21.
@@ -16,10 +19,9 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping(value = "/v1/tasks", produces = "application/json")
-public class TasksController {
+public class TasksController extends AbstractController{
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(TasksController.class);
-
     @Autowired
     private TasksService taskService;
 
@@ -27,43 +29,21 @@ public class TasksController {
     private AlgosService algosService;
 
     @PostMapping
-    public ResponseEntity<?> createTask(@RequestParam String algoId,
-                                     @RequestParam String exchangeName,
-                                     @RequestParam String baseCurrency,
-                                     @RequestParam String capitalBase,
-                                     @RequestParam String live,
-                                     @RequestParam(required = false) String simulationOrder,
-                                     @RequestParam(required = false) String start,
-                                     @RequestParam(required = false) String end,
-                                     @RequestParam(required = false) String dataFrequency){
+    public ResponseEntity<?> createTask(@RequestBody RequestTask requestTask){
         try{
-
-            if(live != null && "true".equalsIgnoreCase(live)){
-                taskService.liveMode(algoId, exchangeName, baseCurrency, Float.parseFloat(capitalBase), Boolean.parseBoolean(simulationOrder));
+            Task task = null;
+            if(requestTask.getTask() != null && requestTask.getTask().isLive()){
+                task = taskService.liveMode(requestTask.getTask(), requestTask.getExchangeAuths());
+                task.setStart("");
+                task.setEnd("");
+                task.setDataFrequency("");
             }else{
-                taskService.backTestMode(algoId, exchangeName, baseCurrency, Float.parseFloat(capitalBase), dataFrequency, start, end);
+                task = taskService.backTestMode(requestTask.getTask());
             }
-
-            return new ResponseEntity<>(HttpStatus.OK);
-        } catch (ParameterException e){
-            logger.error("Bad Request:", e);
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch(Exception e){
-            logger.error("System Error:", e);
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @PostMapping(value = "/aaa")
-    public ResponseEntity<?> createTask(@RequestBody RequestTask task){
-        try{
-
-
-
-            return new ResponseEntity<>(HttpStatus.OK);
-        } catch(Exception e){
-            logger.error("System Error:", e);
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return success(task);
+        } catch (AbstractException e){
+            logger.error("", e);
+            return e.response();
         }
     }
 }

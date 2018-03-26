@@ -1,129 +1,59 @@
 package io.gncloud.coin.server.model;
 
-/*
- * create joonwoo 2018. 3. 21.
- * 
- */
-
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
 import java.util.List;
 
-// ECS TASK RUN
+/*
+ * create joonwoo 2018. 3. 25.
+ * 
+ */
 public class RequestTask {
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(RequestTask.class);
 
-    private String taskId;
-    private String userId;
-    private String exchangeName;
-    private String baseCurrency;
-    private float capitalBase;
-    private boolean live;
-    private boolean simulationOrder;
-    private String start;
-    private String end;
-    private String dataFrequency;
+    private Task task;
+    private List<ExchangeAuth> exchangeAuths;
 
-
-
-    public String getTaskId() {
-        return taskId;
+    public Task getTask() {
+        return task;
     }
 
-    public void setTaskId(String taskId) {
-        this.taskId = taskId;
+    public void setTask(Task task) {
+        this.task = task;
     }
 
-    public String getUserId() {
-        return userId;
+    public List<ExchangeAuth> getExchangeAuths() {
+        return exchangeAuths;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setExchangeAuths(List<ExchangeAuth> exchangeAuths) {
+        this.exchangeAuths = exchangeAuths;
     }
 
-    public String getExchangeName() {
-        return exchangeName;
-    }
+    public static class ExchangeAuth {
+        private String exchange;
+        private String key;
+        private String secret;
 
-    public void setExchangeName(String exchangeName) {
-        this.exchangeName = exchangeName;
-    }
-
-    public String getBaseCurrency() {
-        return baseCurrency;
-    }
-
-    public void setBaseCurrency(String baseCurrency) {
-        this.baseCurrency = baseCurrency;
-    }
-
-    public float getCapitalBase() {
-        return capitalBase;
-    }
-
-    public void setCapitalBase(float capitalBase) {
-        this.capitalBase = capitalBase;
-    }
-
-    public boolean isLive() {
-        return live;
-    }
-
-    public void setLive(boolean live) {
-        this.live = live;
-    }
-
-    public boolean isSimulationOrder() {
-        return simulationOrder;
-    }
-
-    public void setSimulationOrder(boolean simulationOrder) {
-        this.simulationOrder = simulationOrder;
-    }
-
-    public String getStart() {
-        return start;
-    }
-
-    public void setStart(String start) {
-        this.start = start;
-    }
-
-    public String getEnd() {
-        return end;
-    }
-
-    public void setEnd(String end) {
-        this.end = end;
-    }
-
-    public String getDataFrequency() {
-        return dataFrequency;
-    }
-
-    public void setDataFrequency(String dataFrequency) {
-        this.dataFrequency = dataFrequency;
-    }
-
-    public List<String> getCommand(){
-        List<String> cmd = new ArrayList<>();
-        cmd.add("python3");
-        cmd.add("run.py");
-        cmd.add(this.getTaskId());
-        cmd.add(this.getExchangeName());
-        cmd.add(this.getBaseCurrency());
-        cmd.add(String.valueOf(this.getCapitalBase()));
-        cmd.add(String.valueOf(this.isLive()));
-        if(this.isLive()){
-            cmd.add(String.valueOf(this.simulationOrder));
-        }else{
-            cmd.add(this.getStart());
-            cmd.add(this.getEnd());
-            cmd.add(this.getDataFrequency());
+        public String getExchange() {
+            return exchange;
         }
-        logger.debug("request Parameter >> {}", cmd);
-        return cmd;
+
+        public void setExchange(String exchange) {
+            this.exchange = exchange;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public void setKey(String key) {
+            this.key = key;
+        }
+
+        public String getSecret() {
+            return secret;
+        }
+
+        public void setSecret(String secret) {
+            this.secret = secret;
+        }
     }
 }

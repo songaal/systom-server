@@ -8,7 +8,7 @@
     <select id="getAlgo" parameterType="Algo" resultType="Algo">
         SELECT ALGO_ID
              , USER_ID
-             , SOURCE
+             , CODE
              , CREATE_TIME
           FROM algos
          WHERE 1=1
@@ -23,18 +23,18 @@
     </select>
 
     <insert id="insertAlgo" parameterType="Algo">
-        INSERT INTO algos(ALGO_ID, USER_ID, SOURCE, CREATE_TIME)
+        INSERT INTO algos(ALGO_ID, USER_ID, CODE, CREATE_TIME)
         values(
             #{algoId},
             #{userId},
-            #{source},
+            #{code},
             now()
         )
     </insert>
 
     <update id="updateAlgo" parameterType="Algo">
         UPDATE algos
-           SET source = #{source}
+           SET code = #{code}
          WHERE algo_id = #{algoId}
     </update>
 

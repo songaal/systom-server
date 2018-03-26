@@ -10,7 +10,7 @@ public class Algo {
 
     private String algoId;
     private String userId;
-    private String source;
+    private String code;
     private Date createTime;
 
     public String getAlgoId() {
@@ -29,12 +29,12 @@ public class Algo {
         this.userId = userId;
     }
 
-    public String getSource() {
-        return source;
+    public String getCode() {
+        return code;
     }
 
-    public void setSource(String source) {
-        this.source = source;
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public Date getCreateTime() {
@@ -50,7 +50,7 @@ public class Algo {
         return "Algo{" +
                 "algoId='" + algoId + '\'' +
                 ", userId='" + userId + '\'' +
-                ", source='" + source + '\'' +
+                ", code='" + code + '\'' +
                 ", createTime=" + createTime +
                 '}';
     }

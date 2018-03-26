@@ -24,21 +24,16 @@ public class AlgosService {
     @Autowired
     private SqlSession sqlSession;
 
-    public Algo insertAlgo(String userId, String source) throws OperationException, ParameterException {
+    public Algo insertAlgo(String userId, String code) throws OperationException, ParameterException {
 
-        if(userId == null || "".equals(userId)){
-            throw new ParameterException("userId");
-        }
-
-        if(source == null || "".equals(source)){
-            throw new ParameterException("source");
-        }
+        isNull(userId, "userId");
+        isNull(code, "code");
 
         Algo algo = new Algo();
         algo.setAlgoId(UUID.randomUUID().toString());
         algo.setCreateTime(new Date());
         algo.setUserId(userId);
-        algo.setSource(source);
+        algo.setCode(code);
 
         logger.debug("INSERT ALGO: {}", algo);
 
@@ -50,41 +45,33 @@ public class AlgosService {
     }
 
     public Algo getAlgo(String algoId) throws ParameterException {
-        if(algoId == null){
-            throw new ParameterException("algoId");
-        }
+        isNull(algoId, "algoId");
+
         Algo findAlgo = new Algo();
         findAlgo.setAlgoId(algoId);
         return getAlgo(findAlgo);
     }
     public Algo getAlgo(Algo algo) throws ParameterException {
-        if(algo == null){
-            throw new ParameterException("algoId");
-        }
+        isNull(algo, "algo");
+
         return sqlSession.selectOne("algos.getAlgo", algo);
     }
 
     public List<Algo> findUserIdByAlgo(String userId) throws ParameterException {
-        if(userId == null){
-            throw new ParameterException("userId");
-        }
+        isNull(userId, "userId");
+
         Algo findAlgo = new Algo();
         findAlgo.setUserId(userId);
-        return sqlSession.selectList("algos.getAlgo", findAlgo);
+        List<Algo> algoList = sqlSession.selectList("algos.getAlgo", findAlgo);
+        return algoList;
     }
 
-    public Algo updateAlgo(String algoId, String source) throws ParameterException, OperationException {
-        if(algoId == null || "".equals(algoId)){
-            throw new ParameterException("algoId");
-        }
-
-        if(source == null || "".equals(source)){
-            throw new ParameterException("source");
-        }
+    public Algo updateAlgo(String algoId, String code) throws ParameterException, OperationException {
+        isNull(algoId, "algoId");
+        isNull(code, "code");
 
         Algo registerAlgo = getAlgo(algoId);
-
-        registerAlgo.setSource(source);
+        registerAlgo.setCode(code);
 
         logger.debug("UPDATE ALGO: {}", registerAlgo);
 
@@ -96,18 +83,23 @@ public class AlgosService {
     }
 
     public void deleteAlgo(String algoId) throws ParameterException, OperationException {
-
-        if(algoId == null || "".equals(algoId)){
-            throw new ParameterException("algoId");
-        }
+        isNull(algoId, "algoId");
 
         logger.debug("DELETE ALGO: {}", algoId);
-
         int result = sqlSession.delete("algos.deleteAlgo", algoId);
-
         if(result != 1){
             throw new OperationException("[FAIL] delete Filed Algo Source");
         }
+    }
 
+    private void isNull(String field, String label) throws ParameterException {
+        if(field == null || "".equals(field)){
+            throw new ParameterException(label);
+        }
+    }
+    private void isNull(Algo algo, String label) throws ParameterException {
+        if(algo == null){
+            throw new ParameterException(label);
+        }
     }
 }

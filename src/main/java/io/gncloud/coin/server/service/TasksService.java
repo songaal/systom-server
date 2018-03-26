@@ -1,16 +1,17 @@
 package io.gncloud.coin.server.service;
 
-import io.gncloud.coin.server.config.Env;
+import com.amazonaws.services.ecs.model.KeyValuePair;
+import com.amazonaws.services.ecs.model.RunTaskResult;
 import io.gncloud.coin.server.exception.ParameterException;
 import io.gncloud.coin.server.model.RequestTask;
+import io.gncloud.coin.server.model.Task;
 import io.gncloud.coin.server.utils.AwsUtils;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 /*
  * create joonwoo 2018. 3. 21.
@@ -19,81 +20,65 @@ import java.io.OutputStreamWriter;
 @Service
 public class TasksService {
 
+    private static org.slf4j.Logger logger = LoggerFactory.getLogger(TasksService.class);
+
     @Resource(name = "awsUtils")
     private AwsUtils awsUtils;
 
-    private final String ALGO_PATH = "/algos";
+    public Task backTestMode(Task task) throws ParameterException {
 
+        isNull(task.getAlgoId(), "algoId");
+        isNull(task.getExchangeName(), "exchangeName");
+        isNull(task.getBaseCurrency(), "baseCurrency");
+        isNull(task.getCapitalBase(), "capitalBase");
+        isNull(task.getDataFrequency(), "dataFrequency");
+        isNull(task.getStart(), "start");
+        isNull(task.getEnd(), "end");
 
-    public File fileWrite(String taskId, String source) throws IOException {
-        File sourceDirectory = new File(Env.getCoinHome() + ALGO_PATH);
-        if(!sourceDirectory.isDirectory()){
-            sourceDirectory.mkdirs();
-        }
-        File AlgoSource = new File(sourceDirectory.getPath() + "/" + taskId + ".py");
-        OutputStreamWriter ouput = new OutputStreamWriter(new FileOutputStream(AlgoSource));
-        ouput.write(source);
-        ouput.flush();
-        ouput.close();
-        return AlgoSource;
+        logger.debug("[ BACK TEST ] RUN {}", task);
+        RunTaskResult result = awsUtils.runTask(task);
+        task.setTaskId(result.getTasks().get(0).getTaskArn().split("/")[1]);
+        return task;
     }
 
-    public void backTestMode(String taskId, String exchangeName, String baseCurrency, float capitalBase,
-                             String dataFrequency, String start, String end) throws ParameterException {
+    public Task liveMode(Task task, List<RequestTask.ExchangeAuth> exchangeAuth) throws ParameterException {
 
-        if(exchangeName == null || "".equals(exchangeName)){
-            throw new ParameterException("exchangeName");
-        }
-        if(baseCurrency == null || "".equals(baseCurrency)){
-            throw new ParameterException("baseCurrency");
-        }
-        if(capitalBase == 0.0f){
-            throw new ParameterException("capitalBase");
-        }
-        if(dataFrequency == null || "".equals(dataFrequency)){
-            throw new ParameterException("dataFrequency");
-        }
-        if(start == null){
-            throw new ParameterException("startTime");
-        }
-        if(end == null){
-            throw new ParameterException("end");
+        isNull(task.getAlgoId(), "algoId");
+        isNull(task.getExchangeName(), "exchangeName");
+        isNull(task.getBaseCurrency(), "baseCurrency");
+        isNull(task.getCapitalBase(), "capitalBase");
+
+        List<KeyValuePair> environmentList = new ArrayList<>();
+        String exchangeList = new String();
+        int exchangeAuthSize = exchangeAuth.size();
+        if(exchangeAuthSize > 0){
+            for (int i = 0; i < exchangeAuthSize; i++) {
+                String exchangeName = exchangeAuth.get(i).getExchange();
+                String key = exchangeAuth.get(i).getKey();
+                String secret = exchangeAuth.get(i).getSecret();
+                exchangeList += exchangeName + ",";
+
+                environmentList.add(new KeyValuePair().withName(exchangeName + "_key").withValue(key));
+                environmentList.add(new KeyValuePair().withName(exchangeName + "_secret").withValue(secret));
+            }
+            environmentList.add(new KeyValuePair().withName("exchangeList").withValue(exchangeList));
         }
 
+        logger.debug("[ LIVE ] RUN {}", task);
+        RunTaskResult result = awsUtils.runTask(task, environmentList);
 
-        RequestTask task = new RequestTask();
-        task.setTaskId(taskId);
-        task.setExchangeName(exchangeName);
-        task.setBaseCurrency(baseCurrency);
-        task.setCapitalBase(capitalBase);
-        task.setDataFrequency(dataFrequency);
-        task.setStart(start);
-        task.setEnd(end);
-
-        awsUtils.runTask(task);
+        task.setTaskId(result.getTasks().get(0).getTaskArn().split("/")[1]);
+        return task;
     }
 
-    public void liveMode(String algoId, String exchangeName, String baseCurrency, float capitalBase, boolean simulationOrder) throws ParameterException {
-        if(exchangeName == null || "".equals(exchangeName)){
-            throw new ParameterException("exchangeName");
+    private void isNull(String field, String label) throws ParameterException {
+        if(field == null || "".equals(field)){
+            throw new ParameterException(label);
         }
-        if(baseCurrency == null || "".equals(baseCurrency)){
-            throw new ParameterException("baseCurrency");
-        }
-        if(capitalBase == 0.0f){
-            throw new ParameterException("capitalBase");
-        }
-
-
-        RequestTask task = new RequestTask();
-        task.setTaskId(algoId);
-        task.setExchangeName(exchangeName);
-        task.setBaseCurrency(baseCurrency);
-        task.setCapitalBase(capitalBase);
-        task.setSimulationOrder(simulationOrder);
-        task.setLive(true);
-
-        awsUtils.runTask(task);
     }
-
+    private void isNull(float field, String label) throws ParameterException {
+        if(field == 0.0f){
+            throw new ParameterException(label);
+        }
+    }
 }

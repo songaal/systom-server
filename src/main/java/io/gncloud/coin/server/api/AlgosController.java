@@ -1,11 +1,13 @@
 package io.gncloud.coin.server.api;
 
+import io.gncloud.coin.server.exception.AbstractException;
 import io.gncloud.coin.server.exception.ParameterException;
 import io.gncloud.coin.server.model.Algo;
+import io.gncloud.coin.server.model.User;
 import io.gncloud.coin.server.service.AlgosService;
+import io.gncloud.coin.server.service.AuthService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -18,69 +20,58 @@ import java.util.List;
  */
 @Controller
 @RequestMapping("/v1/algos")
-public class AlgosController {
+public class AlgosController extends AbstractController{
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(AlgosController.class);
 
     @Autowired
     private AlgosService algosService;
 
+    @Autowired
+    private AuthService authService;
+
     @GetMapping("/me")
-    public ResponseEntity<?> getAlgo(@RequestHeader String userId){
-        try {
-            List<Algo> registerAlgoList = algosService.findUserIdByAlgo(userId);
-            return new ResponseEntity<>(registerAlgoList, HttpStatus.OK);
-        } catch (ParameterException e){
-            logger.error("", e);
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch (Exception e){
-            logger.error("", e);
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public ResponseEntity<?> getAlgo(@RequestHeader(name = "X-coincloud-user-id") String token) throws ParameterException {
+        User registerUser = authService.findTokenByUser(token);
+
+        List<Algo> registerAlgoList = algosService.findUserIdByAlgo(registerUser.getUserId());
+
+        return success(registerAlgoList);
     }
 
     @GetMapping("/{algoId}")
-    public @ResponseBody String getAlgoSource(@PathVariable String algoId){
+    public @ResponseBody String getAlgoCode(@PathVariable String algoId) {
         try {
             Algo registerAlgo = algosService.getAlgo(algoId);
-            return registerAlgo.getSource();
-        } catch (Exception e){
+            if(registerAlgo == null || registerAlgo.getCode() == null){
+                throw new ParameterException("algoId");
+            }
+            return registerAlgo.getCode();
+        } catch (AbstractException e){
             logger.error("", e);
-            return "";
+            return "no code";
         }
     }
 
     @PostMapping
-    public ResponseEntity<?> createAlgo(@RequestParam String userId, @RequestParam String source) {
+    public ResponseEntity<?> createAlgo(@RequestBody Algo createAlgo) {
         try {
-
-            Algo registerAlgo = algosService.insertAlgo(userId, source);
-
-            return new ResponseEntity<>(registerAlgo, HttpStatus.OK);
-        } catch (ParameterException e){
+            Algo registerAlgo = algosService.insertAlgo(createAlgo.getUserId(), createAlgo.getCode());
+            return success(registerAlgo);
+        } catch (AbstractException e){
             logger.error("", e);
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-        catch (Exception e){
-            logger.error("", e);
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return e.response();
         }
     }
 
     @PutMapping("/{algoId}")
-    public ResponseEntity<?> updateAlgo(@PathVariable String algoId, @RequestParam String source) {
+    public ResponseEntity<?> updateAlgo(@PathVariable String algoId, @RequestBody Algo algo) {
         try {
-
-            Algo registerAlgo = algosService.updateAlgo(algoId, source);
-
-            return new ResponseEntity<>(registerAlgo, HttpStatus.OK);
-        } catch (ParameterException e){
+            Algo registerAlgo = algosService.updateAlgo(algoId, algo.getCode());
+            return success(registerAlgo);
+        } catch (AbstractException e){
             logger.error("", e);
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-        catch (Exception e){
-            logger.error("", e);
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return e.response();
         }
     }
 
