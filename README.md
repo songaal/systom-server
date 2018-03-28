@@ -15,12 +15,12 @@
 	- #### 경로
 		- /algos/me (GET)
 	- #### 해더
-		- userId
+		- X-coincloud-user-id: token
 
 - ## 알고리즘 생성
 	- #### 경로
 		- /algos (POST)
-	- #### 파라미터 
+	- #### 파라미터
 		- userId
 		- code
  
@@ -34,61 +34,66 @@
 	- #### 경로
 		- /tasks (POST)
 	- #### 파라미터 
-		- algoId
-		- exchangeName
-		- baseCurrency
-		- capitalBase
-		- live
-		- simulationOrder
-		- start
-		- end
-		- dataFrequency
- 
-
+		- task
+		    - algoId
+            - exchangeName
+            - baseCurrency
+            - capitalBase
+            - live
+            - simulationOrder
+            - start
+            - end
+            - dataFrequency
+        - exchangeAuths [array type]
+            - exchange
+            - key
+            - secret
 
 # example
 - ### 알고리즘 생성
 ```
 curl -X POST \
-  http://api.gncloud.io:8080/v1/algos \
+  http://localhost:8080/v1/algos \
   -H 'cache-control: no-cache' \
-  -H 'content-type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW' \
-  -H 'postman-token: 62d602c8-c447-e7c3-c501-65ccbbeab63f' \
-  -F userId=joonwoo \
-  -F 'code=def initialize(context):
-    print('\''----------initialize--------'\'')
-    context.asset = symbol('\''btc_usdt'\'')
-
-
-def handle_data(context, data):
-    print('\''----------handle_data--------'\'')
-    order(context.asset, 1)
-    # record(btc=data.current(context.asset, '\''price'\''))
-
-def analyze(context, stats):
-    print('\''----------analyze--------'\'')'
+  -H 'content-type: application/json' \
+  -H 'postman-token: 1e44f916-f90d-3a0f-8e0d-d07d193f8998' \
+  -d '{
+	"userId":"joonwoo",
+	"code":"[알고리즘 코드]"
+}'
 ```
 - ### 알고리즘 전체 조회
 ```
 curl -X GET \
-  http://api.gncloud.io:8080/v1/algos/me \
-  -H 'cache-control: no-cache' \
-  -H 'postman-token: 73941d38-69d5-5f75-28f4-3e6a702af628' \
-  -H 'userid: joonwoo'
+  curl -X GET \
+    http://localhost:8080/v1/algos/me \
+    -H 'cache-control: no-cache' \
+    -H 'postman-token: 92662a87-5afd-ef84-e524-33ff6910d019' \
+    -H 'x-coincloud-user-id: 2c359971-42fe-4989-afd6-97ae03a916c8'
 ```
 - ### 알고리즘 시작
 ```
 curl -X POST \
   http://api.gncloud.io:8080/v1/tasks \
   -H 'cache-control: no-cache' \
-  -H 'content-type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW' \
-  -H 'postman-token: 9517310f-6d93-bdb3-a194-e916986e49e0' \
-  -F algoId=808d3ce1-e9db-4f0c-80aa-0c9bf97f2207 \
-  -F exchangeName=bitfinex \
-  -F baseCurrency=usd \
-  -F capitalBase=1000 \
-  -F live=false \
-  -F simulationOrder=true \
-  -F start=2015-09-22 \
-  -F end=2017-10-01 \
-  -F dataFrequency=minute```
+  -H 'content-type: application/json' \
+  -H 'postman-token: 4ac09a3f-e265-5618-dfe4-fc8f5ac7c6c2' \
+  -d '{
+	"task":{
+		"algoId":"a0b95b56-f015-4785-b950-917c12497afa",
+		"exchangeName":"poloniex",
+		"baseCurrency":"btc",
+		"capitalBase":"10000",
+		"live":"true",
+		"simulationOrder":"false"
+	},
+	"exchangeAuths":[
+		{
+			"exchange":"bittrex",
+			"key":"a2",
+			"secret":"a3"
+		}
+	]
+}
+'
+```
