@@ -6,19 +6,22 @@ import java.util.Date;
  * create joonwoo 2018. 3. 22.
  * 
  */
-public class Algo {
+public class Strategy {
 
-    private String algoId;
+    private String id;
+    private String version;
+    private String name;
+    private Date createTime;
     private String userId;
     private String code;
-    private Date createTime;
+    private String options;
 
-    public String getAlgoId() {
-        return algoId;
+    public String getId() {
+        return id;
     }
 
-    public void setAlgoId(String algoId) {
-        this.algoId = algoId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getUserId() {
@@ -45,10 +48,34 @@ public class Algo {
         this.createTime = createTime;
     }
 
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getOptions() {
+        return options;
+    }
+
+    public void setOptions(String options) {
+        this.options = options;
+    }
+
     @Override
     public String toString() {
-        return "Algo{" +
-                "algoId='" + algoId + '\'' +
+        return "Strategy{" +
+                "id='" + id + '\'' +
                 ", userId='" + userId + '\'' +
                 ", code='" + code + '\'' +
                 ", createTime=" + createTime +

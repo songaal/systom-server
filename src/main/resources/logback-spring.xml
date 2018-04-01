@@ -21,6 +21,10 @@
 
     <logger name="org.springframework" level="INFO" additivity="false" />
 
+    <logger name="org.apache" level="INFO" additivity="false" />
+
+    <logger name="com.zaxxer" level="INFO" additivity="false" />
+
     <root level="debug">
         <appender-ref ref="STDOUT" />
         <appender-ref ref="systemlog" />

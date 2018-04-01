@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="strategy">
+
+    <select id="getStrategy" parameterType="Strategy" resultType="Strategy">
+        SELECT ID
+             , VERSION
+             , NAME
+             , USER_ID
+             , CREATE_TIME
+             , CODE
+             , OPTIONS
+          FROM strategy
+         WHERE 1=1
+        <choose>
+            <when test="id != null and id != ''">
+                and ID = #{id}
+            </when>
+            <when test="userId != null and userId != ''">
+                and USER_ID = #{userId}
+            </when>
+        </choose>
+    </select>
+
+    <insert id="insertStrategy" parameterType="Strategy">
+        INSERT INTO strategy(ID, VERSION, NAME, USER_ID, CREATE_TIME, CODE, OPTIONS)
+        values( #{id}
+              , #{version}
+              , #{name}
+              , #{userId}
+              , now()
+              , #{code}
+              , #{options}
+        )
+    </insert>
+
+    <update id="updateStrategy" parameterType="Strategy">
+        UPDATE strategy
+           SET CODE = #{code}
+             , OPTIONS = #{options}
+             , NAME = #{name}
+         WHERE id = #{id}
+    </update>
+
+    <delete id="deleteStrategy" parameterType="String">
+        DELETE strategy
+         WHERE id = #{id}
+    </delete>
+</mapper>

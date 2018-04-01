@@ -8,7 +8,8 @@
     </settings>
 
     <typeAliases>
-        <typeAlias alias="Algo" type="io.gncloud.coin.server.model.Algo"/>
+        <typeAlias alias="Strategy" type="io.gncloud.coin.server.model.Strategy"/>
+        <typeAlias alias="Agent" type="io.gncloud.coin.server.model.Task"/>
     </typeAliases>
 
 </configuration>

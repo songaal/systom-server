@@ -7,7 +7,7 @@
 
 - ## 알고리즘 소스 조회
 	- #### 경로
-		- /algos/{algoId} (GET)
+		- /algos/{id} (GET)
 	- #### 파라미터 
 	- 없음
 
@@ -26,7 +26,7 @@
  
 - ## 알고리즘 수정
 	- #### 경로
-		- /algos/{algoId} (PUT)
+		- /algos/{id} (PUT)
 	- #### 파라미터 
 		- code
  
@@ -35,7 +35,7 @@
 		- /tasks (POST)
 	- #### 파라미터 
 		- task
-		    - algoId
+		    - id
             - exchangeName
             - baseCurrency
             - capitalBase
@@ -80,7 +80,7 @@ curl -X POST \
   -H 'postman-token: 4ac09a3f-e265-5618-dfe4-fc8f5ac7c6c2' \
   -d '{
 	"task":{
-		"algoId":"a0b95b56-f015-4785-b950-917c12497afa",
+		"id":"a0b95b56-f015-4785-b950-917c12497afa",
 		"exchangeName":"poloniex",
 		"baseCurrency":"btc",
 		"capitalBase":"10000",
