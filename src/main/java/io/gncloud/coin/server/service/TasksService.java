@@ -34,7 +34,7 @@ public class TasksService {
     private AwsUtils awsUtils;
 
     @Autowired
-    private AuthService authService;
+    private IdentityService identityService;
 
     @Autowired
     private StrategyService strategyService;
@@ -56,7 +56,7 @@ public class TasksService {
         Strategy strategy = strategyService.getStrategy(token, requestTask.getTask().getStrategyId());
         isOptionValid(strategy.getOptions(), task.getOptions());
 
-        User user = authService.findTokenByUser(token);
+        User user = identityService.findTokenByUser(token);
         task.setUserId(user.getUserId());
         task.setId("test-" + UUID.randomUUID().toString());
 
