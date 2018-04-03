@@ -1,7 +1,5 @@
 package io.gncloud.coin.server.model;
 
-import java.util.List;
-
 /*
  * create joonwoo 2018. 3. 25.
  * 
@@ -9,7 +7,7 @@ import java.util.List;
 public class RequestTask {
 
     private Task task;
-    private List<ExchangeAuth> exchangeAuths;
+    private ExchangeAuth exchangeAuth;
 
     public Task getTask() {
         return task;
@@ -19,12 +17,12 @@ public class RequestTask {
         this.task = task;
     }
 
-    public List<ExchangeAuth> getExchangeAuths() {
-        return exchangeAuths;
+    public ExchangeAuth getExchangeAuth() {
+        return exchangeAuth;
     }
 
-    public void setExchangeAuths(List<ExchangeAuth> exchangeAuths) {
-        this.exchangeAuths = exchangeAuths;
+    public void setExchangeAuth(ExchangeAuth exchangeAuth) {
+        this.exchangeAuth = exchangeAuth;
     }
 
     public static class ExchangeAuth {

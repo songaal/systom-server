@@ -3,15 +3,12 @@ package io.gncloud.coin.server.api;
 import io.gncloud.coin.server.exception.AbstractException;
 import io.gncloud.coin.server.model.RequestTask;
 import io.gncloud.coin.server.model.Task;
-import io.gncloud.coin.server.service.AlgosService;
+import io.gncloud.coin.server.service.StrategyService;
 import io.gncloud.coin.server.service.TasksService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /*
  * create joonwoo 2018. 3. 21.
@@ -26,19 +23,19 @@ public class TasksController extends AbstractController{
     private TasksService taskService;
 
     @Autowired
-    private AlgosService algosService;
+    private StrategyService strategyService;
 
     @PostMapping
-    public ResponseEntity<?> createTask(@RequestBody RequestTask requestTask){
+    public ResponseEntity<?> createTask(@RequestHeader(name = "X-coincloud-user-id") String token, @RequestBody RequestTask requestTask){
         try{
             Task task = null;
             if(requestTask.getTask() != null && requestTask.getTask().isLive()){
-                task = taskService.liveMode(requestTask.getTask(), requestTask.getExchangeAuths());
+                task = taskService.liveMode(token, requestTask);
                 task.setStart("");
                 task.setEnd("");
                 task.setDataFrequency("");
             }else{
-                task = taskService.backTestMode(requestTask.getTask());
+                task = taskService.backTestMode(token, requestTask);
             }
             return success(task);
         } catch (AbstractException e){

@@ -8,46 +8,80 @@ package io.gncloud.coin.server.model;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 // ECS TASK RUN
 public class Task {
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(Task.class);
 
-    private String taskId;
-    private String userId;
+    private String id;
+    private String strategyId;
+    private String strategyVersion;
+    private String name;
+    private float revenue;
     private String exchangeName;
-    private String baseCurrency;
-    private float capitalBase;
+    private float startMoney;
+    private String currency;        //baseCurrency
+    private String coin;
+    private Date agent_time;
+    private String options;
+    private String state;
+    private String userId;
+    private String ecsTask;
+
     private boolean live = false;
     private boolean simulationOrder = true;
     private String start;
     private String end;
     private String dataFrequency;
-    private String algoId;
 
-    public String getAlgoId() {
-        return algoId;
+    public String getEcsTask() {
+        return ecsTask;
     }
 
-    public void setAlgoId(String algoId) {
-        this.algoId = algoId;
+    public void setEcsTask(String ecsTask) {
+        this.ecsTask = ecsTask;
     }
 
-    public String getTaskId() {
-        return taskId;
+    public String getId() {
+        return id;
     }
 
-    public void setTaskId(String taskId) {
-        this.taskId = taskId;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getStrategyId() {
+        return strategyId;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setStrategyId(String strategyId) {
+        this.strategyId = strategyId;
+    }
+
+    public String getStrategyVersion() {
+        return strategyVersion;
+    }
+
+    public void setStrategyVersion(String strategyVersion) {
+        this.strategyVersion = strategyVersion;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public float getRevenue() {
+        return revenue;
+    }
+
+    public void setRevenue(float revenue) {
+        this.revenue = revenue;
     }
 
     public String getExchangeName() {
@@ -58,20 +92,60 @@ public class Task {
         this.exchangeName = exchangeName;
     }
 
-    public String getBaseCurrency() {
-        return baseCurrency;
+    public float getStartMoney() {
+        return startMoney;
     }
 
-    public void setBaseCurrency(String baseCurrency) {
-        this.baseCurrency = baseCurrency;
+    public void setStartMoney(float startMoney) {
+        this.startMoney = startMoney;
     }
 
-    public float getCapitalBase() {
-        return capitalBase;
+    public String getCurrency() {
+        return currency;
     }
 
-    public void setCapitalBase(float capitalBase) {
-        this.capitalBase = capitalBase;
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
+    public String getCoin() {
+        return coin;
+    }
+
+    public void setCoin(String coin) {
+        this.coin = coin;
+    }
+
+    public Date getAgent_time() {
+        return agent_time;
+    }
+
+    public void setAgent_time(Date agent_time) {
+        this.agent_time = agent_time;
+    }
+
+    public String getOptions() {
+        return options;
+    }
+
+    public void setOptions(String options) {
+        this.options = options;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public boolean isLive() {
@@ -118,10 +192,10 @@ public class Task {
         List<String> cmd = new ArrayList<>();
         cmd.add("python3");
         cmd.add("run.py");
-        cmd.add(this.getAlgoId());
+        cmd.add(this.getStrategyId());
         cmd.add(this.getExchangeName());
-        cmd.add(this.getBaseCurrency());
-        cmd.add(String.valueOf(this.getCapitalBase()));
+        cmd.add(this.getCurrency());
+        cmd.add(String.valueOf(this.getStartMoney()));
         cmd.add(String.valueOf(this.isLive()));
         if(this.isLive()){
             cmd.add(String.valueOf(this.simulationOrder));

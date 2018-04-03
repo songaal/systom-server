@@ -20,8 +20,10 @@ aws:
 
 
 spring:
+  devtools:
+    livereload: true
   datasource:
-    url: "jdbc:mysql://gncloudinstance.cygcygiwvnc8.ap-northeast-2.rds.amazonaws.com:3306/coincloud"
+    url: "jdbc:mysql://gncloudinstance.cygcygiwvnc8.ap-northeast-2.rds.amazonaws.com:3306/coincloud?useUnicode=true&characterEncoding=utf8"
     username: "gncloud"
     password: "gnc=1151"
     driver-class-name: "com.mysql.jdbc.Driver"
