@@ -31,7 +31,6 @@ dependencies {
 //    compile group: 'com.amazonaws', name: 'aws-java-sdk-cognitoidentity', version: '1.11.300'
     compile 'com.amazonaws:aws-java-sdk:1.11.232'
     compile 'com.amazonaws:aws-java-sdk-kinesis:1.11.232'
-    compile 'com.amazonaws:amazon-kinesis-client:1.9.0'
 
     compile group: 'mysql', name: 'mysql-connector-java', version: '6.0.6'
     compile("org.mybatis.spring.boot:mybatis-spring-boot-starter:1.1.1")

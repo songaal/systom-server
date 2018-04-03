@@ -6,12 +6,14 @@ import com.google.gson.Gson;
 import io.gncloud.coin.server.exception.AuthenticationException;
 import io.gncloud.coin.server.exception.OperationException;
 import io.gncloud.coin.server.exception.ParameterException;
+import io.gncloud.coin.server.model.Strategy;
 import io.gncloud.coin.server.model.Task;
 import io.gncloud.coin.server.model.RequestTask;
-import io.gncloud.coin.server.model.Strategy;
 import io.gncloud.coin.server.utils.AwsUtils;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.web.ResourceProperties;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -27,7 +29,7 @@ import java.util.Map;
 @Service
 public class TasksService {
 
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(TasksService.class);
+    private static Logger logger = LoggerFactory.getLogger(TasksService.class);
 
     @Resource(name = "awsUtils")
     private AwsUtils awsUtils;
