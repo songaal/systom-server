@@ -41,8 +41,8 @@
             - capitalBase
             - live
             - simulationOrder
-            - start
-            - end
+            - startTime
+            - endTime
             - dataFrequency
         - exchangeAuths [array type]
             - exchange

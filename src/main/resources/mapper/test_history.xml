@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="test">
+
+    <insert id="insertTestHistory" parameterType="Task">
+        INSERT INTO test_history
+        (id,
+        strategy_id,
+        strategy_version,
+        test_time,
+        exchange_name,
+        coin,
+        start_time,
+        end_time,
+        user_id,
+        ecs_task)
+        VALUES
+        ( #{id}
+        , #{strategyId}
+        , #{strategyVersion}
+        , now()
+        , #{exchangeName,jdbcType=VARCHAR}
+        , #{coin}
+        , #{startTime,jdbcType=VARCHAR}
+        , #{endTime,jdbcType=VARCHAR}
+        , #{userId}
+        , #{ecsTask,jdbcType=VARCHAR}
+        )
+    </insert>
+
+
+
+</mapper>
