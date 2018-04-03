@@ -6,10 +6,12 @@ import com.google.gson.Gson;
 import io.gncloud.coin.server.exception.AuthenticationException;
 import io.gncloud.coin.server.exception.OperationException;
 import io.gncloud.coin.server.exception.ParameterException;
+import io.gncloud.coin.server.model.RequestTask;
 import io.gncloud.coin.server.model.Strategy;
 import io.gncloud.coin.server.model.Task;
-import io.gncloud.coin.server.model.RequestTask;
+import io.gncloud.coin.server.model.User;
 import io.gncloud.coin.server.utils.AwsUtils;
+import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +19,7 @@ import org.springframework.boot.autoconfigure.web.ResourceProperties;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /*
  * create joonwoo 2018. 3. 21.
@@ -40,6 +39,9 @@ public class TasksService {
     @Autowired
     private StrategyService strategyService;
 
+    @Autowired
+    private SqlSession sqlSession;
+
     public Task backTestMode(String token, RequestTask requestTask) throws ParameterException, AuthenticationException, OperationException {
         Task task = requestTask.getTask();
 
@@ -48,15 +50,29 @@ public class TasksService {
         isNull(task.getCurrency(), "Currency");
         isNull(task.getStartMoney(), "StartMoney");
         isNull(task.getDataFrequency(), "dataFrequency");
-        isNull(task.getStart(), "start");
-        isNull(task.getEnd(), "end");
+        isNull(task.getStartTime(), "start");
+        isNull(task.getEndTime(), "end");
 
         Strategy strategy = strategyService.getStrategy(token, requestTask.getTask().getStrategyId());
         isOptionValid(strategy.getOptions(), task.getOptions());
 
+        User user = authService.findTokenByUser(token);
+        task.setUserId(user.getUserId());
+        task.setId("test-" + UUID.randomUUID().toString());
+
         logger.debug("[ BACK TEST ] RUN {}", task);
         RunTaskResult result = awsUtils.runTask(task);
         task.setEcsTask(result.getTasks().get(0).getTaskArn().split("/")[1]);
+
+        try {
+            int resultCount = sqlSession.insert("test.insertTestHistory", task);
+            if(resultCount != 1){
+                throw new OperationException("[FAIL] Insert Failed Test History. result count: " + result);
+            }
+        } catch (Throwable t){
+            logger.error("", t);
+            throw new OperationException("[FAIL] Insert Test History");
+        }
 
         return task;
     }

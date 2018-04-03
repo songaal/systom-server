@@ -29,12 +29,13 @@ public class TasksController extends AbstractController{
     public ResponseEntity<?> createTask(@RequestHeader(name = "X-coincloud-user-id") String token, @RequestBody RequestTask requestTask){
         try{
             Task task = null;
-            if(requestTask.getTask() != null && requestTask.getTask().isLive()){
+            if(requestTask.getTask() != null && false){
                 task = taskService.liveMode(token, requestTask);
-                task.setStart("");
-                task.setEnd("");
+                task.setStartTime("");
+                task.setEndTime("");
                 task.setDataFrequency("");
             }else{
+                logger.debug("task: {}", requestTask.getTask());
                 task = taskService.backTestMode(token, requestTask);
             }
             return success(task);

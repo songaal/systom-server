@@ -8,7 +8,6 @@ package io.gncloud.coin.server.model;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 // ECS TASK RUN
@@ -16,24 +15,26 @@ public class Task {
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(Task.class);
 
     private String id;
+    private String name;
     private String strategyId;
     private String strategyVersion;
-    private String name;
-    private float revenue;
+    private String options;
+    private String userId;
+
     private String exchangeName;
     private float startMoney;
-    private String currency;        //baseCurrency
+    private String currency;
     private String coin;
-    private Date agent_time;
-    private String options;
-    private String state;
-    private String userId;
-    private String ecsTask;
 
+    private String state;
+    private float revenue;
+
+    private String ecsTask;
     private boolean live = false;
+
     private boolean simulationOrder = true;
-    private String start;
-    private String end;
+    private String startTime;
+    private String endTime;
     private String dataFrequency;
 
     public String getEcsTask() {
@@ -116,14 +117,6 @@ public class Task {
         this.coin = coin;
     }
 
-    public Date getAgent_time() {
-        return agent_time;
-    }
-
-    public void setAgent_time(Date agent_time) {
-        this.agent_time = agent_time;
-    }
-
     public String getOptions() {
         return options;
     }
@@ -164,20 +157,20 @@ public class Task {
         this.simulationOrder = simulationOrder;
     }
 
-    public String getStart() {
-        return start;
+    public String getStartTime() {
+        return startTime;
     }
 
-    public void setStart(String start) {
-        this.start = start;
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
     }
 
-    public String getEnd() {
-        return end;
+    public String getEndTime() {
+        return endTime;
     }
 
-    public void setEnd(String end) {
-        this.end = end;
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
     }
 
     public String getDataFrequency() {
@@ -200,8 +193,8 @@ public class Task {
         if(this.isLive()){
             cmd.add(String.valueOf(this.simulationOrder));
         }else{
-            cmd.add(this.getStart());
-            cmd.add(this.getEnd());
+            cmd.add(this.getStartTime());
+            cmd.add(this.getEndTime());
             cmd.add(this.getDataFrequency());
         }
         logger.debug("request Parameter >> {}", cmd);
