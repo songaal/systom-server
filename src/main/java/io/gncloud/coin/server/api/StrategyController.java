@@ -2,7 +2,7 @@ package io.gncloud.coin.server.api;
 
 import io.gncloud.coin.server.exception.AbstractException;
 import io.gncloud.coin.server.model.Strategy;
-import io.gncloud.coin.server.service.AuthService;
+import io.gncloud.coin.server.service.IdentityService;
 import io.gncloud.coin.server.service.StrategyService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ public class StrategyController extends AbstractController{
     private StrategyService strategyService;
 
     @Autowired
-    private AuthService authService;
+    private IdentityService identityService;
 
     @GetMapping("/me")
     public ResponseEntity<?> getStrategyList(@RequestHeader(name = "X-coincloud-user-id") String token) {

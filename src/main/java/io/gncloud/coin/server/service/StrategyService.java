@@ -26,11 +26,11 @@ public class StrategyService {
     private SqlSession sqlSession;
 
     @Autowired
-    private AuthService authService;
+    private IdentityService identityService;
 
     public Strategy insertStrategy(String token, Strategy createStrategy) throws OperationException, ParameterException, AuthenticationException {
 
-        createStrategy.setUserId(authService.findTokenByUser(token).getUserId());
+        createStrategy.setUserId(identityService.findTokenByUser(token).getUserId());
 
         isNull(createStrategy.getUserId(), "userId");
         isNull(createStrategy.getCode(), "code");
@@ -73,7 +73,7 @@ public class StrategyService {
             throw new OperationException("[FAIL] Update Failed Strategy");
         }
 
-        User user = authService.findTokenByUser(token);
+        User user = identityService.findTokenByUser(token);
         if(!registerStrategy.getUserId().equals(user.getUserId())){
             throw new AuthenticationException("You do not have permission.");
         }
@@ -81,7 +81,7 @@ public class StrategyService {
     }
 
     public List<Strategy> findTokenByStrategy(String token) throws ParameterException, OperationException {
-        String userId = authService.findTokenByUser(token).getUserId();
+        String userId = identityService.findTokenByUser(token).getUserId();
 
         Strategy findStrategy = new Strategy();
         findStrategy.setUserId(userId);
@@ -101,7 +101,7 @@ public class StrategyService {
         isNull(strategy.getCode(), "code");
         isNull(strategy.getOptions(), "options");
 
-        User user = authService.findTokenByUser(token);
+        User user = identityService.findTokenByUser(token);
         Strategy registerStrategy = getStrategy(token, strategy.getId());
 
         if(!registerStrategy.getUserId().equals(user.getUserId())){

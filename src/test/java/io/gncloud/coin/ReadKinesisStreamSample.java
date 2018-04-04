@@ -1,9 +1,8 @@
-package io.gncloud.coin.server.kinesis;
+package io.gncloud.coin;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.kinesis.AmazonKinesis;
-import com.amazonaws.services.kinesis.AmazonKinesisClient;
 import com.amazonaws.services.kinesis.AmazonKinesisClientBuilder;
 import com.amazonaws.services.kinesis.model.*;
 import org.slf4j.Logger;
@@ -11,9 +10,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-public class ReadStreamSample {
+public class ReadKinesisStreamSample {
 
-    private static Logger logger = LoggerFactory.getLogger(ReadStreamSample.class);
+    private static Logger logger = LoggerFactory.getLogger(ReadKinesisStreamSample.class);
 
     private static ProfileCredentialsProvider credentialsProvider;
 
@@ -22,7 +21,7 @@ public class ReadStreamSample {
         String streamName = "order_stream";
         String shardId = "shard-000000000000";
         int limit = 1000;
-        ReadStreamSample sample = new ReadStreamSample();
+        ReadKinesisStreamSample sample = new ReadKinesisStreamSample();
         sample.read(region, streamName, shardId, limit);
     }
 
@@ -50,9 +49,8 @@ public class ReadStreamSample {
                 .build();
 
 
-
-        String recordSequenceNumber = "49583187797881247211893756636239162007126231214234533890";
-        //todo recordSequenceNumber 를 파일에서 로드한다.
+        //recordSequenceNumber 를 저장소에서 로드한다.
+        String recordSequenceNumber = loadLastSequenceNumber(streamName, shardId);
 
         GetShardIteratorRequest getShardIteratorRequest = new GetShardIteratorRequest();
         getShardIteratorRequest.setStreamName(streamName);
@@ -79,16 +77,17 @@ public class ReadStreamSample {
             for (Record record : records) {
                 logger.info("########### {}", record);
                 recordSequenceNumber = record.getSequenceNumber();
-                //todo websocket으로 보낸다.
-                //todo db에 입력한다.
+                //websocket으로 보낸다.
+                sendToWebsocketData(record);
+                //db에 입력한다.
+                saveToDatabase(record);
             }
-
 
             if (records.size() > 0) {
                 shardIterator = getRecordsResult.getNextShardIterator();
-                //todo 서버 다운에 대비해 recordSequenceNumber 를 저장해놓는다.
+                //서버 다운에 대비해 recordSequenceNumber 를 저장해놓는다.
+                saveLastSequenceNumber(streamName, shardId, recordSequenceNumber);
                 logger.info("## Save sequence [{}]", recordSequenceNumber);
-
             } else {
                 shardIterator = null;
             }
@@ -100,6 +99,25 @@ public class ReadStreamSample {
             }
 
         }
+    }
+
+    private void saveToDatabase(Record record) {
+        record.getData();
+    }
+
+    private void sendToWebsocketData(Record record) {
+
+    }
+
+    private void saveLastSequenceNumber(String streamName, String shardId, String sequenceNumber) {
+
+    }
+
+
+    private String loadLastSequenceNumber(String streamName, String shardId) {
+
+//        "49583187797881247211893756636239162007126231214234533890"
+        return null;
     }
 
 }
