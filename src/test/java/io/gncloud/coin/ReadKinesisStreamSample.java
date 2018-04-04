@@ -176,7 +176,8 @@ public class ReadKinesisStreamSample {
     }
 
     private void saveToDatabase(Record record) {
-        record.getData();
+        ByteBuffer byteBuffer = record.getData();
+        logger.debug("##### data > {}", new String(byteBuffer.array()));
     }
 
     private void sendToWebsocketData(Record record) {

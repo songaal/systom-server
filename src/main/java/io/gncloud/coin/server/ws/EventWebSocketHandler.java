@@ -1,7 +1,6 @@
 package io.gncloud.coin.server.ws;
 
 import com.google.gson.Gson;
-import io.gncloud.coin.server.model.WsMessage;
 import io.gncloud.coin.server.service.IdentityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,21 +36,22 @@ public class EventWebSocketHandler extends TextWebSocketHandler {
         //TODO unsubscribe 연결 종료 처리
         logger.debug("메시지 수신 : {}", message.getPayload());
 
-        WsMessage wsMessage = gson.fromJson(message.getPayload(), WsMessage.class);
-        if(wsMessage == null || wsMessage.getType() == null){
+        CandleMessage candleMessage = gson.fromJson(message.getPayload(), CandleMessage.class);
+        if(candleMessage == null || candleMessage.getType() == null){
             failMessage(session, "invalid Request");
             return;
         }
 
-        switch (wsMessage.getType()){
+        switch (candleMessage.getType()){
             case fetch:
                 //TODO 코인,인터벌의 시작시간, 종료시간 또는 시작시간 으로 초기 데이터용
                 session.sendMessage(new TextMessage("fetch data!!"));
                 break;
             case subscribe:
-                addedSubscriberMap(session, wsMessage);
+                addedSubscriberMap(session, candleMessage);
+                break;
             case unSubscribe:
-                removeSubscribe(session, wsMessage);
+                removeSubscribe(session, candleMessage);
                 break;
         }
 
@@ -71,8 +71,8 @@ public class EventWebSocketHandler extends TextWebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         Iterator<Map.Entry<String, ConcurrentSkipListSet<WebSocketSessionInfo>>> entryIterator =  subscriberMap.entrySet().iterator();
         while(entryIterator.hasNext()){
-            Map.Entry<String, ConcurrentSkipListSet<WebSocketSessionInfo>> entiry = entryIterator.next();
-            Iterator<WebSocketSessionInfo> iterator = entiry.getValue().iterator();
+            Map.Entry<String, ConcurrentSkipListSet<WebSocketSessionInfo>> entry = entryIterator.next();
+            Iterator<WebSocketSessionInfo> iterator = entry.getValue().iterator();
             while(iterator.hasNext()){
                 WebSocketSessionInfo sessionInfo = iterator.next();
                 if(sessionInfo.getSessionId().equals(session.getId())){
@@ -84,8 +84,8 @@ public class EventWebSocketHandler extends TextWebSocketHandler {
     }
 
     // 연결 추가
-    private void addedSubscriberMap(WebSocketSession session, WsMessage wsMessage){
-        String key = PathKey.getKey(wsMessage);
+    private void addedSubscriberMap(WebSocketSession session, CandleMessage candleMessage){
+        String key = PathKey.getKey(candleMessage);
         ConcurrentSkipListSet<WebSocketSessionInfo> sessionInfoConcurrentSkipListSet = subscriberMap.get(key);
         if(sessionInfoConcurrentSkipListSet == null){
             sessionInfoConcurrentSkipListSet = new ConcurrentSkipListSet<>();
@@ -95,7 +95,7 @@ public class EventWebSocketHandler extends TextWebSocketHandler {
     }
 
     // 삭제 대기 추가.
-    private void removeSubscribe(WebSocketSession session, WsMessage wsMessage){
+    private void removeSubscribe(WebSocketSession session, CandleMessage wsMessage){
         String key = PathKey.getKey(wsMessage);
         ConcurrentSkipListSet<WebSocketSessionInfo> subScribeList = getSubscribeList(key);
         subScribeList.remove(getWebSocketSessionInfo(subScribeList, session));

@@ -1,10 +1,7 @@
 package io.gncloud.coin.server.ws;
 
 
-import io.gncloud.coin.server.model.WsMessage;
-
 public class PathKey {
-
 
     public static String getKey(String market, String base, String coin, String interval) {
         String key = new String();
@@ -26,7 +23,7 @@ public class PathKey {
         return key.toLowerCase();
     }
 
-    public static String getKey(WsMessage wsMessage){
+    public static String getKey(CandleMessage wsMessage){
         return getKey(wsMessage.getMarket(), wsMessage.getBase(), wsMessage.getCoin(), wsMessage.getInterval());
     }
 }
