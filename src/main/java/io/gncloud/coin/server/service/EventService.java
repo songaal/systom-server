@@ -3,6 +3,9 @@ package io.gncloud.coin.server.service;
 import com.amazonaws.services.kinesis.AmazonKinesis;
 import com.amazonaws.services.kinesis.AmazonKinesisClientBuilder;
 import com.amazonaws.services.kinesis.model.*;
+import com.google.gson.Gson;
+import io.gncloud.coin.server.model.EventMetadata;
+import io.gncloud.coin.server.ws.EventWebSocketHandler;
 import io.gncloud.coin.server.ws.WebSocketSessionInfo;
 import io.gncloud.coin.server.ws.WebSocketSessionInfoSet;
 import org.slf4j.Logger;
@@ -43,6 +46,8 @@ public class EventService {
 
     private Map<String, WebSocketSessionInfoSet> websocketSubscriberMap;
 
+    private Gson gson = new Gson();
+
     @PostConstruct
     public void init() {
         client = AmazonKinesisClientBuilder.standard()
@@ -59,7 +64,7 @@ public class EventService {
     }
 
     String lastShardIterator = null;
-    @Scheduled(fixedDelay= 10000)
+    @Scheduled(fixedDelay= 1000)
     public void scheduled() {
         try {
             if(shardIterator != lastShardIterator) {
@@ -127,19 +132,20 @@ public class EventService {
     private void sendToWebsocketData(Record record) {
         //TODO
 
-        String key = "user-strategy-testId";
-        String jsonData = "{}";
+        String key = null;
+        String jsonData = new String(record.getData().array());
+
+        EventMetadata eventMetadata = gson.fromJson(jsonData, EventMetadata.class);
+        if(eventMetadata.getArena().equals("backtest")) {
+            key = EventWebSocketHandler.KEY_PREFIX_BACKTEST + eventMetadata.getUser() + "_" + eventMetadata.getStarategyId() + "_" + eventMetadata.getTestId();
+        } else {
+            key = EventWebSocketHandler.KEY_PREFIX_AGENT + eventMetadata.getUser() + "_" + eventMetadata.getAgentId();
+        }
         TextMessage message = new TextMessage(jsonData);
         WebSocketSessionInfoSet infoSet = websocketSubscriberMap.get(key);
 
         if(infoSet != null) {
-            for (WebSocketSessionInfo session : infoSet) {
-                try {
-                    session.getSession().sendMessage(message);
-                } catch (IOException e) {
-                    logger.error("", e);
-                }
-            }
+            infoSet.sendTextMessage(message);
         } else {
             logger.debug("New record found, but websocket is not connected. {}", key);
         }

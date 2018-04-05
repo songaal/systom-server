@@ -21,8 +21,8 @@ public class EventWebSocketHandler extends TextWebSocketHandler {
     private static final String PATH_BACKTEST = "/test";
     private static final String PATH_AGENT = "/agent";
 
-    private static final String KEY_PREFIX_BACKTEST = "t_";
-    private static final String KEY_PREFIX_AGENT = "a_";
+    public static final String KEY_PREFIX_BACKTEST = "t_";
+    public static final String KEY_PREFIX_AGENT = "a_";
 
     private Gson gson;
     private IdentityService identityService;
@@ -52,9 +52,12 @@ public class EventWebSocketHandler extends TextWebSocketHandler {
             key = KEY_PREFIX_BACKTEST + path.substring(PATH_BACKTEST.length() + 1);
         }
 
-        WebSocketSessionInfoSet value = new WebSocketSessionInfoSet();
+        WebSocketSessionInfoSet value = subscriberMap.get(key);
+        if(value == null) {
+            value = new WebSocketSessionInfoSet();
+            subscriberMap.put(key, value);
+        }
         value.add(new WebSocketSessionInfo(session));
-        subscriberMap.put(key, value);
     }
 
     /**
