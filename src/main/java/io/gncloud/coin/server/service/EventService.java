@@ -1,10 +1,10 @@
 package io.gncloud.coin.server.service;
 
-import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.kinesis.AmazonKinesis;
 import com.amazonaws.services.kinesis.AmazonKinesisClientBuilder;
 import com.amazonaws.services.kinesis.model.*;
 import io.gncloud.coin.server.ws.WebSocketSessionInfo;
+import io.gncloud.coin.server.ws.WebSocketSessionInfoSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,30 +25,27 @@ public class EventService {
 
     private static Logger logger = LoggerFactory.getLogger(EventService.class);
 
-    private static ProfileCredentialsProvider credentialsProvider;
-
     @Autowired
     private IdentityService identityService;
 
-    @Value("${stream.region}")
+    @Value("${aws.stream.region}")
     private String region = "ap-northeast-2";
-    @Value("${stream.name}")
+    @Value("${aws.stream.name}")
     private String streamName = "order_stream";
-    @Value("${stream.shardName}")
+    @Value("${aws.stream.shardId}")
     private String shardId = "shard-000000000000";
-    @Value("${stream.limit}")
+    @Value("${aws.stream.limit}")
     private int limit = 1000;
 
     private AmazonKinesis client;
     private String shardIterator;
     private String recordSequenceNumber;
 
-    private Map<String, ConcurrentSkipListSet<WebSocketSessionInfo>> websocketSubscriberMap;
+    private Map<String, WebSocketSessionInfoSet> websocketSubscriberMap;
 
     @PostConstruct
     public void init() {
         client = AmazonKinesisClientBuilder.standard()
-                .withCredentials(credentialsProvider)
                 .withRegion(region)
                 .build();
 
@@ -61,10 +58,15 @@ public class EventService {
         websocketSubscriberMap = identityService.getSubscriberMap();
     }
 
-    @Scheduled(fixedDelay= 3000)
+    String lastShardIterator = null;
+    @Scheduled(fixedDelay= 10000)
     public void scheduled() {
         try {
-            logger.debug("#### shardIterator : {}", shardIterator);
+            if(shardIterator != lastShardIterator) {
+                logger.debug("#### check record by shardIterator : {}", shardIterator);
+            }
+            lastShardIterator = shardIterator;
+
             GetRecordsRequest getRecordsRequest = new GetRecordsRequest();
             getRecordsRequest.setShardIterator(shardIterator);
             getRecordsRequest.setLimit(limit);
@@ -128,14 +130,18 @@ public class EventService {
         String key = "user-strategy-testId";
         String jsonData = "{}";
         TextMessage message = new TextMessage(jsonData);
-        ConcurrentSkipListSet<WebSocketSessionInfo> list = websocketSubscriberMap.get(key);
+        WebSocketSessionInfoSet infoSet = websocketSubscriberMap.get(key);
 
-        for(WebSocketSessionInfo session : list) {
-            try {
-                session.getSession().sendMessage(message);
-            } catch (IOException e) {
-                logger.error("", e);
+        if(infoSet != null) {
+            for (WebSocketSessionInfo session : infoSet) {
+                try {
+                    session.getSession().sendMessage(message);
+                } catch (IOException e) {
+                    logger.error("", e);
+                }
             }
+        } else {
+            logger.debug("New record found, but websocket is not connected. {}", key);
         }
     }
 
