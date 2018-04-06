@@ -1,7 +1,6 @@
 package io.gncloud.coin.server.ws;
 
 import com.google.gson.Gson;
-import io.gncloud.coin.server.model.WsMessage;
 import io.gncloud.coin.server.service.IdentityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,9 +18,15 @@ import java.util.concurrent.ConcurrentSkipListSet;
 public class EventWebSocketHandler extends TextWebSocketHandler {
     private Logger logger = LoggerFactory.getLogger(EventWebSocketHandler.class);
 
+    private static final String PATH_BACKTEST = "/test";
+    private static final String PATH_AGENT = "/agent";
+
+    public static final String KEY_PREFIX_BACKTEST = "t_";
+    public static final String KEY_PREFIX_AGENT = "a_";
+
     private Gson gson;
     private IdentityService identityService;
-    private Map<String, ConcurrentSkipListSet<io.gncloud.coin.server.ws.WebSocketSessionInfo>> subscriberMap;
+    private Map<String, WebSocketSessionInfoSet> subscriberMap;
 
     private EventWebSocketHandler(){}
 
@@ -33,46 +38,39 @@ public class EventWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        //TODO subscribe 연결 및 라스트 데이터 전송
-        //TODO unsubscribe 연결 종료 처리
-        logger.debug("메시지 수신 : {}", message.getPayload());
-
-        WsMessage wsMessage = gson.fromJson(message.getPayload(), WsMessage.class);
-        if(wsMessage == null || wsMessage.getType() == null){
-            failMessage(session, "invalid Request");
-            return;
-        }
-
-        switch (wsMessage.getType()){
-            case fetch:
-                //TODO 코인,인터벌의 시작시간, 종료시간 또는 시작시간 으로 초기 데이터용
-                session.sendMessage(new TextMessage("fetch data!!"));
-                break;
-            case subscribe:
-                addedSubscriberMap(session, wsMessage);
-            case unSubscribe:
-                removeSubscribe(session, wsMessage);
-                break;
-        }
-
-//        참고용
-//        session.getAttributes();
-//        subscriberMap.put("channel", set);
-//        set.add(pathKey);
-
+       // 전송메시지는 무시한다.
     }
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        // TODO [사용안함] 메시지를 통해 세션 저장 할것임.
+        logger.debug("Websocket connected. Id:{}, Uri:{}, Object:{}", session.getId(), session.getUri(), session);
+        String path = session.getUri().getPath();
+        String key = null;
+        if(path.startsWith(PATH_AGENT)) {
+            key = KEY_PREFIX_AGENT + path.substring(PATH_AGENT.length() + 1);
+        } else if(path.startsWith(PATH_BACKTEST)) {
+            key = KEY_PREFIX_BACKTEST + path.substring(PATH_BACKTEST.length() + 1);
+        }
+
+        WebSocketSessionInfoSet value = subscriberMap.get(key);
+        if(value == null) {
+            value = new WebSocketSessionInfoSet();
+            subscriberMap.put(key, value);
+        }
+        value.add(new WebSocketSessionInfo(session));
     }
 
+    /**
+     * @param session
+     * @param status
+     * @throws Exception
+     */
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        Iterator<Map.Entry<String, ConcurrentSkipListSet<WebSocketSessionInfo>>> entryIterator =  subscriberMap.entrySet().iterator();
+        Iterator<Map.Entry<String, WebSocketSessionInfoSet>> entryIterator =  subscriberMap.entrySet().iterator();
         while(entryIterator.hasNext()){
-            Map.Entry<String, ConcurrentSkipListSet<WebSocketSessionInfo>> entiry = entryIterator.next();
-            Iterator<WebSocketSessionInfo> iterator = entiry.getValue().iterator();
+            Map.Entry<String, WebSocketSessionInfoSet> entry = entryIterator.next();
+            Iterator<WebSocketSessionInfo> iterator = entry.getValue().iterator();
             while(iterator.hasNext()){
                 WebSocketSessionInfo sessionInfo = iterator.next();
                 if(sessionInfo.getSessionId().equals(session.getId())){
@@ -80,24 +78,28 @@ public class EventWebSocketHandler extends TextWebSocketHandler {
                     logger.debug("세션 객체 삭제. 세션 아이디 : {}, ", session.getId());
                 }
             }
+            if(entry.getValue().size() == 0) {
+                entryIterator.remove();
+                logger.debug("세션집합 객체 삭제. 키 : {}, ", entry.getKey());
+            }
         }
     }
 
     // 연결 추가
-    private void addedSubscriberMap(WebSocketSession session, WsMessage wsMessage){
-        String key = PathKey.getKey(wsMessage);
-        ConcurrentSkipListSet<WebSocketSessionInfo> sessionInfoConcurrentSkipListSet = subscriberMap.get(key);
-        if(sessionInfoConcurrentSkipListSet == null){
-            sessionInfoConcurrentSkipListSet = new ConcurrentSkipListSet<>();
+    private void addedSubscriberMap(WebSocketSession session, CandleMessage candleMessage){
+        String key = PathKey.getKey(candleMessage);
+        WebSocketSessionInfoSet webSocketSessionInfoSet = subscriberMap.get(key);
+        if(webSocketSessionInfoSet == null){
+            webSocketSessionInfoSet = new WebSocketSessionInfoSet();
         }
-        sessionInfoConcurrentSkipListSet.add(new WebSocketSessionInfo(session));
+        webSocketSessionInfoSet.add(new WebSocketSessionInfo(session));
         logger.info("New Session added {}. Path: {}", session.getId(), key);
     }
 
     // 삭제 대기 추가.
-    private void removeSubscribe(WebSocketSession session, WsMessage wsMessage){
+    private void removeSubscribe(WebSocketSession session, CandleMessage wsMessage){
         String key = PathKey.getKey(wsMessage);
-        ConcurrentSkipListSet<WebSocketSessionInfo> subScribeList = getSubscribeList(key);
+        WebSocketSessionInfoSet subScribeList = getSubscribeList(key);
         subScribeList.remove(getWebSocketSessionInfo(subScribeList, session));
         logger.info("Remove Wait Session {}. Path: {}", session, PathKey.getKey(wsMessage));
     }
@@ -112,12 +114,12 @@ public class EventWebSocketHandler extends TextWebSocketHandler {
     }
 
     // key에 따른 세션 목록 가져오기
-    public ConcurrentSkipListSet<WebSocketSessionInfo> getSubscribeList(String key){
-        Set<Map.Entry<String, ConcurrentSkipListSet<WebSocketSessionInfo>>> subscribeSet = subscriberMap.entrySet();
-        Iterator<Map.Entry<String, ConcurrentSkipListSet<WebSocketSessionInfo>>> iterator = subscribeSet.iterator();
-        ConcurrentSkipListSet<WebSocketSessionInfo> tmpSubscribeSet = null;
+    public WebSocketSessionInfoSet getSubscribeList(String key){
+        Set<Map.Entry<String, WebSocketSessionInfoSet>> subscribeSet = subscriberMap.entrySet();
+        Iterator<Map.Entry<String, WebSocketSessionInfoSet>> iterator = subscribeSet.iterator();
+        WebSocketSessionInfoSet tmpSubscribeSet = null;
         while(iterator.hasNext()){
-            Map.Entry<String, ConcurrentSkipListSet<WebSocketSessionInfo>> subscribe = iterator.next();
+            Map.Entry<String, WebSocketSessionInfoSet> subscribe = iterator.next();
             if(key.equals(subscribe.getKey())){
                 tmpSubscribeSet = subscribe.getValue();
                 break;
@@ -126,8 +128,8 @@ public class EventWebSocketHandler extends TextWebSocketHandler {
         return tmpSubscribeSet;
     }
 
-    private WebSocketSessionInfo getWebSocketSessionInfo(ConcurrentSkipListSet<WebSocketSessionInfo> WebSocketSessionInfoSet, WebSocketSession session){
-        Iterator<WebSocketSessionInfo> sessionInfoIterator = WebSocketSessionInfoSet.iterator();
+    private WebSocketSessionInfo getWebSocketSessionInfo(WebSocketSessionInfoSet webSocketSessionInfoSet, WebSocketSession session){
+        Iterator<WebSocketSessionInfo> sessionInfoIterator = webSocketSessionInfoSet.iterator();
         WebSocketSessionInfo resultSessionInfo = null;
         while(sessionInfoIterator.hasNext()){
             WebSocketSessionInfo tmpWebSocketSessionInfo = sessionInfoIterator.next();

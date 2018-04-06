@@ -1,10 +1,10 @@
-package io.gncloud.coin.server.model;
+package io.gncloud.coin.server.ws;
 
 /*
  * create joonwoo 2018. 3. 6.
  *
  */
-public class WsMessage {
+public class CandleMessage {
 
     public enum TYPE {subscribe, unSubscribe, fetch}
 

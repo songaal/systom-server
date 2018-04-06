@@ -25,6 +25,8 @@
 
     <logger name="com.zaxxer" level="INFO" additivity="false" />
 
+    <logger name="com.amazonaws" level="INFO" additivity="false" />
+
     <root level="debug">
         <appender-ref ref="STDOUT" />
         <appender-ref ref="systemlog" />

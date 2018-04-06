@@ -12,11 +12,16 @@ aws:
       name: "tradebot"
       version: "6"
       container: "tradebot"
-  congnito:
-    poolId:
-    clientappId:
-    fedPoolId:
-    customDomain:
+  cognito:
+    poolId: ""
+    clientappId: ""
+    fedPoolId: ""
+    customDomain: ""
+  stream:
+    region: "ap-northeast-2"
+    name: "order_stream"
+    shardId: "shard-000000000000"
+    limit: 1000
 
 
 spring:
@@ -26,5 +31,5 @@ spring:
     url: "jdbc:mysql://gncloudinstance.cygcygiwvnc8.ap-northeast-2.rds.amazonaws.com:3306/coincloud?useUnicode=true&characterEncoding=utf8"
     username: "gncloud"
     password: "gnc=1151"
-    driver-class-name: "com.mysql.jdbc.Driver"
+    driver-class-name: "com.mysql.cj.jdbc.Driver"
 

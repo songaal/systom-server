@@ -3,28 +3,24 @@ package io.gncloud.coin.server.service;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.AnonymousAWSCredentials;
 import com.amazonaws.regions.Regions;
-import com.amazonaws.services.cognitoidentity.model.Credentials;
-import com.amazonaws.services.cognitoidentity.model.GetIdRequest;
-import com.amazonaws.services.cognitoidentity.model.GetIdResult;
 import com.amazonaws.services.cognitoidp.AWSCognitoIdentityProvider;
 import com.amazonaws.services.cognitoidp.AWSCognitoIdentityProviderClientBuilder;
 import com.amazonaws.services.cognitoidp.model.*;
 import io.gncloud.coin.server.model.User;
 import io.gncloud.coin.server.utils.CredentialsCache;
 import io.gncloud.coin.server.utils.StringUtils;
-import io.gncloud.coin.server.ws.WebSocketSessionInfo;
+import io.gncloud.coin.server.ws.WebSocketSessionInfoSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import javax.servlet.http.Cookie;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 권한, 인증 및 세션 관리 서비스
@@ -33,28 +29,27 @@ import java.util.concurrent.ConcurrentSkipListSet;
 public class IdentityService {
     private static Logger logger = LoggerFactory.getLogger(IdentityService.class);
 
-
-
     //웹소켓
-    private Map<String, ConcurrentSkipListSet<WebSocketSessionInfo>> subscriberMap;
+    private Map<String, WebSocketSessionInfoSet> subscriberMap;
 
     //토큰 캐시.
     private CredentialsCache tokenCache;
 
     private AWSCognitoIdentityProvider cognitoClient;
 
-    @Autowired
+    @Value("cognitoPoolId")
     private String cognitoPoolId;
-    @Autowired
+    @Value("cognitoClientId")
     private String cognitoClientId;
 
     @PostConstruct
     public void init() {
         cognitoClient = AWSCognitoIdentityProviderClientBuilder.standard().build();
         tokenCache = new CredentialsCache(10000);
+        subscriberMap = new ConcurrentHashMap<>();
     }
 
-    public Map<String, ConcurrentSkipListSet<WebSocketSessionInfo>> getSubscriberMap() {
+    public Map<String, WebSocketSessionInfoSet> getSubscriberMap() {
         return subscriberMap;
     }
 
