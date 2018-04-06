@@ -142,7 +142,10 @@ public class IdentityService {
 
 
     public User findTokenByUser(String token) {
-        return null;
+        User user = new User();
+        user.setUserId("testuser");
+        user.setToken(token);
+        return user;
     }
 
     public void logout(String id, String token) {

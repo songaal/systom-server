@@ -1,5 +1,6 @@
 package io.gncloud.coin.server.api;
 
+import com.google.gson.Gson;
 import io.gncloud.coin.server.exception.AbstractException;
 import io.gncloud.coin.server.model.Strategy;
 import io.gncloud.coin.server.service.IdentityService;
@@ -20,7 +21,7 @@ import java.util.Map;
  * 
  */
 @Controller
-@RequestMapping("/v1/strategy")
+@RequestMapping("/v1/strategys")
 public class StrategyController extends AbstractController{
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(StrategyController.class);
@@ -30,6 +31,8 @@ public class StrategyController extends AbstractController{
 
     @Autowired
     private IdentityService identityService;
+
+    private Gson gson = new Gson();
 
     @GetMapping("/me")
     public ResponseEntity<?> getStrategyList(@RequestHeader(name = "X-coincloud-user-id") String token) {
@@ -49,7 +52,17 @@ public class StrategyController extends AbstractController{
             Strategy registerStrategy = strategyService.getStrategy(token, strategyId);
             Map<String, String> response = new HashMap<>();
             response.put("code", registerStrategy.getCode());
-            response.put("options", registerStrategy.getOptions());
+            Map<String, Object> optionMap = new HashMap<>();
+            if(registerStrategy.getOptions() != null && !"".equals(registerStrategy.getOptions())){
+                List<Map<String, Object>> optionList = gson.fromJson(registerStrategy.getOptions(), List.class);
+                int optionSize = optionList.size();
+                for (int i=0; i < optionSize; i++) {
+                    String key = String.valueOf(optionList.get(i).get("key"));
+                    Object value = optionList.get(i).get("value");
+                    optionMap.put(key, value);
+                }
+            }
+            response.put("options", gson.toJson(optionMap));
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (AbstractException e){
             logger.error("", e);

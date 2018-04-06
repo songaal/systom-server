@@ -6,7 +6,6 @@ import com.amazonaws.services.kinesis.model.*;
 import com.google.gson.Gson;
 import io.gncloud.coin.server.model.EventMetadata;
 import io.gncloud.coin.server.ws.EventWebSocketHandler;
-import io.gncloud.coin.server.ws.WebSocketSessionInfo;
 import io.gncloud.coin.server.ws.WebSocketSessionInfoSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,11 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
 
 import javax.annotation.PostConstruct;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 @Service
 public class EventService {

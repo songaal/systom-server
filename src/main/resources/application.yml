@@ -10,7 +10,7 @@ aws:
     clusterId: "coincloud"
     difinition:
       name: "tradebot"
-      version: "6"
+      version: "8"
       container: "tradebot"
   cognito:
     poolId: ""

@@ -38,10 +38,10 @@ public class AwsUtils {
                 .withCredentials(new ProfileCredentialsProvider(awsProfileName))
                 .build();
     }
-    public RunTaskResult runTask(Task task){
-        return runTask(task, null);
+    public RunTaskResult runTask(String token, Task task){
+        return runTask(token, task, null);
     }
-    public RunTaskResult runTask(Task task, List<KeyValuePair> environmentList){
+    public RunTaskResult runTask(String token, Task task, List<KeyValuePair> environmentList){
         RunTaskRequest runTaskRequest = new RunTaskRequest();
         TaskOverride taskOverride = new TaskOverride();
         ContainerOverride containerOverride = new ContainerOverride();

@@ -58,16 +58,26 @@ public class TasksService {
         task.setUserId(user.getUserId());
         task.setStrategyVersion(strategy.getVersion());
 
-        logger.debug("[ BACK TEST ] RUN {}", task);
-        RunTaskResult result = awsUtils.runTask(task);
-        task.setEcsTask(result.getTasks().get(0).getTaskArn().split("/")[1]);
-
         try {
+            logger.debug("[ BACK TEST ] RUN {}", task);
+
             int resultCount = sqlSession.insert("test.insertTestHistory", task);
             if(resultCount != 1){
-                throw new OperationException("[FAIL] Insert Failed Test History. result count: " + result);
+                throw new OperationException("[FAIL] Insert Failed Test History. result count: " + resultCount);
             }
-            return sqlSession.selectOne("test.lastBackTest", task);
+            Task resultTask = sqlSession.selectOne("test.lastBackTest", task);
+
+            List<KeyValuePair> environmentList = new ArrayList<>();
+            environmentList.add(new KeyValuePair().withName("user_token").withValue(token));
+            environmentList.add(new KeyValuePair().withName("test_id").withValue(resultTask.getId()));
+            environmentList.add(new KeyValuePair().withName("user_id").withValue(task.getUserId()));
+
+            RunTaskResult result = awsUtils.runTask(token, task, environmentList);
+
+            String ecsTask = result.getTasks().get(0).getTaskArn().split("/")[1];
+            logger.debug("ecs task id: {}", ecsTask);
+            resultTask.setEcsTask(ecsTask);
+            return resultTask;
         } catch (Throwable t){
             logger.error("", t);
             throw new OperationException("[FAIL] Insert Test History");
@@ -93,9 +103,10 @@ public class TasksService {
         environmentList.add(new KeyValuePair().withName(exchangeName + "_key").withValue(key));
         environmentList.add(new KeyValuePair().withName(exchangeName + "_secret").withValue(secret));
         environmentList.add(new KeyValuePair().withName("exchangeList").withValue(exchangeName));
+        environmentList.add(new KeyValuePair().withName("user_token").withValue(token));
 
         logger.debug("[ LIVE ] RUN {}", task);
-        RunTaskResult result = awsUtils.runTask(task, environmentList);
+        RunTaskResult result = awsUtils.runTask(token, task, environmentList);
 
         task.setEcsTask(result.getTasks().get(0).getTaskArn().split("/")[1]);
         return task;
