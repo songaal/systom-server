@@ -23,12 +23,27 @@
                 and USER_ID = #{userId}
             </when>
         </choose>
+         ORDER BY CREATE_TIME DESC
+    </select>
+
+    <select id="lastStrategy" parameterType="String" resultType="Strategy">
+        SELECT ID
+        , VERSION
+        , NAME
+        , USER_ID
+        , CREATE_TIME
+        , CODE
+        , OPTIONS
+        FROM strategy
+        WHERE 1=1
+          AND USER_ID = #{userId}
+        ORDER BY CREATE_TIME desc
+        LIMIT 1
     </select>
 
     <insert id="insertStrategy" parameterType="Strategy">
-        INSERT INTO strategy(ID, VERSION, NAME, USER_ID, CREATE_TIME, CODE, OPTIONS)
-        values( #{id}
-              , #{version}
+        INSERT INTO strategy(VERSION, NAME, USER_ID, CREATE_TIME, CODE, OPTIONS)
+        values( #{version}
               , #{name}
               , #{userId}
               , now()
@@ -46,7 +61,7 @@
     </update>
 
     <delete id="deleteStrategy" parameterType="String">
-        DELETE strategy
+        DELETE FROM strategy
          WHERE id = #{id}
     </delete>
 </mapper>

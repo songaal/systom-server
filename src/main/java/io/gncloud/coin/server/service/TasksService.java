@@ -2,7 +2,6 @@ package io.gncloud.coin.server.service;
 
 import com.amazonaws.services.ecs.model.KeyValuePair;
 import com.amazonaws.services.ecs.model.RunTaskResult;
-import com.google.gson.Gson;
 import io.gncloud.coin.server.exception.AuthenticationException;
 import io.gncloud.coin.server.exception.OperationException;
 import io.gncloud.coin.server.exception.ParameterException;
@@ -15,11 +14,11 @@ import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.web.ResourceProperties;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /*
  * create joonwoo 2018. 3. 21.
@@ -47,18 +46,17 @@ public class TasksService {
 
         isNull(task.getStrategyId(), "StrategyId");
         isNull(task.getExchangeName(), "exchangeName");
-        isNull(task.getCurrency(), "Currency");
-        isNull(task.getStartMoney(), "StartMoney");
+        isNull(task.getBaseCurrency(), "Currency");
+        isNull(task.getCapitalBase(), "StartMoney");
         isNull(task.getDataFrequency(), "dataFrequency");
         isNull(task.getStartTime(), "start");
         isNull(task.getEndTime(), "end");
 
-        Strategy strategy = strategyService.getStrategy(token, requestTask.getTask().getStrategyId());
-        isOptionValid(strategy.getOptions(), task.getOptions());
+        Strategy strategy = strategyService.getStrategy(token, task.getStrategyId());
 
         User user = identityService.findTokenByUser(token);
         task.setUserId(user.getUserId());
-        task.setId("test-" + UUID.randomUUID().toString());
+        task.setStrategyVersion(strategy.getVersion());
 
         logger.debug("[ BACK TEST ] RUN {}", task);
         RunTaskResult result = awsUtils.runTask(task);
@@ -69,12 +67,11 @@ public class TasksService {
             if(resultCount != 1){
                 throw new OperationException("[FAIL] Insert Failed Test History. result count: " + result);
             }
+            return sqlSession.selectOne("test.lastBackTest", task);
         } catch (Throwable t){
             logger.error("", t);
             throw new OperationException("[FAIL] Insert Test History");
         }
-
-        return task;
     }
 
     public Task liveMode(String token, RequestTask requestTask) throws ParameterException, AuthenticationException, OperationException {
@@ -82,11 +79,11 @@ public class TasksService {
 
         isNull(task.getStrategyId(), "StrategyId");
         isNull(task.getExchangeName(), "exchangeName");
-        isNull(task.getCurrency(), "Currency");
-        isNull(task.getStartMoney(), "StartMoney");
+        isNull(task.getBaseCurrency(), "Currency");
+        isNull(task.getCapitalBase(), "StartMoney");
 
         Strategy strategy = strategyService.getStrategy(token, requestTask.getTask().getStrategyId());
-        isOptionValid(strategy.getOptions(), task.getOptions());
+
 
         String exchangeName = requestTask.getExchangeAuth().getExchange();
         String key = requestTask.getExchangeAuth().getKey();
@@ -112,20 +109,6 @@ public class TasksService {
     private void isNull(float field, String label) throws ParameterException {
         if(field == 0.0f){
             throw new ParameterException(label);
-        }
-    }
-
-    public void isOptionValid(String srcOption, String targetOptions) throws ParameterException {
-        Map<String, String> options = new Gson().fromJson(srcOption, Map.class);
-        Map<String, String> runOptions = new Gson().fromJson(targetOptions, Map.class);
-
-        Iterator<String> iterator = options.keySet().iterator();
-        while(iterator.hasNext()){
-            String envKey = iterator.next();
-            String optionValue = runOptions.get(envKey);
-            if(optionValue == null || "".equals(optionValue)){
-                throw new ParameterException(envKey);
-            }
         }
     }
 }

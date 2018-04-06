@@ -1,5 +1,6 @@
 package io.gncloud.coin.server.service;
 
+import io.gncloud.coin.server.exception.AbstractException;
 import io.gncloud.coin.server.exception.AuthenticationException;
 import io.gncloud.coin.server.exception.OperationException;
 import io.gncloud.coin.server.exception.ParameterException;
@@ -11,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 
 /*
  * create joonwoo 2018. 3. 22.
@@ -36,21 +36,24 @@ public class StrategyService {
         isNull(createStrategy.getCode(), "code");
         isNull(createStrategy.getOptions(), "options");
 
-        createStrategy.setId(UUID.randomUUID().toString());
-
         logger.debug("INSERT Strategy: {}", createStrategy);
         try {
             int result = sqlSession.insert("strategy.insertStrategy", createStrategy);
             if(result != 1){
                 throw new OperationException("[FAIL] Insert Failed Strategy. result count: " + result);
             }
-            return getStrategy(token, createStrategy.getId());
+            return getLastStrategy(createStrategy.getUserId());
         } catch (Exception e){
             logger.error("", e);
             throw new OperationException("[FAIL] Insert Failed Strategy");
         } catch (AuthenticationException e) {
             throw e;
         }
+    }
+
+    public Strategy getLastStrategy(String userId) throws ParameterException, AuthenticationException, OperationException {
+        isNull(userId, "userId");
+        return sqlSession.selectOne("strategy.lastStrategy", userId);
     }
 
     public Strategy getStrategy(String token, String strategyId) throws ParameterException, AuthenticationException, OperationException {
@@ -85,19 +88,17 @@ public class StrategyService {
 
         Strategy findStrategy = new Strategy();
         findStrategy.setUserId(userId);
-        List<Strategy> strategyList = null;
         try {
-            strategyList = sqlSession.selectList("strategy.getStrategy", findStrategy);
+            return sqlSession.selectList("strategy.getStrategy", findStrategy);
         }catch (Exception e){
+            logger.error("", e);
             throw new OperationException("[FAIL] Update Failed Strategy");
         }
-
-        return strategyList;
     }
 
     public Strategy updateStrategy(String token, Strategy strategy) throws ParameterException, OperationException, AuthenticationException {
 
-        isNull(strategy.getId(), "algoId");
+        isNull(strategy.getId(), "strategyId");
         isNull(strategy.getCode(), "code");
         isNull(strategy.getOptions(), "options");
 
@@ -125,12 +126,23 @@ public class StrategyService {
         }
     }
 
-    public void deleteAlgo(String strategyId) throws ParameterException, OperationException {
-        isNull(strategyId, "strateId");
+    public Strategy deleteStrategy(String token, String strategyId) throws AuthenticationException, ParameterException, OperationException {
+        isNull(strategyId, "strategyId");
 
-        logger.debug("DELETE ALGO: {}", strategyId);
-        int result = sqlSession.delete("strategy.deleteStrategy", strategyId);
-        if(result != 1){
+        User user = identityService.findTokenByUser(token);
+        Strategy registerStrategy = getStrategy(token, strategyId);
+
+        if(!registerStrategy.getUserId().equals(user.getUserId())){
+            throw new AuthenticationException("You do not have permission.");
+        }
+        try {
+            int result = sqlSession.delete("strategy.deleteStrategy", strategyId);
+            if(result != 1){
+                throw new OperationException("[FAIL] delete Filed Strategy resultCount: " + result);
+            }
+//            sqlSession.delete("strategy.deleteTestHistory", strategyId);
+            return registerStrategy;
+        } catch(AbstractException e){
             throw new OperationException("[FAIL] delete Filed Strategy");
         }
     }
@@ -145,4 +157,5 @@ public class StrategyService {
             throw new ParameterException(label);
         }
     }
+
 }

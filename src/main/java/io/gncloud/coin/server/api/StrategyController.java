@@ -83,7 +83,20 @@ public class StrategyController extends AbstractController{
     @PostMapping
     public ResponseEntity<?> createStrategy(@RequestHeader(name = "X-coincloud-user-id") String token, @RequestBody Strategy createStrategy) {
         try {
+            logger.debug("token {}, strategy: {}", token, strategyService);
             Strategy registerStrategy = strategyService.insertStrategy(token, createStrategy);
+            return success(registerStrategy);
+        } catch (AbstractException e){
+            logger.error("", e);
+            return e.response();
+        }
+    }
+
+    @DeleteMapping
+    public ResponseEntity<?> deleteStrategy(@RequestHeader(name = "X-coincloud-user-id") String token, @RequestBody String strategyId) {
+        try {
+            logger.debug("token {}, strategy: {}", token, strategyId);
+            Strategy registerStrategy = strategyService.deleteStrategy(token, strategyId);
             return success(registerStrategy);
         } catch (AbstractException e){
             logger.error("", e);

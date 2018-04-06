@@ -8,6 +8,7 @@ package io.gncloud.coin.server.model;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 // ECS TASK RUN
@@ -22,8 +23,8 @@ public class Task {
     private String userId;
 
     private String exchangeName;
-    private float startMoney;
-    private String currency;
+    private float capitalBase;
+    private String baseCurrency;
     private String coin;
 
     private String state;
@@ -32,6 +33,7 @@ public class Task {
     private String ecsTask;
     private boolean live = false;
 
+    private Date testTime;
     private boolean simulationOrder = true;
     private String startTime;
     private String endTime;
@@ -93,20 +95,20 @@ public class Task {
         this.exchangeName = exchangeName;
     }
 
-    public float getStartMoney() {
-        return startMoney;
+    public float getCapitalBase() {
+        return capitalBase;
     }
 
-    public void setStartMoney(float startMoney) {
-        this.startMoney = startMoney;
+    public void setCapitalBase(float capitalBase) {
+        this.capitalBase = capitalBase;
     }
 
-    public String getCurrency() {
-        return currency;
+    public String getBaseCurrency() {
+        return baseCurrency;
     }
 
-    public void setCurrency(String currency) {
-        this.currency = currency;
+    public void setBaseCurrency(String baseCurrency) {
+        this.baseCurrency = baseCurrency;
     }
 
     public String getCoin() {
@@ -181,14 +183,22 @@ public class Task {
         this.dataFrequency = dataFrequency;
     }
 
+    public Date getTestTime() {
+        return testTime;
+    }
+
+    public void setTestTime(Date testTime) {
+        this.testTime = testTime;
+    }
+
     public List<String> runCommand(){
         List<String> cmd = new ArrayList<>();
         cmd.add("python3");
         cmd.add("run.py");
         cmd.add(this.getStrategyId());
         cmd.add(this.getExchangeName());
-        cmd.add(this.getCurrency());
-        cmd.add(String.valueOf(this.getStartMoney()));
+        cmd.add(this.getBaseCurrency());
+        cmd.add(String.valueOf(this.getCapitalBase()));
         cmd.add(String.valueOf(this.isLive()));
         if(this.isLive()){
             cmd.add(String.valueOf(this.simulationOrder));

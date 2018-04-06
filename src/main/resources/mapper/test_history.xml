@@ -7,8 +7,7 @@
 
     <insert id="insertTestHistory" parameterType="Task">
         INSERT INTO test_history
-        (id,
-        strategy_id,
+        (strategy_id,
         strategy_version,
         test_time,
         exchange_name,
@@ -18,19 +17,38 @@
         user_id,
         ecs_task)
         VALUES
-        ( #{id}
-        , #{strategyId}
+        ( #{strategyId}
         , #{strategyVersion}
         , now()
         , #{exchangeName,jdbcType=VARCHAR}
         , #{coin}
-        , #{startTime,jdbcType=VARCHAR}
-        , #{endTime,jdbcType=VARCHAR}
+        , #{startTime}
+        , #{endTime}
         , #{userId}
         , #{ecsTask,jdbcType=VARCHAR}
         )
     </insert>
 
+    <select id="lastBackTest" parameterType="Task" resultType="Task">
+        SELECT id,
+            strategy_id,
+            strategy_version,
+            action,
+            test_time,
+            exchange_name,
+            coin,
+            revenue,
+            start_time,
+            end_time,
+            user_id,
+            ecs_task
+        FROM test_history
+        WHERE 1=1
+        AND USER_ID = #{userId}
+        AND strategy_id = #{strategyId}
+        ORDER BY test_time desc
+        LIMIT 1
+    </select>
 
 
 </mapper>
