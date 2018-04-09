@@ -1,10 +1,12 @@
-package io.gncloud.coin.server.model;
+package io.gncloud.coin.server.message;
+
+import io.gncloud.coin.server.model.Task;
 
 /*
  * create joonwoo 2018. 3. 25.
- * 
+ *
  */
-public class RequestTask {
+public class RunBackTestRequest {
 
     private Task task;
     private ExchangeAuth exchangeAuth;
@@ -30,6 +32,15 @@ public class RequestTask {
         private String key;
         private String secret;
 
+        public ExchangeAuth() {
+        }
+
+        public ExchangeAuth(String exchange, String key, String secret) {
+            this.exchange = exchange;
+            this.key = key;
+            this.secret = secret;
+        }
+
         public String getExchange() {
             return exchange;
         }
@@ -52,6 +63,15 @@ public class RequestTask {
 
         public void setSecret(String secret) {
             this.secret = secret;
+        }
+
+        @Override
+        public String toString() {
+            return "ExchangeAuth{" +
+                    "exchange='" + exchange + '\'' +
+                    ", key='" + key + '\'' +
+                    ", secret='" + secret + '\'' +
+                    '}';
         }
     }
 }

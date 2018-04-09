@@ -30,7 +30,7 @@ public class Task {
     private String state;
     private float revenue;
 
-    private String ecsTask;
+    private String ecsTaskId;
     private boolean live = false;
 
     private Date testTime;
@@ -39,12 +39,12 @@ public class Task {
     private String endTime;
     private String dataFrequency;
 
-    public String getEcsTask() {
-        return ecsTask;
+    public String getEcsTaskId() {
+        return ecsTaskId;
     }
 
-    public void setEcsTask(String ecsTask) {
-        this.ecsTask = ecsTask;
+    public void setEcsTaskId(String ecsTaskId) {
+        this.ecsTaskId = ecsTaskId;
     }
 
     public String getId() {
@@ -191,7 +191,7 @@ public class Task {
         this.testTime = testTime;
     }
 
-    public List<String> runCommand(){
+    public List<String> getRunCommand(){
         List<String> cmd = new ArrayList<>();
         cmd.add("python3");
         cmd.add("run.py");

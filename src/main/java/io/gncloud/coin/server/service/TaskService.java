@@ -5,7 +5,7 @@ import com.amazonaws.services.ecs.model.RunTaskResult;
 import io.gncloud.coin.server.exception.AuthenticationException;
 import io.gncloud.coin.server.exception.OperationException;
 import io.gncloud.coin.server.exception.ParameterException;
-import io.gncloud.coin.server.model.RequestTask;
+import io.gncloud.coin.server.message.RunBackTestRequest;
 import io.gncloud.coin.server.model.Strategy;
 import io.gncloud.coin.server.model.Task;
 import io.gncloud.coin.server.model.User;
@@ -20,14 +20,10 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
-/*
- * create joonwoo 2018. 3. 21.
- * 
- */
 @Service
-public class TasksService {
+public class TaskService {
 
-    private static Logger logger = LoggerFactory.getLogger(TasksService.class);
+    private static Logger logger = LoggerFactory.getLogger(TaskService.class);
 
     @Resource(name = "awsUtils")
     private AwsUtils awsUtils;
@@ -41,16 +37,15 @@ public class TasksService {
     @Autowired
     private SqlSession sqlSession;
 
-    public Task backTestMode(String token, RequestTask requestTask) throws ParameterException, AuthenticationException, OperationException {
-        Task task = requestTask.getTask();
+    public Task runBackTestTask(String token, Task task) throws ParameterException, AuthenticationException, OperationException {
 
-        isNull(task.getStrategyId(), "StrategyId");
-        isNull(task.getExchangeName(), "exchangeName");
-        isNull(task.getBaseCurrency(), "Currency");
-        isNull(task.getCapitalBase(), "StartMoney");
-        isNull(task.getDataFrequency(), "dataFrequency");
-        isNull(task.getStartTime(), "start");
-        isNull(task.getEndTime(), "end");
+        isNotEmpty(task.getStrategyId(), "strategyId");
+        isNotEmpty(task.getExchangeName(), "exchangeName");
+        isNotEmpty(task.getBaseCurrency(), "baseCurrency");
+        isNotZero(task.getCapitalBase(), "capitalBase");
+        isNotEmpty(task.getDataFrequency(), "dataFrequency");
+        isNotEmpty(task.getStartTime(), "start");
+        isNotEmpty(task.getEndTime(), "end");
 
         Strategy strategy = strategyService.getStrategy(token, task.getStrategyId());
 
@@ -65,7 +60,7 @@ public class TasksService {
             if(resultCount != 1){
                 throw new OperationException("[FAIL] Insert Failed Test History. result count: " + resultCount);
             }
-            Task resultTask = sqlSession.selectOne("test.lastBackTest", task);
+            Task resultTask = sqlSession.selectOne("testing.selectLatestTestHistory", task);
 
             List<KeyValuePair> environmentList = new ArrayList<>();
             environmentList.add(new KeyValuePair().withName("user_token").withValue(token));
@@ -74,50 +69,56 @@ public class TasksService {
 
             RunTaskResult result = awsUtils.runTask(token, task, environmentList);
 
-            String ecsTask = result.getTasks().get(0).getTaskArn().split("/")[1];
-            logger.debug("ecs task id: {}", ecsTask);
-            resultTask.setEcsTask(ecsTask);
+            String ecsTaskId = result.getTasks().get(0).getTaskArn().split("/")[1];
+            logger.debug("ecs task id: {}", ecsTaskId);
+            resultTask.setEcsTaskId(ecsTaskId);
             return resultTask;
         } catch (Throwable t){
             logger.error("", t);
-            throw new OperationException("[FAIL] Insert Test History");
+            throw new OperationException("[FAIL] Running BackTest.");
         }
     }
 
-    public Task liveMode(String token, RequestTask requestTask) throws ParameterException, AuthenticationException, OperationException {
-        Task task = requestTask.getTask();
-
-        isNull(task.getStrategyId(), "StrategyId");
-        isNull(task.getExchangeName(), "exchangeName");
-        isNull(task.getBaseCurrency(), "Currency");
-        isNull(task.getCapitalBase(), "StartMoney");
-
-        Strategy strategy = strategyService.getStrategy(token, requestTask.getTask().getStrategyId());
+    public Task runLiveAgentTask(String token, String agentId, String exchangeName, String userPin) throws ParameterException, AuthenticationException, OperationException {
 
 
-        String exchangeName = requestTask.getExchangeAuth().getExchange();
-        String key = requestTask.getExchangeAuth().getKey();
-        String secret = requestTask.getExchangeAuth().getSecret();
+        Task task = getAgentTaskFromId(agentId);
+
+        RunBackTestRequest.ExchangeAuth exchangeAuth = null;
+        if(!task.isSimulationOrder()) {
+            exchangeAuth = strategyService.getExchangeAuth(token, exchangeName, userPin);
+        }
+
+        Strategy strategy = strategyService.getStrategy(token, task.getStrategyId());
 
         List<KeyValuePair> environmentList = new ArrayList<>();
-        environmentList.add(new KeyValuePair().withName(exchangeName + "_key").withValue(key));
-        environmentList.add(new KeyValuePair().withName(exchangeName + "_secret").withValue(secret));
-        environmentList.add(new KeyValuePair().withName("exchangeList").withValue(exchangeName));
+        environmentList.add(new KeyValuePair().withName(exchangeName + "_key").withValue(exchangeAuth.getKey()));
+        environmentList.add(new KeyValuePair().withName(exchangeName + "_secret").withValue(exchangeAuth.getSecret()));
+        environmentList.add(new KeyValuePair().withName("exchangeList").withValue(exchangeAuth.getExchange()));
         environmentList.add(new KeyValuePair().withName("user_token").withValue(token));
 
         logger.debug("[ LIVE ] RUN {}", task);
         RunTaskResult result = awsUtils.runTask(token, task, environmentList);
 
-        task.setEcsTask(result.getTasks().get(0).getTaskArn().split("/")[1]);
+        String ecsTaskId = parseTaskId(result);
+        task.setEcsTaskId(ecsTaskId);
         return task;
     }
 
-    private void isNull(String field, String label) throws ParameterException {
+    private String parseTaskId(RunTaskResult result) {
+        return result.getTasks().get(0).getTaskArn().split("/")[1];
+    }
+
+    private Task getAgentTaskFromId(String agentId) {
+        return null;
+    }
+
+    private void isNotEmpty(String field, String label) throws ParameterException {
         if(field == null || "".equals(field)){
             throw new ParameterException(label);
         }
     }
-    private void isNull(float field, String label) throws ParameterException {
+    private void isNotZero(float field, String label) throws ParameterException {
         if(field == 0.0f){
             throw new ParameterException(label);
         }
