@@ -2,6 +2,7 @@ package io.gncloud.coin.server.api;
 
 import com.amazonaws.services.cognitoidp.model.AdminInitiateAuthResult;
 import com.amazonaws.services.cognitoidp.model.AuthenticationResultType;
+import com.amazonaws.services.cognitoidp.model.InitiateAuthResult;
 import io.gncloud.coin.server.service.IdentityService;
 import io.gncloud.coin.server.utils.StringUtils;
 import org.slf4j.LoggerFactory;
@@ -40,7 +41,7 @@ public class IdentityController {
     public ResponseEntity<?> login(HttpServletResponse response, @RequestParam String id, @RequestParam String password) {
         logger.debug("id DEBUG : {}", id);
         try {
-            AdminInitiateAuthResult result = identityService.login(id, password);
+            InitiateAuthResult result = identityService.login(id, password);
             String accessToken = null;
             String refreshToken = null;
             Integer expiresIn = null;

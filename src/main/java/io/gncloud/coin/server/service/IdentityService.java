@@ -57,7 +57,7 @@ public class IdentityService {
      * 로그인
      *
      * */
-    public AdminInitiateAuthResult login(String emailAddress, String password) {
+    public InitiateAuthResult login(String emailAddress, String password) {
         if (StringUtils.isBlank(emailAddress) || StringUtils.isBlank(password)) {
 //            reportResult(response, Constants.ResponseMessages.INVALID_REQUEST);
             return null;
@@ -70,13 +70,12 @@ public class IdentityService {
             authParams.put("USERNAME", emailAddress);
             authParams.put("PASSWORD", password);
 
-            AdminInitiateAuthRequest authRequest = new AdminInitiateAuthRequest()
-                    .withAuthFlow(AuthFlowType.ADMIN_NO_SRP_AUTH)
+            InitiateAuthRequest authRequest = new InitiateAuthRequest()
+                    .withAuthFlow(AuthFlowType.USER_PASSWORD_AUTH )
                     .withAuthParameters(authParams)
-                    .withClientId(cognitoClientId)
-                    .withUserPoolId(cognitoPoolId);
+                    .withClientId(cognitoClientId);
 
-            AdminInitiateAuthResult authResponse = cognitoClient.adminInitiateAuth(authRequest);
+            InitiateAuthResult authResponse = cognitoClient.initiateAuth(authRequest);
             return authResponse;
         } catch (UserNotFoundException ex) {
             logger.debug("not found: {}", emailAddress);
