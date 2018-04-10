@@ -24,13 +24,11 @@ dependencies {
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-jdbc', version: '2.0.0.RELEASE'
 
     compile group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
-//    compile group: 'org.apache.velocity', name: 'velocity', version: '1.7'
-
-//    compile group: 'com.amazonaws', name: 'aws-java-sdk-ecs', version: '1.11.297'
-//    compile group: 'com.amazonaws', name: 'aws-java-sdk-rds', version: '1.11.297'
-//    compile group: 'com.amazonaws', name: 'aws-java-sdk-cognitoidentity', version: '1.11.300'
-    compile 'com.amazonaws:aws-java-sdk:1.11.232'
-    compile 'com.amazonaws:aws-java-sdk-kinesis:1.11.232'
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-cognitoidentity', version: '1.11.311'
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-cognitoidp', version: '1.11.311'
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-kinesis', version: '1.11.311'
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-ecs', version: '1.11.311'
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-core', version: '1.11.311'
 
     compile group: 'mysql', name: 'mysql-connector-java', version: '6.0.6'
     compile("org.mybatis.spring.boot:mybatis-spring-boot-starter:1.1.1")

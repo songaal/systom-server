@@ -12,6 +12,7 @@ public class Strategy {
     private String version;
     private String name;
     private Date createTime;
+    private Date updateTime;
     private String userId;
     private String code;
     private String options;
@@ -48,6 +49,14 @@ public class Strategy {
         this.createTime = createTime;
     }
 
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
+    }
+
     public String getVersion() {
         return version;
     }
@@ -76,9 +85,12 @@ public class Strategy {
     public String toString() {
         return "Strategy{" +
                 "id='" + id + '\'' +
-                ", userId='" + userId + '\'' +
-                ", code='" + code + '\'' +
+                ", version='" + version + '\'' +
+                ", name='" + name + '\'' +
                 ", createTime=" + createTime +
+                ", updateTime=" + updateTime +
+                ", userId='" + userId + '\'' +
+                ", options='" + options + '\'' +
                 '}';
     }
 }

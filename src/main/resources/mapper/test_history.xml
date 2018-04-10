@@ -3,7 +3,7 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="test">
+<mapper namespace="testing">
 
     <insert id="insertTestHistory" parameterType="Task">
         INSERT INTO test_history
@@ -15,7 +15,7 @@
         start_time,
         end_time,
         user_id,
-        ecs_task)
+        ecs_task_id)
         VALUES
         ( #{strategyId}
         , #{strategyVersion}
@@ -25,11 +25,11 @@
         , #{startTime}
         , #{endTime}
         , #{userId}
-        , #{ecsTask,jdbcType=VARCHAR}
+        , #{ecsTaskId,jdbcType=VARCHAR}
         )
     </insert>
 
-    <select id="lastBackTest" parameterType="Task" resultType="Task">
+    <select id="selectAllTestHistory" parameterType="Task" resultType="Task">
         SELECT id,
             strategy_id,
             strategy_version,
@@ -41,7 +41,7 @@
             start_time,
             end_time,
             user_id,
-            ecs_task
+            ecs_task_id
         FROM test_history
         WHERE 1=1
         AND USER_ID = #{userId}

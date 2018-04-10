@@ -46,7 +46,7 @@ public class AwsUtils {
         TaskOverride taskOverride = new TaskOverride();
         ContainerOverride containerOverride = new ContainerOverride();
         containerOverride.withName(container)
-                         .withCommand(task.runCommand());
+                         .withCommand(task.getRunCommand());
         if(environmentList != null && environmentList.size() > 0){
             containerOverride.withEnvironment(environmentList);
         }
