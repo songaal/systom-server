@@ -93,7 +93,7 @@ public class TasksService {
         isNull(task.getCapitalBase(), "StartMoney");
 
         Strategy strategy = strategyService.getStrategy(token, requestTask.getTask().getStrategyId());
-
+        //TODO 전략 사용 가능한 지 확인 필요
 
         String exchangeName = requestTask.getExchangeAuth().getExchange();
         String key = requestTask.getExchangeAuth().getKey();
@@ -122,4 +122,15 @@ public class TasksService {
             throw new ParameterException(label);
         }
     }
+
+    public List<Task> getBackTestHistory(String token, String strategysId) throws OperationException {
+        try {
+            return sqlSession.selectList("test.getBackTestHistory", strategysId);
+        } catch (Exception e){
+            logger.error("", e);
+            throw new OperationException("[FAIL] Select Test History");
+        }
+
+    }
+
 }

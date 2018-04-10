@@ -50,5 +50,25 @@
         LIMIT 1
     </select>
 
+    <select id="getBackTestHistory" parameterType="String" resultType="Task">
+        SELECT a.id,
+            a.strategy_id,
+            a.strategy_version,
+            a.action,
+            a.test_time,
+            a.exchange_name,
+            a.coin,
+            a.revenue,
+            a.start_time,
+            a.end_time,
+            a.user_id,
+            b.version
+        FROM test_history a
+        JOIN strategy b on a.strategy_id = b.id
+        WHERE 1=1
+        AND a.strategy_id = #{strategysId}
+        ORDER BY a.test_time desc
+        LIMIT 10
+    </select>
 
 </mapper>
