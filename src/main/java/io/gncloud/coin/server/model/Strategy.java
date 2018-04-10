@@ -16,6 +16,7 @@ public class Strategy {
     private String userId;
     private String code;
     private String options;
+    private String writer;
 
     public String getId() {
         return id;
@@ -79,6 +80,14 @@ public class Strategy {
 
     public void setOptions(String options) {
         this.options = options;
+    }
+
+    public String getWriter() {
+        return writer;
+    }
+
+    public void setWriter(String writer) {
+        this.writer = writer;
     }
 
     @Override

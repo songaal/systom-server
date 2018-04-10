@@ -56,7 +56,7 @@ public class TaskService {
         try {
             logger.debug("[ BACK TEST ] RUN {}", task);
 
-            int resultCount = sqlSession.insert("test.insertTestHistory", task);
+            int resultCount = sqlSession.insert("testing.insertTestHistory", task);
             if(resultCount != 1){
                 throw new OperationException("[FAIL] Insert Failed Test History. result count: " + resultCount);
             }
@@ -72,6 +72,7 @@ public class TaskService {
             String ecsTaskId = result.getTasks().get(0).getTaskArn().split("/")[1];
             logger.debug("ecs task id: {}", ecsTaskId);
             resultTask.setEcsTaskId(ecsTaskId);
+            sqlSession.update("testing.updateTestHistory", resultTask);
             return resultTask;
         } catch (Throwable t){
             logger.error("", t);
@@ -123,9 +124,9 @@ public class TaskService {
         }
     }
 
-    public List<Task> getBackTestHistory(String token, String strategysId) throws OperationException {
+    public List<Task> getTestHistory(String token, String strategyId) throws OperationException {
         try {
-            return sqlSession.selectList("test.getBackTestHistory", strategysId);
+            return sqlSession.selectList("testing.selectTestHistory", strategyId);
         } catch (Exception e){
             logger.error("", e);
             throw new OperationException("[FAIL] Select Test History");

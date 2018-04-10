@@ -8,8 +8,11 @@ import io.gncloud.coin.server.service.StrategyService;
 import io.gncloud.coin.server.service.TaskService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /*
  * create joonwoo 2018. 3. 21.
@@ -26,7 +29,7 @@ public class TaskController extends AbstractController {
     @Autowired
     private StrategyService strategyService;
 
-    @PostMapping
+    @PostMapping("/test")
     public ResponseEntity<?> runBackTestTask(@RequestHeader(name = "X-coincloud-user-id") String token, @RequestBody RunBackTestRequest runBackTestRequest) {
         try {
             Task task = runBackTestRequest.getTask();
@@ -44,7 +47,7 @@ public class TaskController extends AbstractController {
         return null;
     }
 
-    @PostMapping
+    @PostMapping("/agent")
     public ResponseEntity<?> runLiveAgentTask(@RequestHeader(name = "X-coincloud-user-id") String token, @RequestBody RunLiveAgentRequest runLiveAgentRequest) {
         try {
             Task task = null;
@@ -65,5 +68,15 @@ public class TaskController extends AbstractController {
         return null;
     }
 
+    @GetMapping
+    public ResponseEntity<?> getBackTestHistory(@RequestHeader(name = "X-coincloud-user-id") String token, @RequestParam String strategyId){
+        try {
+            List<Task> taskHistory = taskService.getTestHistory(token, strategyId);
+            return new ResponseEntity<>(taskHistory, HttpStatus.OK);
+        } catch (AbstractException e){
+            logger.error("", e);
+            return e.response();
+        }
+    }
 
 }

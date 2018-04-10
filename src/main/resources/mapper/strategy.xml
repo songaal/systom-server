@@ -10,9 +10,11 @@
              , VERSION
              , NAME
              , USER_ID
-             , CREATE_TIME
              , CODE
              , OPTIONS
+             , CREATE_TIME
+             , UPDATE_TIME
+             , WRITER
           FROM strategy
          WHERE 1=1
         <choose>
@@ -34,6 +36,8 @@
         , CREATE_TIME
         , CODE
         , OPTIONS
+        , UPDATE_TIME
+        , WRITER
         FROM strategy
         WHERE 1=1
           AND USER_ID = #{userId}
@@ -42,13 +46,14 @@
     </select>
 
     <insert id="insertStrategy" parameterType="Strategy">
-        INSERT INTO strategy(VERSION, NAME, USER_ID, CREATE_TIME, CODE, OPTIONS)
-        values( #{version}
+        INSERT INTO strategy(VERSION, NAME, USER_ID, CREATE_TIME, CODE, OPTIONS, WRITER)
+        values( '1.0'
               , #{name}
               , #{userId}
               , now()
               , #{code}
               , #{options}
+              , #{writer}
         )
     </insert>
 
@@ -57,6 +62,7 @@
            SET CODE = #{code}
              , OPTIONS = #{options}
              , NAME = #{name}
+             , UPDATE_TIME = now()
          WHERE id = #{id}
     </update>
 
