@@ -81,18 +81,12 @@ public class TaskService {
 
     public Task runLiveAgentTask(String token, String agentId, String exchangeName, String userPin) throws ParameterException, AuthenticationException, OperationException {
 
-
-<<<<<<< HEAD:src/main/java/io/gncloud/coin/server/service/TasksService.java
-        Strategy strategy = strategyService.getStrategy(token, requestTask.getTask().getStrategyId());
-        //TODO 전략 사용 가능한 지 확인 필요
-=======
         Task task = getAgentTaskFromId(agentId);
 
         RunBackTestRequest.ExchangeAuth exchangeAuth = null;
         if(!task.isSimulationOrder()) {
             exchangeAuth = strategyService.getExchangeAuth(token, exchangeName, userPin);
         }
->>>>>>> 736c02342bb1784b359ecc4714b50ba8874ea812:src/main/java/io/gncloud/coin/server/service/TaskService.java
 
         Strategy strategy = strategyService.getStrategy(token, task.getStrategyId());
 

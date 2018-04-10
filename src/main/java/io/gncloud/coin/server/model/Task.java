@@ -39,7 +39,6 @@ public class Task {
     private String endTime;
     private String dataFrequency;
 
-<<<<<<< HEAD
     private String version;
 
     public String getVersion() {
@@ -50,12 +49,8 @@ public class Task {
         this.version = version;
     }
 
-    public String getEcsTask() {
-        return ecsTask;
-=======
     public String getEcsTaskId() {
         return ecsTaskId;
->>>>>>> 736c02342bb1784b359ecc4714b50ba8874ea812
     }
 
     public void setEcsTaskId(String ecsTaskId) {
