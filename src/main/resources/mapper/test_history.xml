@@ -21,7 +21,7 @@
         , #{strategyVersion}
         , now()
         , #{exchangeName,jdbcType=VARCHAR}
-        , #{coin}
+        , #{coin,jdbcType=VARCHAR}
         , #{startTime}
         , #{endTime}
         , #{userId}
@@ -29,7 +29,17 @@
         )
     </insert>
 
-    <select id="selectAllTestHistory" parameterType="Task" resultType="Task">
+    <update id="updateTestHistory" parameterType="Task">
+        update test_history
+           set strategy_id = #{strategyId}
+              , strategy_version = #{strategyVersion}
+              , exchange_name = #{exchangeName}
+              , coin  = #{coin,jdbcType=VARCHAR}
+              , ecs_task_id = #{ecsTaskId,jdbcType=VARCHAR}
+        where id = #{id}
+    </update>
+
+    <select id="selectLatestTestHistory" parameterType="Task" resultType="Task">
         SELECT id,
             strategy_id,
             strategy_version,
@@ -50,5 +60,25 @@
         LIMIT 1
     </select>
 
+    <select id="selectTestHistory" parameterType="String" resultType="Task">
+        SELECT a.id,
+            a.strategy_id,
+            a.strategy_version,
+            a.action,
+            a.test_time,
+            a.exchange_name,
+            a.coin,
+            a.revenue,
+            a.start_time,
+            a.end_time,
+            a.user_id,
+            b.version
+        FROM test_history a
+        JOIN strategy b on a.strategy_id = b.id
+        WHERE 1=1
+        AND a.strategy_id = #{strategyId}
+        ORDER BY a.test_time desc
+        LIMIT 10
+    </select>
 
 </mapper>
