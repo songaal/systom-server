@@ -44,9 +44,9 @@ public class IdentityService {
 
     private AWSCognitoIdentityProvider cognitoClient;
 
-    @Value("cognitoPoolId")
+    @Value("${aws.cognito.userPoolId}")
     private String cognitoPoolId;
-    @Value("cognitoClientId")
+    @Value("${aws.cognito.clientId}")
     private String cognitoClientId;
 
     @PostConstruct

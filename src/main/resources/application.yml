@@ -9,12 +9,12 @@ aws:
   ecs:
     clusterId: "coincloud"
     definition:
-      name: "tradebot"˙
+      name: "tradebot"
       version: "8"
       container: "tradebot"
   cognito:
-    userPoolId: ""
-    clientId: ""
+    userPoolId: "ap-northeast-2_8UlVuFFva"
+    clientId: "4km83jbt1d6pg415q4ieqt41b0"
   stream:
     region: "ap-northeast-2"
     name: "order_stream"

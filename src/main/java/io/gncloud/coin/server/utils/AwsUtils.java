@@ -24,7 +24,7 @@ public class AwsUtils {
     private String taskDefinitionName;
     @Value("${aws.ecs.definition.version}")
     private String taskDefinitionVersion;
-    @Value("${aws.ecs.difinition.container}")
+    @Value("${aws.ecs.definition.container}")
     private String container;
     @Value("${aws.ecs.clusterId}")
     private String clusterId;

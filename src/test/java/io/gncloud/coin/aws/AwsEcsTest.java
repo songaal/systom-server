@@ -95,7 +95,7 @@ public class AwsEcsTest {
 
     @Test
     public void runTask(){
-        String taskDifinition = "tradebot";
+        String taskDefinition = "tradebot";
         String reversion = "4";
 
         RunTaskRequest runTaskRequest = new RunTaskRequest();
@@ -123,7 +123,7 @@ public class AwsEcsTest {
                             ,"minute");
         taskOverride.withContainerOverrides(containerOverride);
 
-        runTaskRequest.withTaskDefinition(taskDifinition + ":" + reversion)
+        runTaskRequest.withTaskDefinition(taskDefinition + ":" + reversion)
                 .withOverrides(taskOverride)
                 .withCluster(clusterId);
         RunTaskResult result = client.runTask(runTaskRequest);
@@ -142,7 +142,7 @@ public class AwsEcsTest {
         // symbol
         String symbol = "btc_usdt";
 
-        String taskDifinition = "ingest-exchange";
+        String taskDefinition = "ingest-exchange";
         String reversion = "5";
 
         RunTaskRequest runTaskRequest = new RunTaskRequest();
@@ -161,7 +161,7 @@ public class AwsEcsTest {
                         , "--show-progress");
         taskOverride.withContainerOverrides(containerOverride);
 
-        runTaskRequest.withTaskDefinition(taskDifinition + ":" + reversion)
+        runTaskRequest.withTaskDefinition(taskDefinition + ":" + reversion)
                 .withOverrides(taskOverride)
                 .withCluster(clusterId);
         RunTaskResult result = client.runTask(runTaskRequest);
