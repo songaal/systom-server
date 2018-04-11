@@ -71,10 +71,10 @@ public class StrategyService {
         try {
             registerStrategy = sqlSession.selectOne("strategy.getStrategy", strategyId);
             if(registerStrategy == null){
-                throw new OperationException("[FAIL] Update Failed Strategy result");
+                throw new OperationException("[FAIL] Failed Strategy result");
             }
         } catch (Exception e){
-            throw new OperationException("[FAIL] Update Failed Strategy");
+            throw new OperationException("[FAIL] Failed Strategy");
         }
 
         User user = identityService.findTokenByUser(token);
@@ -93,7 +93,7 @@ public class StrategyService {
             return sqlSession.selectList("strategy.getStrategy", findStrategy);
         }catch (Exception e){
             logger.error("", e);
-            throw new OperationException("[FAIL] Update Failed Strategy");
+            throw new OperationException("[FAIL] Failed Strategy");
         }
     }
 

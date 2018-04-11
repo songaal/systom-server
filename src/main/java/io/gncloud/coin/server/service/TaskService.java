@@ -72,7 +72,7 @@ public class TaskService {
             String ecsTaskId = result.getTasks().get(0).getTaskArn().split("/")[1];
             logger.debug("ecs task id: {}", ecsTaskId);
             resultTask.setEcsTaskId(ecsTaskId);
-            sqlSession.update("testing.updateTestHistory", resultTask);
+//            sqlSession.update("testing.updateTestHistory", resultTask);
             return resultTask;
         } catch (Throwable t){
             logger.error("", t);
