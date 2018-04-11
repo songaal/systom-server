@@ -29,13 +29,13 @@ public class EventService {
     private IdentityService identityService;
 
     @Value("${aws.stream.region}")
-    private String region = "ap-northeast-2";
+    private String region;
     @Value("${aws.stream.name}")
-    private String streamName = "order_stream";
+    private String streamName;
     @Value("${aws.stream.shardId}")
-    private String shardId = "shard-000000000000";
+    private String shardId;
     @Value("${aws.stream.limit}")
-    private int limit = 1000;
+    private int limit;
 
     private AmazonKinesis client;
     private String shardIterator;

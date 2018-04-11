@@ -5,7 +5,7 @@
 
 aws:
   profileName: "gncloud"
-  region:
+  region: "ap-northeast-2"
   ecs:
     clusterId: "coincloud"
     definition:
