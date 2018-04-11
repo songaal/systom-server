@@ -1,12 +1,13 @@
 package io.gncloud.coin.server.service;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.AnonymousAWSCredentials;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cognitoidp.AWSCognitoIdentityProvider;
 import com.amazonaws.services.cognitoidp.AWSCognitoIdentityProviderClientBuilder;
 import com.amazonaws.services.cognitoidp.model.*;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.google.gson.Gson;
 import io.gncloud.coin.server.model.User;
+import io.gncloud.coin.server.utils.CognitoPubKeyStore;
 import io.gncloud.coin.server.utils.CredentialsCache;
 import io.gncloud.coin.server.utils.StringUtils;
 import io.gncloud.coin.server.ws.WebSocketSessionInfoSet;
@@ -16,9 +17,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Base64;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -27,6 +29,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Service
 public class IdentityService {
+    private final String ACCESS_TOKEN = "X-COINCLOUD-ACCESS-TOKEN";
+    private final String REFRESH_TOKEN = "X-COINCLOUD-REFRESH-TOKEN";
+
     private static Logger logger = LoggerFactory.getLogger(IdentityService.class);
 
     //웹소켓
@@ -34,6 +39,8 @@ public class IdentityService {
 
     //토큰 캐시.
     private CredentialsCache tokenCache;
+
+    private CognitoPubKeyStore cognitoPubKeyStore;
 
     private AWSCognitoIdentityProvider cognitoClient;
 
@@ -46,6 +53,7 @@ public class IdentityService {
     public void init() {
         cognitoClient = AWSCognitoIdentityProviderClientBuilder.standard().build();
         tokenCache = new CredentialsCache(10000);
+        cognitoPubKeyStore = new CognitoPubKeyStore(cognitoPoolId);
         subscriberMap = new ConcurrentHashMap<>();
     }
 
@@ -53,161 +61,161 @@ public class IdentityService {
         return subscriberMap;
     }
 
+
+    /**
+     * 회원가입
+     * 임시 비밀번호는 이메일로 전달된다.
+     * 임시 비번으로 로그인후 즉시 비밀번호 변경을 수행한다.
+     * */
+    public AdminCreateUserResult signUp(String userId, String email) {
+        logger.debug("SignUp userId >> {}, email >> {}", userId, email);
+        AdminCreateUserRequest authRequest = new AdminCreateUserRequest()
+                .withUserPoolId(cognitoPoolId)
+                .withUsername(userId)
+                .withUserAttributes(new AttributeType().withName("email").withValue(email));
+
+        AdminCreateUserResult authResponse = cognitoClient.adminCreateUser(authRequest);
+        return authResponse;
+    }
+
+
     /**
      * 로그인
      *
      * */
-    public InitiateAuthResult login(String emailAddress, String password) {
-        if (StringUtils.isBlank(emailAddress) || StringUtils.isBlank(password)) {
-//            reportResult(response, Constants.ResponseMessages.INVALID_REQUEST);
+    public Map<String, String> login(String userId, String password) {
+        if (StringUtils.isBlank(userId) || StringUtils.isBlank(password)) {
             return null;
         }
 
-        logger.debug("authenticating {}", emailAddress);
+        logger.debug("authenticating userId >> {}", userId);
 
+        String accessToken = null;
         try {
             Map<String, String> authParams = new HashMap<String, String>();
-            authParams.put("USERNAME", emailAddress);
+            authParams.put("USERNAME", userId);
             authParams.put("PASSWORD", password);
 
-            InitiateAuthRequest authRequest = new InitiateAuthRequest()
-                    .withAuthFlow(AuthFlowType.USER_PASSWORD_AUTH )
+            AdminInitiateAuthRequest authRequest = new AdminInitiateAuthRequest()
+                    .withAuthFlow(AuthFlowType.ADMIN_NO_SRP_AUTH)
                     .withAuthParameters(authParams)
-                    .withClientId(cognitoClientId);
+                    .withClientId(cognitoClientId)
+                    .withUserPoolId(cognitoPoolId);
 
-            InitiateAuthResult authResponse = cognitoClient.initiateAuth(authRequest);
-            return authResponse;
+            AdminInitiateAuthResult authResponse = cognitoClient.adminInitiateAuth(authRequest);
+
+            String session = authResponse.getSession();
+            String challengeName = authResponse.getChallengeName();
+            AuthenticationResultType authResult = authResponse.getAuthenticationResult();
+
+            logger.debug("userId>> {}, session>> {}", userId, session);
+            logger.debug("userId>> {}, authResult>> {}", userId, authResult);
+
+            if(challengeName != null) {
+                Map<String, String> challengeParams = authResponse.getChallengeParameters();
+                logger.debug("challengeName>> {} >> {}", challengeName, challengeParams);
+
+                if (challengeName.equals("NEW_PASSWORD_REQUIRED")) {
+                    Map<String, String> responses = new HashMap<>();
+                    /* USERNAME required always */
+                    responses.put("USERNAME", userId);
+                    responses.put("NEW_PASSWORD", "123123");
+
+                    AdminRespondToAuthChallengeRequest authChallengeRequest = new AdminRespondToAuthChallengeRequest()
+                            .withChallengeName(challengeName)
+                            .withSession(session)
+                            .withChallengeResponses(responses)
+                            .withClientId(cognitoClientId)
+                            .withUserPoolId(cognitoPoolId);
+
+                    AdminRespondToAuthChallengeResult challengeResult = cognitoClient.adminRespondToAuthChallenge(authChallengeRequest);
+                    logger.debug("challengeResult>> {}", challengeResult);
+
+                    authResult = challengeResult.getAuthenticationResult();
+                }
+            }
+
+            if(authResult != null) {
+                accessToken = authResult.getAccessToken();
+                Map<String, String> payload = parsePayload(accessToken);
+                return payload;
+            }
         } catch (UserNotFoundException ex) {
-            logger.debug("not found: {}", emailAddress);
-//            reportResult(response, Constants.ResponseMessages.NO_SUCH_USER);
+            logger.debug("not found: {}", userId);
         } catch (NotAuthorizedException ex) {
-            logger.debug("invalid credentials: {}", emailAddress);
-//            reportResult(response, Constants.ResponseMessages.NO_SUCH_USER);
+            logger.debug("invalid credentials: {}", userId);
         } catch (TooManyRequestsException ex) {
             logger.warn("caught TooManyRequestsException, delaying then retrying");
-//            ThreadUtil.sleepQuietly(250);
-//            doPost(request, response);
         }
         return null;
     }
+
 
     /**
-     * 회원가입
-     *
+     * REST API 호출시 마다 이 메소드를 거쳐서 인증하도록 한다.
      * */
+    public boolean isValidAccessToken(String accessToken) {
+        /**TODO 차후 https://cognito-idp.ap-northeast-2.amazonaws.com/ap-northeast-2_8UlVuFFva/.well-known/jwks.json
+         * 를 통해서 public 키를 가져와서 signature를 private키로 이용하여 payload의 무결성을 검증한다.
+         * 여러차례 시도했으나, RSAPublicKey와 privatekey를 만들어 검증시 키 에러가 발생함.
+         * 일단 유효시간만 체크한다.
+         */
 
-    public SignUpResult signUp(String userId, String password, String emailAddress) {
-        AnonymousAWSCredentials awsCreds = new AnonymousAWSCredentials();
-        AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder
-                .standard()
-                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-                .withRegion(Regions.fromName("ap-northeast-2"))
-                .build();
-
-        SignUpRequest signUpRequest = new SignUpRequest();
-        signUpRequest.setClientId(cognitoClientId);
-        signUpRequest.setUsername(userId);
-        signUpRequest.setPassword(password);
-        List<AttributeType> list = new ArrayList<>();
-
-        AttributeType attributeType1 = new AttributeType();
-        attributeType1.setName("email");
-        attributeType1.setValue(emailAddress);
-        list.add(attributeType1);
-
-        signUpRequest.setUserAttributes(list);
-
-        try {
-            SignUpResult result = cognitoIdentityProvider.signUp(signUpRequest);
-            return result;
-        } catch (Exception e) {
-            logger.error("", e);
+        if(!tokenCache.checkToken(accessToken)) {
+            //실제로 존재하는지 검증.
+            DecodedJWT decoded = JWT.decode(accessToken);
+            logger.debug("DecodedJWT > {}", decoded);
+            String keyId = decoded.getHeaderClaim("kid").asString();
+            if(cognitoPubKeyStore.containsKey(keyId)) {
+                tokenCache.addToken(accessToken);
+            } else {
+                //키가 없다.
+                return false;
+            }
         }
-        return null;
+        return true;
+    }
+    protected void updateCredentialCookies(HttpServletResponse response, AuthenticationResultType authResult) {
+        tokenCache.addToken(authResult.getAccessToken());
+
+        Cookie accessTokenCookie = new Cookie(ACCESS_TOKEN, authResult.getAccessToken());
+        response.addCookie(accessTokenCookie);
+
+        if (!StringUtils.isBlank(authResult.getRefreshToken())) {
+            Cookie refreshTokenCookie = new Cookie(REFRESH_TOKEN, authResult.getRefreshToken());
+            response.addCookie(refreshTokenCookie);
+        }
     }
 
-
-//    protected void updateCredentialCookies(AuthenticationResultType authResult) {
-//        tokenCache.addToken(authResult.getAccessToken());
-//
-//        Cookie accessTokenCookie = new Cookie(ACCESS_TOKEN, authResult.getAccessToken());
-////        response.addCookie(accessTokenCookie);
-//
-//        if (!StringUtils.isBlank(authResult.getRefreshToken())) {
-//            Cookie refreshTokenCookie = new Cookie(REFRESH_TOKEN, authResult.getRefreshToken());
-////            response.addCookie(refreshTokenCookie);
-//        }
-//    }
-
-
-    public User findTokenByUser(String token) {
+    public User findTokenByUser(String accessToken) {
+        Map<String, String> payload = parsePayload(accessToken);
         User user = new User();
-        user.setUserId("testuser");
-        user.setToken(token);
+        user.setUserId(payload.get("username"));
+        user.setToken(accessToken);
         return user;
+    }
+
+    private Map<String, String> parsePayload(String jwt) {
+        try {
+            DecodedJWT decoded = JWT.decode(jwt);
+            logger.debug("signature : {}", decoded.getSignature());
+            String payload = decoded.getPayload();
+            logger.debug("payload : {}", payload);
+            byte[] decodedPayload = Base64.getUrlDecoder().decode(payload.getBytes("utf-8"));
+            String payloadJson = new String(decodedPayload, "utf-8");
+            Gson gson = new Gson();
+            Map<String, String> payloadMap = gson.fromJson(payloadJson, Map.class);
+            logger.debug("payloadMap : {}", payloadMap);
+            return payloadMap;
+        } catch (Exception e) {
+            logger.error("", e);
+
+        }
+        return null;
     }
 
     public void logout(String id, String token) {
 
     }
-
-    /**
-     * Verify the verification code sent on the user phone.
-     *
-     * @param username User for which we are submitting the verification code.
-     * @param code     Verification code delivered to the user.
-     * @return if the verification is successful.
-     */
-    public ConfirmSignUpResult VerifyAccessCode(String username, String code) {
-        ConfirmSignUpRequest confirmSignUpRequest = new ConfirmSignUpRequest();
-        confirmSignUpRequest.setUsername(username);
-        confirmSignUpRequest.setConfirmationCode(code);
-        confirmSignUpRequest.setClientId(cognitoClientId);
-
-        logger.debug("username=" + username);
-        logger.debug("code=" + code);
-        logger.debug("clientid=" + cognitoClientId);
-
-        try {
-            ConfirmSignUpResult confirmSignUpResult = cognitoClient.confirmSignUp(confirmSignUpRequest);
-            logger.debug("confirmSignupResult={}", confirmSignUpResult);
-            return confirmSignUpResult;
-        } catch (Exception e) {
-            logger.error("", e);
-        }
-        return null;
-    }
-
-    /**
-     //         * Returns the AWS credentials
-     //         *
-     //         * @param accesscode access code
-     //         * @return returns the credentials based on the access token returned from the user pool.
-     //         */
-//    public Credentials GetCredentials(String accesscode) {
-//        Credentials credentials = null;
-//
-//        try {
-//            Map<String, String> httpBodyParams = new HashMap<String, String>();
-//            httpBodyParams.put(Constants.TOKEN_GRANT_TYPE, Constants.TOKEN_GRANT_TYPE_AUTH_CODE);
-//            httpBodyParams.put(Constants.DOMAIN_QUERY_PARAM_CLIENT_ID, CLIENTAPP_ID);
-//            httpBodyParams.put(Constants.DOMAIN_QUERY_PARAM_REDIRECT_URI, Constants.REDIRECT_URL);
-//            httpBodyParams.put(Constants.TOKEN_AUTH_TYPE_CODE, accesscode);
-//
-//            AuthHttpClient httpClient = new AuthHttpClient();
-//            URL url = new URL(GetTokenURL());
-//            String result = httpClient.httpPost(url, httpBodyParams);
-//            System.out.println(result);
-//
-//            JSONObject payload = CognitoJWTParser.getPayload(result);
-//            String provider = payload.get("iss").toString().replace("https://", "");
-//            credentials = GetCredentials(provider, result);
-//
-//            return credentials;
-//        } catch (Exception exp) {
-//            System.out.println(exp);
-//        }
-//        return credentials;
-//    }
 
 }
