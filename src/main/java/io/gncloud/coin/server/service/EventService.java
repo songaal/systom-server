@@ -82,10 +82,29 @@ public class EventService {
                 for (Record record : records) {
                     logger.info("########### {}", record);
                     recordSequenceNumber = record.getSequenceNumber();
-                    //websocket으로 보낸다.
-                    sendToWebsocketData(record);
-                    //db에 입력한다.
-                    saveToDatabase(record);
+
+                    String jsonData = new String(record.getData().array());
+                    EventMetadata eventMetadata = gson.fromJson(jsonData, EventMetadata.class);
+
+                    //backtest 종료 이벤트 받기.
+                    if(eventMetadata.isFinished()) {
+                        //finished 이벤트는 backtest에만 존재하지만 한번 더 확인.
+                        if(eventMetadata.isBackTestMode()) {
+                            //TODO 구현
+                            //summary = calculateFinalProfit(record);
+                            //saveToDatabase(summary);
+                        }
+                    } else {
+                        //websocket으로 보낸다.
+                        sendToWebsocketData(jsonData, eventMetadata);
+
+                        //라이브나 페이퍼모드는 중간중간 오더를 모두 기록한다.
+                        if(eventMetadata.isLiveMode() || eventMetadata.isPaperMode()) {
+                            //TODO 구현
+                            //summary = calculateRunningProfit(record);
+                            //saveToDatabase(summary);
+                        }
+                    }
                 }
 
                 shardIterator = getRecordsResult.getNextShardIterator();
@@ -126,15 +145,10 @@ public class EventService {
         logger.debug("##### data > {}", new String(byteBuffer.array()));
     }
 
-    private void sendToWebsocketData(Record record) {
-        //TODO
-
+    private void sendToWebsocketData(String jsonData, EventMetadata eventMetadata) {
         String key = null;
-        String jsonData = new String(record.getData().array());
-
-        EventMetadata eventMetadata = gson.fromJson(jsonData, EventMetadata.class);
-        if(eventMetadata.getArena().equals("backtest")) {
-            key = EventWebSocketHandler.KEY_PREFIX_BACKTEST + eventMetadata.getUser() + "_" + eventMetadata.getStarategyId() + "_" + eventMetadata.getTestId();
+        if(eventMetadata.isBackTestMode()) {
+            key = EventWebSocketHandler.KEY_PREFIX_BACKTEST + eventMetadata.getUser() + "_" + eventMetadata.getStrategyId() + "_" + eventMetadata.getTestId();
         } else {
             key = EventWebSocketHandler.KEY_PREFIX_AGENT + eventMetadata.getUser() + "_" + eventMetadata.getAgentId();
         }
