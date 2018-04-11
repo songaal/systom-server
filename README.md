@@ -97,3 +97,107 @@ curl -X POST \
 }
 '
 ```
+
+
+## 로그인 및 회원가입 API
+
+### 1. 회원가입
+
+[요청]
+```
+POST http://127.0.0.1:8080/auth/signUp
+{
+	"userId": "swsong5",
+	"email": "songaal@gmail.com"
+}
+```
+
+[결과]
+```
+{
+    "username": "swsong5",
+    "attributes": [
+        {
+            "name": "sub",
+            "value": "08f6535d-35a4-4ddf-9ccd-7addfa33786b"
+        },
+        {
+            "name": "email",
+            "value": "songaal@gmail.com"
+        }
+    ],
+    "userCreateDate": 1523422093514,
+    "userLastModifiedDate": 1523422093514,
+    "enabled": true,
+    "userStatus": "FORCE_CHANGE_PASSWORD",
+    "mfaoptions": null
+}
+```
+
+** 이메일을 통해 임시비번을 확인한다
+
+```
+제목 : 코인클라우드 환영메시지
+
+코인클라우드 가입을 환영합니다. 
+
+사용자 이름은 songaal이고 임시 암호는 2X3VD.입니다. 
+
+초기 로그인후 비밀번호를 변경할 수 있습니다. 
+
+```
+
+
+### 2. 임시비번 로그인
+[요청]
+```
+POST http://127.0.0.1:8080/auth/login
+{
+	"userId": "songaal",
+	"password": "2X3VD."
+}
+```
+
+[결과]
+```
+{
+    "session": "Fsof-k3FDfxFajErZAHeOwpmZXl66l1quUpVOQ30oSwAPuH63gbMO6sxqr8N4Okv64a5p3WR0U-46EWxxTJt2ogUItBt-pn6RQPcGlY19t-lp6r7_D_hwh8Jmvts0grWmBh82Gvy5mJgSkewgaUkS3xctDZNTkSgACFHJRMnGpUVSI3yltl51vLWoWboILq8uwE2ANVfnjHdyLIkiUFpYT-CfFQ_q9ZCj2dMnPAfXPh9fz8J6xFUXGRaDxi4u4vJEqBgSThCk9PLtJcEm-weIh6gY-W9FLa8Wp5vBEzjkD1ALMqmD4RQ9CnzmE6GAX-6OyN0pXsG_-7sZC5QbDaxoXJzBqxGesEdJGY51yX_sB0Pq7l34V9XH1BDWhea7yhIpG_C3c9NyhXd0krkr_IuoJLIF_AD8V5JJ5F4Xz6CCRYr5QYbfsBesySf03Ns-9AJycu3XBigWH1KS7XinML6QUtwsA644cfJe9E4mQKyo6RT2Ua5Q_hmkW-u4jmpXhviZutJN1TKGXUKg8PL85MU2uSzFSYuXCEJC7fdYA4F3cCCak4N2JVzOA733LyGban9WPVsu5gNtBmxnL1UC5jBt1Rw2IxL6k3PYAGQAuO6ZkaomK5lX8mApXjU8w2gW_Gl2aTv9tuXcevvZUawi6d5o3AH2vlP0s0opYB2-wupBogTEoZxd0AmIo2IWhrlWmqgdGMjIMFP3CXWhWcs8S_pbuvuJguc9lkWL8fck5m1Dk0OZeEZ5FozLT5W3wPW4FH74XLW4OIinCqYbOvG5_ILGgG1vvocR1Ie125IdgFclcQ3u0co_GfF8kKh7y7bUf4R",
+    "challengeName": "NEW_PASSWORD_REQUIRED"
+}
+```
+
+### 3. 임시비번 변경
+[요청]
+```
+POST http://127.0.0.1:8080/auth/changeTempPassword
+{
+	"userId": "songaal",
+	"password": "123123",
+	"session": "Fsof-k3FDfxFajErZAHeOwpmZXl66l1quUpVOQ30oSwAPuH63gbMO6sxqr8N4Okv64a5p3WR0U-46EWxxTJt2ogUItBt-pn6RQPcGlY19t-lp6r7_D_hwh8Jmvts0grWmBh82Gvy5mJgSkewgaUkS3xctDZNTkSgACFHJRMnGpUVSI3yltl51vLWoWboILq8uwE2ANVfnjHdyLIkiUFpYT-CfFQ_q9ZCj2dMnPAfXPh9fz8J6xFUXGRaDxi4u4vJEqBgSThCk9PLtJcEm-weIh6gY-W9FLa8Wp5vBEzjkD1ALMqmD4RQ9CnzmE6GAX-6OyN0pXsG_-7sZC5QbDaxoXJzBqxGesEdJGY51yX_sB0Pq7l34V9XH1BDWhea7yhIpG_C3c9NyhXd0krkr_IuoJLIF_AD8V5JJ5F4Xz6CCRYr5QYbfsBesySf03Ns-9AJycu3XBigWH1KS7XinML6QUtwsA644cfJe9E4mQKyo6RT2Ua5Q_hmkW-u4jmpXhviZutJN1TKGXUKg8PL85MU2uSzFSYuXCEJC7fdYA4F3cCCak4N2JVzOA733LyGban9WPVsu5gNtBmxnL1UC5jBt1Rw2IxL6k3PYAGQAuO6ZkaomK5lX8mApXjU8w2gW_Gl2aTv9tuXcevvZUawi6d5o3AH2vlP0s0opYB2-wupBogTEoZxd0AmIo2IWhrlWmqgdGMjIMFP3CXWhWcs8S_pbuvuJguc9lkWL8fck5m1Dk0OZeEZ5FozLT5W3wPW4FH74XLW4OIinCqYbOvG5_ILGgG1vvocR1Ie125IdgFclcQ3u0co_GfF8kKh7y7bUf4R"
+}
+```
+
+[결과]
+```
+{
+    "sub": "fc588f0f-071b-4100-be37-229cea6f534e",
+    "event_id": "fec86141-3d46-11e8-8aa3-3da2d043bd8b",
+    "token_use": "access",
+    "scope": "aws.cognito.signin.user.admin",
+    "auth_time": 1523423576,
+    "iss": "https://cognito-idp.ap-northeast-2.amazonaws.com/ap-northeast-2_8UlVuFFva",
+    "exp": 1523427176,
+    "iat": 1523423576,
+    "jti": "6f1479b3-6862-4f7b-befc-7eb0631e097e",
+    "client_id": "4km83jbt1d6pg415q4ieqt41b0",
+    "username": "songaal"
+}
+```
+
+### 4. 로그아웃
+
+[요청]
+```
+POST http://127.0.0.1:8080/auth/logout
+```
+
