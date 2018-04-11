@@ -57,6 +57,7 @@ public class StrategyService {
             strategy = sqlSession.selectOne("strategy.getStrategy", strategy);
         } catch (Exception e){
             throw new OperationException("[FAIL] Update Failed Strategy: " + strategyId);
+
         }
         return strategy;
     }
@@ -69,7 +70,7 @@ public class StrategyService {
             return sqlSession.selectList("strategy.getStrategy", strategy);
         }catch (Exception e){
             logger.error("", e);
-            throw new OperationException("[FAIL] Update Failed Strategy");
+            throw new OperationException("[FAIL] Failed Strategy");
         }
     }
 
