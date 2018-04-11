@@ -81,9 +81,8 @@ public class IdentityService {
 
     /**
      * 로그인
-     *
      * */
-    public Map<String, String> login(String userId, String password) {
+    public AdminInitiateAuthResult login(String userId, String password) {
         if (StringUtils.isBlank(userId) || StringUtils.isBlank(password)) {
             return null;
         }
@@ -91,65 +90,58 @@ public class IdentityService {
         logger.debug("authenticating userId >> {}", userId);
 
         String accessToken = null;
-        try {
-            Map<String, String> authParams = new HashMap<String, String>();
-            authParams.put("USERNAME", userId);
-            authParams.put("PASSWORD", password);
+        Map<String, String> authParams = new HashMap<String, String>();
+        authParams.put("USERNAME", userId);
+        authParams.put("PASSWORD", password);
 
-            AdminInitiateAuthRequest authRequest = new AdminInitiateAuthRequest()
-                    .withAuthFlow(AuthFlowType.ADMIN_NO_SRP_AUTH)
-                    .withAuthParameters(authParams)
-                    .withClientId(cognitoClientId)
-                    .withUserPoolId(cognitoPoolId);
+        AdminInitiateAuthRequest authRequest = new AdminInitiateAuthRequest()
+                .withAuthFlow(AuthFlowType.ADMIN_NO_SRP_AUTH)
+                .withAuthParameters(authParams)
+                .withClientId(cognitoClientId)
+                .withUserPoolId(cognitoPoolId);
 
-            AdminInitiateAuthResult authResponse = cognitoClient.adminInitiateAuth(authRequest);
-
-            String session = authResponse.getSession();
-            String challengeName = authResponse.getChallengeName();
-            AuthenticationResultType authResult = authResponse.getAuthenticationResult();
-
-            logger.debug("userId>> {}, session>> {}", userId, session);
-            logger.debug("userId>> {}, authResult>> {}", userId, authResult);
-
-            if(challengeName != null) {
-                Map<String, String> challengeParams = authResponse.getChallengeParameters();
-                logger.debug("challengeName>> {} >> {}", challengeName, challengeParams);
-
-                if (challengeName.equals("NEW_PASSWORD_REQUIRED")) {
-                    Map<String, String> responses = new HashMap<>();
-                    /* USERNAME required always */
-                    responses.put("USERNAME", userId);
-                    responses.put("NEW_PASSWORD", "123123");
-
-                    AdminRespondToAuthChallengeRequest authChallengeRequest = new AdminRespondToAuthChallengeRequest()
-                            .withChallengeName(challengeName)
-                            .withSession(session)
-                            .withChallengeResponses(responses)
-                            .withClientId(cognitoClientId)
-                            .withUserPoolId(cognitoPoolId);
-
-                    AdminRespondToAuthChallengeResult challengeResult = cognitoClient.adminRespondToAuthChallenge(authChallengeRequest);
-                    logger.debug("challengeResult>> {}", challengeResult);
-
-                    authResult = challengeResult.getAuthenticationResult();
-                }
-            }
-
-            if(authResult != null) {
-                accessToken = authResult.getAccessToken();
-                Map<String, String> payload = parsePayload(accessToken);
-                return payload;
-            }
-        } catch (UserNotFoundException ex) {
-            logger.debug("not found: {}", userId);
-        } catch (NotAuthorizedException ex) {
-            logger.debug("invalid credentials: {}", userId);
-        } catch (TooManyRequestsException ex) {
-            logger.warn("caught TooManyRequestsException, delaying then retrying");
-        }
-        return null;
+        AdminInitiateAuthResult authResult = cognitoClient.adminInitiateAuth(authRequest);
+        return authResult;
     }
 
+    /**
+     * 회원가입시 자동생성된 임시 비번을 변경한다.
+     * */
+    public AdminRespondToAuthChallengeResult changeTempPassword(String session, String userId, String password) {
+        Map<String, String> responses = new HashMap<>();
+        responses.put("USERNAME", userId);
+        responses.put("NEW_PASSWORD", password);
+
+        AdminRespondToAuthChallengeRequest authChallengeRequest = new AdminRespondToAuthChallengeRequest()
+                .withChallengeName("NEW_PASSWORD_REQUIRED")
+                .withSession(session)
+                .withChallengeResponses(responses)
+                .withClientId(cognitoClientId)
+                .withUserPoolId(cognitoPoolId);
+
+        AdminRespondToAuthChallengeResult challengeResult = cognitoClient.adminRespondToAuthChallenge(authChallengeRequest);
+        logger.debug("challengeResult>> {}", challengeResult);
+
+        return challengeResult;
+    }
+
+    /**
+     * 비번을 잊어버린경우 reset하면 임시비번이 메일로 전달됨.
+     * 하지만 누구나 접근할수 없도록 임시링크를 만들어서 이메일로 전달하는 방식을 사용해야 한다. 또는 admin에게 요청하는 방식.
+     * */
+    public AdminResetUserPasswordResult resetPassword(String userId) {
+        Map<String, String> responses = new HashMap<>();
+        responses.put("USERNAME", userId);
+
+        AdminResetUserPasswordRequest resetPasswordRequest = new AdminResetUserPasswordRequest()
+                .withUsername(userId)
+                .withUserPoolId(cognitoPoolId);
+
+        AdminResetUserPasswordResult resetUserPasswordResult = cognitoClient.adminResetUserPassword(resetPasswordRequest);
+        logger.debug("resetUserPasswordResult>> {}", resetUserPasswordResult);
+
+        return resetUserPasswordResult;
+    }
 
     /**
      * REST API 호출시 마다 이 메소드를 거쳐서 인증하도록 한다.
@@ -175,27 +167,8 @@ public class IdentityService {
         }
         return true;
     }
-    protected void updateCredentialCookies(HttpServletResponse response, AuthenticationResultType authResult) {
-        tokenCache.addToken(authResult.getAccessToken());
 
-        Cookie accessTokenCookie = new Cookie(ACCESS_TOKEN, authResult.getAccessToken());
-        response.addCookie(accessTokenCookie);
-
-        if (!StringUtils.isBlank(authResult.getRefreshToken())) {
-            Cookie refreshTokenCookie = new Cookie(REFRESH_TOKEN, authResult.getRefreshToken());
-            response.addCookie(refreshTokenCookie);
-        }
-    }
-
-//    public User findTokenByUser(String accessToken) {
-//        Map<String, String> payload = parsePayload(accessToken);
-//        User user = new User();
-//        user.setUserId(payload.get("username"));
-//        user.setToken(accessToken);
-//        return user;
-//    }
-
-    private Map<String, String> parsePayload(String jwt) {
+    public Map<String, String> parsePayload(String jwt) {
         try {
             DecodedJWT decoded = JWT.decode(jwt);
             logger.debug("signature : {}", decoded.getSignature());
@@ -214,8 +187,5 @@ public class IdentityService {
         return null;
     }
 
-    public void logout(String id, String token) {
-
-    }
 
 }

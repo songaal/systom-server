@@ -1,8 +1,7 @@
 package io.gncloud.coin.server.api;
 
-import com.amazonaws.services.cognitoidp.model.AdminInitiateAuthResult;
-import com.amazonaws.services.cognitoidp.model.AuthenticationResultType;
-import com.amazonaws.services.cognitoidp.model.InitiateAuthResult;
+import com.amazonaws.services.cognitoidp.AWSCognitoIdentityProviderClientBuilder;
+import com.amazonaws.services.cognitoidp.model.*;
 import io.gncloud.coin.server.service.IdentityService;
 import io.gncloud.coin.server.utils.StringUtils;
 import org.slf4j.LoggerFactory;
@@ -23,8 +22,9 @@ import java.util.Map;
 @RequestMapping("/auth")
 public class IdentityController {
 
-    public final static String  ACCESS_TOKEN = "ACCESS_TOKEN";
-    public final static String  REFRESH_TOKEN = "REFRESH_TOKEN";
+    public final static String ACCESS_TOKEN = "COINCLOUD-ACCESS-TOKEN";
+    public final static String REFRESH_TOKEN = "COINCLOUD-REFRESH-TOKEN";
+    public final static String SESSION_ID = "COINCLOUD-SESSION-ID";
 
 
     @Autowired
@@ -33,52 +33,59 @@ public class IdentityController {
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(IdentityController.class);
 
     /**
+     * 회원가입
+     * */
+    @RequestMapping(value = "/signUp", method = RequestMethod.POST)
+    public ResponseEntity<?> signUp(HttpServletResponse response, @RequestParam String userId, @RequestParam String email) {
+        AdminCreateUserResult result = identityService.signUp(userId, email);
+        UserType user = result.getUser();
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+    /**
      * 로그인 수행
      */
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public ResponseEntity<?> login(HttpServletResponse response, @RequestParam String id, @RequestParam String password) {
-        logger.debug("id DEBUG : {}", id);
+    public ResponseEntity<?> login(HttpServletResponse response, @RequestParam String userId, @RequestParam String password) {
+        logger.debug("/login userId: {}", userId);
         try {
-            Map<String, String> payload = identityService.login(id, password);
-            String accessToken = null;
-            String refreshToken = null;
-            Integer expiresIn = null;
-            String idToken = null;
-//            if (StringUtils.isBlank(result.getChallengeName())) {
-//                AuthenticationResultType authResult = result.getAuthenticationResult();
-//                logger.info("authResult > {}", authResult);
-//                accessToken = authResult.getAccessToken();
-//                expiresIn = authResult.getExpiresIn();
-//                idToken = authResult.getIdToken(); //사용자 정보.
-//                refreshToken = authResult.getRefreshToken();
-//                authResult.getTokenType();
-//            } else {
-//                //TODO 패스워드 변경등 요청에 따라..
-//
-//            }
-//
-//            if(accessToken != null) {
-//                updateCredentialCookies(response, accessToken, refreshToken, expiresIn);
-//            }
-
-            return new ResponseEntity<>(idToken, HttpStatus.OK);
+            AdminInitiateAuthResult initAuthResult = identityService.login(userId, password);
+            AuthenticationResultType authResult = initAuthResult.getAuthenticationResult();
+            //쿠키 업데이트
+            updateCredentialCookies(response, authResult.getAccessToken(), authResult.getRefreshToken(), initAuthResult.getSession(), authResult.getExpiresIn());
+            //사용자 정보
+            Map<String, String> payload = identityService.parsePayload(authResult.getAccessToken());
+            return new ResponseEntity<>(payload, HttpStatus.OK);
         } catch (Throwable t) {
-            logger.error("", t);
+            logger.error("login error", t);
             throw t;
         }
     }
 
     /**
+     * 회원가입시 자동생성된 임시비번 변경
+     */
+    @RequestMapping(value = "/changeTempPassword", method = RequestMethod.POST)
+    public ResponseEntity<?> changeTempPassword(HttpServletResponse response, @CookieValue(value = SESSION_ID) String session, @RequestParam String userId, @RequestParam String password) {
+        AdminRespondToAuthChallengeResult respondAuthResult = identityService.changeTempPassword(session, userId, password);
+        AuthenticationResultType authResult = respondAuthResult.getAuthenticationResult();
+        //쿠키 업데이트
+        updateCredentialCookies(response, authResult.getAccessToken(), authResult.getRefreshToken(), respondAuthResult.getSession(), authResult.getExpiresIn());
+        //사용자 정보
+        Map<String, String> payload = identityService.parsePayload(authResult.getAccessToken());
+        return new ResponseEntity<>(payload, HttpStatus.OK);
+    }
+
+    /**
      * 로그아웃
-     * @param id 사용자 아이디
-     * @param token 발급 토큰
-     * @return OK
      */
     @RequestMapping(value = "/logout", method = RequestMethod.POST)
-    public ResponseEntity<?> logout(@RequestHeader("Mgb-User") String id, @RequestHeader("Mgb-Token") String token) {
-        logger.debug("LOGOUT USER DEBUG : {}", id);
+    public ResponseEntity<?> logout(HttpServletResponse response, @RequestParam String userId, @CookieValue(value=ACCESS_TOKEN) String accessToken
+            , @CookieValue(value=REFRESH_TOKEN) String refreshToken
+            , @CookieValue(value=SESSION_ID) String sessionId) {
+        logger.debug("LOGOUT USER : {}", userId);
         try {
-            identityService.logout(id, token);
+            //쿠키 삭제
+            updateCredentialCookies(response, accessToken, refreshToken, sessionId, 0);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             logger.error("", e);
@@ -86,74 +93,7 @@ public class IdentityController {
         }
     }
 
-//    @RequestMapping(value = "/admin", method = RequestMethod.PUT)
-//    public ResponseEntity<?> updateAdmin(@RequestHeader("Mgb-User") String id, @RequestParam String name, @RequestParam String email, @RequestParam(required = false) String password) throws AuthorizationException, UserNotFoundException {
-//        if (!id.equals(g.getAdminId())) {
-//            throw new AuthorizationException("Not admin user error");
-//        }
-//        Admin admin = new Admin();
-//        admin.setUserS(g.getAdminId());
-//        admin.setEmailS(email);
-//        admin.setNameS(name);
-//        admin.setPasswordS(password);
-//        try {
-//            identityService.updateAdmin(admin);
-//            return new ResponseEntity<Token>(HttpStatus.OK);
-//        } catch (Exception e) {
-//            logger.error("", e);
-//            return new ResponseEntity<Token>(HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-
-//    @RequestMapping(value = "/me", method = RequestMethod.GET)
-//    public ResponseEntity<?> info(@RequestHeader(name = "Mgb-User") String user){
-//        try {
-//
-//            if(g.getAdminId().equals(user)){
-//                Admin admin = identityService.adminInfo();
-//                return new  ResponseEntity<> (admin, HttpStatus.OK);
-//            }else{
-//                User userInfo = null;
-//                if(Env.isIgnoreLogin()) {
-//                    userInfo = new User();
-//                    userInfo.setUser(user);
-//
-//                } else {
-//                    userInfo = identityService.userInfo(user);
-//                    String countryCd = userInfo.getCountryCd();
-//
-//                    if(countryCd != null && !"Z9".equals(countryCd) && !"****".equals(countryCd)){
-//                        for(String countyCode : Locale.getISOCountries()){
-//                            if(countyCode.equals(countryCd)){
-//                                Locale locale = new Locale("en", countyCode);
-//                                userInfo.setCountryCd(locale.getDisplayCountry());
-//                                break;
-//                            }
-//                        }
-//                    }
-//                }
-//
-//
-//                return new  ResponseEntity<> (userInfo, HttpStatus.OK);
-//            }
-//        } catch (UserNotFoundException e) {
-//            return new  ResponseEntity<> (HttpStatus.BAD_REQUEST);
-//        } catch (Exception e){
-//            logger.error("", e);
-//            return new  ResponseEntity<> (HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-
-    /**
-     * 세션확인용도의 api
-     * @return OK
-     */
-    @RequestMapping(value = "/validate", method = RequestMethod.GET)
-    public ResponseEntity<?> validate(){
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    private void updateCredentialCookies(HttpServletResponse response, String accessToken, String refreshToken, Integer expiresIn) {
+    private void updateCredentialCookies(HttpServletResponse response, String accessToken, String refreshToken, String session, Integer expiresIn) {
         if(accessToken != null) {
             Cookie cookie = new Cookie(ACCESS_TOKEN, accessToken);
             cookie.setMaxAge(expiresIn);
@@ -162,9 +102,16 @@ public class IdentityController {
 
             if(refreshToken != null) {
                 Cookie cookie2 = new Cookie(REFRESH_TOKEN, refreshToken);
-                cookie2.setMaxAge(expiresIn);
+                cookie2.setMaxAge(expiresIn + 300); //5분 더 살도록 한다.
                 cookie2.setPath("/");
                 response.addCookie(cookie2);
+            }
+
+            if(session != null) {
+                Cookie cookie3 = new Cookie(SESSION_ID, refreshToken);
+                cookie3.setMaxAge(expiresIn);
+                cookie3.setPath("/");
+                response.addCookie(cookie3);
             }
         }
     }
