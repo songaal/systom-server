@@ -187,13 +187,13 @@ public class IdentityService {
         }
     }
 
-    public User findTokenByUser(String accessToken) {
-        Map<String, String> payload = parsePayload(accessToken);
-        User user = new User();
-        user.setUserId(payload.get("username"));
-        user.setToken(accessToken);
-        return user;
-    }
+//    public User findTokenByUser(String accessToken) {
+//        Map<String, String> payload = parsePayload(accessToken);
+//        User user = new User();
+//        user.setUserId(payload.get("username"));
+//        user.setToken(accessToken);
+//        return user;
+//    }
 
     private Map<String, String> parsePayload(String jwt) {
         try {

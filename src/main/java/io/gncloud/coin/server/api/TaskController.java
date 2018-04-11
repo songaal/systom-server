@@ -30,12 +30,12 @@ public class TaskController extends AbstractController {
     private StrategyService strategyService;
 
     @PostMapping("/test")
-    public ResponseEntity<?> runBackTestTask(@RequestHeader(name = "X-coincloud-user-id") String token, @RequestBody RunBackTestRequest runBackTestRequest) {
+    public ResponseEntity<?> runBackTestTask(@RequestHeader(name = "X-coincloud-user-id", required = false) String userId, @RequestBody RunBackTestRequest runBackTestRequest) {
         try {
             Task task = runBackTestRequest.getTask();
             logger.debug("Run Task: {}", runBackTestRequest.getTask());
             if(task != null) {
-                task = taskService.runBackTestTask(token, task);
+                task = taskService.runBackTestTask(task);
                 String ecsTask = task.getEcsTaskId();
                 return success(task);
             }
@@ -48,7 +48,7 @@ public class TaskController extends AbstractController {
     }
 
     @PostMapping("/agent")
-    public ResponseEntity<?> runLiveAgentTask(@RequestHeader(name = "X-coincloud-user-id") String token, @RequestBody RunLiveAgentRequest runLiveAgentRequest) {
+    public ResponseEntity<?> runLiveAgentTask(@RequestHeader(name = "X-coincloud-user-id", required = false) String userId, @RequestBody RunLiveAgentRequest runLiveAgentRequest) {
         try {
             Task task = null;
             if (runLiveAgentRequest.getAgentId() != null) {
@@ -69,9 +69,9 @@ public class TaskController extends AbstractController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getBackTestHistory(@RequestHeader(name = "X-coincloud-user-id") String token, @RequestParam String strategyId){
+    public ResponseEntity<?> getBackTestHistory(@RequestHeader(name = "X-coincloud-user-id", required = false) String userId, @RequestParam String strategyId){
         try {
-            List<Task> taskHistory = taskService.getTestHistory(token, strategyId);
+            List<Task> taskHistory = taskService.getTestHistory(strategyId);
             return new ResponseEntity<>(taskHistory, HttpStatus.OK);
         } catch (AbstractException e){
             logger.error("", e);

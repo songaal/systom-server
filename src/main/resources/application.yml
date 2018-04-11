@@ -4,19 +4,17 @@
 
 
 aws:
-  ProfileName: "gncloud"
+  profileName: "gncloud"
   region:
   ecs:
     clusterId: "coincloud"
-    difinition:
-      name: "tradebot"
+    definition:
+      name: "tradebot"˙
       version: "8"
       container: "tradebot"
   cognito:
-    poolId: ""
-    clientappId: ""
-    fedPoolId: ""
-    customDomain: ""
+    userPoolId: ""
+    clientId: ""
   stream:
     region: "ap-northeast-2"
     name: "order_stream"

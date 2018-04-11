@@ -37,7 +37,7 @@ public class TaskService {
     @Autowired
     private SqlSession sqlSession;
 
-    public Task runBackTestTask(String token, Task task) throws ParameterException, AuthenticationException, OperationException {
+    public Task runBackTestTask(Task task) throws ParameterException, AuthenticationException, OperationException {
 
         isNotEmpty(task.getStrategyId(), "strategyId");
         isNotEmpty(task.getExchangeName(), "exchangeName");
@@ -47,10 +47,8 @@ public class TaskService {
         isNotEmpty(task.getStartTime(), "start");
         isNotEmpty(task.getEndTime(), "end");
 
-        Strategy strategy = strategyService.getStrategy(token, task.getStrategyId());
+        Strategy strategy = strategyService.getStrategy(task.getStrategyId());
 
-        User user = identityService.findTokenByUser(token);
-        task.setUserId(user.getUserId());
         task.setStrategyVersion(strategy.getVersion());
 
         try {
@@ -63,11 +61,11 @@ public class TaskService {
             Task resultTask = sqlSession.selectOne("testing.selectLatestTestHistory", task);
 
             List<KeyValuePair> environmentList = new ArrayList<>();
-            environmentList.add(new KeyValuePair().withName("user_token").withValue(token));
+//            environmentList.add(new KeyValuePair().withName("user_token").withValue(token));
             environmentList.add(new KeyValuePair().withName("test_id").withValue(resultTask.getId()));
             environmentList.add(new KeyValuePair().withName("user_id").withValue(task.getUserId()));
 
-            RunTaskResult result = awsUtils.runTask(token, task, environmentList);
+            RunTaskResult result = awsUtils.runTask(task, environmentList);
 
             String ecsTaskId = result.getTasks().get(0).getTaskArn().split("/")[1];
             logger.debug("ecs task id: {}", ecsTaskId);
@@ -81,6 +79,7 @@ public class TaskService {
     }
 
     public Task runLiveAgentTask(String token, String agentId, String exchangeName, String userPin) throws ParameterException, AuthenticationException, OperationException {
+        identityService.isValidAccessToken(token);
 
         Task task = getAgentTaskFromId(agentId);
 
@@ -98,7 +97,7 @@ public class TaskService {
         environmentList.add(new KeyValuePair().withName("user_token").withValue(token));
 
         logger.debug("[ LIVE ] RUN {}", task);
-        RunTaskResult result = awsUtils.runTask(token, task, environmentList);
+        RunTaskResult result = awsUtils.runTask(task, environmentList);
 
         String ecsTaskId = parseTaskId(result);
         task.setEcsTaskId(ecsTaskId);
@@ -124,7 +123,7 @@ public class TaskService {
         }
     }
 
-    public List<Task> getTestHistory(String token, String strategyId) throws OperationException {
+    public List<Task> getTestHistory(String strategyId) throws OperationException {
         try {
             return sqlSession.selectList("testing.selectTestHistory", strategyId);
         } catch (Exception e){

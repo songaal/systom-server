@@ -28,26 +28,10 @@
          ORDER BY CREATE_TIME DESC
     </select>
 
-    <select id="lastStrategy" parameterType="String" resultType="Strategy">
-        SELECT ID
-        , VERSION
-        , NAME
-        , USER_ID
-        , CREATE_TIME
-        , CODE
-        , OPTIONS
-        , UPDATE_TIME
-        , WRITER
-        FROM strategy
-        WHERE 1=1
-          AND USER_ID = #{userId}
-        ORDER BY CREATE_TIME desc
-        LIMIT 1
-    </select>
 
-    <insert id="insertStrategy" parameterType="Strategy">
+    <insert id="insertStrategy" parameterType="Strategy" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO strategy(VERSION, NAME, USER_ID, CREATE_TIME, CODE, OPTIONS, WRITER)
-        values( '1.0'
+        values( '1'
               , #{name}
               , #{userId}
               , now()
@@ -68,6 +52,6 @@
 
     <delete id="deleteStrategy" parameterType="String">
         DELETE FROM strategy
-         WHERE id = #{id}
+        WHERE id = #{id}
     </delete>
 </mapper>

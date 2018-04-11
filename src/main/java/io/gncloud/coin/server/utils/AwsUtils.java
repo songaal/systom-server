@@ -18,12 +18,12 @@ import java.util.List;
 @Component("awsUtils")
 public class AwsUtils {
 
-    @Value("${aws.ProfileName}")
+    @Value("${aws.profileName}")
     private String awsProfileName;
-    @Value("${aws.ecs.difinition.name}")
-    private String taskDifiniName;
-    @Value("${aws.ecs.difinition.version}")
-    private String taskDifiniVersion;
+    @Value("${aws.ecs.definition.name}")
+    private String taskDefinitionName;
+    @Value("${aws.ecs.definition.version}")
+    private String taskDefinitionVersion;
     @Value("${aws.ecs.difinition.container}")
     private String container;
     @Value("${aws.ecs.clusterId}")
@@ -38,10 +38,10 @@ public class AwsUtils {
                 .withCredentials(new ProfileCredentialsProvider(awsProfileName))
                 .build();
     }
-    public RunTaskResult runTask(String token, Task task){
-        return runTask(token, task, null);
+    public RunTaskResult runTask(Task task){
+        return runTask(task, null);
     }
-    public RunTaskResult runTask(String token, Task task, List<KeyValuePair> environmentList){
+    public RunTaskResult runTask(Task task, List<KeyValuePair> environmentList){
         RunTaskRequest runTaskRequest = new RunTaskRequest();
         TaskOverride taskOverride = new TaskOverride();
         ContainerOverride containerOverride = new ContainerOverride();
@@ -52,7 +52,7 @@ public class AwsUtils {
         }
         taskOverride.withContainerOverrides(containerOverride);
 
-        runTaskRequest.withTaskDefinition(taskDifiniName + ":" + taskDifiniVersion)
+        runTaskRequest.withTaskDefinition(taskDefinitionName + ":" + taskDefinitionVersion)
                 .withOverrides(taskOverride)
                 .withCluster(clusterId);
         return client.runTask(runTaskRequest);

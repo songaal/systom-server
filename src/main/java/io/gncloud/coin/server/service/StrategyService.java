@@ -26,134 +26,107 @@ public class StrategyService {
     @Autowired
     private SqlSession sqlSession;
 
-    @Autowired
-    private IdentityService identityService;
+    public Strategy insertStrategy(Strategy strategy) throws OperationException, ParameterException {
 
-    public Strategy insertStrategy(String token, Strategy createStrategy) throws OperationException, ParameterException, AuthenticationException {
+        isNotNull(strategy.getUserId(), "userId");
+        isNotNull(strategy.getCode(), "code");
+        isNotNull(strategy.getOptions(), "options");
 
-        createStrategy.setUserId(identityService.findTokenByUser(token).getUserId());
-
-        isNull(createStrategy.getUserId(), "userId");
-        isNull(createStrategy.getCode(), "code");
-        isNull(createStrategy.getOptions(), "options");
-
-        logger.debug("INSERT Strategy: {}", createStrategy);
+        logger.debug("INSERT Strategy: {}", strategy);
         try {
-            int result = sqlSession.insert("strategy.insertStrategy", createStrategy);
+            int result = sqlSession.insert("strategy.insertStrategy", strategy);
             if(result != 1){
                 throw new OperationException("[FAIL] Insert Failed Strategy. result count: " + result);
             }
-            return getLastStrategy(createStrategy.getUserId());
+            return getStrategy(strategy.getId());
         } catch (Exception e){
             logger.error("", e);
             throw new OperationException("[FAIL] Insert Failed Strategy");
-        } catch (AuthenticationException e) {
-            throw e;
         }
     }
 
-    public Strategy getLastStrategy(String userId) throws ParameterException, AuthenticationException, OperationException {
-        isNull(userId, "userId");
-        return sqlSession.selectOne("strategy.lastStrategy", userId);
+    public Strategy getStrategy(String strategyId) throws ParameterException, OperationException {
+        return getStrategy(strategyId, null);
     }
 
-    public Strategy getStrategy(String token, String strategyId) throws ParameterException, AuthenticationException, OperationException {
-        isNull(strategyId, "strategyId");
+    public Strategy getStrategy(String strategyId, String userId) throws ParameterException, OperationException {
+        isNotNull(strategyId, "strategyId");
 
-        Strategy findStrategy = new Strategy();
-        findStrategy.setId(strategyId);
-        return getStrategy(token, findStrategy);
-    }
-    public Strategy getStrategy(String token, Strategy strategyId) throws ParameterException, AuthenticationException, OperationException {
-        isNull(strategyId, "strategy");
-
-        Strategy registerStrategy = null;
+        Strategy strategy = new Strategy(strategyId, userId);
         try {
-            registerStrategy = sqlSession.selectOne("strategy.getStrategy", strategyId);
-            if(registerStrategy == null){
-                throw new OperationException("[FAIL] Update Failed Strategy result");
-            }
+            strategy = sqlSession.selectOne("strategy.getStrategy", strategy);
         } catch (Exception e){
-            throw new OperationException("[FAIL] Update Failed Strategy");
+            throw new OperationException("[FAIL] Update Failed Strategy: " + strategyId);
         }
-
-        User user = identityService.findTokenByUser(token);
-        if(!registerStrategy.getUserId().equals(user.getUserId())){
-            throw new AuthenticationException("You do not have permission.");
-        }
-        return registerStrategy;
+        return strategy;
     }
 
-    public List<Strategy> findTokenByStrategy(String token) throws ParameterException, OperationException {
-        String userId = identityService.findTokenByUser(token).getUserId();
 
-        Strategy findStrategy = new Strategy();
-        findStrategy.setUserId(userId);
+    public List<Strategy> findStrategyByUser(String userId) throws ParameterException, OperationException {
+        Strategy strategy = new Strategy();
+        strategy.setUserId(userId);
         try {
-            return sqlSession.selectList("strategy.getStrategy", findStrategy);
+            return sqlSession.selectList("strategy.getStrategy", strategy);
         }catch (Exception e){
             logger.error("", e);
             throw new OperationException("[FAIL] Update Failed Strategy");
         }
     }
 
-    public Strategy updateStrategy(String token, Strategy strategy) throws ParameterException, OperationException, AuthenticationException {
+    public Strategy updateStrategy(Strategy newStrategy, String userId) throws ParameterException, OperationException, AuthenticationException {
 
-        isNull(strategy.getId(), "strategyId");
-        isNull(strategy.getCode(), "code");
-        isNull(strategy.getOptions(), "options");
+        isNotNull(userId, "userId");
+        isNotNull(newStrategy.getId(), "strategyId");
+        isNotNull(newStrategy.getCode(), "code");
+        isNotNull(newStrategy.getOptions(), "options");
 
-        User user = identityService.findTokenByUser(token);
-        Strategy registerStrategy = getStrategy(token, strategy.getId());
+        Strategy strategy = getStrategy(userId, newStrategy.getId());
 
-        if(!registerStrategy.getUserId().equals(user.getUserId())){
+        if(!strategy.getUserId().equals(userId)){
             throw new AuthenticationException("You do not have permission.");
         }
 
-        registerStrategy.setCode(strategy.getCode());
-        registerStrategy.setOptions(strategy.getOptions());
-        registerStrategy.setName(strategy.getName());
+        strategy.setCode(newStrategy.getCode());
+        strategy.setOptions(newStrategy.getOptions());
+        strategy.setName(newStrategy.getName());
 
-        logger.debug("UPDATE Strategy: {}", registerStrategy);
+        logger.debug("UPDATE Strategy: {}", strategy);
 
         try {
-            int result = sqlSession.update("strategy.updateStrategy", registerStrategy);
+            int result = sqlSession.update("strategy.updateStrategy", strategy);
             if(result != 1){
                 throw new OperationException("[FAIL] Update Failed Strategy result count: " + result);
             }
-            return getStrategy(token, registerStrategy);
+            return strategy;
         } catch (Exception e){
             throw new OperationException("[FAIL] Update Failed Strategy");
         }
     }
 
-    public Strategy deleteStrategy(String token, String strategyId) throws AuthenticationException, ParameterException, OperationException {
-        isNull(strategyId, "strategyId");
+    public Strategy deleteStrategy(String strategyId, String userId) throws ParameterException, OperationException {
+        isNotNull(strategyId, "strategyId");
 
-        User user = identityService.findTokenByUser(token);
-        Strategy registerStrategy = getStrategy(token, strategyId);
+        Strategy strategy = getStrategy(strategyId, userId);
 
-        if(!registerStrategy.getUserId().equals(user.getUserId())){
-            throw new AuthenticationException("You do not have permission.");
-        }
         try {
-            int result = sqlSession.delete("strategy.deleteStrategy", strategyId);
-            if(result != 1){
-                throw new OperationException("[FAIL] delete Filed Strategy resultCount: " + result);
+            if(strategy != null) {
+                int result = sqlSession.delete("strategy.deleteStrategy", strategyId);
+                if (result != 1) {
+                    throw new OperationException("[FAIL] deleteStrategy resultCount: " + result);
+                }
             }
-//            sqlSession.delete("strategy.deleteTestHistory", strategyId);
-            return registerStrategy;
         } catch(AbstractException e){
-            throw new OperationException("[FAIL] delete Filed Strategy");
+            throw new OperationException("[FAIL] deleteStrategy");
         }
+        return strategy;
     }
 
-    private void isNull(String field, String label) throws ParameterException {
+    private void isNotNull(String field, String label) throws ParameterException {
         if(field == null || "".equals(field)){
             throw new ParameterException(label);
         }
     }
-    private void isNull(Strategy strategy, String label) throws ParameterException {
+    private void isNotNull(Strategy strategy, String label) throws ParameterException {
         if(strategy == null){
             throw new ParameterException(label);
         }

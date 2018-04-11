@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 
 /**
@@ -33,35 +34,32 @@ public class IdentityController {
 
     /**
      * 로그인 수행
-     * @param id MGB 사용자 아이디
-     * @param password 암호
-     * @return 발급된 토큰과 S3 업로드가능 키
      */
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ResponseEntity<?> login(HttpServletResponse response, @RequestParam String id, @RequestParam String password) {
         logger.debug("id DEBUG : {}", id);
         try {
-            InitiateAuthResult result = identityService.login(id, password);
+            Map<String, String> payload = identityService.login(id, password);
             String accessToken = null;
             String refreshToken = null;
             Integer expiresIn = null;
             String idToken = null;
-            if (StringUtils.isBlank(result.getChallengeName())) {
-                AuthenticationResultType authResult = result.getAuthenticationResult();
-                logger.info("authResult > {}", authResult);
-                accessToken = authResult.getAccessToken();
-                expiresIn = authResult.getExpiresIn();
-                idToken = authResult.getIdToken(); //사용자 정보.
-                refreshToken = authResult.getRefreshToken();
-                authResult.getTokenType();
-            } else {
-                //TODO 패스워드 변경등 요청에 따라..
-
-            }
-
-            if(accessToken != null) {
-                updateCredentialCookies(response, accessToken, refreshToken, expiresIn);
-            }
+//            if (StringUtils.isBlank(result.getChallengeName())) {
+//                AuthenticationResultType authResult = result.getAuthenticationResult();
+//                logger.info("authResult > {}", authResult);
+//                accessToken = authResult.getAccessToken();
+//                expiresIn = authResult.getExpiresIn();
+//                idToken = authResult.getIdToken(); //사용자 정보.
+//                refreshToken = authResult.getRefreshToken();
+//                authResult.getTokenType();
+//            } else {
+//                //TODO 패스워드 변경등 요청에 따라..
+//
+//            }
+//
+//            if(accessToken != null) {
+//                updateCredentialCookies(response, accessToken, refreshToken, expiresIn);
+//            }
 
             return new ResponseEntity<>(idToken, HttpStatus.OK);
         } catch (Throwable t) {
