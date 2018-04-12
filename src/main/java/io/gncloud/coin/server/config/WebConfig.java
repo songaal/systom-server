@@ -1,5 +1,6 @@
 package io.gncloud.coin.server.config;
 
+import io.gncloud.coin.server.api.AuthInterceptor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,7 +26,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        super.addInterceptors(registry);
+        registry.addInterceptor(new AuthInterceptor());
     }
 
     @Override

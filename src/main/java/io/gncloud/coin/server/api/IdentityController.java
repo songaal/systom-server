@@ -43,7 +43,7 @@ public class IdentityController {
      * 회원가입
      * */
     @RequestMapping(value = "/signUp", method = RequestMethod.POST)
-    public ResponseEntity<?> signUp(HttpServletResponse response, @RequestBody Identity identity) {
+    public ResponseEntity<?> signUp(@RequestBody Identity identity) {
         AdminCreateUserResult result = identityService.signUp(identity.getUserId(), identity.getEmail());
         UserType user = result.getUser();
         return new ResponseEntity<>(user, HttpStatus.OK);
@@ -116,10 +116,8 @@ public class IdentityController {
      * 거래소 키 조회
      */
     @RequestMapping(value = "/exchangeKey", method = RequestMethod.GET)
-    public ResponseEntity<?> exchange(@CookieValue(value = ACCESS_TOKEN) String accessToken) {
+    public ResponseEntity<?> exchange(@RequestAttribute String userId) {
         try {
-            Map<String, String> payload = identityService.parsePayload(accessToken);
-            String userId = payload.get("username");
             if (userId == null || "".equals(userId) ) {
                 throw new AuthenticationException("[FAIL] Authentication");
             }
@@ -135,10 +133,8 @@ public class IdentityController {
      * 거래소 키 추가
      */
     @RequestMapping(value = "/exchangeKey", method = RequestMethod.POST)
-    public ResponseEntity<?> insertExchangeKey(@CookieValue(value = ACCESS_TOKEN) String accessToken, @RequestBody ExchangeKey exchangeKey) {
+    public ResponseEntity<?> insertExchangeKey(@RequestAttribute String userId, @RequestBody ExchangeKey exchangeKey) {
         try {
-            Map<String, String> payload = identityService.parsePayload(accessToken);
-            String userId = payload.get("username");
             if (userId == null || "".equals(userId)) {
                 throw new ParameterException("user");
             }
@@ -155,10 +151,8 @@ public class IdentityController {
      * 거래소 키 삭제
      */
     @RequestMapping(value = "/exchangeKey/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteExchangeKey(@CookieValue(value = ACCESS_TOKEN) String accessToken, @PathVariable String id) {
+    public ResponseEntity<?> deleteExchangeKey(@RequestAttribute String userId, @PathVariable String id) {
         try {
-            Map<String, String> payload = identityService.parsePayload(accessToken);
-            String userId = payload.get("username");
             if (userId == null || "".equals(userId)) {
                 throw new ParameterException("user");
             }
