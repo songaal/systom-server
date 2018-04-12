@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="exchange">
+
+    <select id="selectKeys" parameterType="String" resultType="ExchangeKey">
+        select id
+             , user_id
+             , exchange_name
+             , name
+             , aes_decrypt(api_key, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{userId})) as api_key
+             , create_time
+          from exchange_key
+         where user_id = #{userId}
+        order by id desc
+    </select>
+
+    <insert id="insertKey" parameterType="ExchangeKey" useGeneratedKeys="true" keyProperty="id">
+        insert into exchange_key(user_id, exchange_name, name, api_key, secret_key, create_time)
+        values (
+        #{userId},
+        #{exchangeName},
+        #{name},
+        aes_encrypt(#{apiKey}, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{userId})),
+        aes_encrypt(#{secretKey}, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{userId})),
+        now()
+        )
+    </insert>
+
+    <delete id="deleteKey" parameterType="ExchangeKey">
+        delete from exchange_key
+         where id = ${id}
+           and user_id = #{userId}
+    </delete>
+
+</mapper>
