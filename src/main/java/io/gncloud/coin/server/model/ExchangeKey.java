@@ -17,6 +17,14 @@ public class ExchangeKey {
     private String secretKey;
     private Date createTime;
 
+    public ExchangeKey() {
+    }
+
+    public ExchangeKey(int id, String userId) {
+        this.id = id;
+        this.userId = userId;
+    }
+
     public int getId() {
         return id;
     }
