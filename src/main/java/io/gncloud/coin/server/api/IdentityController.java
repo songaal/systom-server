@@ -118,9 +118,6 @@ public class IdentityController {
     @RequestMapping(value = "/exchangeKey", method = RequestMethod.GET)
     public ResponseEntity<?> exchange(@RequestAttribute String userId) {
         try {
-            if (userId == null || "".equals(userId) ) {
-                throw new AuthenticationException("[FAIL] Authentication");
-            }
             List<ExchangeKey> exchangeKeys = exchangeService.selectExchangeKeys(userId);
             return new ResponseEntity<>(exchangeKeys, HttpStatus.OK);
         } catch (AbstractException e) {
@@ -135,11 +132,9 @@ public class IdentityController {
     @RequestMapping(value = "/exchangeKey", method = RequestMethod.POST)
     public ResponseEntity<?> insertExchangeKey(@RequestAttribute String userId, @RequestBody ExchangeKey exchangeKey) {
         try {
-            if (userId == null || "".equals(userId)) {
-                throw new ParameterException("user");
-            }
             exchangeKey.setUserId(userId);
-            ExchangeKey registerKey = exchangeService.insertExchangeKey(exchangeKey);
+            exchangeService.insertExchangeKey(exchangeKey);
+            ExchangeKey registerKey = exchangeService.selectExchangeKey(exchangeKey);
             return new ResponseEntity<>(registerKey, HttpStatus.OK);
         } catch (AbstractException e) {
             logger.error("", e);
@@ -153,9 +148,6 @@ public class IdentityController {
     @RequestMapping(value = "/exchangeKey/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteExchangeKey(@RequestAttribute String userId, @PathVariable String id) {
         try {
-            if (userId == null || "".equals(userId)) {
-                throw new ParameterException("user");
-            }
             ExchangeKey exchangeKey = new ExchangeKey();
             exchangeKey.setId(Integer.parseInt(id));
             exchangeKey.setUserId(userId);

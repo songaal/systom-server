@@ -17,6 +17,19 @@
         order by id desc
     </select>
 
+    <select id="selectKey" parameterType="ExchangeKey" resultType="ExchangeKey">
+        select id
+        , user_id
+        , exchange_name
+        , name
+        , aes_decrypt(api_key, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{userId})) as api_key
+        , aes_decrypt(secret_key, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{userId})) as secret_key
+        , create_time
+        from exchange_key
+        where id = ${id}
+            and user_id = #{userId}
+    </select>
+
     <insert id="insertKey" parameterType="ExchangeKey" useGeneratedKeys="true" keyProperty="id">
         insert into exchange_key(user_id, exchange_name, name, api_key, secret_key, create_time)
         values (
