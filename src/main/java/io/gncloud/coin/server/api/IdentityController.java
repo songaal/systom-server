@@ -1,10 +1,13 @@
 package io.gncloud.coin.server.api;
 
-import com.amazonaws.services.cognitoidp.AWSCognitoIdentityProviderClientBuilder;
 import com.amazonaws.services.cognitoidp.model.*;
+import io.gncloud.coin.server.exception.AbstractException;
+import io.gncloud.coin.server.exception.AuthenticationException;
+import io.gncloud.coin.server.exception.ParameterException;
+import io.gncloud.coin.server.model.ExchangeKey;
 import io.gncloud.coin.server.model.Identity;
+import io.gncloud.coin.server.service.ExchangeService;
 import io.gncloud.coin.server.service.IdentityService;
-import io.gncloud.coin.server.utils.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -31,6 +35,8 @@ public class IdentityController {
     @Autowired
     private IdentityService identityService;
 
+    @Autowired
+    private ExchangeService exchangeService;
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(IdentityController.class);
 
     /**
@@ -94,6 +100,76 @@ public class IdentityController {
         } catch (Exception e) {
             logger.error("", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 회원정보 조회
+     */
+    @RequestMapping(method = RequestMethod.GET)
+    public ResponseEntity<?> userInfo(@CookieValue(value = ACCESS_TOKEN) String accessToken) {
+        Map<String, String> payload = identityService.parsePayload(accessToken);
+        return new ResponseEntity<>(payload, HttpStatus.OK);
+    }
+
+    /**
+     * 거래소 키 조회
+     */
+    @RequestMapping(value = "/exchangeKey", method = RequestMethod.GET)
+    public ResponseEntity<?> exchange(@CookieValue(value = ACCESS_TOKEN) String accessToken) {
+        try {
+            Map<String, String> payload = identityService.parsePayload(accessToken);
+            String userId = payload.get("username");
+            if (userId == null || "".equals(userId) ) {
+                throw new AuthenticationException("[FAIL] Authentication");
+            }
+            List<ExchangeKey> exchangeKeys = exchangeService.selectExchangeKeys(userId);
+            return new ResponseEntity<>(exchangeKeys, HttpStatus.OK);
+        } catch (AbstractException e) {
+            logger.error("", e);
+            return e.response();
+        }
+    }
+
+    /**
+     * 거래소 키 추가
+     */
+    @RequestMapping(value = "/exchangeKey", method = RequestMethod.POST)
+    public ResponseEntity<?> insertExchangeKey(@CookieValue(value = ACCESS_TOKEN) String accessToken, @RequestBody ExchangeKey exchangeKey) {
+        try {
+            Map<String, String> payload = identityService.parsePayload(accessToken);
+            String userId = payload.get("username");
+            if (userId == null || "".equals(userId)) {
+                throw new ParameterException("user");
+            }
+            exchangeKey.setUserId(userId);
+            ExchangeKey registerKey = exchangeService.insertExchangeKey(exchangeKey);
+            return new ResponseEntity<>(registerKey, HttpStatus.OK);
+        } catch (AbstractException e) {
+            logger.error("", e);
+            return e.response();
+        }
+    }
+
+    /**
+     * 거래소 키 삭제
+     */
+    @RequestMapping(value = "/exchangeKey/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteExchangeKey(@CookieValue(value = ACCESS_TOKEN) String accessToken, @PathVariable String id) {
+        try {
+            Map<String, String> payload = identityService.parsePayload(accessToken);
+            String userId = payload.get("username");
+            if (userId == null || "".equals(userId)) {
+                throw new ParameterException("user");
+            }
+            ExchangeKey exchangeKey = new ExchangeKey();
+            exchangeKey.setId(Integer.parseInt(id));
+            exchangeKey.setUserId(userId);
+            ExchangeKey registerKey = exchangeService.deleteExchangeKey(exchangeKey);
+            return new ResponseEntity<>(registerKey, HttpStatus.OK);
+        } catch (AbstractException e) {
+            logger.error("", e);
+            return e.response();
         }
     }
 

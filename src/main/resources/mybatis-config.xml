@@ -3,6 +3,7 @@
         "http://mybatis.org/dtd/mybatis-3-config.dtd">
 
 <configuration>
+
     <settings>
         <setting name="mapUnderscoreToCamelCase" value="true"/>
     </settings>
@@ -10,6 +11,7 @@
     <typeAliases>
         <typeAlias alias="Strategy" type="io.gncloud.coin.server.model.Strategy"/>
         <typeAlias alias="Task" type="io.gncloud.coin.server.model.Task"/>
+        <typeAlias alias="ExchangeKey" type="io.gncloud.coin.server.model.ExchangeKey"/>
     </typeAliases>
 
 </configuration>
