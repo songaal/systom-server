@@ -26,9 +26,13 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new AuthInterceptor());
+        registry.addInterceptor(authInterceptor());
     }
 
+    @Bean
+    public AuthInterceptor authInterceptor() {
+        return new AuthInterceptor();
+    }
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")

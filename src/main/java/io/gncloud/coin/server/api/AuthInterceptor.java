@@ -44,30 +44,35 @@ public class AuthInterceptor implements HandlerInterceptor {
      */
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String url = request.getRequestURI();
+        try {
+            String url = request.getRequestURI();
 
-        if(exceptUrl.contains(url)){
+            if (exceptUrl.contains(url)) {
+                return true;
+            }
+
+            String accessToken = getCookieValue(request, IdentityController.ACCESS_TOKEN);
+            if (accessToken == null) {
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                return false;
+            }
+
+            boolean isValid = identityService.isValidAccessToken(accessToken);
+
+            if (!isValid) {
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                return false;
+            }
+
+            Map<String, String> payload = identityService.parsePayload(accessToken);
+            String userId = payload.get("username");
+            request.setAttribute("userId", userId);
+
             return true;
+        } catch (Exception e) {
+            logger.error("error in authInterceptor.", e);
+            throw e;
         }
-
-        String accessToken = getCookieValue(request, IdentityController.ACCESS_TOKEN);
-        if(accessToken == null) {
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            return false;
-        }
-
-        boolean isValid = identityService.isValidAccessToken(accessToken);
-
-        if(!isValid) {
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            return false;
-        }
-
-        Map<String, String> payload = identityService.parsePayload(accessToken);
-        String userId = payload.get("username");
-        request.setAttribute("userId", userId);
-
-        return true;
     }
 
     @Override
