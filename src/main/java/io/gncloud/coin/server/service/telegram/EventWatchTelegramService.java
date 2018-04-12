@@ -20,26 +20,23 @@ import java.util.Map;
  */
 
 @Service
-public class EventWatchTelegramService implements EnvironmentAware {
+public class EventWatchTelegramService {
 
     protected static org.slf4j.Logger logger = LoggerFactory.getLogger(EventWatchTelegramService.class);
 
     private EventNotifyBot bot;
 
-    @Autowired
-    private Environment env;
-
-    @Value("notify.telegram.botToken")
+    @Value("${notify.telegram.botName}")
     private String botName;
 
-    @Value("notify.telegram.botToken")
+    @Value("${notify.telegram.botToken}")
     private String botToken;
 
     private Map<String, String> userChatIdMap;
 
     @PostConstruct
     public void init(){
-        logger.info("Construct TelegramBot.");
+        logger.info("Construct TelegramBot. {}, {}", botName, botToken);
         ApiContextInitializer.init();
         TelegramBotsApi botsApi = new TelegramBotsApi();
         try {
@@ -65,9 +62,4 @@ public class EventWatchTelegramService implements EnvironmentAware {
         bot.sendMessage(chatId, text);
     }
 
-
-    @Override
-    public void setEnvironment(Environment environment) {
-        this.env = environment;
-    }
 }

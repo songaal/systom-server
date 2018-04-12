@@ -29,8 +29,8 @@ public class TaskController extends AbstractController {
     @Autowired
     private StrategyService strategyService;
 
-    @PostMapping("/test")
-    public ResponseEntity<?> runBackTestTask(@RequestHeader(name = "X-coincloud-user-id", required = false) String userId, @RequestBody RunBackTestRequest runBackTestRequest) {
+    @PostMapping("/backtest")
+    public ResponseEntity<?> runBackTestTask(@RequestBody RunBackTestRequest runBackTestRequest) {
         try {
             Task task = runBackTestRequest.getTask();
             logger.debug("Run Task: {}", runBackTestRequest.getTask());
