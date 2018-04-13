@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /*
  * create joonwoo 2018. 4. 13.
  * 
@@ -22,10 +24,10 @@ public class AgentController extends AbstractController {
     private AgentService agentService;
 
     @PostMapping
-    public ResponseEntity<?> insertAgent(@RequestBody Agent agent) {
+    public ResponseEntity<?> insertAgent(@RequestAttribute String userId, @RequestBody Agent agent) {
         try {
+            agent.setUserId(userId);
             Agent registerAgent = agentService.insertAgent(agent);
-
             return success(registerAgent);
         } catch (AbstractException e){
             logger.error("", e);
@@ -34,22 +36,38 @@ public class AgentController extends AbstractController {
     }
 
     @GetMapping
-    public void selectAgent() {
-
+    public ResponseEntity<?> selectAgent(@RequestAttribute String userId) {
+        try {
+            List<Agent> agentList = agentService.selectAgent(userId);
+            return success(agentList);
+        } catch (AbstractException e){
+            logger.error("", e);
+            return e.response();
+        }
     }
 
     @GetMapping("/{id}")
-    public void getAgent() {
-
+    public ResponseEntity<?> getAgent(@PathVariable Integer id) {
+        try {
+            Agent agent = agentService.getAgent(id);
+            return success(agent);
+        } catch (AbstractException e){
+            logger.error("", e);
+            return e.response();
+        }
     }
 
-    @PutMapping
-    public void updateAgent() {
-
-    }
-
-    @DeleteMapping
-    public void deleteAgent() {
-
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteAgent(@RequestAttribute String userId, @PathVariable Integer id) {
+        try {
+            Agent agent = new Agent();
+            agent.setUserId(userId);
+            agent.setId(id);
+            agent = agentService.deleteAgent(agent);
+            return success(agent);
+        } catch (AbstractException e){
+            logger.error("", e);
+            return e.response();
+        }
     }
 }

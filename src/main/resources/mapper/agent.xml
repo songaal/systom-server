@@ -5,9 +5,50 @@
 
 <mapper namespace="agent">
 
-    <insert id="insertAgent" useGeneratedKeys="true" keyProperty="id">
-        insert into agent ()
-        values ()
+    <insert id="insertAgent" parameterType="Agent" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO agent
+        (id,strategy_id,strategy_version,name,exchange_key_id,capital_base,base_currency,create_time,options,state,user_id)
+        VALUES
+        (
+            ${id}
+            ,${strategyId}
+            ,#{strategyVersion}
+            ,#{name}
+            ,#{exchangeKeyId}
+            ,#{capitalBase}
+            ,#{baseCurrency}
+            ,now()
+            ,#{options}
+            ,'stop'
+            ,#{userId}
+        )
     </insert>
+
+    <select id="selectAgent" parameterType="Agent" resultType="Agent">
+        SELECT  id,
+                strategy_id,
+                strategy_version,
+                name,
+                revenue,
+                exchange_key_id,
+                capital_base,
+                base_currency,
+                coin,
+                create_time,
+                options,
+                state,
+                user_id,
+                ecs_task
+        FROM agent
+        where user_id = #{userId}
+        <if test="id != null and id != ''">
+            and id = #{id}
+        </if>
+    </select>
+
+    <delete id="deleteAgent" parameterType="Agent">
+        delete from agent
+         where id = #{id}
+    </delete>
 
 </mapper>

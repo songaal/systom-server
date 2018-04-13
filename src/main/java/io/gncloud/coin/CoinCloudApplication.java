@@ -15,7 +15,7 @@ public class CoinCloudApplication {
 
 	public static void main(String[] args) {
 		try {
-			System.setProperty("spring.devtools.restart.enabled", "false");
+//			System.setProperty("spring.devtools.restart.enabled", "false");
 			SpringApplication.run(CoinCloudApplication.class, args);
 		} catch (Throwable t) {
 			t.printStackTrace();
