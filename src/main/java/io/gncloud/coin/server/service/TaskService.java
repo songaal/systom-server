@@ -3,11 +3,13 @@ package io.gncloud.coin.server.service;
 import com.amazonaws.services.ecs.model.KeyValuePair;
 import com.amazonaws.services.ecs.model.RunTaskResult;
 import com.amazonaws.services.ecs.model.StopTaskResult;
-import io.gncloud.coin.server.exception.AuthenticationException;
 import io.gncloud.coin.server.exception.OperationException;
 import io.gncloud.coin.server.exception.ParameterException;
 import io.gncloud.coin.server.message.RunBackTestRequest;
-import io.gncloud.coin.server.model.*;
+import io.gncloud.coin.server.model.Agent;
+import io.gncloud.coin.server.model.ExchangeKey;
+import io.gncloud.coin.server.model.Strategy;
+import io.gncloud.coin.server.model.Task;
 import io.gncloud.coin.server.utils.AwsUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
@@ -66,7 +68,7 @@ public class TaskService {
 
             List<KeyValuePair> environmentList = new ArrayList<>();
             environmentList.add(new KeyValuePair().withName("user_token").withValue(userId));
-            environmentList.add(new KeyValuePair().withName("test_id").withValue(task.getId()));
+            environmentList.add(new KeyValuePair().withName("test_id").withValue(task.getId().toString()));
             environmentList.add(new KeyValuePair().withName("user_id").withValue(task.getUserId()));
 
             RunTaskResult result = awsUtils.runTask(task, environmentList);
@@ -81,11 +83,11 @@ public class TaskService {
         }
     }
 
-    public Task runAgentTask(String userId, Integer agentId, Integer exchangeKeyId, boolean isLiveMode) throws ParameterException, OperationException {
+    public Task runAgentTask(String userId, Integer agentId, boolean isLiveMode) throws ParameterException, OperationException {
 
         Task task = getAgentTaskFromId(agentId);
 
-        ExchangeKey exchangeKey = exchangeService.selectExchangeKey(new ExchangeKey(exchangeKeyId, userId));
+        ExchangeKey exchangeKey = exchangeService.selectExchangeKey(new ExchangeKey(task.getExchangeKeyId(), userId));
         RunBackTestRequest.ExchangeAuth exchangeAuth = null;
         String exchangeName = exchangeKey.getExchangeName();
 
@@ -130,20 +132,21 @@ public class TaskService {
     private Task getAgentTaskFromId(Integer agentId) throws ParameterException, OperationException {
 
         //agent 테이블을 읽어서 Task에 채워준다.
-
         Agent agent = agentService.getAgent(agentId);
-        Task task = new Task();
-        task.setId(agentId.toString());
-
-
-        //TODO 값 셋팅.
-
-
+        ExchangeKey exchangeKey = exchangeService.selectExchangeKey(new ExchangeKey(agent.getExchangeKeyId(), agent.getUserId()));
+        Task task = agent.getTask();
+        task.setExchangeName(exchangeKey.getExchangeName());
+        task.setExchangeKeyId(agent.getExchangeKeyId());
         return task;
     }
 
     private void isNotEmpty(String field, String label) throws ParameterException {
         if(field == null || "".equals(field)){
+            throw new ParameterException(label);
+        }
+    }
+    private void isNotEmpty(Integer field, String label) throws ParameterException {
+        if(field == null){
             throw new ParameterException(label);
         }
     }

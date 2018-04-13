@@ -8,7 +8,7 @@ import java.util.Date;
  */
 public class Strategy {
 
-    private String id;
+    private Integer id;
     private String version;
     private String name;
     private Date createTime;
@@ -21,20 +21,16 @@ public class Strategy {
     public Strategy() {
     }
 
-    public Strategy(String id) {
-        this.id = id;
-    }
-
-    public Strategy(String id, String userId) {
+    public Strategy(Integer id, String userId) {
         this.id = id;
         this.userId = userId;
     }
 
-    public String getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

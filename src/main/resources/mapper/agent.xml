@@ -19,7 +19,7 @@
             ,#{baseCurrency}
             ,now()
             ,#{options}
-            ,'stop'
+            ,#{state}
             ,#{userId}
         )
     </insert>

@@ -8,17 +8,20 @@ import java.util.Date;
  */
 public class Agent {
 
+    public static String STATE_STOP = "stop";
+    public static String STATE_RUN = "running";
+
     private Integer id;
     private Integer strategyId;
     private String strategyVersion;
     private String name;
     private Integer exchangeKeyId;
-    private String capitalBase;
+    private Float capitalBase;
     private String baseCurrency;
     private Date createTime;
     private String options;
     private String state;
-    private boolean simulation;
+    private boolean simulationOrder;
     private String userId;
     private String ecsTaskId;
 
@@ -30,12 +33,12 @@ public class Agent {
         this.userId = userId;
     }
 
-    public boolean isSimulation() {
-        return simulation;
+    public boolean isSimulationOrder() {
+        return simulationOrder;
     }
 
-    public void setSimulation(boolean simulation) {
-        this.simulation = simulation;
+    public void setSimulationOrder(boolean simulationOrder) {
+        this.simulationOrder = simulationOrder;
     }
 
     public Integer getId() {
@@ -78,11 +81,11 @@ public class Agent {
         this.exchangeKeyId = exchangeKeyId;
     }
 
-    public String getCapitalBase() {
+    public Float getCapitalBase() {
         return capitalBase;
     }
 
-    public void setCapitalBase(String capitalBase) {
+    public void setCapitalBase(Float capitalBase) {
         this.capitalBase = capitalBase;
     }
 
@@ -124,5 +127,15 @@ public class Agent {
 
     public void setEcsTaskId(String ecsTaskId) {
         this.ecsTaskId = ecsTaskId;
+    }
+
+    public Task getTask() {
+        Task task = new Task();
+        task.setStrategyId(this.getStrategyId());
+        task.setBaseCurrency(this.baseCurrency);
+        task.setCapitalBase(this.capitalBase);
+        task.setLive(true);
+        task.setSimulationOrder(this.simulationOrder);
+        return task;
     }
 }

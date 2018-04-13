@@ -15,9 +15,9 @@ import java.util.List;
 public class Task {
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(Task.class);
 
-    private String id; //backTestId || agentId
+    private Integer id; //backTestId || agentId
     private String name;
-    private String strategyId;
+    private Integer strategyId;
     private String strategyVersion;
     private String options;
     private String userId;
@@ -44,6 +44,16 @@ public class Task {
 
     private String version;
 
+    private Integer exchangeKeyId;
+
+    public Integer getExchangeKeyId() {
+        return exchangeKeyId;
+    }
+
+    public void setExchangeKeyId(Integer exchangeKeyId) {
+        this.exchangeKeyId = exchangeKeyId;
+    }
+
     public String getVersion() {
         return version;
     }
@@ -58,22 +68,6 @@ public class Task {
 
     public void setEcsTaskId(String ecsTaskId) {
         this.ecsTaskId = ecsTaskId;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getStrategyId() {
-        return strategyId;
-    }
-
-    public void setStrategyId(String strategyId) {
-        this.strategyId = strategyId;
     }
 
     public String getStrategyVersion() {
@@ -148,14 +142,6 @@ public class Task {
         this.state = state;
     }
 
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
     public boolean isLive() {
         return live;
     }
@@ -204,11 +190,35 @@ public class Task {
         this.testTime = testTime;
     }
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Integer getStrategyId() {
+        return strategyId;
+    }
+
+    public void setStrategyId(Integer strategyId) {
+        this.strategyId = strategyId;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
     public List<String> getRunCommand(){
         List<String> cmd = new ArrayList<>();
         cmd.add("python3");
         cmd.add("run.py");
-        cmd.add(this.getStrategyId());
+        cmd.add(this.getStrategyId().toString());
         cmd.add(this.getExchangeName());
         cmd.add(this.getBaseCurrency());
         cmd.add(String.valueOf(this.getCapitalBase()));

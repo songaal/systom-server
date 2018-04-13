@@ -8,9 +8,6 @@ public class AgentRequestParams {
     public static final String LIVE_MODE = "LIVE";
     public static final String PAPER_MODE = "PAPER";
 
-    // 저장한 agent의 아이디.
-    private Integer agentId;
-
     // 거래소 키 아이디값.
     // id 로 거래소명, key, secret을 조회할 수 있다.
     private Integer exchangeKeyId;
@@ -23,14 +20,6 @@ public class AgentRequestParams {
     private String mode;
 
     public AgentRequestParams() {
-    }
-
-    public Integer getAgentId() {
-        return agentId;
-    }
-
-    public void setAgentId(Integer agentId) {
-        this.agentId = agentId;
     }
 
     public Integer getExchangeKeyId() {
@@ -60,8 +49,7 @@ public class AgentRequestParams {
     @Override
     public String toString() {
         return "AgentRequestParams{" +
-                "agentId='" + agentId + '\'' +
-                ", exchangeKeyId=" + exchangeKeyId +
+                "  exchangeKeyId=" + exchangeKeyId +
                 ", action='" + action + '\'' +
                 ", mode='" + mode + '\'' +
                 '}';

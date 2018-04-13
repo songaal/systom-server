@@ -5,8 +5,6 @@ import io.gncloud.coin.server.exception.AuthenticationException;
 import io.gncloud.coin.server.exception.OperationException;
 import io.gncloud.coin.server.exception.ParameterException;
 import io.gncloud.coin.server.model.Strategy;
-import io.gncloud.coin.server.message.RunBackTestRequest;
-import io.gncloud.coin.server.model.User;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,11 +43,11 @@ public class StrategyService {
         }
     }
 
-    public Strategy getStrategy(String strategyId) throws ParameterException, OperationException {
+    public Strategy getStrategy(Integer strategyId) throws ParameterException, OperationException {
         return getStrategy(strategyId, null);
     }
 
-    public Strategy getStrategy(String strategyId, String userId) throws ParameterException, OperationException {
+    public Strategy getStrategy(Integer strategyId, String userId) throws ParameterException, OperationException {
         isNotNull(strategyId, "strategyId");
 
         Strategy strategy = new Strategy(strategyId, userId);
@@ -81,7 +79,7 @@ public class StrategyService {
         isNotNull(newStrategy.getCode(), "code");
         isNotNull(newStrategy.getOptions(), "options");
 
-        Strategy strategy = getStrategy(userId, newStrategy.getId());
+        Strategy strategy = getStrategy(newStrategy.getId(), userId);
 
         if(!strategy.getUserId().equals(userId)){
             throw new AuthenticationException("You do not have permission.");
@@ -104,7 +102,7 @@ public class StrategyService {
         }
     }
 
-    public Strategy deleteStrategy(String strategyId, String userId) throws ParameterException, OperationException {
+    public Strategy deleteStrategy(Integer strategyId, String userId) throws ParameterException, OperationException {
         isNotNull(strategyId, "strategyId");
 
         Strategy strategy = getStrategy(strategyId, userId);
@@ -124,6 +122,11 @@ public class StrategyService {
 
     private void isNotNull(String field, String label) throws ParameterException {
         if(field == null || "".equals(field)){
+            throw new ParameterException(label);
+        }
+    }
+    private void isNotNull(Integer field, String label) throws ParameterException {
+        if(field == null){
             throw new ParameterException(label);
         }
     }

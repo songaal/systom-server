@@ -33,10 +33,10 @@ public class AgentService {
             isNotNull(agent.getName(), "agentName");
             isNotNull(agent.getUserId(), "userId");
 
-            if (!agent.isSimulation()) {
+            if (!agent.isSimulationOrder()) {
                 isNotNull(agent.getExchangeKeyId(), "exchangeKeyId");
             }
-
+            agent.setState(Agent.STATE_STOP);
             int resultCount = sqlSession.insert("agent.insertAgent", agent);
             if (resultCount != 1) {
                 throw new OperationException("[FAIL] Insert Agent resultCount: " + resultCount);
@@ -113,6 +113,11 @@ public class AgentService {
 
     private void isNotNull(String field, String label) throws ParameterException {
         if(field == null || "".equals(field)){
+            throw new ParameterException(label);
+        }
+    }
+    private void isNotNull(Float field, String label) throws ParameterException {
+        if(field == null){
             throw new ParameterException(label);
         }
     }

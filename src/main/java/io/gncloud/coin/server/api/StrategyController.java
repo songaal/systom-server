@@ -46,7 +46,7 @@ public class StrategyController extends AbstractController {
     }
 
     @GetMapping("/{strategyId}/model")
-    public ResponseEntity<?> getStrategyModel(@RequestAttribute String userId, @PathVariable String strategyId) {
+    public ResponseEntity<?> getStrategyModel(@RequestAttribute String userId, @PathVariable Integer strategyId) {
 //  TODO docker 접근 권한 추가
         try {
             Strategy registerStrategy = strategyService.getStrategy(strategyId, userId);
@@ -71,7 +71,7 @@ public class StrategyController extends AbstractController {
     }
 
     @GetMapping("/{strategyId}")
-    public ResponseEntity<?> getStrategy(@RequestAttribute String userId, @PathVariable String strategyId) {
+    public ResponseEntity<?> getStrategy(@RequestAttribute String userId, @PathVariable Integer strategyId) {
         try {
             Strategy registerStrategy = strategyService.getStrategy(strategyId);
             return new ResponseEntity<>(registerStrategy, HttpStatus.OK);
@@ -82,7 +82,7 @@ public class StrategyController extends AbstractController {
     }
 
     @PutMapping("/{strategyId}")
-    public ResponseEntity<?> updateStrategy(@RequestAttribute String userId, @PathVariable String strategyId, @RequestBody Strategy strategy) {
+    public ResponseEntity<?> updateStrategy(@RequestAttribute String userId, @PathVariable Integer strategyId, @RequestBody Strategy strategy) {
         try {
             strategy.setId(strategyId);
             Strategy registerStrategy = strategyService.updateStrategy(strategy, userId);
@@ -106,7 +106,7 @@ public class StrategyController extends AbstractController {
     }
 
     @DeleteMapping
-    public ResponseEntity<?> deleteStrategy(@RequestAttribute String userId, @RequestBody String strategyId) {
+    public ResponseEntity<?> deleteStrategy(@RequestAttribute String userId, @RequestBody Integer strategyId) {
         try {
             logger.debug("userId {}, strategy: {}", userId, strategyId);
             Strategy registerStrategy = strategyService.deleteStrategy(strategyId, userId);
