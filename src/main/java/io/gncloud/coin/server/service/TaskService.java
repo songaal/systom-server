@@ -2,6 +2,7 @@ package io.gncloud.coin.server.service;
 
 import com.amazonaws.services.ecs.model.KeyValuePair;
 import com.amazonaws.services.ecs.model.RunTaskResult;
+import com.amazonaws.services.ecs.model.StopTaskResult;
 import io.gncloud.coin.server.exception.AuthenticationException;
 import io.gncloud.coin.server.exception.OperationException;
 import io.gncloud.coin.server.exception.ParameterException;
@@ -85,11 +86,7 @@ public class TaskService {
 
         ExchangeKey exchangeKey = exchangeService.selectExchangeKey(new ExchangeKey(exchangeKeyId, userId));
         RunBackTestRequest.ExchangeAuth exchangeAuth = null;
-//        if(isLiveMode) {
-//            exchangeKey = exchangeService.selectExchangeKey(new ExchangeKey(exchangeKeyId, userId));
-//        }
         String exchangeName = exchangeKey.getExchangeName();
-        Strategy strategy = strategyService.getStrategy(task.getStrategyId());
 
         List<KeyValuePair> environmentList = new ArrayList<>();
         if(isLiveMode) {
@@ -99,7 +96,7 @@ public class TaskService {
         environmentList.add(new KeyValuePair().withName("exchangeList").withValue(exchangeName));
         environmentList.add(new KeyValuePair().withName("user_token").withValue(userId));
 
-        logger.debug("[ LIVE ] RUN {}", task);
+        logger.debug("[ LIVE={} ] RUN {}", isLiveMode, task);
         RunTaskResult result = awsUtils.runTask(task, environmentList);
 
         String ecsTaskId = parseTaskId(result);
@@ -108,12 +105,14 @@ public class TaskService {
     }
 
 
-
     public Task stopAgentTask(String userId, String agentId) {
+        Task task = getAgentTaskFromId(agentId);
 
+        StopTaskResult stopTaskResult = awsUtils.stopTask(task.getEcsTaskId(), "User stop request : " + userId + ", " + agentId);
+        com.amazonaws.services.ecs.model.Task stopedTask = stopTaskResult.getTask();
 
-
-        return null;
+        logger.debug("Stopped task : {}", stopedTask);
+        return task;
     }
 
 
@@ -122,7 +121,15 @@ public class TaskService {
     }
 
     private Task getAgentTaskFromId(String agentId) {
-        return null;
+
+        Task task = new Task();
+        task.setId(agentId);
+
+        //TODO 디비를 agent 테이블을 읽어서 Task에 채워준다.
+
+
+
+        return task;
     }
 
     private void isNotEmpty(String field, String label) throws ParameterException {

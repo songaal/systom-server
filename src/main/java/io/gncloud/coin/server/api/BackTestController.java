@@ -32,7 +32,6 @@ public class BackTestController extends AbstractController {
             logger.debug("Run Task: {}", runBackTestRequest.getTask());
             if(task != null) {
                 task = taskService.runBackTestTask(userId, task);
-                String ecsTask = task.getEcsTaskId();
                 return success(task);
             }
 

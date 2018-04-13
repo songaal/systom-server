@@ -75,9 +75,6 @@ public class AgentController extends AbstractController {
 
             } else if(AgentRequestParams.STOP_ACTION.equalsIgnoreCase(agentRequestParams.getAction())) {
                 task = taskService.stopAgentTask(userId, agentRequestParams.getAgentId());
-                task.setStartTime("");
-                task.setEndTime("");
-                task.setDataFrequency("");
                 return success(task);
             }
         } catch (AbstractException e) {
