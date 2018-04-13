@@ -80,20 +80,22 @@ public class TaskService {
         }
     }
 
-    public Task runLiveAgentTask(String userId, String agentId, Integer exchangeKeyId) throws ParameterException, OperationException {
+    public Task runAgentTask(String userId, String agentId, Integer exchangeKeyId, boolean isLiveMode) throws ParameterException, OperationException {
         Task task = getAgentTaskFromId(agentId);
 
         ExchangeKey exchangeKey = exchangeService.selectExchangeKey(new ExchangeKey(exchangeKeyId, userId));
         RunBackTestRequest.ExchangeAuth exchangeAuth = null;
-//        if(!task.isSimulationOrder()) {
+//        if(isLiveMode) {
 //            exchangeKey = exchangeService.selectExchangeKey(new ExchangeKey(exchangeKeyId, userId));
 //        }
         String exchangeName = exchangeKey.getExchangeName();
         Strategy strategy = strategyService.getStrategy(task.getStrategyId());
 
         List<KeyValuePair> environmentList = new ArrayList<>();
-        environmentList.add(new KeyValuePair().withName(exchangeName + "_key").withValue(exchangeAuth.getKey()));
-        environmentList.add(new KeyValuePair().withName(exchangeName + "_secret").withValue(exchangeAuth.getSecret()));
+        if(isLiveMode) {
+            environmentList.add(new KeyValuePair().withName(exchangeName + "_key").withValue(exchangeAuth.getKey()));
+            environmentList.add(new KeyValuePair().withName(exchangeName + "_secret").withValue(exchangeAuth.getSecret()));
+        }
         environmentList.add(new KeyValuePair().withName("exchangeList").withValue(exchangeName));
         environmentList.add(new KeyValuePair().withName("user_token").withValue(userId));
 
@@ -104,6 +106,16 @@ public class TaskService {
         task.setEcsTaskId(ecsTaskId);
         return task;
     }
+
+
+
+    public Task stopAgentTask(String userId, String agentId) {
+
+
+
+        return null;
+    }
+
 
     private String parseTaskId(RunTaskResult result) {
         return result.getTasks().get(0).getTaskArn().split("/")[1];
@@ -133,5 +145,6 @@ public class TaskService {
         }
 
     }
+
 
 }
