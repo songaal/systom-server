@@ -3,6 +3,7 @@ package io.gncloud.coin.server.api;
 import io.gncloud.coin.server.exception.AbstractException;
 import io.gncloud.coin.server.message.AgentRequestParams;
 import io.gncloud.coin.server.model.Task;
+import io.gncloud.coin.server.model.Agent;
 import io.gncloud.coin.server.service.AgentService;
 import io.gncloud.coin.server.service.TaskService;
 import org.slf4j.LoggerFactory;
@@ -29,21 +30,32 @@ public class AgentController extends AbstractController {
     private AgentService agentService;
 
     @PostMapping
-    public void insertAgent() {
+    public ResponseEntity<?> insertAgent(@RequestBody Agent agent) {
+        try {
+            Agent registerAgent = agentService.insertAgent(agent);
 
+            return success(registerAgent);
+        } catch (AbstractException e){
+            logger.error("", e);
+            return e.response();
+        }
     }
+
     @GetMapping
     public void selectAgent() {
 
     }
+
     @GetMapping("/{id}")
     public void getAgent() {
 
     }
+
     @PutMapping
     public void updateAgent() {
 
     }
+
     @DeleteMapping
     public void deleteAgent() {
 
