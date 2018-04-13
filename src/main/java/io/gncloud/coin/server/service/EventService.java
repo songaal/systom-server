@@ -148,9 +148,9 @@ public class EventService {
     private void sendToWebsocketData(String jsonData, EventMetadata eventMetadata) {
         String key = null;
         if(eventMetadata.isBackTestMode()) {
-            key = EventWebSocketHandler.KEY_PREFIX_BACKTEST + eventMetadata.getUser() + "_" + eventMetadata.getStrategyId() + "_" + eventMetadata.getTestId();
+            key = EventWebSocketHandler.KEY_PREFIX_BACKTEST + eventMetadata.getTestId();
         } else {
-            key = EventWebSocketHandler.KEY_PREFIX_AGENT + eventMetadata.getUser() + "_" + eventMetadata.getAgentId();
+            key = EventWebSocketHandler.KEY_PREFIX_AGENT + eventMetadata.getAgentId();
         }
         TextMessage message = new TextMessage(jsonData);
         WebSocketSessionInfoSet infoSet = websocketSubscriberMap.get(key);

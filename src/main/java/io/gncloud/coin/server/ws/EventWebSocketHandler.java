@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 public class EventWebSocketHandler extends TextWebSocketHandler {
     private Logger logger = LoggerFactory.getLogger(EventWebSocketHandler.class);
 
-    private static final String PATH_BACKTEST = "/test";
+    private static final String PATH_BACKTEST = "/backtest";
     private static final String PATH_AGENT = "/agent";
 
     public static final String KEY_PREFIX_BACKTEST = "t_";
