@@ -48,6 +48,26 @@ public class AgentService {
         }
     }
 
+    public Agent updateAgent(Agent agent) throws OperationException, ParameterException {
+        try {
+            isNotNull(agent.getStrategyId(), "strategyId");
+            isNotNull(agent.getStrategyVersion(), "strategyVersion");
+            isNotNull(agent.getBaseCurrency(), "baseCurrency");
+            isNotNull(agent.getCapitalBase(), "capitalBase");
+            isNotNull(agent.getName(), "agentName");
+            isNotNull(agent.getUserId(), "userId");
+
+            int resultCount = sqlSession.update("agent.updateAgent", agent);
+            if (resultCount != 1) {
+                throw new OperationException("[FAIL] Update Agent resultCount: " + resultCount);
+            }
+            return agent;
+        } catch (Exception e) {
+            logger.error("", e);
+            throw new OperationException("[FAIL] Agent Update error");
+        }
+    }
+
     public List<Agent> selectAgent(String userId) throws OperationException, ParameterException {
         try {
             isNotNull(userId, "userId");

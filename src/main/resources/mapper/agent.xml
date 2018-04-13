@@ -24,6 +24,25 @@
         )
     </insert>
 
+    <insert id="updateAgent" parameterType="Agent" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO agent
+        (id,strategy_id,strategy_version,name,exchange_key_id,capital_base,base_currency,create_time,options,state,user_id)
+        VALUES
+        (
+        ${id}
+        ,${strategyId}
+        ,#{strategyVersion}
+        ,#{name}
+        ,#{exchangeKeyId}
+        ,#{capitalBase}
+        ,#{baseCurrency}
+        ,now()
+        ,#{options}
+        ,'stop'
+        ,#{userId}
+        )
+    </insert>
+
     <select id="selectAgent" parameterType="Agent" resultType="Agent">
         SELECT  id,
                 strategy_id,
@@ -38,9 +57,12 @@
                 options,
                 state,
                 user_id,
-                ecs_task
+                ecs_task_id,
         FROM agent
-        where user_id = #{userId}
+        where 1=1
+        <if test="userId != null and userId != ''">
+            and user_id = #{userId}
+        </if>
         <if test="id != null and id != ''">
             and id = #{id}
         </if>

@@ -9,7 +9,7 @@ public class AgentRequestParams {
     public static final String PAPER_MODE = "PAPER";
 
     // 저장한 agent의 아이디.
-    private String agentId;
+    private Integer agentId;
 
     // 거래소 키 아이디값.
     // id 로 거래소명, key, secret을 조회할 수 있다.
@@ -25,11 +25,11 @@ public class AgentRequestParams {
     public AgentRequestParams() {
     }
 
-    public String getAgentId() {
+    public Integer getAgentId() {
         return agentId;
     }
 
-    public void setAgentId(String agentId) {
+    public void setAgentId(Integer agentId) {
         this.agentId = agentId;
     }
 

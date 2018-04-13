@@ -7,10 +7,7 @@ import io.gncloud.coin.server.exception.AuthenticationException;
 import io.gncloud.coin.server.exception.OperationException;
 import io.gncloud.coin.server.exception.ParameterException;
 import io.gncloud.coin.server.message.RunBackTestRequest;
-import io.gncloud.coin.server.model.ExchangeKey;
-import io.gncloud.coin.server.model.Strategy;
-import io.gncloud.coin.server.model.Task;
-import io.gncloud.coin.server.model.User;
+import io.gncloud.coin.server.model.*;
 import io.gncloud.coin.server.utils.AwsUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
@@ -38,6 +35,9 @@ public class TaskService {
 
     @Autowired
     private ExchangeService exchangeService;
+
+    @Autowired
+    private AgentService agentService;
 
     @Autowired
     private SqlSession sqlSession;
@@ -81,7 +81,8 @@ public class TaskService {
         }
     }
 
-    public Task runAgentTask(String userId, String agentId, Integer exchangeKeyId, boolean isLiveMode) throws ParameterException, OperationException {
+    public Task runAgentTask(String userId, Integer agentId, Integer exchangeKeyId, boolean isLiveMode) throws ParameterException, OperationException {
+
         Task task = getAgentTaskFromId(agentId);
 
         ExchangeKey exchangeKey = exchangeService.selectExchangeKey(new ExchangeKey(exchangeKeyId, userId));
@@ -101,13 +102,19 @@ public class TaskService {
 
         String ecsTaskId = parseTaskId(result);
         task.setEcsTaskId(ecsTaskId);
+
+        Agent agent = new Agent();
+        //TODO agent 값 셋팅
+        agent.setEcsTaskId(ecsTaskId);
+        agentService.updateAgent(agent);
         return task;
     }
 
 
-    public Task stopAgentTask(String userId, String agentId) {
-        Task task = getAgentTaskFromId(agentId);
-
+    public Task stopAgentTask(String userId, Integer agentId) throws ParameterException, OperationException {
+        Agent agent = agentService.getAgent(agentId);
+        Task task = new Task();
+        task.setEcsTaskId(agent.getEcsTaskId());
         StopTaskResult stopTaskResult = awsUtils.stopTask(task.getEcsTaskId(), "User stop request : " + userId + ", " + agentId);
         com.amazonaws.services.ecs.model.Task stopedTask = stopTaskResult.getTask();
 
@@ -120,13 +127,16 @@ public class TaskService {
         return result.getTasks().get(0).getTaskArn().split("/")[1];
     }
 
-    private Task getAgentTaskFromId(String agentId) {
+    private Task getAgentTaskFromId(Integer agentId) throws ParameterException, OperationException {
 
+        //agent 테이블을 읽어서 Task에 채워준다.
+
+        Agent agent = agentService.getAgent(agentId);
         Task task = new Task();
-        task.setId(agentId);
+        task.setId(agentId.toString());
 
-        //TODO 디비를 agent 테이블을 읽어서 Task에 채워준다.
 
+        //TODO 값 셋팅.
 
 
         return task;

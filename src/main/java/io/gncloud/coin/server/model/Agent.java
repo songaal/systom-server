@@ -18,8 +18,9 @@ public class Agent {
     private Date createTime;
     private String options;
     private String state;
-    private boolean Simulation;
+    private boolean simulation;
     private String userId;
+    private String ecsTaskId;
 
     public String getUserId() {
         return userId;
@@ -30,11 +31,11 @@ public class Agent {
     }
 
     public boolean isSimulation() {
-        return Simulation;
+        return simulation;
     }
 
     public void setSimulation(boolean simulation) {
-        Simulation = simulation;
+        this.simulation = simulation;
     }
 
     public Integer getId() {
@@ -115,5 +116,13 @@ public class Agent {
 
     public void setState(String state) {
         this.state = state;
+    }
+
+    public String getEcsTaskId() {
+        return ecsTaskId;
+    }
+
+    public void setEcsTaskId(String ecsTaskId) {
+        this.ecsTaskId = ecsTaskId;
     }
 }
