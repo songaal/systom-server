@@ -4,6 +4,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.EnvironmentAware;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.ApiContextInitializer;
@@ -18,7 +19,7 @@ import java.util.Map;
  * create joonwoo 2018. 3. 24.
  * 
  */
-
+@Profile("telegram")
 @Service
 public class EventWatchTelegramService {
 
