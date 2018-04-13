@@ -31,13 +31,6 @@ public class ExchangeService {
 
     public ExchangeKey insertExchangeKey (ExchangeKey exchangeKey) throws OperationException {
         try {
-//            Map<String, Object> params = new HashMap<>();
-//            params.put("userId", exchangeKey.getUserId());
-//            params.put("apiKey", exchangeKey.getApiKey());
-//            params.put("secretKey", exchangeKey.getSecretKey());
-//            params.put("exchangeName", exchangeKey.getExchangeName());
-//            params.put("name", exchangeKey.getName());
-
             int resultCount = sqlSession.insert("exchange.insertKey", exchangeKey);
             if (resultCount != 1) {
                 throw new OperationException("[FAIL] insert exchangeKey result 0");
