@@ -18,7 +18,7 @@ public class Agent {
     private Date createTime;
     private String options;
     private String state;
-    private boolean Simulation;
+    private boolean simulation;
     private String userId;
 
     public String getUserId() {
@@ -30,11 +30,11 @@ public class Agent {
     }
 
     public boolean isSimulation() {
-        return Simulation;
+        return simulation;
     }
 
     public void setSimulation(boolean simulation) {
-        Simulation = simulation;
+        this.simulation = simulation;
     }
 
     public Integer getId() {

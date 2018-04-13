@@ -41,7 +41,7 @@ public class AgentService {
             if (resultCount != 1) {
                 throw new OperationException("[FAIL] Insert Agent resultCount: " + resultCount);
             }
-            return agent;
+            return getAgent(agent.getId());
         } catch (Exception e) {
             logger.error("", e);
             throw new OperationException("[FAIL] Agent Insert error");

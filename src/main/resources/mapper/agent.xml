@@ -10,11 +10,11 @@
         (id,strategy_id,strategy_version,name,exchange_key_id,capital_base,base_currency,create_time,options,state,user_id)
         VALUES
         (
-            ${id}
-            ,${strategyId}
+            #{id}
+            ,#{strategyId}
             ,#{strategyVersion}
             ,#{name}
-            ,#{exchangeKeyId}
+            ,#{exchangeKeyId,jdbcType=INTEGER}
             ,#{capitalBase}
             ,#{baseCurrency}
             ,now()
@@ -38,12 +38,14 @@
                 options,
                 state,
                 user_id,
-                ecs_task
+                ecs_task_id
         FROM agent
-        where user_id = #{userId}
-        <if test="id != null and id != ''">
-            and id = #{id}
-        </if>
+        where 1=1
+        <choose>
+            <when test="id != null and id != ''">and id = #{id}</when>
+            <when test="userId != null and userId != ''">and user_id = #{userId}</when>
+            <otherwise>and 1=2</otherwise>
+        </choose>
     </select>
 
     <delete id="deleteAgent" parameterType="Agent">
