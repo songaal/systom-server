@@ -47,7 +47,6 @@ public class StrategyController extends AbstractController {
 
     @GetMapping("/{strategyId}/model")
     public ResponseEntity<?> getStrategyModel(@RequestAttribute String userId, @PathVariable Integer strategyId) {
-//  TODO docker 접근 권한 추가
         try {
             Strategy registerStrategy = strategyService.getStrategy(strategyId, userId);
             Map<String, String> response = new HashMap<>();
@@ -97,6 +96,7 @@ public class StrategyController extends AbstractController {
     public ResponseEntity<?> createStrategy(@RequestAttribute String userId, @RequestBody Strategy createStrategy) {
         try {
             logger.debug("userId {}, strategy: {}", userId, strategyService);
+            createStrategy.setUserId(userId);
             Strategy registerStrategy = strategyService.insertStrategy(createStrategy);
             return success(registerStrategy);
         } catch (AbstractException e) {

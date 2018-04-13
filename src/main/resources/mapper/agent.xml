@@ -24,24 +24,38 @@
         )
     </insert>
 
-    <insert id="updateAgent" parameterType="Agent" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO agent
-        (id,strategy_id,strategy_version,name,exchange_key_id,capital_base,base_currency,create_time,options,state,user_id)
-        VALUES
-        (
-        ${id}
-        ,${strategyId}
-        ,#{strategyVersion}
-        ,#{name}
-        ,#{exchangeKeyId}
-        ,#{capitalBase}
-        ,#{baseCurrency}
-        ,now()
-        ,#{options}
-        ,'stop'
-        ,#{userId}
-        )
-    </insert>
+    <update id="updateAgent" parameterType="Agent">
+        update agent
+         set id = #{id}
+        <if test="name != null and name != ''">
+            , name = #{name}
+        </if>
+        <if test="strategyId != null and strategyId != ''">
+            , strategy_id = #{strategyId}
+        </if>
+        <if test="exchangeKeyId != null and exchangeKeyId != ''">
+            , exchange_key_id = #{exchangeKeyId}
+        </if>
+        <if test="strategyVersion != null and strategyVersion != ''">
+            , strategy_version = #{strategyVersion}
+        </if>
+        <if test="capitalBase != null and capitalBase != ''">
+            , capital_base = #{capitalBase}
+        </if>
+        <if test="baseCurrency != null and baseCurrency != ''">
+            , base_currency = #{baseCurrency}
+        </if>
+        <if test="options != null and options != ''">
+            , options = #{options}
+        </if>
+        <if test="state != null and state != ''">
+            , state = #{state}
+        </if>
+        <if test="ecsTaskId != null and ecsTaskId != ''">
+            , ecs_task_id = #{ecsTaskId}
+        </if>
+        where id = #{id}
+    </update>
 
     <select id="selectAgent" parameterType="Agent" resultType="Agent">
         SELECT  id,

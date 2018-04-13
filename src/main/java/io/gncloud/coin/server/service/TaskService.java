@@ -104,10 +104,11 @@ public class TaskService {
 
         String ecsTaskId = parseTaskId(result);
         task.setEcsTaskId(ecsTaskId);
-
+        logger.info("starting ecs: {}", ecsTaskId);
         Agent agent = new Agent();
-        //TODO agent 값 셋팅
+        agent.setId(task.getId());
         agent.setEcsTaskId(ecsTaskId);
+        agent.setState(Agent.STATE_RUN);
         agentService.updateAgent(agent);
         return task;
     }

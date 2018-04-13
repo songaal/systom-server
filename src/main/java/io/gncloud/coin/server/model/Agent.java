@@ -10,6 +10,7 @@ public class Agent {
 
     public static String STATE_STOP = "stop";
     public static String STATE_RUN = "running";
+    public static String STATE_ERROR = "error";
 
     private Integer id;
     private Integer strategyId;
@@ -131,6 +132,7 @@ public class Agent {
 
     public Task getTask() {
         Task task = new Task();
+        task.setId(this.id);
         task.setStrategyId(this.getStrategyId());
         task.setBaseCurrency(this.baseCurrency);
         task.setCapitalBase(this.capitalBase);
