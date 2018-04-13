@@ -30,7 +30,7 @@ public class AuthInterceptor implements HandlerInterceptor {
     //ip 내부망은 true  , 그외 false
 
     // 토큰 확인 안하는 URL
-    private List<String> exceptUrl = Arrays.asList( "/auth/login", "/auth/signUp", "/ping", "/ws", "/error" );
+    private List<String> exceptUrl = Arrays.asList( "/auth/login", "/auth/signUp", "/ping", "/ws", "/error", "/auth/changeTempPassword" );
 
 
     /**
