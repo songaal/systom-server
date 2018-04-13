@@ -2,6 +2,7 @@ package io.gncloud.coin.server.service;
 
 import com.amazonaws.services.ecs.model.KeyValuePair;
 import com.amazonaws.services.ecs.model.RunTaskResult;
+import com.amazonaws.services.ecs.model.StopTaskResult;
 import io.gncloud.coin.server.exception.AuthenticationException;
 import io.gncloud.coin.server.exception.OperationException;
 import io.gncloud.coin.server.exception.ParameterException;
@@ -80,24 +81,22 @@ public class TaskService {
         }
     }
 
-    public Task runLiveAgentTask(String userId, String agentId, Integer exchangeKeyId) throws ParameterException, OperationException {
+    public Task runAgentTask(String userId, String agentId, Integer exchangeKeyId, boolean isLiveMode) throws ParameterException, OperationException {
         Task task = getAgentTaskFromId(agentId);
 
         ExchangeKey exchangeKey = exchangeService.selectExchangeKey(new ExchangeKey(exchangeKeyId, userId));
         RunBackTestRequest.ExchangeAuth exchangeAuth = null;
-//        if(!task.isSimulationOrder()) {
-//            exchangeKey = exchangeService.selectExchangeKey(new ExchangeKey(exchangeKeyId, userId));
-//        }
         String exchangeName = exchangeKey.getExchangeName();
-        Strategy strategy = strategyService.getStrategy(task.getStrategyId());
 
         List<KeyValuePair> environmentList = new ArrayList<>();
-        environmentList.add(new KeyValuePair().withName(exchangeName + "_key").withValue(exchangeAuth.getKey()));
-        environmentList.add(new KeyValuePair().withName(exchangeName + "_secret").withValue(exchangeAuth.getSecret()));
+        if(isLiveMode) {
+            environmentList.add(new KeyValuePair().withName(exchangeName + "_key").withValue(exchangeAuth.getKey()));
+            environmentList.add(new KeyValuePair().withName(exchangeName + "_secret").withValue(exchangeAuth.getSecret()));
+        }
         environmentList.add(new KeyValuePair().withName("exchangeList").withValue(exchangeName));
         environmentList.add(new KeyValuePair().withName("user_token").withValue(userId));
 
-        logger.debug("[ LIVE ] RUN {}", task);
+        logger.debug("[ LIVE={} ] RUN {}", isLiveMode, task);
         RunTaskResult result = awsUtils.runTask(task, environmentList);
 
         String ecsTaskId = parseTaskId(result);
@@ -105,12 +104,32 @@ public class TaskService {
         return task;
     }
 
+
+    public Task stopAgentTask(String userId, String agentId) {
+        Task task = getAgentTaskFromId(agentId);
+
+        StopTaskResult stopTaskResult = awsUtils.stopTask(task.getEcsTaskId(), "User stop request : " + userId + ", " + agentId);
+        com.amazonaws.services.ecs.model.Task stopedTask = stopTaskResult.getTask();
+
+        logger.debug("Stopped task : {}", stopedTask);
+        return task;
+    }
+
+
     private String parseTaskId(RunTaskResult result) {
         return result.getTasks().get(0).getTaskArn().split("/")[1];
     }
 
     private Task getAgentTaskFromId(String agentId) {
-        return null;
+
+        Task task = new Task();
+        task.setId(agentId);
+
+        //TODO 디비를 agent 테이블을 읽어서 Task에 채워준다.
+
+
+
+        return task;
     }
 
     private void isNotEmpty(String field, String label) throws ParameterException {
@@ -133,5 +152,6 @@ public class TaskService {
         }
 
     }
+
 
 }

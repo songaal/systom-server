@@ -15,7 +15,7 @@ import java.util.List;
 public class Task {
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(Task.class);
 
-    private String id;
+    private String id; //backTestId || agentId
     private String name;
     private String strategyId;
     private String strategyVersion;
@@ -35,9 +35,12 @@ public class Task {
 
     private Date testTime;
     private boolean simulationOrder = true;
+
+    /** BackTest 전용 파라미터 시작 */
     private String startTime;
     private String endTime;
     private String dataFrequency;
+    /** // BackTest 전용 파라미터 끝 */
 
     private String version;
 

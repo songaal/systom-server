@@ -29,7 +29,6 @@ public class AwsUtils {
     @Value("${aws.ecs.clusterId}")
     private String clusterId;
 
-
     private AmazonECS client;
 
     @PostConstruct
@@ -59,4 +58,12 @@ public class AwsUtils {
     }
 
 
+
+    public StopTaskResult stopTask(String taskId, String reason){
+        StopTaskRequest stopTaskRequest = new StopTaskRequest();
+        stopTaskRequest.withReason(reason)
+                .withTask(taskId)
+                .withCluster(clusterId);
+        return client.stopTask(stopTaskRequest);
+    }
 }
