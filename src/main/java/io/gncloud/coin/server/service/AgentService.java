@@ -50,14 +50,7 @@ public class AgentService {
 
     public Agent updateAgent(Agent agent) throws OperationException, ParameterException {
         try {
-//            isNotNull(agent.getStrategyId(), "strategyId");
-//            isNotNull(agent.getStrategyVersion(), "strategyVersion");
-//            isNotNull(agent.getBaseCurrency(), "baseCurrency");
-//            isNotNull(agent.getCapitalBase(), "capitalBase");
-//            isNotNull(agent.getName(), "agentName");
             isNotNull(agent.getId(), "id");
-
-
             int resultCount = sqlSession.update("agent.updateAgent", agent);
             if (resultCount != 1) {
                 throw new OperationException("[FAIL] Update Agent resultCount: " + resultCount);

@@ -3,7 +3,6 @@ package io.gncloud.coin.server.api;
 import io.gncloud.coin.server.exception.AbstractException;
 import io.gncloud.coin.server.message.RunBackTestRequest;
 import io.gncloud.coin.server.model.Task;
-import io.gncloud.coin.server.service.StrategyService;
 import io.gncloud.coin.server.service.TaskService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

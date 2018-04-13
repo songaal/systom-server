@@ -233,4 +233,31 @@ public class Task {
         logger.debug("request Parameter >> {}", cmd);
         return cmd;
     }
+
+    @Override
+    public String toString() {
+        return "Task{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", strategyId=" + strategyId +
+                ", strategyVersion='" + strategyVersion + '\'' +
+                ", options='" + options + '\'' +
+                ", userId='" + userId + '\'' +
+                ", exchangeName='" + exchangeName + '\'' +
+                ", capitalBase=" + capitalBase +
+                ", baseCurrency='" + baseCurrency + '\'' +
+                ", coin='" + coin + '\'' +
+                ", state='" + state + '\'' +
+                ", revenue=" + revenue +
+                ", ecsTaskId='" + ecsTaskId + '\'' +
+                ", live=" + live +
+                ", testTime=" + testTime +
+                ", simulationOrder=" + simulationOrder +
+                ", startTime='" + startTime + '\'' +
+                ", endTime='" + endTime + '\'' +
+                ", dataFrequency='" + dataFrequency + '\'' +
+                ", version='" + version + '\'' +
+                ", exchangeKeyId=" + exchangeKeyId +
+                '}';
+    }
 }
