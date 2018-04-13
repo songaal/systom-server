@@ -132,11 +132,4 @@ public class StrategyService {
             throw new ParameterException(label);
         }
     }
-
-    public RunBackTestRequest.ExchangeAuth getExchangeAuth(String token, String exchangeName, String userPin) {
-
-        //Todo db에서 auth를 조회한뒤 userPin번호로 디코딩한다.
-
-        return new RunBackTestRequest.ExchangeAuth();
-    }
 }

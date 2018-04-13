@@ -3,9 +3,9 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="testing">
+<mapper namespace="backtest">
 
-    <insert id="insertTestHistory" parameterType="Task">
+    <insert id="insertHistory" parameterType="Task" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO test_history
         (strategy_id,
         strategy_version,
@@ -29,7 +29,7 @@
         )
     </insert>
 
-    <update id="updateTestHistory" parameterType="Task">
+    <update id="updateHistory" parameterType="Task">
         update test_history
            set strategy_id = #{strategyId}
               , strategy_version = #{strategyVersion}
@@ -39,28 +39,7 @@
         where id = #{id}
     </update>
 
-    <select id="selectLatestTestHistory" parameterType="Task" resultType="Task">
-        SELECT id,
-            strategy_id,
-            strategy_version,
-            action,
-            test_time,
-            exchange_name,
-            coin,
-            revenue,
-            start_time,
-            end_time,
-            user_id,
-            ecs_task_id
-        FROM test_history
-        WHERE 1=1
-        AND USER_ID = #{userId}
-        AND strategy_id = #{strategyId}
-        ORDER BY test_time desc
-        LIMIT 1
-    </select>
-
-    <select id="selectTestHistory" parameterType="String" resultType="Task">
+    <select id="selectHistory" parameterType="String" resultType="Task">
         SELECT a.id,
             a.strategy_id,
             a.strategy_version,

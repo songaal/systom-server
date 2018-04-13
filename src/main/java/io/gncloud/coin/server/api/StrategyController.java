@@ -35,9 +35,9 @@ public class StrategyController extends AbstractController{
     private Gson gson = new Gson();
 
     @GetMapping("/me")
-    public ResponseEntity<?> getStrategyList(@RequestHeader(name = "X-coincloud-user-id") String token) {
+    public ResponseEntity<?> getStrategyList(@RequestAttribute String userId) {
         try {
-            List<Strategy> registerStrategyList = strategyService.findStrategyByUser(token);
+            List<Strategy> registerStrategyList = strategyService.findStrategyByUser(userId);
             return success(registerStrategyList);
         } catch (AbstractException e){
             logger.error("", e);
@@ -45,11 +45,11 @@ public class StrategyController extends AbstractController{
         }
     }
 
-    @GetMapping("/{strategyId}/doc")
-    public ResponseEntity<?> getStrategyAgent(@PathVariable String strategyId, @RequestHeader(name = "X-coincloud-user-id") String token) {
+    @GetMapping("/{strategyId}/model")
+    public ResponseEntity<?> getStrategyAgent(@RequestAttribute String userId, @PathVariable String strategyId) {
 //  TODO docker 접근 권한 추가
         try {
-            Strategy registerStrategy = strategyService.getStrategy(token, strategyId);
+            Strategy registerStrategy = strategyService.getStrategy(strategyId, userId);
             Map<String, String> response = new HashMap<>();
             response.put("code", registerStrategy.getCode());
             Map<String, Object> optionMap = new HashMap<>();
@@ -71,7 +71,7 @@ public class StrategyController extends AbstractController{
     }
 
     @GetMapping("/{strategyId}")
-    public ResponseEntity<?> getStrategy(@PathVariable String strategyId, @RequestHeader(name = "X-coincloud-user-id") String token) {
+    public ResponseEntity<?> getStrategy(@RequestAttribute String userId, @PathVariable String strategyId) {
         try {
             Strategy registerStrategy = strategyService.getStrategy(strategyId);
             return new ResponseEntity<>(registerStrategy, HttpStatus.OK);
@@ -82,7 +82,7 @@ public class StrategyController extends AbstractController{
     }
 
     @PutMapping("/{strategyId}")
-    public ResponseEntity<?> updateStrategy(@PathVariable String strategyId, @RequestHeader(name = "X-coincloud-user-id") String userId, @RequestBody Strategy strategy) {
+    public ResponseEntity<?> updateStrategy(@RequestAttribute String userId, @PathVariable String strategyId, @RequestBody Strategy strategy) {
         try {
             strategy.setId(strategyId);
             Strategy registerStrategy = strategyService.updateStrategy(strategy, userId);
@@ -94,9 +94,9 @@ public class StrategyController extends AbstractController{
     }
 
     @PostMapping
-    public ResponseEntity<?> createStrategy(@RequestHeader(name = "X-coincloud-user-id") String token, @RequestBody Strategy createStrategy) {
+    public ResponseEntity<?> createStrategy(@RequestAttribute String userId, @RequestBody Strategy createStrategy) {
         try {
-            logger.debug("token {}, strategy: {}", token, strategyService);
+            logger.debug("userId {}, strategy: {}", userId, strategyService);
             Strategy registerStrategy = strategyService.insertStrategy(createStrategy);
             return success(registerStrategy);
         } catch (AbstractException e){
@@ -106,7 +106,7 @@ public class StrategyController extends AbstractController{
     }
 
     @DeleteMapping
-    public ResponseEntity<?> deleteStrategy(@RequestHeader(name = "X-coincloud-user-id") String userId, @RequestBody String strategyId) {
+    public ResponseEntity<?> deleteStrategy(@RequestAttribute String userId, @RequestBody String strategyId) {
         try {
             logger.debug("userId {}, strategy: {}", userId, strategyId);
             Strategy registerStrategy = strategyService.deleteStrategy(strategyId, userId);

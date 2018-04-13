@@ -29,13 +29,13 @@ public class TaskController extends AbstractController {
     @Autowired
     private StrategyService strategyService;
 
-    @PostMapping("/test")
-    public ResponseEntity<?> runBackTestTask(@RequestHeader(name = "X-coincloud-user-id", required = false) String userId, @RequestBody RunBackTestRequest runBackTestRequest) {
+    @PostMapping("/backtest")
+    public ResponseEntity<?> runBackTestTask(@RequestAttribute String userId, @RequestBody RunBackTestRequest runBackTestRequest) {
         try {
             Task task = runBackTestRequest.getTask();
             logger.debug("Run Task: {}", runBackTestRequest.getTask());
             if(task != null) {
-                task = taskService.runBackTestTask(task);
+                task = taskService.runBackTestTask(userId, task);
                 String ecsTask = task.getEcsTaskId();
                 return success(task);
             }
@@ -48,14 +48,11 @@ public class TaskController extends AbstractController {
     }
 
     @PostMapping("/agent")
-    public ResponseEntity<?> runLiveAgentTask(@RequestHeader(name = "X-coincloud-user-id", required = false) String userId, @RequestBody RunLiveAgentRequest runLiveAgentRequest) {
+    public ResponseEntity<?> runLiveAgentTask(@RequestAttribute String userId, @RequestBody RunLiveAgentRequest runLiveAgentRequest) {
         try {
             Task task = null;
             if (runLiveAgentRequest.getAgentId() != null) {
-                //TOOD token으로 부터 user 를 얻는다.
-                String user = null;
-                String exchangeList = null;
-                task = taskService.runLiveAgentTask(user, runLiveAgentRequest.getAgentId(), exchangeList, runLiveAgentRequest.getUserPin());
+                task = taskService.runLiveAgentTask(userId, runLiveAgentRequest.getAgentId(), runLiveAgentRequest.getExchangeKeyId());
                 task.setStartTime("");
                 task.setEndTime("");
                 task.setDataFrequency("");
@@ -69,9 +66,9 @@ public class TaskController extends AbstractController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getBackTestHistory(@RequestHeader(name = "X-coincloud-user-id", required = false) String userId, @RequestParam String strategyId){
+    public ResponseEntity<?> getBackTestHistory(@RequestAttribute String userId, @RequestParam String strategyId){
         try {
-            List<Task> taskHistory = taskService.getTestHistory(strategyId);
+            List<Task> taskHistory = taskService.getBackTestHistory(strategyId);
             return new ResponseEntity<>(taskHistory, HttpStatus.OK);
         } catch (AbstractException e){
             logger.error("", e);

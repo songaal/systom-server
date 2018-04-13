@@ -6,6 +6,7 @@ import io.gncloud.coin.server.exception.AuthenticationException;
 import io.gncloud.coin.server.exception.OperationException;
 import io.gncloud.coin.server.exception.ParameterException;
 import io.gncloud.coin.server.message.RunBackTestRequest;
+import io.gncloud.coin.server.model.ExchangeKey;
 import io.gncloud.coin.server.model.Strategy;
 import io.gncloud.coin.server.model.Task;
 import io.gncloud.coin.server.model.User;
@@ -35,9 +36,12 @@ public class TaskService {
     private StrategyService strategyService;
 
     @Autowired
+    private ExchangeService exchangeService;
+
+    @Autowired
     private SqlSession sqlSession;
 
-    public Task runBackTestTask(Task task) throws ParameterException, AuthenticationException, OperationException {
+    public Task runBackTestTask(String userId, Task task) throws ParameterException, OperationException {
 
         isNotEmpty(task.getStrategyId(), "strategyId");
         isNotEmpty(task.getExchangeName(), "exchangeName");
@@ -54,47 +58,44 @@ public class TaskService {
         try {
             logger.debug("[ BACK TEST ] RUN {}", task);
 
-            int resultCount = sqlSession.insert("testing.insertTestHistory", task);
+            int resultCount = sqlSession.insert("backtest.insertHistory", task);
             if(resultCount != 1){
                 throw new OperationException("[FAIL] Insert Failed Test History. result count: " + resultCount);
             }
-            Task resultTask = sqlSession.selectOne("testing.selectLatestTestHistory", task);
 
             List<KeyValuePair> environmentList = new ArrayList<>();
-//            environmentList.add(new KeyValuePair().withName("user_token").withValue(token));
-            environmentList.add(new KeyValuePair().withName("test_id").withValue(resultTask.getId()));
+            environmentList.add(new KeyValuePair().withName("user_token").withValue(userId));
+            environmentList.add(new KeyValuePair().withName("test_id").withValue(task.getId()));
             environmentList.add(new KeyValuePair().withName("user_id").withValue(task.getUserId()));
 
             RunTaskResult result = awsUtils.runTask(task, environmentList);
 
             String ecsTaskId = result.getTasks().get(0).getTaskArn().split("/")[1];
             logger.debug("ecs task id: {}", ecsTaskId);
-            resultTask.setEcsTaskId(ecsTaskId);
-//            sqlSession.update("testing.updateTestHistory", resultTask);
-            return resultTask;
+            task.setEcsTaskId(ecsTaskId);
+            return task;
         } catch (Throwable t){
             logger.error("", t);
             throw new OperationException("[FAIL] Running BackTest.");
         }
     }
 
-    public Task runLiveAgentTask(String token, String agentId, String exchangeName, String userPin) throws ParameterException, AuthenticationException, OperationException {
-        identityService.isValidAccessToken(token);
-
+    public Task runLiveAgentTask(String userId, String agentId, Integer exchangeKeyId) throws ParameterException, OperationException {
         Task task = getAgentTaskFromId(agentId);
 
+        ExchangeKey exchangeKey = exchangeService.selectExchangeKey(new ExchangeKey(exchangeKeyId, userId));
         RunBackTestRequest.ExchangeAuth exchangeAuth = null;
-        if(!task.isSimulationOrder()) {
-            exchangeAuth = strategyService.getExchangeAuth(token, exchangeName, userPin);
-        }
-
-        Strategy strategy = strategyService.getStrategy(token, task.getStrategyId());
+//        if(!task.isSimulationOrder()) {
+//            exchangeKey = exchangeService.selectExchangeKey(new ExchangeKey(exchangeKeyId, userId));
+//        }
+        String exchangeName = exchangeKey.getExchangeName();
+        Strategy strategy = strategyService.getStrategy(task.getStrategyId());
 
         List<KeyValuePair> environmentList = new ArrayList<>();
         environmentList.add(new KeyValuePair().withName(exchangeName + "_key").withValue(exchangeAuth.getKey()));
         environmentList.add(new KeyValuePair().withName(exchangeName + "_secret").withValue(exchangeAuth.getSecret()));
-        environmentList.add(new KeyValuePair().withName("exchangeList").withValue(exchangeAuth.getExchange()));
-        environmentList.add(new KeyValuePair().withName("user_token").withValue(token));
+        environmentList.add(new KeyValuePair().withName("exchangeList").withValue(exchangeName));
+        environmentList.add(new KeyValuePair().withName("user_token").withValue(userId));
 
         logger.debug("[ LIVE ] RUN {}", task);
         RunTaskResult result = awsUtils.runTask(task, environmentList);
@@ -123,9 +124,9 @@ public class TaskService {
         }
     }
 
-    public List<Task> getTestHistory(String strategyId) throws OperationException {
+    public List<Task> getBackTestHistory(String strategyId) throws OperationException {
         try {
-            return sqlSession.selectList("testing.selectTestHistory", strategyId);
+            return sqlSession.selectList("backtest.selectHistory", strategyId);
         } catch (Exception e){
             logger.error("", e);
             throw new OperationException("[FAIL] Select Test History");

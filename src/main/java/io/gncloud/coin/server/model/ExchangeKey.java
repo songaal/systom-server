@@ -9,6 +9,7 @@ import java.util.Date;
 public class ExchangeKey {
 
     private int id;
+    /** userId로 암호화/복호화 하므로 userId 는 필수. */
     private String userId;
     private String exchangeName;
     private String name;
@@ -16,14 +17,12 @@ public class ExchangeKey {
     private String secretKey;
     private Date createTime;
 
-    private String securityKey;
-
-    public String getSecurityKey() {
-        return securityKey;
+    public ExchangeKey() {
     }
 
-    public void setSecurityKey(String securityKey) {
-        this.securityKey = securityKey;
+    public ExchangeKey(int id, String userId) {
+        this.id = id;
+        this.userId = userId;
     }
 
     public int getId() {

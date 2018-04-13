@@ -29,6 +29,15 @@ public class ExchangeService {
         }
     }
 
+    public ExchangeKey selectExchangeKey(ExchangeKey exchangeKey) throws OperationException {
+        try {
+            return sqlSession.selectOne("exchange.selectKey", exchangeKey);
+        } catch (Exception e){
+            logger.error("", e);
+            throw new OperationException("[FAIL] select User Exchange Key");
+        }
+    }
+
     public ExchangeKey insertExchangeKey (ExchangeKey exchangeKey) throws OperationException {
         try {
             int resultCount = sqlSession.insert("exchange.insertKey", exchangeKey);

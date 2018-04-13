@@ -1,6 +1,7 @@
 package io.gncloud.coin.server.api;
 
 import io.gncloud.coin.server.service.IdentityService;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -21,7 +23,7 @@ import java.util.List;
 @Component
 public class AuthInterceptor implements HandlerInterceptor {
 
-    private org.slf4j.Logger logger = LoggerFactory.getLogger(AuthInterceptor.class);
+    private Logger logger = LoggerFactory.getLogger(AuthInterceptor.class);
 
     @Autowired
     private IdentityService identityService;
@@ -34,34 +36,43 @@ public class AuthInterceptor implements HandlerInterceptor {
     /**
      * api 요청시 권환 확인
      *
-     * @param httpServletRequest
-     * @param httpServletResponse
-     * @param o
+     * @param request
+     * @param response
+     * @param handler
      * @return
      * @throws Exception
      */
     @Override
-    public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o) throws Exception {
-        String url = httpServletRequest.getRequestURI();
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        try {
+            String url = request.getRequestURI();
 
-        if(exceptUrl.contains(url)){
+            if (exceptUrl.contains(url)) {
+                return true;
+            }
+
+            String accessToken = getCookieValue(request, IdentityController.ACCESS_TOKEN);
+            if (accessToken == null) {
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                return false;
+            }
+
+            boolean isValid = identityService.isValidAccessToken(accessToken);
+
+            if (!isValid) {
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                return false;
+            }
+
+            Map<String, String> payload = identityService.parsePayload(accessToken);
+            String userId = payload.get("username");
+            request.setAttribute("userId", userId);
+
             return true;
+        } catch (Exception e) {
+            logger.error("error in authInterceptor.", e);
+            throw e;
         }
-
-        String accessToken = getCookieValue(httpServletRequest, IdentityController.ACCESS_TOKEN);
-        if(accessToken == null) {
-            httpServletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
-            return false;
-        }
-
-        boolean isValid = identityService.isValidAccessToken(accessToken);
-
-        if(!isValid) {
-            httpServletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
-            return false;
-        }
-
-        return true;
     }
 
     @Override

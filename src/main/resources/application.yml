@@ -21,6 +21,10 @@ aws:
     shardId: "shard-000000000000"
     limit: 1000
 
+notify:
+  telegram:
+    botName: "ko_coincloud_bot"
+    botToken: "554326047:AAFNFlxO2v0UqEast3ekAQZgMc6b3xE0P0I"
 
 spring:
   devtools:
