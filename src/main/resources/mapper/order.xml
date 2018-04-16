@@ -23,10 +23,10 @@
 
     <insert id="insertOrder" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO order_history
-        (agent_id,time,action,order_type,price,coin,fee,amount,exchange_order_id,description)
+        (agent_id, time, action, order_type, price, coin, fee, amount, exchange_order_id, description)
         VALUES
         (#{agentId},
-        #{timestamp},
+        from_unixtime(#{timestamp}),
         #{action},
         #{orderType},
         #{price},

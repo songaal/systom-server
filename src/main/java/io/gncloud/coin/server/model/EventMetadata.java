@@ -46,9 +46,9 @@ public class EventMetadata {
     private static final String PROGRESS_RUNNING = "running";
 
     private String mode;
-    private String agentId;
-    private String testId;
-    private String strategyId;
+    private Integer agentId;
+    private Integer testId;
+    private Integer strategyId;
     private String user;
     private String progress; //진행상태: running, finished
     private List<Order> orders;
@@ -61,27 +61,27 @@ public class EventMetadata {
         this.mode = mode;
     }
 
-    public String getAgentId() {
+    public Integer getAgentId() {
         return agentId;
     }
 
-    public void setAgentId(String agentId) {
+    public void setAgentId(Integer agentId) {
         this.agentId = agentId;
     }
 
-    public String getTestId() {
+    public Integer getTestId() {
         return testId;
     }
 
-    public void setTestId(String testId) {
+    public void setTestId(Integer testId) {
         this.testId = testId;
     }
 
-    public String getStrategyId() {
+    public Integer getStrategyId() {
         return strategyId;
     }
 
-    public void setStrategyId(String strategyId) {
+    public void setStrategyId(Integer strategyId) {
         this.strategyId = strategyId;
     }
 

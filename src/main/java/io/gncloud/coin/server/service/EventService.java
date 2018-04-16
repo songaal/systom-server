@@ -108,7 +108,7 @@ public class EventService {
                             //summary = calculateRunningProfit(record);
                             List<Order> orders = eventMetadata.getOrders();
                             if (orders != null && orders.size() > 0) {
-                                saveToDatabase(orders);
+                                saveToDatabase(eventMetadata.getAgentId(), orders);
                             }
                         }
                     }
@@ -146,13 +146,15 @@ public class EventService {
         return getShardIteratorResult.getShardIterator();
     }
 
-    private void saveToDatabase(List<Order> orders) {
+    private void saveToDatabase(Integer agentId, List<Order> orders) {
 //        ByteBuffer byteBuffer = record.getData();
 //        logger.debug("##### data > {}", new String(byteBuffer.array()));
         orders.forEach(order -> {
             logger.debug("Insert Order", order);
             try {
-                sqlSession.insert("order.insertOrder", orders);
+                order.setAgentId(agentId);
+                order.setTimestamp(order.getTimestamp() / 1000000000);
+                sqlSession.insert("order.insertOrder", order);
             } catch (Exception e) {
                 logger.debug("order: {}", order);
                 logger.error("[FAIL] Insert Order Error", e);
