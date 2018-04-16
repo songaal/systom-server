@@ -7,6 +7,7 @@ import io.gncloud.coin.server.message.AgentRequestParams;
 import io.gncloud.coin.server.model.Agent;
 import io.gncloud.coin.server.model.Task;
 import io.gncloud.coin.server.service.AgentService;
+import io.gncloud.coin.server.service.OrderService;
 import io.gncloud.coin.server.service.TaskService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,10 @@ public class AgentController extends AbstractController {
 
     @Autowired
     private AgentService agentService;
+
+    @Autowired
+
+    private OrderService orderService;
 
     @PostMapping
     public ResponseEntity<?> insertAgent(@RequestAttribute String userId, @RequestBody Agent agent) {
@@ -90,19 +95,30 @@ public class AgentController extends AbstractController {
                 task.setStartTime("");
                 task.setEndTime("");
                 task.setDataFrequency("");
-//                return success(task);
-
             } else if(AgentRequestParams.STOP_ACTION.equalsIgnoreCase(agentRequestParams.getAction())) {
                 task = taskService.stopAgentTask(userId, agentId);
-//                return success(task);
             }
             return success(task);
         } catch (Throwable e) {
             logger.error("", e);
             logger.debug("task = {}", task);
-//            AbstractException abstractException = (AbstractException) e;
             throw e;
         }
-//        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
+//
+//    @GetMapping("/{agentId}/history")
+//    public ResponseEntity<?> tradeHistory(@PathVariable Integer agentId, @RequestAttribute String userId) throws OperationException {
+//        try {
+//
+//            Agent agent = new Agent();
+//            agent.setId(agentId);
+//            agent.setUserId(userId);
+//            List<Order> orderHistories = orderService.selectAgentHistory(agent);
+//            return success(orderHistories);
+//        } catch(Throwable t) {
+//            logger.error("", t);
+//            throw t;
+//        }
+//    }
+
 }

@@ -28,6 +28,15 @@ public class Agent{
 
     private String strategyName;
     private String exchangeName;
+    private String exchangeKeyName;
+
+    public String getExchangeKeyName() {
+        return exchangeKeyName;
+    }
+
+    public void setExchangeKeyName(String exchangeKeyName) {
+        this.exchangeKeyName = exchangeKeyName;
+    }
 
     public String getExchangeName() {
         return exchangeName;

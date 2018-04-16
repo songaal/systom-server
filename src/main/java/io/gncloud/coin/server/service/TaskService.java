@@ -44,7 +44,7 @@ public class TaskService {
     @Autowired
     private SqlSession sqlSession;
 
-    public Task runBackTestTask(String userId, Task task) throws ParameterException, OperationException {
+    public Task runBackTestTask(String accessToken, Task task) throws ParameterException, OperationException {
 
         isNotEmpty(task.getStrategyId(), "strategyId");
         isNotEmpty(task.getExchangeName(), "exchangeName");
@@ -67,9 +67,8 @@ public class TaskService {
             }
 
             List<KeyValuePair> environmentList = new ArrayList<>();
-            environmentList.add(new KeyValuePair().withName("user_token").withValue(userId));
-            environmentList.add(new KeyValuePair().withName("test_id").withValue(task.getId().toString()));
-            environmentList.add(new KeyValuePair().withName("user_id").withValue(task.getUserId()));
+            environmentList.add(new KeyValuePair().withName("access_token").withValue(accessToken));
+            environmentList.add(new KeyValuePair().withName("test_id").withValue(String.valueOf(task.getId())));
 
             RunTaskResult result = awsUtils.runTask(task, environmentList);
 
@@ -100,7 +99,13 @@ public class TaskService {
         environmentList.add(new KeyValuePair().withName("user_token").withValue(userId));
 
         logger.debug("[ LIVE={} ] RUN {}", isLiveMode, task);
-        RunTaskResult result = awsUtils.runTask(task, environmentList);
+        RunTaskResult result = null;
+        try {
+            result = awsUtils.runTask(task, environmentList);
+        } catch (Exception e){
+            logger.error("", e);
+            throw new OperationException("[FAIL] ecs task run error");
+        }
 
         String ecsTaskId = parseTaskId(result);
         task.setEcsTaskId(ecsTaskId);
@@ -118,10 +123,17 @@ public class TaskService {
         Agent agent = agentService.getAgent(agentId);
         Task task = new Task();
         task.setEcsTaskId(agent.getEcsTaskId());
-        StopTaskResult stopTaskResult = awsUtils.stopTask(task.getEcsTaskId(), "User stop request : " + userId + ", " + agentId);
+        StopTaskResult stopTaskResult = null;
+        try {
+            stopTaskResult = awsUtils.stopTask(task.getEcsTaskId(), "User stop request : " + userId + ", " + agentId);
+        } catch (Exception e){
+            logger.error("", e);
+            throw new OperationException("[FAIL] ecs task run error");
+        }
         com.amazonaws.services.ecs.model.Task stopedTask = stopTaskResult.getTask();
-
         logger.debug("Stopped task : {}", stopedTask);
+        agent.setState(Agent.STATE_STOP);
+        agentService.updateAgent(agent);
         return task;
     }
 

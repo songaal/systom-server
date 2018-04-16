@@ -13,6 +13,7 @@
         <typeAlias alias="Task" type="io.gncloud.coin.server.model.Task"/>
         <typeAlias alias="ExchangeKey" type="io.gncloud.coin.server.model.ExchangeKey"/>
         <typeAlias alias="Agent" type="io.gncloud.coin.server.model.Agent"/>
+        <typeAlias alias="Order" type="io.gncloud.coin.server.model.Order"/>
     </typeAliases>
 
 </configuration>

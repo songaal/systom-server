@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import io.gncloud.coin.server.service.IdentityService;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Test;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.UnsupportedEncodingException;
@@ -18,7 +19,7 @@ import java.util.Map;
  */
 
 public class TokenTest {
-
+    private static org.slf4j.Logger logger = LoggerFactory.getLogger(TokenTest.class);
     @Autowired
     private IdentityService identityService;
     @Test
@@ -35,6 +36,11 @@ public class TokenTest {
 
     }
 
+    @Test
+    public void email() {
+        DecodedJWT decoded = JWT.decode("eyJjdHkiOiJKV1QiLCJlbmMiOiJBMjU2R0NNIiwiYWxnIjoiUlNBLU9BRVAifQ.w7u2vssI0ajCfQChpBL8nAcvJ06NJ7XYopqQfsY0_tawmlinkMTeHbVB8ISQ0oWoSgc7f4jqAez_cpGa7-eK9W3lcq3MLS-HehsQ_9IuK69Lc0IhPB3GT2Jxxo-S8y0BzPSmmMVhDAA1EJo6FV2HNRyW_3ZRrTiMh_nOQqDrv5u65GF5m8jPep_993txG1hsDslmoiyxXKCew8fcIrhFGJY8eODGImnR0u8dL2U3jMTP3Wuk3VTgdzPK0gv9mpyeqT1ZlCL_tky69qjxfyFCc7KbJmfBKLzWyNPtKeMDzaCyhV5dCqRoSY_Xs8ylsK7WpJ6Qqqfcqg3Cwjp-wmOqng.RJtkmoSGbPrdLJSM._03Hfbf1CmqSOtjt92Mt3ZKa4HAUhkX4GnX2jdG-quqnrLC6lLlxXUe1qEMYZvyDYfcQJjcJ8rrNbs7UChiI9KVMu9FDDnzheaftmt9s9Z9Mt4Z_HzQPS_J1XAIH8uVv-IOKdxT-eO-w1kA2jwPCtXrnB-6Pd92wmAbn1hgI8k8MPTeXv8kX8JT8TSZG33WuKmNnGBVUfyL89nHo1L7Eizsdg3Uifz7CD-_mD5-ruGZpcckzn__8ypYL2_TNoGRe0VYfiCNaR8W6ZoszBkN5vyjEuRy9iV-8dIyOEIxLc2ui9llL__2beKiBBnSPKFBFMA7pWM2e9hammRfis1i2QcrZzV4zYmzobr9ayJW_qWD6q144JvM0bmkVNqrz18MB3Fpz3EMQdVMTsOfZO1rO3RbR24kFPc1WBBPM0vevItPTvdrSi89JsdmI2txxr_L-XloUEClScU-dzed7JroNamCc_8i51YLJOp2Vzk0UbaUJwnae9qzbofeAUixwBmbD-Ju9ubofjJ-xbhGr1CYUI5nlcT3kTfyujpdnaaRlRN0YMfiyq_ygWMM8Esr1MOh9AhSlEea4uD-KpsTe3wNvDZpIlWPbuKALMIc6RpfhJE_85hCc9udW0iDQbnQEWkznbZ7jOZxA_ceMrC2UBOvmqZaWHo5PplKoH-Wc-_Fu-67CHFuvQL44kM3NhcyZowt1ZzCph7iYaVUbJ4Fdjkq0Mb9byNG6BHcRPtosTxLV6jN_4qdPyP2wdI9qX-pH9PStnQj69Utm3qt0k3nWGZwzgnhhbdbMbMpAd5kWTIkjdE7CQAI74T5XbW-zj60yuduEzCwh3_Hu9z5asxEXDwpA2LZ5I9iv5XiTzNYa_qqd4ISmJC0KJKE8Ukx01IFXFSwIxFO_Dp8FvLwE4b2PcfQ2cCrgCuDUGLTjMqlmwQ_gAYwRZBcWp9rU1eCCRnaQyK3p84gAaq8skhHSccH3UiWx7SoVttmwXnTaQ0246PooYWX24eY45Bw6NC0XO5S3bo_p5PfWhsIxZfXgjSCQQlFhbXEGZxRq885IH6nFfnyHOlAtMhzH2RDVQtmF9KhshTPFR4td-NoOtpu8bleGioZgK1rQEeRn0TGxb1qj1xRV7CT8eQugkDMvN8PM5JxREn3oBQQWUY-Ly5DfAsHeWXtiz56uoqAGHgtKsPWMuOdumgJomADsGSQDUNC6IzW7-NqLBaef9D1sQrn5kifYbJsR8Gq0FesYZ6fvltkfPf7TOm1FlNEPfu1RAWKI_sXJaDlwPvVQFY3-Nx-dWUSnRqAWB__dBQ.QJ0cffhc3fqIzTMHFma0ww");
+        logger.info("decoded: {}", decoded);
+    }
 
     @Test
     public void digestTest() {

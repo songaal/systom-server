@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="order">
+
+    <select id="selectOrderHistory" parameterType="Agent" resultType="Order">
+        select id
+             , agent_id
+             , time
+             , action
+             , order_type
+             , price
+             , coin
+             , fee
+             , amount
+             , exchange_order_id
+             , description
+          from order_history
+         where agent_id = #{agentId}
+    </select>
+
+    <insert id="insertOrder" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO order_history
+        (agent_id,time,action,order_type,price,coin,fee,amount,exchange_order_id,description)
+        VALUES
+        (#{agentId},
+        #{timestamp},
+        #{action},
+        #{orderType},
+        #{price},
+        #{coin},
+        #{fee},
+        #{amount},
+        #{exchangeOrderId},
+        #{description}
+        )
+    </insert>
+</mapper>
