@@ -5,25 +5,27 @@
 
 <mapper namespace="order">
 
-    <select id="selectOrderHistory" parameterType="Agent" resultType="Order">
+    <select id="selectOrderHistory" parameterType="Integer" resultType="Order">
         select id
              , agent_id
-             , time
+             , timestamp
              , action
              , order_type
              , price
              , coin
+             , base
              , fee
              , amount
              , exchange_order_id
              , description
           from order_history
          where agent_id = #{agentId}
+         order by id asc
     </select>
 
     <insert id="insertOrder" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO order_history
-        (agent_id,time,action,order_type,price,coin,fee,amount,exchange_order_id,description)
+        (agent_id, timestamp, action, order_type, price, coin, base, fee, amount, exchange_order_id, description)
         VALUES
         (#{agentId},
         #{timestamp},
@@ -31,10 +33,16 @@
         #{orderType},
         #{price},
         #{coin},
+        #{base},
         #{fee},
         #{amount},
         #{exchangeOrderId},
         #{description}
         )
     </insert>
+
+    <delete id="deleteOrderHistory" parameterType="Agent">
+        delete from order_history
+         where agent_id = #{id}
+    </delete>
 </mapper>

@@ -23,6 +23,8 @@ public class AgentService {
     @Autowired
     private SqlSession sqlSession;
 
+    @Autowired
+    private OrderService orderService;
 
     public Agent insertAgent(Agent agent) throws OperationException, ParameterException {
         try {
@@ -95,6 +97,7 @@ public class AgentService {
             if (!registerAgent.getUserId().equals(agent.getUserId())) {
                 throw new AuthenticationException("Authriencation Fail");
             }
+            orderService.deleteOrderHistory(agent);
             int resultCount = sqlSession.delete("agent.deleteAgent", agent);
             if(resultCount != 1) {
                 throw new OperationException("[FAIL] delete Agent ResultCount: " + resultCount);

@@ -24,7 +24,11 @@
             <when test="userId != null and userId != ''">
                 and USER_ID = #{userId}
             </when>
+            <otherwise>and 1=2</otherwise>
         </choose>
+           and version in (select max(version)
+                             from strategy
+                            group by id)
          ORDER BY CREATE_TIME DESC
     </select>
 
@@ -50,7 +54,7 @@
          WHERE id = #{id}
     </update>
 
-    <delete id="deleteStrategy" parameterType="String">
+    <delete id="deleteStrategy" parameterType="Strategy">
         DELETE FROM strategy
         WHERE id = #{id}
     </delete>

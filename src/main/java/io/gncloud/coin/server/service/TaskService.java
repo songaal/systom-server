@@ -44,7 +44,7 @@ public class TaskService {
     @Autowired
     private SqlSession sqlSession;
 
-    public Task runBackTestTask(String accessToken, Task task) throws ParameterException, OperationException {
+    public Task runBackTestTask(String userId, String accessToken, Task task) throws ParameterException, OperationException {
 
         isNotEmpty(task.getStrategyId(), "strategyId");
         isNotEmpty(task.getExchangeName(), "exchangeName");
@@ -57,7 +57,7 @@ public class TaskService {
         Strategy strategy = strategyService.getStrategy(task.getStrategyId());
 
         task.setStrategyVersion(strategy.getVersion());
-
+        task.setUserId(userId);
         try {
             logger.debug("[ BACK TEST ] RUN {}", task);
 
@@ -176,8 +176,14 @@ public class TaskService {
             logger.error("", e);
             throw new OperationException("[FAIL] Select Test History");
         }
-
     }
 
-
+    public void deleteBackTestHistory(Strategy strategy) throws OperationException {
+        try {
+            sqlSession.delete("backtest.deleteTestHistory", strategy);
+        } catch (Exception e){
+            logger.error("", e);
+            throw new OperationException("[FAIL] Select Test History");
+        }
+    }
 }

@@ -18,7 +18,8 @@ public class MockCoinData {
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(MockCoinData.class);
     private final String streamUrl = "https://7n1h9ritua.execute-api.ap-northeast-2.amazonaws.com/v1/streams/order_stream/record";
-
+    private Calendar calendar = Calendar.getInstance();
+    private RestTemplate restTemplate = new RestTemplate();
 
 //    payload = {
 //        'arena': context.sim_params.arena, #backtest | live
@@ -32,30 +33,45 @@ public class MockCoinData {
     @Test
     public void fill() {
         boolean isLive = true;
-        Integer agentId = 11;
+        Integer taskId = 15;
         Integer strategyId = 54;
         String user = "testuser";
 
-        Date startTime = new Date(2018, 01, 01);
-        Date endTime = new Date(2018, 01, 10);
-        int interval = 1;
-        // 1 시간
+        calendar.set(2018, 00, 01, 00, 00, 00);
+        Date startTime = calendar.getTime();
+        calendar.set(2018, 00, 01, 01, 00, 00);
+        Date endTime = calendar.getTime();
 
-        RestTemplate restTemplate = new RestTemplate();
+        int interval = 1;
+        String intervalUnit = "T";
 
         while (startTime.getTime() < endTime.getTime()) {
-//            startTime.setHours(startTime.getHours() + interval);
-            startTime.setDate(startTime.getDate() + 1);
+            if ("T".equalsIgnoreCase(intervalUnit)) {
+                startTime.setMinutes(startTime.getMinutes() + interval);
+            } else if ("H".equalsIgnoreCase(intervalUnit)) {
+                startTime.setHours(startTime.getHours() + interval);
+            } else {
+                startTime.setDate(startTime.getDate() + interval);
+            }
+
+            long timestamp = startTime.getTime();
+            timestamp = timestamp * 1000000l;
+//            timestamp = 1515556800000000000l;
             double price = Math.random();
-            Map<String, Object> priceMap = randomPrice(startTime, price);
+            Map<String, Object> priceMap = randomPrice(timestamp, price);
 
             List<Map<String, Object>> orders = new ArrayList<>();
-//            무조건 1개씩 매수
-            orders.add(randomOrder(startTime, price));
+
+            orders.add(randomOrder(timestamp, price));
 
             Map<String, Object> payload = new HashMap<>();
-            payload.put("mode", isLive ? "live" : "backtest");
-            payload.put("agentId", agentId);
+            if (isLive) {
+                payload.put("mode", "live");
+                payload.put("agentId", taskId);
+            }else {
+                payload.put("mode", "backtest");
+                payload.put("testId", taskId);
+            }
             payload.put("strategyId", strategyId);
             payload.put("user", user);
             payload.put("price", priceMap);
@@ -78,9 +94,9 @@ public class MockCoinData {
 //                'base': algo_options['symbol'].split("_")[1],
 //                'indicator': context.recorded_vars,
 //    }
-    private Map<String, Object> randomPrice(Date nowTime, Double price) {
+    private Map<String, Object> randomPrice(long timestamp, Double price) {
         Map<String, Object> priceMap = new HashMap<>();
-        priceMap.put("timestamp", nowTime.getTime());
+        priceMap.put("timestamp", timestamp);
         priceMap.put("exchange", "poloniex");
         priceMap.put("coin", "btc");
         priceMap.put("price", price);
@@ -99,15 +115,20 @@ public class MockCoinData {
 //                'price': data.current(context.asset, 'price'),
 //                'fee': 0,
 //    }
-    private Map<String, Object> randomOrder(Date nowTime, Double price) {
+    private Map<String, Object> randomOrder(long timestamp, Double price) {
         Map<String, Object> orderMap = new HashMap<>();
-        orderMap.put("id", String.valueOf(Math.random() * 1000));
-        orderMap.put("timestamp", nowTime.getTime());
+        orderMap.put("exchangeOrderId", String.valueOf(Math.random() * 1000));
+        orderMap.put("timestamp", timestamp);
         orderMap.put("exchange", "poloniex");
         orderMap.put("coin", "btc");
         orderMap.put("base", "usdt");
         orderMap.put("price", price);
-        orderMap.put("amount", 1);
+        orderMap.put("desc", "이동 편균");
+        if (((int)(Math.random() * 1000) % 2) == 1) {
+            orderMap.put("amount", Math.    random());
+        } else {
+            orderMap.put("amount",Math.random() * -1);
+        }
         orderMap.put("fee", 0);
         return orderMap;
     }

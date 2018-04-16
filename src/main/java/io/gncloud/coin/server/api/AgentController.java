@@ -5,6 +5,7 @@ import io.gncloud.coin.server.exception.OperationException;
 import io.gncloud.coin.server.exception.ParameterException;
 import io.gncloud.coin.server.message.AgentRequestParams;
 import io.gncloud.coin.server.model.Agent;
+import io.gncloud.coin.server.model.Order;
 import io.gncloud.coin.server.model.Task;
 import io.gncloud.coin.server.service.AgentService;
 import io.gncloud.coin.server.service.OrderService;
@@ -27,14 +28,12 @@ public class AgentController extends AbstractController {
     @Autowired
     private TaskService taskService;
 
-
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(AgentController.class);
 
     @Autowired
     private AgentService agentService;
 
     @Autowired
-
     private OrderService orderService;
 
     @PostMapping
@@ -105,20 +104,16 @@ public class AgentController extends AbstractController {
             throw e;
         }
     }
-//
-//    @GetMapping("/{agentId}/history")
-//    public ResponseEntity<?> tradeHistory(@PathVariable Integer agentId, @RequestAttribute String userId) throws OperationException {
-//        try {
-//
-//            Agent agent = new Agent();
-//            agent.setId(agentId);
-//            agent.setUserId(userId);
-//            List<Order> orderHistories = orderService.selectAgentHistory(agent);
-//            return success(orderHistories);
-//        } catch(Throwable t) {
-//            logger.error("", t);
-//            throw t;
-//        }
-//    }
+
+    @GetMapping("/{agentId}/trade")
+    public ResponseEntity<?> tradeHistory(@PathVariable Integer agentId) throws OperationException {
+        try {
+            List<Order> orderHistories = orderService.selectAgentHistory(agentId);
+            return success(orderHistories);
+        } catch(Throwable t) {
+            logger.error("", t);
+            throw t;
+        }
+    }
 
 }

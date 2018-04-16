@@ -32,7 +32,7 @@ public class BackTestController extends AbstractController {
             Task task = runBackTestRequest.getTask();
             logger.debug("Run Task: {}", runBackTestRequest.getTask());
             if(task != null) {
-                task = taskService.runBackTestTask(accessToken, task);
+                task = taskService.runBackTestTask(userId, accessToken, task);
                 return success(task);
             }
 
@@ -43,10 +43,8 @@ public class BackTestController extends AbstractController {
         return null;
     }
 
-
-
     @GetMapping
-    public ResponseEntity<?> getBackTestHistory(@RequestAttribute String userId, @RequestParam String strategyId){
+    public ResponseEntity<?> getBackTestHistory(@RequestParam String strategyId){
         try {
             List<Task> taskHistory = taskService.getBackTestHistory(strategyId);
             return new ResponseEntity<>(taskHistory, HttpStatus.OK);

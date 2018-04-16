@@ -24,6 +24,9 @@ public class StrategyService {
     @Autowired
     private SqlSession sqlSession;
 
+    @Autowired
+    private TaskService taskService;
+
     public Strategy insertStrategy(Strategy strategy) throws OperationException, ParameterException {
 
         isNotNull(strategy.getUserId(), "userId");
@@ -109,6 +112,7 @@ public class StrategyService {
 
         try {
             if(strategy != null) {
+                taskService.deleteBackTestHistory(strategy);
                 int result = sqlSession.delete("strategy.deleteStrategy", strategyId);
                 if (result != 1) {
                     throw new OperationException("[FAIL] deleteStrategy resultCount: " + result);
