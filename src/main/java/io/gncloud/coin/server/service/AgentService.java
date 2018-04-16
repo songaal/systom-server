@@ -39,6 +39,7 @@ public class AgentService {
             agent.setState(Agent.STATE_STOP);
             int resultCount = sqlSession.insert("agent.insertAgent", agent);
             if (resultCount != 1) {
+                logger.error("[FAIL] Insert Agent resultCount: {}", resultCount);
                 throw new OperationException("[FAIL] Insert Agent resultCount: " + resultCount);
             }
             return getAgent(agent.getId());

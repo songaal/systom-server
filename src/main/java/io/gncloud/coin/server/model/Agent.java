@@ -6,7 +6,7 @@ import java.util.Date;
  * create joonwoo 2018. 4. 13.
  * 
  */
-public class Agent {
+public class Agent{
 
     public static String STATE_STOP = "stop";
     public static String STATE_RUN = "running";
@@ -25,6 +25,25 @@ public class Agent {
     private boolean simulationOrder;
     private String userId;
     private String ecsTaskId;
+
+    private String strategyName;
+    private String exchangeName;
+
+    public String getExchangeName() {
+        return exchangeName;
+    }
+
+    public void setExchangeName(String exchangeName) {
+        this.exchangeName = exchangeName;
+    }
+
+    public String getStrategyName() {
+        return strategyName;
+    }
+
+    public void setStrategyName(String strategyName) {
+        this.strategyName = strategyName;
+    }
 
     public String getUserId() {
         return userId;

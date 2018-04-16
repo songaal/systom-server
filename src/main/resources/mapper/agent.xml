@@ -58,25 +58,29 @@
     </update>
 
     <select id="selectAgent" parameterType="Agent" resultType="Agent">
-        SELECT  id,
-                strategy_id,
-                strategy_version,
-                name,
-                revenue,
-                exchange_key_id,
-                capital_base,
-                base_currency,
-                coin,
-                create_time,
-                options,
-                state,
-                user_id,
-                ecs_task_id
-        FROM agent
+        SELECT  a.id,
+        a.strategy_id,
+        a.strategy_version,
+        a.name,
+        a.revenue,
+        a.exchange_key_id,
+        a.capital_base,
+        a.base_currency,
+        a.coin,
+        a.create_time,
+        a.options,
+        a.state,
+        a.user_id,
+        a.ecs_task_id,
+        b.name as strategy_name,
+        c.exchange_name
+        FROM agent a
+        join strategy b on a.strategy_id = b.id and a.strategy_version = b.version
+        join exchange_key c on a.exchange_key_id = c.id
         where 1=1
         <choose>
-            <when test="id != null and id != ''">and id = #{id}</when>
-            <when test="userId != null and userId != ''">and user_id = #{userId}</when>
+            <when test="id != null and id != ''">and a.id = #{id}</when>
+            <when test="userId != null and userId != ''">and a.user_id = #{userId}</when>
             <otherwise>and 1=2</otherwise>
         </choose>
         order by create_time desc

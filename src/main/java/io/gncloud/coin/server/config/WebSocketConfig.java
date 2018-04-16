@@ -22,7 +22,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler( new EventWebSocketHandler(identityService)
                 , "/agent/*" /* 라이브 트레이딩 에이전트용도 */
-                , "/test/*") /* 백테스트용도 */
+                , "/backtest/*") /* 백테스트용도 */
                 .setAllowedOrigins("*");
     }
 
