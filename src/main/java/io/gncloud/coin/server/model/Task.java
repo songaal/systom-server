@@ -220,8 +220,8 @@ public class Task {
         cmd.add("run.py");
         cmd.add(String.valueOf(this.getStrategyId()));
         cmd.add(this.getExchangeName());
-        cmd.add(this.getBaseCurrency());
         cmd.add(String.valueOf(this.getCapitalBase()));
+        cmd.add(this.getBaseCurrency());
         cmd.add(String.valueOf(this.isLive()));
         if(this.isLive()){
             cmd.add(String.valueOf(this.simulationOrder));

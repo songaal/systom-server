@@ -153,7 +153,7 @@ public class EventService {
             logger.debug("Insert Order", order);
             try {
                 order.setAgentId(agentId);
-                order.setTimestamp(order.getTimestamp() / 1000000000);
+                order.setTimestamp(order.getTimestamp());
                 sqlSession.insert("order.insertOrder", order);
             } catch (Exception e) {
                 logger.debug("order: {}", order);

@@ -32,21 +32,28 @@ public class MockCoinData {
 //    }
     @Test
     public void fill() {
-        boolean isLive = false;
-        Integer taskId = 291;
+        boolean isLive = true;
+        Integer taskId = 15;
         Integer strategyId = 54;
         String user = "testuser";
 
-        calendar.set(2018, 01, 01, 00, 00, 00);
+        calendar.set(2018, 00, 01, 00, 00, 00);
         Date startTime = calendar.getTime();
-        calendar.set(2018, 02, 20, 00, 00, 00);
+        calendar.set(2018, 00, 01, 01, 00, 00);
         Date endTime = calendar.getTime();
-        int interval = 1;   // 1 시간
 
+        int interval = 1;
+        String intervalUnit = "T";
 
         while (startTime.getTime() < endTime.getTime()) {
-//            startTime.setHours(startTime.getHours() + interval);
-            startTime.setDate(startTime.getDate() + 1);
+            if ("T".equalsIgnoreCase(intervalUnit)) {
+                startTime.setMinutes(startTime.getMinutes() + interval);
+            } else if ("H".equalsIgnoreCase(intervalUnit)) {
+                startTime.setHours(startTime.getHours() + interval);
+            } else {
+                startTime.setDate(startTime.getDate() + interval);
+            }
+
             long timestamp = startTime.getTime();
             timestamp = timestamp * 1000000l;
 //            timestamp = 1515556800000000000l;
@@ -54,7 +61,7 @@ public class MockCoinData {
             Map<String, Object> priceMap = randomPrice(timestamp, price);
 
             List<Map<String, Object>> orders = new ArrayList<>();
-//            무조건 1개씩 매수
+
             orders.add(randomOrder(timestamp, price));
 
             Map<String, Object> payload = new HashMap<>();
@@ -116,7 +123,12 @@ public class MockCoinData {
         orderMap.put("coin", "btc");
         orderMap.put("base", "usdt");
         orderMap.put("price", price);
-        orderMap.put("amount", 1);
+        orderMap.put("desc", "이동 편균");
+        if (((int)(Math.random() * 1000) % 2) == 1) {
+            orderMap.put("amount", Math.    random());
+        } else {
+            orderMap.put("amount",Math.random() * -1);
+        }
         orderMap.put("fee", 0);
         return orderMap;
     }

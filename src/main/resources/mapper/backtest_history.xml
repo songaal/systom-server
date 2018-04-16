@@ -60,4 +60,8 @@
         LIMIT 10
     </select>
 
+    <delete id="deleteTestHistory" parameterType="Strategy">
+        delete from test_history
+         where strategy_id = #{id}
+    </delete>
 </mapper>
