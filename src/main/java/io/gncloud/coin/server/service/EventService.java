@@ -5,8 +5,10 @@ import com.amazonaws.services.kinesis.AmazonKinesisClientBuilder;
 import com.amazonaws.services.kinesis.model.*;
 import com.google.gson.Gson;
 import io.gncloud.coin.server.model.EventMetadata;
+import io.gncloud.coin.server.model.Order;
 import io.gncloud.coin.server.ws.EventWebSocketHandler;
 import io.gncloud.coin.server.ws.WebSocketSessionInfoSet;
+import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
 
 import javax.annotation.PostConstruct;
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 
@@ -44,6 +45,9 @@ public class EventService {
     private Map<String, WebSocketSessionInfoSet> websocketSubscriberMap;
 
     private Gson gson = new Gson();
+
+    @Autowired
+    private SqlSession sqlSession;
 
     @PostConstruct
     public void init() {
@@ -102,7 +106,10 @@ public class EventService {
                         if(eventMetadata.isLiveMode() || eventMetadata.isPaperMode()) {
                             //TODO 구현
                             //summary = calculateRunningProfit(record);
-                            //saveToDatabase(summary);
+                            List<Order> orders = eventMetadata.getOrders();
+                            if (orders != null && orders.size() > 0) {
+                                saveToDatabase(orders);
+                            }
                         }
                     }
                 }
@@ -139,10 +146,18 @@ public class EventService {
         return getShardIteratorResult.getShardIterator();
     }
 
-    private void saveToDatabase(Record record) {
-        //TODO
-        ByteBuffer byteBuffer = record.getData();
-        logger.debug("##### data > {}", new String(byteBuffer.array()));
+    private void saveToDatabase(List<Order> orders) {
+//        ByteBuffer byteBuffer = record.getData();
+//        logger.debug("##### data > {}", new String(byteBuffer.array()));
+        orders.forEach(order -> {
+            logger.debug("Insert Order", order);
+            try {
+                sqlSession.insert("order.insertOrder", orders);
+            } catch (Exception e) {
+                logger.debug("order: {}", order);
+                logger.error("[FAIL] Insert Order Error", e);
+            }
+        });
     }
 
     private void sendToWebsocketData(String jsonData, EventMetadata eventMetadata) {

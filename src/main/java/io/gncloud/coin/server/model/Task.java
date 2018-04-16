@@ -218,7 +218,7 @@ public class Task {
         List<String> cmd = new ArrayList<>();
         cmd.add("python3");
         cmd.add("run.py");
-        cmd.add(this.getStrategyId().toString());
+        cmd.add(String.valueOf(this.getStrategyId()));
         cmd.add(this.getExchangeName());
         cmd.add(this.getBaseCurrency());
         cmd.add(String.valueOf(this.getCapitalBase()));

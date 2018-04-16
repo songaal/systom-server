@@ -2,8 +2,6 @@ package io.gncloud.coin.server.api;
 
 import com.amazonaws.services.cognitoidp.model.*;
 import io.gncloud.coin.server.exception.AbstractException;
-import io.gncloud.coin.server.exception.AuthenticationException;
-import io.gncloud.coin.server.exception.ParameterException;
 import io.gncloud.coin.server.model.ExchangeKey;
 import io.gncloud.coin.server.model.Identity;
 import io.gncloud.coin.server.service.ExchangeService;
@@ -30,7 +28,7 @@ public class IdentityController {
 
     public final static String ACCESS_TOKEN = "COINCLOUD-ACCESS-TOKEN";
     public final static String REFRESH_TOKEN = "COINCLOUD-REFRESH-TOKEN";
-
+    public final static String ID_TOKEN = "COINCLOUD-ID-TOKEN";
 
     @Autowired
     private IdentityService identityService;
@@ -58,7 +56,7 @@ public class IdentityController {
             AuthenticationResultType authResult = initAuthResult.getAuthenticationResult();
             if(authResult != null) {
                 //쿠키 업데이트
-                updateCredentialCookies(response, authResult.getAccessToken(), authResult.getRefreshToken(), authResult.getExpiresIn());
+                updateCredentialCookies(response, authResult.getAccessToken(), authResult.getRefreshToken(), authResult.getIdToken(), authResult.getExpiresIn());
                 //사용자 정보
                 Map<String, String> payload = identityService.parsePayload(authResult.getAccessToken());
                 return new ResponseEntity<>(payload, HttpStatus.OK);
@@ -82,7 +80,7 @@ public class IdentityController {
         AdminRespondToAuthChallengeResult respondAuthResult = identityService.changeTempPassword(identity.getSession(), identity.getUserId(), identity.getPassword());
         AuthenticationResultType authResult = respondAuthResult.getAuthenticationResult();
         //쿠키 업데이트
-        updateCredentialCookies(response, authResult.getAccessToken(), authResult.getRefreshToken(), authResult.getExpiresIn());
+        updateCredentialCookies(response, authResult.getAccessToken(), authResult.getRefreshToken(), authResult.getIdToken(), authResult.getExpiresIn());
         //사용자 정보
         Map<String, String> payload = identityService.parsePayload(authResult.getAccessToken());
         return new ResponseEntity<>(payload, HttpStatus.OK);
@@ -95,7 +93,7 @@ public class IdentityController {
     public ResponseEntity<?> logout(HttpServletResponse response) {
         try {
             //쿠키 삭제
-            updateCredentialCookies(response, "", "", 0);
+            updateCredentialCookies(response, "", "", "",0);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             logger.error("", e);
@@ -107,8 +105,9 @@ public class IdentityController {
      * 회원정보 조회
      */
     @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<?> userInfo(@CookieValue(value = ACCESS_TOKEN) String accessToken) {
-        Map<String, String> payload = identityService.parsePayload(accessToken);
+    public ResponseEntity<?> userInfo(@CookieValue(value = ACCESS_TOKEN) String accessToken, @CookieValue(value = ID_TOKEN) String idToken) {
+        Map<String, String> payload = identityService.parsePayload(idToken);
+        payload.putAll(identityService.parsePayload(accessToken));
         return new ResponseEntity<>(payload, HttpStatus.OK);
     }
 
@@ -159,7 +158,7 @@ public class IdentityController {
         }
     }
 
-    private void updateCredentialCookies(HttpServletResponse response, String accessToken, String refreshToken, Integer expiresIn) {
+    private void updateCredentialCookies(HttpServletResponse response, String accessToken, String refreshToken, String idToken, Integer expiresIn) {
         if(accessToken != null) {
             Cookie cookie = new Cookie(ACCESS_TOKEN, accessToken);
             cookie.setMaxAge(expiresIn);
@@ -171,6 +170,13 @@ public class IdentityController {
                 cookie2.setMaxAge(expiresIn);
                 cookie2.setPath("/");
                 response.addCookie(cookie2);
+            }
+
+            if(idToken != null) {
+                Cookie cookie3 = new Cookie(ID_TOKEN, idToken);
+                cookie3.setMaxAge(expiresIn);
+                cookie3.setPath("/");
+                response.addCookie(cookie3);
             }
         }
     }

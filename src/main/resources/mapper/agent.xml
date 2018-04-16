@@ -73,7 +73,8 @@
         a.user_id,
         a.ecs_task_id,
         b.name as strategy_name,
-        c.exchange_name
+        c.exchange_name,
+        c.name as exchange_key_name
         FROM agent a
         join strategy b on a.strategy_id = b.id and a.strategy_version = b.version
         join exchange_key c on a.exchange_key_id = c.id

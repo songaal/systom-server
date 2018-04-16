@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static io.gncloud.coin.server.api.IdentityController.ACCESS_TOKEN;
+
 /*
  * create joonwoo 2018. 3. 21.
  *
@@ -25,12 +27,12 @@ public class BackTestController extends AbstractController {
     private TaskService taskService;
 
     @PostMapping("/backtest")
-    public ResponseEntity<?> runBackTestTask(@RequestAttribute String userId, @RequestBody RunBackTestRequest runBackTestRequest) {
+    public ResponseEntity<?> runBackTestTask(@CookieValue(value = ACCESS_TOKEN) String accessToken, @RequestAttribute String userId, @RequestBody RunBackTestRequest runBackTestRequest) {
         try {
             Task task = runBackTestRequest.getTask();
             logger.debug("Run Task: {}", runBackTestRequest.getTask());
             if(task != null) {
-                task = taskService.runBackTestTask(userId, task);
+                task = taskService.runBackTestTask(accessToken, task);
                 return success(task);
             }
 
