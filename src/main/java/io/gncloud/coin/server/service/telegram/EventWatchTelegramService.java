@@ -66,15 +66,13 @@ public class EventWatchTelegramService {
         //tODO 초기에 어디선가 로딩한다..  userId, chatId
     }
 
-    public void setUserChatId(String userId, Long chatId) throws OperationException {
+    public void setUserChatId(UserNotification notification) throws OperationException {
         // 메모리 저장.
+        String userId = notification.getUserId();
+        Long chatId = Long.parseLong(notification.getServiceUser());
         userChatIdMap.put(userId, chatId);
         chatIdUserMap.put(chatId, userId);
         // 영구저장소 저장.
-        UserNotification notification = new UserNotification();
-        notification.setUserId(userId);
-        notification.setServiceName(TELEGRAM_SERVICE);
-        notification.setServiceUser(Long.toString(chatId));
         insertNotification(notification);
     }
 

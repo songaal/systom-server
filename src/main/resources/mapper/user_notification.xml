@@ -13,7 +13,7 @@
         , create_time
         from user_notification
         where user_id = #{userId}
-        <if test="service_name != null and service_name != ''">
+        <if test="serviceName != null and serviceName != ''">
             and service_name = #{serviceName}
         </if>
     </select>
@@ -26,7 +26,7 @@
         (#{userId},
         #{title},
         #{serviceName},
-        #{serviceUser},
+        #{serviceUser}
         )
     </insert>
 
