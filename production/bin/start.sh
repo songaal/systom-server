@@ -17,6 +17,6 @@ trap '' 1
 JVM_OPT="-Xms4g -Xmx4g -Duser.language=ko -XX:+HeapDumpOnOutOfMemoryError -XX:+UseParallelOldGC -d64 -server"
 SPRING_OPT="--spring.config.location=file:$APP_HOME/conf/application.yaml --logging.pattern.file=$APP_HOME/conf/logback-spring.xml "
 
-$APP_HOME/jdk/bin/java $JVM_OPT -jar $APP_HOME/coincloud-server-$VERSION.jar $SPRING_OPT > $APP_HOME/output.log 2>&1 &
+ava $JVM_OPT -jar $APP_HOME/coincloud-server-$VERSION.jar $SPRING_OPT > $APP_HOME/output.log 2>&1 &
 sleep 1
 tail -f $APP_HOME/logs/system.log
