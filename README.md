@@ -19,8 +19,7 @@ ssh ec2-user@13.125.73.226 -i ~/aws-pem/gncloud-io.pem
 ### 실행옵션
 
 ##### SPRING_OPT
-- 텔레그램봇 활성화 : `--spring.profiles.active=telegram`
-- 로그 외부설정 : `--logging.pattern.file=$MGB_HOME/conf/logback-spring.xml`
+- 로그 외부설정 : `--logging.pattern.file=./conf/logback-spring.xml`
 - application.yaml : `--spring.config.location=file:`
 
 
