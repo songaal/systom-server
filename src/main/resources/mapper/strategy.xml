@@ -41,7 +41,7 @@
               , now()
               , #{code}
               , #{options}
-              , #{writer}
+              , #{userId}
         )
     </insert>
 

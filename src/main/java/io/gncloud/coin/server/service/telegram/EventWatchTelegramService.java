@@ -1,7 +1,6 @@
 package io.gncloud.coin.server.service.telegram;
 
 import io.gncloud.coin.server.exception.OperationException;
-import io.gncloud.coin.server.model.Agent;
 import io.gncloud.coin.server.model.Order;
 import io.gncloud.coin.server.model.UserNotification;
 import io.gncloud.coin.server.service.IdentityService;
@@ -9,18 +8,15 @@ import org.apache.ibatis.session.SqlSession;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import javax.annotation.PostConstruct;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /*
  * create joonwoo 2018. 3. 24.
@@ -97,6 +93,32 @@ public class EventWatchTelegramService {
         if(chatId != null) {
             bot.sendMessage(chatId, text);
         }
+    }
+
+    public void sendMessage(String userId, List<Order> orders){
+
+        orders.forEach(order -> {
+            try {
+//                [2018.4.15 17:58:09] poloniex 거래소에서 bts 를  0.00004305 btc 에 1개만큼 구매하였습니다.
+                String msg = "[%s] %s 거래소에서 %s 를  %s %s 에 %s개만큼 %s하였습니다.";
+//                long time = order.getTimestamp();
+                Date time = new Date();
+                time.setTime(order.getTimestamp() / 1000000);
+                String formatTime = new SimpleDateFormat("yyyy.MM.dd hh:mm:ss").format(time);
+                msg = String.format( msg
+                                , formatTime
+                                , order.getExchange()
+                                , order.getBase()
+                                , order.getPrice()
+                                , order.getCoin()
+                                , order.getAmount()
+                                , order.getAmount() < 0 ? "판매" : "구매"
+                );
+                sendMessage(userId, msg);
+            } catch (Exception e){
+                logger.error("", e);
+            }
+        });
     }
 
     public String getUserByTelegram(long chatId) {
