@@ -1,5 +1,6 @@
 package io.gncloud.coin.server.api;
 
+import com.google.gson.Gson;
 import io.gncloud.coin.server.exception.AbstractException;
 import io.gncloud.coin.server.exception.OperationException;
 import io.gncloud.coin.server.exception.ParameterException;
@@ -12,10 +13,13 @@ import io.gncloud.coin.server.service.OrderService;
 import io.gncloud.coin.server.service.TaskService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static io.gncloud.coin.server.api.IdentityController.ACCESS_TOKEN;
 
@@ -37,6 +41,8 @@ public class AgentController extends AbstractController {
 
     @Autowired
     private OrderService orderService;
+
+    private Gson gson = new Gson();
 
     @PostMapping
     public ResponseEntity<?> insertAgent(@RequestAttribute String userId, @RequestBody Agent agent) {
@@ -119,4 +125,27 @@ public class AgentController extends AbstractController {
         }
     }
 
+    @GetMapping("/{agentId}/model")
+    public ResponseEntity<?> getStrategyModel(@PathVariable Integer agentId) {
+        try {
+            Agent registerAgent = agentService.getAgent(agentId);
+            Map<String, String> response = new HashMap<>();
+            response.put("code", registerAgent.getCode());
+            Map<String, Object> optionMap = new HashMap<>();
+            if (registerAgent.getOptions() != null && !"".equals(registerAgent.getOptions())) {
+                List<Map<String, Object>> optionList = gson.fromJson(registerAgent.getOptions(), List.class);
+                int optionSize = optionList.size();
+                for (int i = 0; i < optionSize; i++) {
+                    String key = String.valueOf(optionList.get(i).get("key"));
+                    Object value = optionList.get(i).get("value");
+                    optionMap.put(key, value);
+                }
+            }
+            response.put("options", gson.toJson(optionMap));
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (AbstractException e) {
+            logger.error("", e);
+            return e.response();
+        }
+    }
 }

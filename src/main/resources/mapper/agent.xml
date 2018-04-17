@@ -78,6 +78,7 @@
         a.ecs_task_id,
         a.simulation_order,
         b.name as strategy_name,
+        b.code,
         c.exchange_name,
         c.name as exchange_key_name
         FROM agent a

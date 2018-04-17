@@ -30,6 +30,16 @@ public class Agent{
     private String exchangeName;
     private String exchangeKeyName;
 
+    private String code;
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
     public String getExchangeKeyName() {
         return exchangeKeyName;
     }

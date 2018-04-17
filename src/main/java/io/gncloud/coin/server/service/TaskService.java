@@ -98,6 +98,7 @@ public class TaskService {
         environmentList.add(new KeyValuePair().withName("exchangeList").withValue(exchangeName));
         environmentList.add(new KeyValuePair().withName("user_id").withValue(userId));
         environmentList.add(new KeyValuePair().withName("access_token").withValue(accessToken));
+        environmentList.add(new KeyValuePair().withName("agent_id").withValue(String.valueOf(agentId)));
 
         logger.debug("[ LIVE={} ] RUN {}", isLiveMode, task);
         RunTaskResult result = null;
