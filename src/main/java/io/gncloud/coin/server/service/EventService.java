@@ -6,6 +6,7 @@ import com.amazonaws.services.kinesis.model.*;
 import com.google.gson.Gson;
 import io.gncloud.coin.server.model.EventMetadata;
 import io.gncloud.coin.server.model.Order;
+import io.gncloud.coin.server.service.telegram.EventWatchTelegramService;
 import io.gncloud.coin.server.ws.EventWebSocketHandler;
 import io.gncloud.coin.server.ws.WebSocketSessionInfoSet;
 import org.apache.ibatis.session.SqlSession;
@@ -28,6 +29,9 @@ public class EventService {
 
     @Autowired
     private IdentityService identityService;
+
+    @Autowired
+    private EventWatchTelegramService eventWatchTelegramService;
 
     @Value("${aws.stream.region}")
     private String region;
@@ -84,7 +88,7 @@ public class EventService {
             if (records.size() > 0) {
 
                 for (Record record : records) {
-                    logger.info("########### {}", record);
+//                    logger.info("########### {}", record);
                     recordSequenceNumber = record.getSequenceNumber();
 
                     String jsonData = new String(record.getData().array());
@@ -109,6 +113,7 @@ public class EventService {
                             List<Order> orders = eventMetadata.getOrders();
                             if (orders != null && orders.size() > 0) {
                                 saveToDatabase(eventMetadata.getAgentId(), orders);
+                                eventWatchTelegramService.sendMessage(eventMetadata.getUser(), orders);
                             }
                         }
                     }
