@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static io.gncloud.coin.server.api.IdentityController.ACCESS_TOKEN;
+
 /*
  * create joonwoo 2018. 4. 13.
  * 
@@ -85,13 +87,13 @@ public class AgentController extends AbstractController {
     }
 
     @PostMapping("/{agentId}/actions")
-    public ResponseEntity<?> runLiveAgentTask(@PathVariable Integer agentId, @RequestAttribute String userId, @RequestBody AgentRequestParams agentRequestParams) throws ParameterException, OperationException {
+    public ResponseEntity<?> runLiveAgentTask(@CookieValue(value = ACCESS_TOKEN) String accessToken, @PathVariable Integer agentId, @RequestAttribute String userId, @RequestBody AgentRequestParams agentRequestParams) throws ParameterException, OperationException {
         Task task = null;
         try {
             if(AgentRequestParams.RUN_ACTION.equalsIgnoreCase(agentRequestParams.getAction())) {
                 agentService.updateAgentMode(agentId, agentRequestParams.getMode());
                 boolean isLiveMode = AgentRequestParams.LIVE_MODE.equalsIgnoreCase(agentRequestParams.getMode());
-                task = taskService.runAgentTask(userId, agentId, isLiveMode);
+                task = taskService.runAgentTask(userId, accessToken, agentId, isLiveMode);
                 task.setStartTime("");
                 task.setEndTime("");
                 task.setDataFrequency("");

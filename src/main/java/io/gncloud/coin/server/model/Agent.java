@@ -158,7 +158,7 @@ public class Agent{
         this.ecsTaskId = ecsTaskId;
     }
 
-    public Task getTask() {
+    public Task cloneTask() {
         Task task = new Task();
         task.setId(this.id);
         task.setStrategyId(this.getStrategyId());

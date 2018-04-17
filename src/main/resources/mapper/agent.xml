@@ -7,7 +7,7 @@
 
     <insert id="insertAgent" parameterType="Agent" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO agent
-        (id,strategy_id,strategy_version,name,exchange_key_id,capital_base,base_currency,create_time,options,state,user_id)
+        (id,strategy_id,strategy_version,name,exchange_key_id,capital_base,base_currency,create_time,options,state,user_id, simulation_order)
         VALUES
         (
             #{id}
@@ -21,6 +21,7 @@
             ,#{options}
             ,#{state}
             ,#{userId}
+            ,null
         )
     </insert>
 
