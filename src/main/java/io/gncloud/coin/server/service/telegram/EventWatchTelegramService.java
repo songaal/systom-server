@@ -1,6 +1,11 @@
 package io.gncloud.coin.server.service.telegram;
 
+import io.gncloud.coin.server.exception.OperationException;
+import io.gncloud.coin.server.model.Agent;
+import io.gncloud.coin.server.model.Order;
+import io.gncloud.coin.server.model.UserNotification;
 import io.gncloud.coin.server.service.IdentityService;
+import org.apache.ibatis.session.SqlSession;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +19,7 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /*
@@ -26,6 +32,8 @@ public class EventWatchTelegramService {
 
     protected static org.slf4j.Logger logger = LoggerFactory.getLogger(EventWatchTelegramService.class);
 
+    public static final String TELEGRAM_SERVICE = "telegram";
+
     private EventNotifyBot bot;
     private IdentityService identityService;
 
@@ -34,6 +42,9 @@ public class EventWatchTelegramService {
 
     @Value("${notify.telegram.botToken}")
     private String botToken;
+
+    @Autowired
+    private SqlSession sqlSession;
 
     private Map<String, Long> userChatIdMap;
     private Map<Long, String> chatIdUserMap;
@@ -55,12 +66,16 @@ public class EventWatchTelegramService {
         //tODO 초기에 어디선가 로딩한다..  userId, chatId
     }
 
-    public void setUserChatId(String userId, Long chatId) {
+    public void setUserChatId(String userId, Long chatId) throws OperationException {
         // 메모리 저장.
         userChatIdMap.put(userId, chatId);
         chatIdUserMap.put(chatId, userId);
         // 영구저장소 저장.
-        //TODO 어딘가에 저장한다..  userId, chatId
+        UserNotification notification = new UserNotification();
+        notification.setUserId(userId);
+        notification.setServiceName(TELEGRAM_SERVICE);
+        notification.setServiceUser(Long.toString(chatId));
+        insertNotification(notification);
     }
 
     public void sendMessage(String userId, String text){
@@ -74,10 +89,62 @@ public class EventWatchTelegramService {
         return chatIdUserMap.get(chatId);
     }
 
-    public void unsetUserChatId(long chatId) {
-        String userId = chatIdUserMap.get(chatId);
+    public void unsetUserChatId(long chatId) throws OperationException {
+        String userId = chatIdUserMap.remove(chatId);
+        if(userId != null) {
+            unsetUserChatId(userId);
+        }
+
+        logger.warn("No such user's chatId: {}", chatId);
+    }
+
+    private void unsetUserChatId(String userId) throws OperationException {
+        userChatIdMap.remove(userId);
+        deleteNotification(new UserNotification().withUserId(userId));
+    }
+
+    public List<UserNotification> selectList(UserNotification notification) throws OperationException {
+        logger.debug("Select UserNotification");
+        List<UserNotification> list = null;
+        try {
+            list = sqlSession.selectList("notification.select", notification);
+        } catch (Exception e){
+            logger.error("", e);
+            throw new OperationException("[FAIL] Select UserNotification");
+        }
+        return list;
+    }
+
+    public UserNotification selectNotification(UserNotification notification) throws OperationException {
+        logger.debug("Select 1 UserNotification");
+        UserNotification userNotification;
+        try {
+            userNotification = sqlSession.selectOne("notification.select", notification);
+        } catch (Exception e){
+            logger.error("", e);
+            throw new OperationException("[FAIL] Select 1 UserNotification");
+        }
+        return userNotification;
+    }
+
+    public void insertNotification(UserNotification notification) throws OperationException {
+        logger.debug("Insert UserNotification");
+        try {
+            sqlSession.insert("notification.insert", notification);
+        } catch (Exception e){
+            logger.error("", e);
+            throw new OperationException("[FAIL] Insert UserNotification");
+        }
+    }
 
 
-        //TODO unset userId, chatId
+    public void deleteNotification(UserNotification notification) throws OperationException {
+        logger.debug("Delete UserNotification");
+        try {
+            sqlSession.delete("notification.delete", notification);
+        } catch (Exception e){
+            logger.error("", e);
+            throw new OperationException("[FAIL] Delete UserNotification");
+        }
     }
 }

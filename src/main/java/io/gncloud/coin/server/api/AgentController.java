@@ -108,7 +108,7 @@ public class AgentController extends AbstractController {
     @GetMapping("/{agentId}/trade")
     public ResponseEntity<?> tradeHistory(@PathVariable Integer agentId) throws OperationException {
         try {
-            List<Order> orderHistories = orderService.selectAgentHistory(agentId);
+            List<Order> orderHistories = orderService.selectOrderHistory(agentId);
             return success(orderHistories);
         } catch(Throwable t) {
             logger.error("", t);

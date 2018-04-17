@@ -23,7 +23,7 @@
          order by id asc
     </select>
 
-    <insert id="insertOrder" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insertOrder" parameterType="Order" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO order_history
         (agent_id, timestamp, action, order_type, price, coin, base, fee, amount, exchange_order_id, description)
         VALUES

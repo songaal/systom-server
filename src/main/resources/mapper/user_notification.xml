@@ -5,8 +5,9 @@
 
 <mapper namespace="notification">
 
-    <select id="select" parameterType="Map">
+    <select id="select" parameterType="UserNotification" resultType="UserNotification">
         select user_id
+        , title
         , service_name
         , service_user
         , create_time
@@ -18,17 +19,18 @@
     </select>
 
 
-    <insert id="insert" parameterType="Map">
+    <insert id="insert" parameterType="UserNotification">
         INSERT INTO user_notification
-        (user_id,service_name,service_user)
+        (user_id, title, service_name, service_user)
         VALUES
         (#{user_id},
+        #{title},
         #{service_name},
         #{service_user},
         )
     </insert>
 
-    <delete id="delete" parameterType="String">
+    <delete id="delete" parameterType="UserNotification">
         DELETE FROM user_notification
         WHERE user_id = #{user_id}
         and service_name = #{service_name}
