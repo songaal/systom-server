@@ -1,10 +1,17 @@
 
 # coincloud server
 
+### 개발
 
-### 운영서버
+##### 개발서버 옵션 
 ```
-ssh ec2-user@13.125.73.226 -i ~/aws-pem/gncloud-io.pem
+--spring.config.location=file:/Users/swsong/TEST_HOME/coincloud/conf/application.yml
+--logging.pattern.file=/Users/swsong/TEST_HOME/coincloud/conf/logback-spring.xml
+```
+
+### 운영서버접속
+```
+ssh ec2-user@api.gncloud.io -i gncloud-io.pem
 ```
 
 ### 텔레그램봇
