@@ -82,7 +82,7 @@ public class TaskService {
         }
     }
 
-    public Task runAgentTask(String userId, Integer agentId, boolean isLiveMode) throws ParameterException, OperationException {
+    public Task runAgentTask(String userId, String accessToken, Integer agentId, boolean isLiveMode) throws ParameterException, OperationException {
 
         Task task = getAgentTaskFromId(agentId);
 
@@ -96,7 +96,9 @@ public class TaskService {
             environmentList.add(new KeyValuePair().withName(exchangeName + "_secret").withValue(exchangeAuth.getSecret()));
         }
         environmentList.add(new KeyValuePair().withName("exchangeList").withValue(exchangeName));
-        environmentList.add(new KeyValuePair().withName("user_token").withValue(userId));
+        environmentList.add(new KeyValuePair().withName("user_id").withValue(userId));
+        environmentList.add(new KeyValuePair().withName("access_token").withValue(accessToken));
+        environmentList.add(new KeyValuePair().withName("agent_id").withValue(String.valueOf(agentId)));
 
         logger.debug("[ LIVE={} ] RUN {}", isLiveMode, task);
         RunTaskResult result = null;
@@ -147,7 +149,7 @@ public class TaskService {
         //agent 테이블을 읽어서 Task에 채워준다.
         Agent agent = agentService.getAgent(agentId);
         ExchangeKey exchangeKey = exchangeService.selectExchangeKey(new ExchangeKey(agent.getExchangeKeyId(), agent.getUserId()));
-        Task task = agent.getTask();
+        Task task = agent.cloneTask();
         task.setExchangeName(exchangeKey.getExchangeName());
         task.setExchangeKeyId(agent.getExchangeKeyId());
         return task;

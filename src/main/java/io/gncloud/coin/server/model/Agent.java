@@ -22,13 +22,23 @@ public class Agent{
     private Date createTime;
     private String options;
     private String state;
-    private boolean simulationOrder;
+    private Boolean simulationOrder;
     private String userId;
     private String ecsTaskId;
 
     private String strategyName;
     private String exchangeName;
     private String exchangeKeyName;
+
+    private String code;
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
 
     public String getExchangeKeyName() {
         return exchangeKeyName;
@@ -62,11 +72,11 @@ public class Agent{
         this.userId = userId;
     }
 
-    public boolean isSimulationOrder() {
+    public Boolean getSimulationOrder() {
         return simulationOrder;
     }
 
-    public void setSimulationOrder(boolean simulationOrder) {
+    public void setSimulationOrder(Boolean simulationOrder) {
         this.simulationOrder = simulationOrder;
     }
 
@@ -158,7 +168,7 @@ public class Agent{
         this.ecsTaskId = ecsTaskId;
     }
 
-    public Task getTask() {
+    public Task cloneTask() {
         Task task = new Task();
         task.setId(this.id);
         task.setStrategyId(this.getStrategyId());

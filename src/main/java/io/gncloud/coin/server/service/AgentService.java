@@ -35,9 +35,9 @@ public class AgentService {
             isNotNull(agent.getName(), "agentName");
             isNotNull(agent.getUserId(), "userId");
 
-            if (!agent.isSimulationOrder()) {
-                isNotNull(agent.getExchangeKeyId(), "exchangeKeyId");
-            }
+//            if (!agent.getSimulationOrder()) {
+//                isNotNull(agent.getExchangeKeyId(), "exchangeKeyId");
+//            }
             agent.setState(Agent.STATE_STOP);
             int resultCount = sqlSession.insert("agent.insertAgent", agent);
             if (resultCount != 1) {
@@ -122,6 +122,18 @@ public class AgentService {
     private void isNotNull(Integer field, String label) throws ParameterException {
         if(field == null || "".equals(field)){
             throw new ParameterException(label);
+        }
+    }
+
+    public void updateAgentMode(Integer agentId, String mode) throws OperationException {
+        try {
+            Agent agent = new Agent();
+            agent.setId(agentId);
+            agent.setSimulationOrder("paper".equalsIgnoreCase(mode.toLowerCase()) ? true : false);
+            sqlSession.update("agent.updateAgent", agent);
+        } catch (Exception e){
+            logger.error("", e);
+            throw new OperationException("[FAIL] Agent Mode Update error");
         }
     }
 

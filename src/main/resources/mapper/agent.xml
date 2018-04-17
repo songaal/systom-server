@@ -7,7 +7,7 @@
 
     <insert id="insertAgent" parameterType="Agent" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO agent
-        (id,strategy_id,strategy_version,name,exchange_key_id,capital_base,base_currency,create_time,options,state,user_id)
+        (id,strategy_id,strategy_version,name,exchange_key_id,capital_base,base_currency,create_time,options,state,user_id, simulation_order)
         VALUES
         (
             #{id}
@@ -21,6 +21,7 @@
             ,#{options}
             ,#{state}
             ,#{userId}
+            ,null
         )
     </insert>
 
@@ -54,6 +55,9 @@
         <if test="ecsTaskId != null and ecsTaskId != ''">
             , ecs_task_id = #{ecsTaskId}
         </if>
+        <if test="simulationOrder != null">
+            , simulation_order = ${simulationOrder}
+        </if>
         where id = #{id}
     </update>
 
@@ -72,7 +76,9 @@
         a.state,
         a.user_id,
         a.ecs_task_id,
+        a.simulation_order,
         b.name as strategy_name,
+        b.code,
         c.exchange_name,
         c.name as exchange_key_name
         FROM agent a
