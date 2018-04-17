@@ -12,7 +12,9 @@
         , service_user
         , create_time
         from user_notification
+        <if test="userId != null and userId != ''">
         where user_id = #{userId}
+        </if>
         <if test="serviceName != null and serviceName != ''">
             and service_name = #{serviceName}
         </if>

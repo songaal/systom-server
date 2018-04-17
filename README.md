@@ -201,3 +201,81 @@ POST http://127.0.0.1:8080/auth/changeTempPassword
 POST http://127.0.0.1:8080/auth/logout
 ```
 
+
+
+## 텔레그램 설정 API
+
+한 유저당 하나의 텔레그램 계정만 연결할 수 있다.
+
+### 1. 계정연결 
+
+[요청]
+```
+POST /v1/notification/telegram
+{
+	"title": "songaal@",
+	"serviceUser":"352354994"
+}
+```
+
+- title : 텔레그램 계정 설명
+- serviceUser : 텔레그램 ChatID. 코인클라우드봇이 알려준다.
+
+[결과]
+```
+{
+    "userId": "songaal",
+    "serviceName": "telegram",
+    "serviceUser": "352354994",
+    "title": "songaal",
+    "createTime": null
+}
+```
+
+[에러]
+```
+{
+    "message": "[FAIL] Insert UserNotification"
+}
+```
+
+### 2. 조회
+[요청]
+```
+GET /v1/notification/telegram
+```
+
+[결과]
+```
+{
+    "userId": "songaal",
+    "serviceName": "telegram",
+    "serviceUser": "352354994",
+    "title": "songaal",
+    "createTime": 1523943171000
+}
+```
+** 설정이 존재하지 않는다면 `200OK`에 `Body`에는 아무것도 리턴되지 않는다.
+
+### 3. 연결삭제
+[요청]
+```
+DELETE /v1/notification/telegram
+{
+	"serviceUser": "352354994"
+}
+```
+
+[결과]
+```
+{
+    "userId": "songaal",
+    "serviceName": "telegram",
+    "serviceUser": "352354994",
+    "title": "songaal",
+    "createTime": 1523943711000
+}
+```
+** 삭제된 객체가 리턴된다.
+
+** 텔레그램 메신저에서 `/quit` 이라고 입력해도 연결삭제된다. 

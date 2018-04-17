@@ -49,8 +49,11 @@ public class EventWatchTelegramService {
     private Map<String, Long> userChatIdMap;
     private Map<Long, String> chatIdUserMap;
 
+    /**
+     * @throws OperationException
+     */
     @PostConstruct
-    public void init(){
+    public void init() throws OperationException {
         logger.info("Initialize TelegramBot.. {}, {}", botName, botToken);
         ApiContextInitializer.init();
         TelegramBotsApi botsApi = new TelegramBotsApi();
@@ -61,19 +64,33 @@ public class EventWatchTelegramService {
             logger.error("", e);
         }
 
+        //초기로딩.
         userChatIdMap = new HashMap<>();
         chatIdUserMap = new HashMap<>();
-        //tODO 초기에 어디선가 로딩한다..  userId, chatId
+
+        List<UserNotification> list = selectAll();
+        if(list != null) {
+            for(UserNotification notification : list) {
+                try {
+                    String userId = notification.getUserId();
+                    Long chatId = Long.parseLong(notification.getServiceUser());
+                    userChatIdMap.put(userId, chatId);
+                    chatIdUserMap.put(chatId, userId);
+                } catch (Exception e) {
+                    logger.error("", e);
+                }
+            }
+        }
     }
 
     public void setUserChatId(UserNotification notification) throws OperationException {
+        // 영구저장소 저장.
+        insertNotification(notification);
         // 메모리 저장.
         String userId = notification.getUserId();
         Long chatId = Long.parseLong(notification.getServiceUser());
         userChatIdMap.put(userId, chatId);
         chatIdUserMap.put(chatId, userId);
-        // 영구저장소 저장.
-        insertNotification(notification);
     }
 
     public void sendMessage(String userId, String text){
@@ -108,6 +125,9 @@ public class EventWatchTelegramService {
         }
     }
 
+    public List<UserNotification> selectAll() throws OperationException {
+        return selectList(new UserNotification());
+    }
     public List<UserNotification> selectList(UserNotification notification) throws OperationException {
         logger.debug("Select UserNotification");
         List<UserNotification> list = null;
