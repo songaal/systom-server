@@ -89,6 +89,7 @@ public class AgentController extends AbstractController {
         Task task = null;
         try {
             if(AgentRequestParams.RUN_ACTION.equalsIgnoreCase(agentRequestParams.getAction())) {
+                agentService.updateAgentMode(agentId, agentRequestParams.getMode());
                 boolean isLiveMode = AgentRequestParams.LIVE_MODE.equalsIgnoreCase(agentRequestParams.getMode());
                 task = taskService.runAgentTask(userId, agentId, isLiveMode);
                 task.setStartTime("");

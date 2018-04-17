@@ -22,7 +22,7 @@ public class Agent{
     private Date createTime;
     private String options;
     private String state;
-    private boolean simulationOrder;
+    private Boolean simulationOrder;
     private String userId;
     private String ecsTaskId;
 
@@ -62,11 +62,11 @@ public class Agent{
         this.userId = userId;
     }
 
-    public boolean isSimulationOrder() {
+    public Boolean getSimulationOrder() {
         return simulationOrder;
     }
 
-    public void setSimulationOrder(boolean simulationOrder) {
+    public void setSimulationOrder(Boolean simulationOrder) {
         this.simulationOrder = simulationOrder;
     }
 
