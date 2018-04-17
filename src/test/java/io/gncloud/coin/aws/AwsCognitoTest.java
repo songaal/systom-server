@@ -30,7 +30,6 @@ public class AwsCognitoTest {
         cognitoClient = AWSCognitoIdentityProviderClientBuilder.standard().build();
 
         String userId = "songaal4";
-        String password = "123123";
         String email = "songaal@gmail.com";
 
         AdminCreateUserRequest authRequest = new AdminCreateUserRequest()
@@ -146,6 +145,30 @@ public class AwsCognitoTest {
 
             System.out.println(keyMap);
         }
+
+    }
+
+    /**
+     * https://docs.aws.amazon.com/ko_kr/cognito/latest/developerguide/user-pool-settings-email-phone-verification.html
+     *
+     * 사용자 토큰이 필요하므로 로그인된 상태에서 사용해야함. 모달창으로 코드를 입력받는 등의 ux가 필요함.
+     *
+     * */
+    public void testVerifyCodeTest() {
+        String accessToken = "";
+        //이메일로 확인코드를 보낸다.
+        GetUserAttributeVerificationCodeRequest request = new GetUserAttributeVerificationCodeRequest()
+                .withAccessToken(accessToken)
+                .withAttributeName("email"); //이메일 고정
+        cognitoClient.getUserAttributeVerificationCode(request);
+
+        String code = "<이메일로 전달된 코드>";
+        //받은 code를 보내서 통과확인한다.
+        VerifyUserAttributeRequest verifyUserRequest = new VerifyUserAttributeRequest()
+                .withAccessToken(accessToken)
+                .withAttributeName("email")
+                .withCode(code);
+        cognitoClient.verifyUserAttribute(verifyUserRequest);
 
     }
 
