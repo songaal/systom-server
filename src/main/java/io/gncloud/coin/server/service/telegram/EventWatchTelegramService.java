@@ -22,7 +22,6 @@ import java.util.*;
  * create joonwoo 2018. 3. 24.
  * 
  */
-@Profile("telegram")
 @Service
 public class EventWatchTelegramService {
 

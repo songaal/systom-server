@@ -1,6 +1,29 @@
 
 # coincloud server
 
+
+### 운영서버
+```
+ssh ec2-user@13.125.73.226 -i ~/aws-pem/gncloud-io.pem
+```
+
+### 텔레그램봇
+
+##### 운영용
+- ko_coincloud_bot : `554326047:AAFNFlxO2v0UqEast3ekAQZgMc6b3xE0P0I`
+
+##### 개발용
+- ko_coincloud_01_bot : `525111213:AAGTLRbw2dJKOUXo9K1QPRnCMHwYtk1sjg0`
+- ko_coincloud_02_bot : `574061087:AAFj0wjWMeGJPyI8kX5TinYpFf0i8cHNsV0`
+
+### 실행옵션
+
+##### SPRING_OPT
+- 텔레그램봇 활성화 : `--spring.profiles.active=telegram`
+- 로그 외부설정 : `--logging.pattern.file=$MGB_HOME/conf/logback-spring.xml`
+- application.yaml : `--spring.config.location=file:`
+
+
 ### REST API 
 ##### URL http://loclahost:8080/v1
 
