@@ -43,51 +43,31 @@ public class EventNotifyBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         // We check if the update has a message and the message has text
-        if (update.hasMessage() && update.getMessage().hasText()) {
+        try {
+            if (update.hasMessage() && update.getMessage().hasText()) {
 
-            logger.debug("Receive >> {}", update.getMessage());
-            long chatId = update.getMessage().getChatId();
-            String text = update.getMessage().getText();
-            String userId = service.getUserByTelegram(chatId);
+                logger.debug("Receive >> {}", update.getMessage());
+                long chatId = update.getMessage().getChatId();
+                String text = update.getMessage().getText();
+                String userId = service.getUserByTelegram(chatId);
 
-            String responseText = null;
+                String responseText = null;
 
-            if(userId == null) {
-                //인증요청
-                if(text.startsWith("/add")) {
-                    String[] cmd = text.split("\\s");
-                    if(cmd.length != 3) {
-                        responseText = "요청이 잘못되었습니다.";
+                if (userId == null) {
+                    responseText = String.format("코인클라우드 계정설정에서 텔레그램 계정을 연동해주세요. 당신의 텔레그램 아이디는 %s 입니다.", chatId);
+                } else {
+                    if (text.equals("/quit")) {
+                        service.unsetByChatId(chatId);
+                        responseText = "계정연결을 성공적으로 취소했습니다.";
                     } else {
-                        if(!cmd[0].equals("/add")) {
-                            responseText = "Command 가 잘못되었습니다. /add 로 추정됩니다.";
-                        } else {
-                            String serviceId = cmd[1];
-                            String servicePassword = cmd[2];
-                            try {
-//                                identityService.login(serviceId, servicePassword);
-                                //추가.
-                                responseText = "인증성공. 이제 메시지를 받을 수 있습니다. 해제는 언제든 /quit 명령을 입력해주세요.";
-                                service.setUserChatId(serviceId, chatId);
-                            } catch (Throwable t) {
-                                responseText = "인증이 실패했습니다. 아이디와 비밀번호를 확인해주세요.";
-                            }
-                        }
+                        responseText = "알 수 없는 명령입니다.";
                     }
-                } else {
-                    responseText = "사용에 앞서 인증이 필요합니다.\n사용법: /add [사용자아이디] [암호]";
                 }
-            } else {
-                //환영메시지
-                if(text.equals("/quit")) {
-                    service.unsetUserChatId(chatId);
-                    responseText = "계정연결을 성공적으로 취소했습니다.";
-                } else {
-                    responseText = "알 수 없는 명령입니다.";
-                }
-            }
 
-            sendMessage(chatId, responseText);
+                sendMessage(chatId, responseText);
+            }
+        } catch (Throwable t) {
+            logger.error("Telegram read message error.", t);
         }
     }
 

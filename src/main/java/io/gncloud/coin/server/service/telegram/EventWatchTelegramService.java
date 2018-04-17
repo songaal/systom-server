@@ -89,18 +89,25 @@ public class EventWatchTelegramService {
         return chatIdUserMap.get(chatId);
     }
 
-    public void unsetUserChatId(long chatId) throws OperationException {
+    public void unsetByChatId(long chatId) throws OperationException {
         String userId = chatIdUserMap.remove(chatId);
         if(userId != null) {
-            unsetUserChatId(userId);
+            if (userId != null) {
+                unsetByUserId(userId);
+            }
+        } else {
+            logger.warn("No such user's chatId[{}]", chatId);
         }
-
-        logger.warn("No such user's chatId: {}", chatId);
     }
 
-    private void unsetUserChatId(String userId) throws OperationException {
-        userChatIdMap.remove(userId);
-        deleteNotification(new UserNotification().withUserId(userId));
+    public void unsetByUserId(String userId) throws OperationException {
+        Long chatId = userChatIdMap.remove(userId);
+        if(chatId != null) {
+            chatIdUserMap.remove(chatId);
+            deleteNotification(new UserNotification().withUserId(userId));
+        } else {
+            logger.warn("No user's telegram. userId[{}]", userId);
+        }
     }
 
     public List<UserNotification> selectList(UserNotification notification) throws OperationException {

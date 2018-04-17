@@ -14,6 +14,7 @@
         <typeAlias alias="ExchangeKey" type="io.gncloud.coin.server.model.ExchangeKey"/>
         <typeAlias alias="Agent" type="io.gncloud.coin.server.model.Agent"/>
         <typeAlias alias="Order" type="io.gncloud.coin.server.model.Order"/>
+        <typeAlias alias="UserNotification" type="io.gncloud.coin.server.model.UserNotification"/>
     </typeAliases>
 
 </configuration>

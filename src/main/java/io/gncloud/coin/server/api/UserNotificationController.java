@@ -33,6 +33,7 @@ public class UserNotificationController extends AbstractController {
     public ResponseEntity<?> createTelegramNotification(@RequestAttribute String userId, @RequestBody UserNotification userNotification) {
         try {
             telegramService.insertNotification(userNotification);
+            telegramService.sendMessage(userId, String.format("코인클라우드 %s 계정과 성공적으로 연결되었습니다. ChatId=[%d]", userId, userNotification.getServiceUser()));
             return success(userNotification);
         } catch (AbstractException e) {
             logger.error("", e);
