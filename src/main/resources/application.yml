@@ -23,8 +23,8 @@ aws:
 
 notify:
   telegram:
-    botName: "ko_coincloud_bot"
-    botToken: "554326047:AAFNFlxO2v0UqEast3ekAQZgMc6b3xE0P0I"
+    botName: ""
+    botToken: ""
 
 spring:
   devtools:

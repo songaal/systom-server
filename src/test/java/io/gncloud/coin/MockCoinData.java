@@ -32,9 +32,9 @@ public class MockCoinData {
 //    }
     @Test
     public void fill() {
-        boolean isLive = true;
-        Integer taskId = 15;
-        Integer strategyId = 54;
+        boolean isLive = false;
+        Integer taskId = 346;
+        Integer strategyId = 59;
         String user = "testuser";
 
         calendar.set(2018, 00, 01, 00, 00, 00);
@@ -62,6 +62,7 @@ public class MockCoinData {
 
             List<Map<String, Object>> orders = new ArrayList<>();
 
+            orders.add(randomOrder(timestamp, price));
             orders.add(randomOrder(timestamp, price));
 
             Map<String, Object> payload = new HashMap<>();
@@ -123,7 +124,7 @@ public class MockCoinData {
         orderMap.put("coin", "btc");
         orderMap.put("base", "usdt");
         orderMap.put("price", price);
-        orderMap.put("desc", "이동 편균");
+        orderMap.put("desc", "이동 평균");
         if (((int)(Math.random() * 1000) % 2) == 1) {
             orderMap.put("amount", Math.    random());
         } else {

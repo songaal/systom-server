@@ -15,7 +15,8 @@
         start_time,
         end_time,
         user_id,
-        ecs_task_id)
+        ecs_task_id,
+        options)
         VALUES
         ( #{strategyId}
         , #{strategyVersion}
@@ -26,6 +27,7 @@
         , #{endTime}
         , #{userId}
         , #{ecsTaskId,jdbcType=VARCHAR}
+        , #{options}
         )
     </insert>
 
@@ -64,4 +66,15 @@
         delete from test_history
          where strategy_id = #{id}
     </delete>
+
+    <select id="getModel" parameterType="Task" resultType="Strategy">
+        SELECT a.ID
+        , a.CODE
+        , b.OPTIONS
+        FROM strategy a
+        join test_history b on a.id = b.strategy_id
+        WHERE 1=1
+          and b.ID = #{testId}
+          and b.user_id = #{userId}
+    </select>
 </mapper>

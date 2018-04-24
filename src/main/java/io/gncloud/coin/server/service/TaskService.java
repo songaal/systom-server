@@ -188,4 +188,17 @@ public class TaskService {
             throw new OperationException("[FAIL] Select Test History");
         }
     }
+
+    public Strategy getBackTestModel(Integer testId, String userId) throws ParameterException, OperationException {
+        Strategy strategy = new Strategy();
+        strategy.setUserId(userId);
+        strategy.setTestId(testId);
+        try {
+            strategy = sqlSession.selectOne("backtest.getModel", strategy);
+        } catch (Exception e){
+            throw new OperationException("[FAIL] Update Failed testId: " + testId);
+
+        }
+        return strategy;
+    }
 }

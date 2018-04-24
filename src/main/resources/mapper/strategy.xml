@@ -58,4 +58,5 @@
         DELETE FROM strategy
         WHERE id = #{id}
     </delete>
+
 </mapper>

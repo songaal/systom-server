@@ -18,6 +18,16 @@ public class Strategy {
     private String options;
     private String writer;
 
+    private Integer testId;
+
+    public Integer getTestId() {
+        return testId;
+    }
+
+    public void setTestId(Integer testId) {
+        this.testId = testId;
+    }
+
     public Strategy() {
     }
 

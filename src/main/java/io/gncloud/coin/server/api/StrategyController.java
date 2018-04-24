@@ -5,6 +5,7 @@ import io.gncloud.coin.server.exception.AbstractException;
 import io.gncloud.coin.server.model.Strategy;
 import io.gncloud.coin.server.service.IdentityService;
 import io.gncloud.coin.server.service.StrategyService;
+import io.gncloud.coin.server.service.TaskService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,6 +33,8 @@ public class StrategyController extends AbstractController {
     @Autowired
     private IdentityService identityService;
 
+    @Autowired
+    private TaskService taskService;
     private Gson gson = new Gson();
 
     @GetMapping("/me")
@@ -46,9 +49,9 @@ public class StrategyController extends AbstractController {
     }
 
     @GetMapping("/{strategyId}/model")
-    public ResponseEntity<?> getStrategyModel(@RequestAttribute String userId, @PathVariable Integer strategyId) {
+    public ResponseEntity<?> getStrategyModel(@RequestAttribute String userId, @PathVariable Integer testId) {
         try {
-            Strategy registerStrategy = strategyService.getStrategy(strategyId, userId);
+            Strategy registerStrategy = taskService.getBackTestModel(testId, userId);
             Map<String, String> response = new HashMap<>();
             response.put("code", registerStrategy.getCode());
             Map<String, Object> optionMap = new HashMap<>();
