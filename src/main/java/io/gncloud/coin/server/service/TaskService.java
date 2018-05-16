@@ -16,6 +16,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -31,8 +32,12 @@ public class TaskService {
 
     private static Logger logger = LoggerFactory.getLogger(TaskService.class);
     private static Logger backtestLogger = LoggerFactory.getLogger("backtestLogger");
+
     @Resource(name = "awsUtils")
     private AwsUtils awsUtils;
+
+    @Value("${polingTimeout}")
+    private long polingTimeout;
 
     @Autowired
     private IdentityService identityService;
@@ -53,7 +58,6 @@ public class TaskService {
     private DockerUtils dockerUtils;
 
     private static ConcurrentMap<String, String> backTestResult = new ConcurrentHashMap<>();
-    private long polingTimeout = 10000; // ms
 
     public Object waitRunBackTestTask(String timeout) throws InterruptedException, TimeoutException {
         String name = "api-test-run";

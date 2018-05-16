@@ -2,7 +2,6 @@
 # General Config
 #
 
-
 aws:
   profileName: "gncloud"
   region: "ap-northeast-2"
@@ -37,3 +36,4 @@ spring:
 
 backtest:
     host: "tcp://52.79.171.130:2376"
+    polingTimeout: 10000
