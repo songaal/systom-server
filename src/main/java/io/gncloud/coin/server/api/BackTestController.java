@@ -54,4 +54,9 @@ public class BackTestController extends AbstractController {
         }
     }
 
+    @PostMapping("/waitRunBackTestTask")
+    public ResponseEntity<?> waitRunBackTestTask(@RequestBody String timeout) throws Exception {
+        return new ResponseEntity<>(taskService.waitRunBackTestTask(timeout), HttpStatus.OK);
+    }
+
 }

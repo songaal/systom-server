@@ -15,11 +15,16 @@ public abstract class AbstractException extends Throwable {
     protected Map<String, Object> responseBody = new HashMap<>();
     protected HttpStatus status;
 
-    protected AbstractException(HttpStatus status) {
+    public AbstractException(HttpStatus status) {
         this.status = status;
     }
 
-    protected AbstractException(HttpStatus status, String message) {
+    public AbstractException(Throwable t) {
+        this.status = HttpStatus.INTERNAL_SERVER_ERROR;
+        responseBody.put("message", t.getMessage());
+    }
+
+    public AbstractException(HttpStatus status, String message) {
         this(status);
         responseBody.put("message", message);
     }

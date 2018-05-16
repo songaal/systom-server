@@ -49,7 +49,7 @@ public class DockerUtils {
                                   .build();
     }
 
-    public void run(String name, String image, List<String> cmd) throws InterruptedException {
+    public String run(String name, String image, List<String> cmd) throws InterruptedException {
         DockerClient dockerClient = getClient();
 
         CreateContainerResponse container = dockerClient.createContainerCmd(image)
@@ -78,9 +78,8 @@ public class DockerUtils {
         if (exitCode != 0) {
             backtestLogger.info("[{}] Container ExitCode not 0 {}", name, exitCode);
             throw new InterruptedException("ExitCode " + exitCode);
-        }else {
-            backtestLogger.info("[{}] BackTest Successful.", name);
         }
+        return containerId;
     }
 
     class LogContainerTestCallback extends LogContainerResultCallback {

@@ -11,6 +11,7 @@ import io.gncloud.coin.server.model.ExchangeKey;
 import io.gncloud.coin.server.model.Strategy;
 import io.gncloud.coin.server.model.Task;
 import io.gncloud.coin.server.utils.AwsUtils;
+import io.gncloud.coin.server.utils.DockerUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,13 +20,17 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeoutException;
 
 @Service
 public class TaskService {
 
     private static Logger logger = LoggerFactory.getLogger(TaskService.class);
-
+    private static Logger backtestLogger = LoggerFactory.getLogger("backtestLogger");
     @Resource(name = "awsUtils")
     private AwsUtils awsUtils;
 
@@ -44,8 +49,38 @@ public class TaskService {
     @Autowired
     private SqlSession sqlSession;
 
-    public Task runBackTestTask(String userId, String accessToken, Task task) throws ParameterException, OperationException {
+    @Autowired
+    private DockerUtils dockerUtils;
 
+    private static ConcurrentMap<String, String> backTestResult = new ConcurrentHashMap<>();
+    private long polingTimeout = 10000; // ms
+
+    public Object waitRunBackTestTask(String timeout) throws InterruptedException, TimeoutException {
+        String name = "api-test-run";
+        String containerId = dockerUtils.run(name, "busybox", Arrays.asList("/bin/sh", "-c", "echo 'hello'", "sleep " + timeout));
+
+        String resultJson = null;
+        long startTime = System.currentTimeMillis();
+
+        while (true) {
+            Thread.sleep(500);
+            resultJson = backTestResult.get(containerId);
+            if (resultJson != null) {
+                backTestResult.remove(containerId);
+                break;
+            } else if ( (System.currentTimeMillis() - startTime) >= polingTimeout ) {
+                backtestLogger.info("[{}] BackTest Response Timeout Error.", name);
+                throw new TimeoutException("[" + name + "] BackTest Response Timeout Error.");
+            }
+        }
+        backtestLogger.info("[{}] BackTest Successful.", name);
+        return resultJson;
+    }
+
+
+
+
+    public Task runBackTestTask(String userId, String accessToken, Task task) throws ParameterException, OperationException {
         isNotEmpty(task.getStrategyId(), "strategyId");
         isNotEmpty(task.getExchangeName(), "exchangeName");
         isNotEmpty(task.getBaseCurrency(), "baseCurrency");
