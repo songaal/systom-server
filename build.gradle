@@ -39,10 +39,13 @@ dependencies {
     compile 'com.auth0:java-jwt:3.3.0'
     compile 'org.telegram:telegrambots:3.6'
 
+    compile group: 'com.github.docker-java', name: 'docker-java', version: '3.0.14'
+
     runtime("org.springframework.boot:spring-boot-devtools")
 
     testCompile "org.springframework.boot:spring-boot-starter-test:1.5.10.RELEASE"
     testCompile group: 'junit', name: 'junit', version: '4.12'
+
 }
 
 test {
