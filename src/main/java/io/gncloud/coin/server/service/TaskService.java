@@ -36,7 +36,7 @@ public class TaskService {
     @Resource(name = "awsUtils")
     private AwsUtils awsUtils;
 
-    @Value("${polingTimeout}")
+    @Value("${backtest.polingTimeout}")
     private long polingTimeout;
 
     @Autowired
@@ -60,6 +60,7 @@ public class TaskService {
     private static ConcurrentMap<String, String> backTestResult = new ConcurrentHashMap<>();
 
     public Object waitRunBackTestTask(String timeout) throws InterruptedException, TimeoutException {
+//        TODO command, image 변경
         String name = "api-test-run";
         String containerId = dockerUtils.run(name, "busybox", Arrays.asList("/bin/sh", "-c", "echo 'hello'", "sleep " + timeout));
 
