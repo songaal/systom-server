@@ -1,22 +1,20 @@
 package io.gncloud.coin;
 
 import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.DockerCmdExecFactory;
-import com.github.dockerjava.api.model.Info;
-import com.github.dockerjava.api.model.SearchItem;
-import com.github.dockerjava.api.model.WaitResponse;
+import com.github.dockerjava.api.model.Frame;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
+import com.github.dockerjava.core.command.LogContainerResultCallback;
+import com.github.dockerjava.core.command.WaitContainerResultCallback;
 import com.github.dockerjava.jaxrs.JerseyDockerCmdExecFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
-import java.io.Closeable;
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -26,6 +24,7 @@ import java.util.List;
 public class DockerTest {
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(DockerTest.class);
 
+//    private String dockerHost = "tcp://52.79.171.130:2376";
     private String dockerHost = "tcp://52.79.171.130:2376";
 
     private DockerClient dockerClient;
@@ -40,86 +39,72 @@ public class DockerTest {
                 .withDockerHost(dockerHost)
                 .build();
 
-        DockerCmdExecFactory dockerCmdExecFactory = new JerseyDockerCmdExecFactory()
-                .withReadTimeout(10000)
-                .withConnectTimeout(3000);
+        DockerCmdExecFactory dockerCmdExecFactory = new JerseyDockerCmdExecFactory();
+//                .withReadTimeout(10000)
+//                .withConnectTimeout(3000);
 
         dockerClient = DockerClientBuilder.getInstance(config)
                                           .withDockerCmdExecFactory(dockerCmdExecFactory)
                                           .build();
+
     }
 
     @Test
-    public void info() {
-//        도커 정보
-        Info info = dockerClient.infoCmd().exec();
-        logger.info("info :{}", info);
-    }
+    public void asyncLogContainerWithTtyEnabled() throws Exception {
 
-    @Test
-    public void imageSearch() {
-//        이미지 검색
-        List<SearchItem> dockerSearch = dockerClient.searchImagesCmd("python").exec();
-        System.out.println("Search returned" + dockerSearch.toString());
-    }
-
-    @Test
-    public void createContainer() {
-//        컨테이너 생성
-//        LogContainerTestCallback loggingCallback = new LogContainerTestCallback(true);
         CreateContainerResponse container = dockerClient.createContainerCmd("busybox")
-                                                        .withCmd("touch", "/test")
-                                                        .exec();
+                .withCmd("/bin/sh", "-c", "echo hello")
+                .exec();
 
+        logger.info("Created container: {}", container.toString());
+        dockerClient.startContainerCmd(container.getId()).exec();
 
-        //    실행
-//
-//        dockerClient.startContainerCmd(container.getId()).exec();
+        WaitContainerResultCallback waitContainerResultCallback = new WaitContainerResultCallback();
+        dockerClient.waitContainerCmd(container.getId()).exec(waitContainerResultCallback);
+        LogContainerTestCallback loggingCallback = new LogContainerTestCallback(true);
 
+        dockerClient.logContainerCmd(container.getId())
+                .withStdErr(true)
+                .withStdOut(true)
+                .withFollowStream(true)
+                .withTailAll()
+                .exec(loggingCallback);
 
-    }
+        loggingCallback.awaitCompletion();
+        int exitCode = waitContainerResultCallback.awaitStatusCode();
 
-    @Test
-    public void startContainer() {
-//        "6a8b6ecb7080"
-//        dockerClient.startContainerCmd("6a8b6ecb7080").exec();
-//        dockerClient.stopContainerCmd("6a8b6ecb7080").exec();
-//        CountDownLatch latch = new CountDownLatch(1);
-
-        MyResultCallback callback = new MyResultCallback();
-        dockerClient.waitContainerCmd("00").exec(callback);
-
-
-
+        logger.info("컨테이너 종료 코드: {}, {}",  exitCode, loggingCallback.getCollectedFrames().toString());
 
     }
 
-    class MyResultCallback implements ResultCallback<WaitResponse> {
+    public class LogContainerTestCallback extends LogContainerResultCallback {
+        protected final StringBuffer log = new StringBuffer();
 
-        @Override
-        public void onStart(Closeable closeable) {
-            logger.info("onStart: {}", closeable);
+        List<Frame> collectedFrames = new ArrayList<Frame>();
+
+        boolean collectFrames = false;
+
+        public LogContainerTestCallback() {
+            this(false);
+        }
+
+        public LogContainerTestCallback(boolean collectFrames) {
+            this.collectFrames = collectFrames;
         }
 
         @Override
-        public void onNext(WaitResponse object) {
-            logger.info("onNext {}", object);
+        public void onNext(Frame frame) {
+            if (collectFrames) collectedFrames.add(frame);
+            log.append(new String(frame.getPayload()));
         }
 
         @Override
-        public void onError(Throwable throwable) {
-            logger.info("onError {}", throwable);
+        public String toString() {
+            return log.toString();
         }
 
-        @Override
-        public void onComplete() {
-            logger.info("onComplete");
-        }
-
-        @Override
-        public void close() throws IOException {
-            logger.info("close");
+        public List<Frame> getCollectedFrames() {
+            return collectedFrames;
         }
     }
-
 }
