@@ -59,4 +59,10 @@ public class BackTestController extends AbstractController {
         return new ResponseEntity<>(taskService.waitRunBackTestTask(timeout), HttpStatus.OK);
     }
 
+    @PostMapping("/results/{id}")
+    public ResponseEntity<?> backtestResult(@PathVariable String id, @RequestBody String resultJson) throws Exception {
+        taskService.registerBacktestResult(id, resultJson);
+        return new ResponseEntity<>(resultJson, HttpStatus.OK);
+    }
+
 }

@@ -62,16 +62,16 @@ public class TaskService {
     public Object waitRunBackTestTask(String timeout) throws InterruptedException, TimeoutException {
 //        TODO command, image 변경
         String name = "api-test-run";
-        String containerId = dockerUtils.run(name, "busybox", Arrays.asList("/bin/sh", "-c", "echo 'hello'", "sleep " + timeout));
+        String id = dockerUtils.run(name, "busybox", Arrays.asList("/bin/sh", "-c", "echo 'hello'", "sleep " + timeout));
 
         String resultJson = null;
         long startTime = System.currentTimeMillis();
 
         while (true) {
             Thread.sleep(500);
-            resultJson = backTestResult.get(containerId);
+            resultJson = backTestResult.get(id);
             if (resultJson != null) {
-                backTestResult.remove(containerId);
+                backTestResult.remove(id);
                 break;
             } else if ( (System.currentTimeMillis() - startTime) >= polingTimeout ) {
                 backtestLogger.info("[{}] BackTest Response Timeout Error.", name);
@@ -82,6 +82,10 @@ public class TaskService {
         return resultJson;
     }
 
+    public String registerBacktestResult(String id, String resultJson) {
+        backTestResult.put(id, resultJson);
+        return backTestResult.get(id);
+    }
 
 
 

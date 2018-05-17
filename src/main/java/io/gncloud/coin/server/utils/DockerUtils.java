@@ -78,7 +78,11 @@ public class DockerUtils {
         if (exitCode != 0) {
             backtestLogger.info("[{}] Container ExitCode not 0 {}", name, exitCode);
             throw new InterruptedException("ExitCode " + exitCode);
+        } else {
+            dockerClient.removeContainerCmd(containerId).withForce(true).exec();
+            backtestLogger.info("[{}] BackTest Docker Run Finished!", name);
         }
+
         return containerId;
     }
 
