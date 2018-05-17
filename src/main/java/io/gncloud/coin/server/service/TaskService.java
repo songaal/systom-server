@@ -66,11 +66,12 @@ public class TaskService {
 
         String resultJson = null;
         long startTime = System.currentTimeMillis();
-
+        logger.info("[{}] BackTest result wait... id: {}", name, id);
         while (true) {
             Thread.sleep(500);
             resultJson = backTestResult.get(id);
             if (resultJson != null) {
+                backtestLogger.info("[{}] BackTest result catch!", name);
                 backTestResult.remove(id);
                 break;
             } else if ( (System.currentTimeMillis() - startTime) >= polingTimeout ) {
