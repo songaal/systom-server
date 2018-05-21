@@ -36,4 +36,4 @@ spring:
 
 backtest:
     host: "tcp://52.79.171.130:2376"
-    polingTimeout: 60000
+    resultTimeout: 60000

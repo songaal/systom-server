@@ -36,7 +36,7 @@ public class TaskService {
     @Resource(name = "awsUtils")
     private AwsUtils awsUtils;
 
-    @Value("${backtest.polingTimeout}")
+    @Value("${backtest.resultTimeout}")
     private long polingTimeout;
 
     @Autowired
