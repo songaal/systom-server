@@ -27,7 +27,7 @@ public class StrategyService {
     @Autowired
     private TaskService taskService;
 
-    public Strategy insertStrategy(Strategy strategy) throws OperationException, ParameterException {
+    public Strategy insertStrategy(Strategy strategy) throws OperationException, ParameterException, AuthenticationException {
 
         isNotNull(strategy.getUserId(), "userId");
         isNotNull(strategy.getCode(), "code");
@@ -46,16 +46,20 @@ public class StrategyService {
         }
     }
 
-    public Strategy getStrategy(Integer strategyId) throws ParameterException, OperationException {
+    public Strategy getStrategy(Integer strategyId) throws ParameterException, OperationException, AuthenticationException {
         return getStrategy(strategyId, null);
     }
 
-    public Strategy getStrategy(Integer strategyId, String userId) throws ParameterException, OperationException {
+    public Strategy getStrategy(Integer strategyId, String userId) throws ParameterException, OperationException, AuthenticationException {
         isNotNull(strategyId, "strategyId");
 
         Strategy strategy = new Strategy(strategyId, userId);
         try {
             strategy = sqlSession.selectOne("strategy.getStrategy", strategy);
+            if (strategy == null) {
+                logger.info("[FAIL] Not Authentication StrategyId: {}, userId: {}", strategyId, userId);
+                throw new AuthenticationException("[FAIL] Not Authentication");
+            }
         } catch (Exception e){
             throw new OperationException("[FAIL] Update Failed Strategy: " + strategyId);
 
@@ -105,7 +109,7 @@ public class StrategyService {
         }
     }
 
-    public Strategy deleteStrategy(Integer strategyId, String userId) throws ParameterException, OperationException {
+    public Strategy deleteStrategy(Integer strategyId, String userId) throws ParameterException, OperationException, AuthenticationException {
         isNotNull(strategyId, "strategyId");
 
         Strategy strategy = getStrategy(strategyId, userId);

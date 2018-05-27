@@ -1,8 +1,8 @@
 package io.gncloud.coin.server.service.telegram;
 
-import io.gncloud.coin.server.model.User;
 import io.gncloud.coin.server.service.IdentityService;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -15,6 +15,9 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 public class EventNotifyBot extends TelegramLongPollingBot {
 
     protected static org.slf4j.Logger logger = LoggerFactory.getLogger(EventNotifyBot.class);
+
+    @Value("${notify.telegram.use}")
+    private boolean use;
 
     private EventWatchTelegramService service;
     private IdentityService identityService;
@@ -30,6 +33,9 @@ public class EventNotifyBot extends TelegramLongPollingBot {
     }
 
     public void sendMessage(long chatId, String text) {
+        if(!use){
+            return;
+        }
         SendMessage message = new SendMessage()
                 .setChatId(chatId)
                 .setText(text);

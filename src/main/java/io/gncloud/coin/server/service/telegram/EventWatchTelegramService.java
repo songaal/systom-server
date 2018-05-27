@@ -40,6 +40,9 @@ public class EventWatchTelegramService {
     @Value("${notify.telegram.botToken}")
     private String botToken;
 
+    @Value("${notify.telegram.use}")
+    private boolean use;
+
     @Autowired
     private SqlSession sqlSession;
 
@@ -51,6 +54,10 @@ public class EventWatchTelegramService {
      */
     @PostConstruct
     public void init() throws OperationException {
+        if(!use){
+            logger.info("Not Use TelegramBot");
+            return;
+        }
         logger.info("Initialize TelegramBot.. {}, {}", botName, botToken);
         ApiContextInitializer.init();
         TelegramBotsApi botsApi = new TelegramBotsApi();

@@ -11,8 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
-import static io.gncloud.coin.server.api.IdentityController.ACCESS_TOKEN;
+import java.util.concurrent.TimeoutException;
 
 /*
  * create joonwoo 2018. 3. 21.
@@ -26,22 +25,22 @@ public class BackTestController extends AbstractController {
     @Autowired
     private TaskService taskService;
 
-    @PostMapping("/backtest")
-    public ResponseEntity<?> runBackTestTask(@CookieValue(value = ACCESS_TOKEN) String accessToken, @RequestAttribute String userId, @RequestBody RunBackTestRequest runBackTestRequest) {
-        try {
-            Task task = runBackTestRequest.getTask();
-            logger.debug("Run Task: {}", runBackTestRequest.getTask());
-            if(task != null) {
-                task = taskService.runBackTestTask(userId, accessToken, task);
-                return success(task);
-            }
-
-        } catch (AbstractException e) {
-            logger.error("", e);
-            return e.response();
-        }
-        return null;
-    }
+//    @PostMapping("/backtest")
+//    public ResponseEntity<?> runBackTestTask(@CookieValue(value = ACCESS_TOKEN) String accessToken, @RequestAttribute String userId, @RequestBody RunBackTestRequest runBackTestRequest) {
+//        try {
+//            Task task = runBackTestRequest.getTask();
+//            logger.debug("Run Task: {}", runBackTestRequest.getTask());
+//            if(task != null) {
+//                task = taskService.runBackTestTask(userId, accessToken, task);
+//                return success(task);
+//            }
+//
+//        } catch (AbstractException e) {
+//            logger.error("", e);
+//            return e.response();
+//        }
+//        return null;
+//    }
 
     @GetMapping
     public ResponseEntity<?> getBackTestHistory(@RequestParam String strategyId){
@@ -54,9 +53,11 @@ public class BackTestController extends AbstractController {
         }
     }
 
-    @PostMapping("/waitRunBackTestTask")
-    public ResponseEntity<?> waitRunBackTestTask(@RequestBody String timeout) throws Exception {
-        return new ResponseEntity<>(taskService.waitRunBackTestTask(timeout), HttpStatus.OK);
+    @PostMapping("/backtest")
+    public ResponseEntity<?> waitRunBackTestTask(@RequestBody RunBackTestRequest runBackTestRequest) throws TimeoutException, InterruptedException {
+        String taskId = "test111";
+        String resultJson = taskService.waitRunBackTestTask(taskId);
+        return new ResponseEntity<>(resultJson, HttpStatus.OK);
     }
 
     @PostMapping("/{id}/result")

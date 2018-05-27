@@ -3,6 +3,7 @@ package io.gncloud.coin.server.service;
 import com.amazonaws.services.ecs.model.KeyValuePair;
 import com.amazonaws.services.ecs.model.RunTaskResult;
 import com.amazonaws.services.ecs.model.StopTaskResult;
+import io.gncloud.coin.server.exception.AuthenticationException;
 import io.gncloud.coin.server.exception.OperationException;
 import io.gncloud.coin.server.exception.ParameterException;
 import io.gncloud.coin.server.message.RunBackTestRequest;
@@ -39,6 +40,9 @@ public class TaskService {
     @Value("${backtest.resultTimeout}")
     private long polingTimeout;
 
+    @Value("${backtest.image}")
+    private String image;
+
     @Autowired
     private IdentityService identityService;
 
@@ -59,10 +63,9 @@ public class TaskService {
 
     private static ConcurrentMap<String, String> backTestResult = new ConcurrentHashMap<>();
 
-    public Object waitRunBackTestTask(String timeout) throws InterruptedException, TimeoutException {
-//        TODO command, image 변경
-        String name = "api-test-run";
-        String id = dockerUtils.run(name, "busybox", Arrays.asList("/bin/sh", "-c", "echo 'hello'", "sleep " + timeout));
+    public String waitRunBackTestTask(String name) throws InterruptedException, TimeoutException {
+//        TODO docker image parameter
+        String id = dockerUtils.run(name, image, Arrays.asList("/bin/sh", "-c", "echo 'hello'", "sleep 3"));
 
         String resultJson = null;
         long startTime = System.currentTimeMillis();
@@ -90,7 +93,7 @@ public class TaskService {
 
 
 
-    public Task runBackTestTask(String userId, String accessToken, Task task) throws ParameterException, OperationException {
+    public Task runBackTestTask(String userId, String accessToken, Task task) throws ParameterException, OperationException, AuthenticationException {
         isNotEmpty(task.getStrategyId(), "strategyId");
         isNotEmpty(task.getExchangeName(), "exchangeName");
         isNotEmpty(task.getBaseCurrency(), "baseCurrency");
@@ -246,4 +249,5 @@ public class TaskService {
         }
         return strategy;
     }
+
 }
