@@ -16,35 +16,31 @@ public class Task {
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(Task.class);
 
     private Integer id; //backTestId || agentId
-    private String name;
     private Integer strategyId;
     private String strategyVersion;
     private String options;
+    private String name;
     private String userId;
-
     private String exchangeName;
     private float capitalBase;
-    private String baseCurrency;
+    private String base;
     private String coin;
-
     private String state;
     private float revenue;
-
     private String ecsTaskId;
     private boolean live = false;
-
     private Date testTime;
     private boolean simulationOrder = true;
+    private String version;
+    private Integer exchangeKeyId;
 
     /** BackTest 전용 파라미터 시작 */
     private String startTime;
     private String endTime;
-    private String dataFrequency;
-    /** // BackTest 전용 파라미터 끝 */
+    private String timeInterval;
+    /** BackTest 전용 파라미터 끝 */
 
-    private String version;
 
-    private Integer exchangeKeyId;
 
     public Integer getExchangeKeyId() {
         return exchangeKeyId;
@@ -110,12 +106,12 @@ public class Task {
         this.capitalBase = capitalBase;
     }
 
-    public String getBaseCurrency() {
-        return baseCurrency;
+    public String getBase() {
+        return base;
     }
 
-    public void setBaseCurrency(String baseCurrency) {
-        this.baseCurrency = baseCurrency;
+    public void setBase(String base) {
+        this.base = base;
     }
 
     public String getCoin() {
@@ -174,12 +170,12 @@ public class Task {
         this.endTime = endTime;
     }
 
-    public String getDataFrequency() {
-        return dataFrequency;
+    public String getTimeInterval() {
+        return timeInterval;
     }
 
-    public void setDataFrequency(String dataFrequency) {
-        this.dataFrequency = dataFrequency;
+    public void setTimeInterval(String timeInterval) {
+        this.timeInterval = timeInterval;
     }
 
     public Date getTestTime() {
@@ -221,14 +217,14 @@ public class Task {
         cmd.add(String.valueOf(this.getStrategyId()));
         cmd.add(this.getExchangeName());
         cmd.add(String.valueOf(this.getCapitalBase()));
-        cmd.add(this.getBaseCurrency());
+        cmd.add(this.getBase());
         cmd.add(String.valueOf(this.isLive()));
         if(this.isLive()){
             cmd.add(String.valueOf(this.simulationOrder));
         }else{
             cmd.add(this.getStartTime());
             cmd.add(this.getEndTime());
-            cmd.add(this.getDataFrequency());
+            cmd.add(this.getTimeInterval());
         }
         logger.debug("request Parameter >> {}", cmd);
         return cmd;
@@ -245,7 +241,7 @@ public class Task {
                 ", userId='" + userId + '\'' +
                 ", exchangeName='" + exchangeName + '\'' +
                 ", capitalBase=" + capitalBase +
-                ", baseCurrency='" + baseCurrency + '\'' +
+                ", base='" + base + '\'' +
                 ", coin='" + coin + '\'' +
                 ", state='" + state + '\'' +
                 ", revenue=" + revenue +
@@ -255,7 +251,7 @@ public class Task {
                 ", simulationOrder=" + simulationOrder +
                 ", startTime='" + startTime + '\'' +
                 ", endTime='" + endTime + '\'' +
-                ", dataFrequency='" + dataFrequency + '\'' +
+                ", timeInterval='" + timeInterval + '\'' +
                 ", version='" + version + '\'' +
                 ", exchangeKeyId=" + exchangeKeyId +
                 '}';

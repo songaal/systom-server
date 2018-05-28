@@ -102,7 +102,7 @@ public class AgentController extends AbstractController {
                 task = taskService.runAgentTask(userId, accessToken, agentId, isLiveMode);
                 task.setStartTime("");
                 task.setEndTime("");
-                task.setDataFrequency("");
+                task.setTimeInterval("");
             } else if(AgentRequestParams.STOP_ACTION.equalsIgnoreCase(agentRequestParams.getAction())) {
                 task = taskService.stopAgentTask(userId, agentId);
             }

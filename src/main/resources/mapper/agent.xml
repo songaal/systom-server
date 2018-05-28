@@ -16,7 +16,7 @@
             ,#{name}
             ,#{exchangeKeyId,jdbcType=INTEGER}
             ,#{capitalBase}
-            ,#{baseCurrency}
+            ,#{base}
             ,now()
             ,#{options}
             ,#{state}
@@ -43,8 +43,8 @@
         <if test="capitalBase != null and capitalBase != ''">
             , capital_base = #{capitalBase}
         </if>
-        <if test="baseCurrency != null and baseCurrency != ''">
-            , base_currency = #{baseCurrency}
+        <if test="base != null and base != ''">
+            , base_currency = #{base}
         </if>
         <if test="options != null and options != ''">
             , options = #{options}

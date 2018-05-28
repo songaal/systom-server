@@ -24,6 +24,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeoutException;
@@ -61,44 +62,64 @@ public class TaskService {
     @Autowired
     private DockerUtils dockerUtils;
 
-    private static ConcurrentMap<String, String> backTestResult = new ConcurrentHashMap<>();
+    private static ConcurrentMap<String, Map<String, Object>> backTestResult = new ConcurrentHashMap<>();
 
-    public String waitRunBackTestTask(String name) throws InterruptedException, TimeoutException {
-//        TODO docker image parameter
-        String id = dockerUtils.run(name, image, Arrays.asList("/bin/sh", "-c", "echo 'hello'", "sleep 3"));
+    public Map<String, Object> waitRunBackTestTask(Task task) throws InterruptedException, TimeoutException, ParameterException, AuthenticationException, OperationException {
 
-        String resultJson = null;
-        long startTime = System.currentTimeMillis();
-        logger.info("[{}] BackTest result wait... id: {}", name, id);
-        while (true) {
-            Thread.sleep(500);
-            resultJson = backTestResult.get(id);
-            if (resultJson != null) {
-                backtestLogger.info("[{}] BackTest result catch!", name);
-                backTestResult.remove(id);
-                break;
-            } else if ( (System.currentTimeMillis() - startTime) >= polingTimeout ) {
-                backtestLogger.info("[{}] BackTest Response Timeout Error.", name);
-                throw new TimeoutException("[" + name + "] BackTest Response Timeout Error.");
+        isNotEmpty(task.getStrategyId(), "strategyId");
+        isNotEmpty(task.getExchangeName(), "exchangeName");
+        isNotEmpty(task.getBase(), "base");
+        isNotZero(task.getCapitalBase(), "capitalBase");
+        isNotEmpty(task.getTimeInterval(), "dataFrequency");
+        isNotEmpty(task.getStartTime(), "start");
+        isNotEmpty(task.getEndTime(), "end");
+
+        try {
+            logger.debug("[ BACK TEST ] RUN {}", task);
+
+            int resultCount = sqlSession.insert("backtest.insertHistory", task);
+            if(resultCount != 1){
+                throw new OperationException("[FAIL] Insert Failed Test History. result count: " + resultCount);
             }
+            logger.info("BackTest Task Id: {}", task.getId());
+
+            String id = dockerUtils.run("name", image, Arrays.asList("python", "run.py"));
+
+            Map<String, Object> resultJson = null;
+            long startTime = System.currentTimeMillis();
+            logger.info("[{}] BackTest result wait... id: {}", task.getId(), id);
+            while (true) {
+                Thread.sleep(500);
+                resultJson = backTestResult.get(id);
+                if (resultJson != null) {
+                    backtestLogger.info("[{}] BackTest result catch!", task.getId());
+                    backTestResult.remove(id);
+                    break;
+                } else if ( (System.currentTimeMillis() - startTime) >= polingTimeout ) {
+                    backtestLogger.info("[{}] BackTest Response Timeout Error.", task.getId());
+                    throw new TimeoutException("[" + task.getId() + "] BackTest Response Timeout Error.");
+                }
+            }
+            backtestLogger.info("[{}] BackTest Successful.", task.getId());
+            return resultJson;
+
+        } catch (Throwable t) {
+            logger.error("", t);
+            throw new OperationException("[FAIL] Running BackTest.");
         }
-        backtestLogger.info("[{}] BackTest Successful.", name);
-        return resultJson;
     }
 
-    public String registerBacktestResult(String id, String resultJson) {
+    public Map<String, Object> registerBacktestResult(String id, Map<String, Object> resultJson) {
         backTestResult.put(id, resultJson);
         return backTestResult.get(id);
     }
 
-
-
     public Task runBackTestTask(String userId, String accessToken, Task task) throws ParameterException, OperationException, AuthenticationException {
         isNotEmpty(task.getStrategyId(), "strategyId");
         isNotEmpty(task.getExchangeName(), "exchangeName");
-        isNotEmpty(task.getBaseCurrency(), "baseCurrency");
+        isNotEmpty(task.getBase(), "baseCurrency");
         isNotZero(task.getCapitalBase(), "capitalBase");
-        isNotEmpty(task.getDataFrequency(), "dataFrequency");
+        isNotEmpty(task.getTimeInterval(), "dataFrequency");
         isNotEmpty(task.getStartTime(), "start");
         isNotEmpty(task.getEndTime(), "end");
 

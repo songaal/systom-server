@@ -15,18 +15,16 @@
         start_time,
         end_time,
         user_id,
-        ecs_task_id,
         options)
         VALUES
         ( #{strategyId}
-        , #{strategyVersion}
+        , "1.0"
         , now()
         , #{exchangeName,jdbcType=VARCHAR}
         , #{coin,jdbcType=VARCHAR}
         , #{startTime}
         , #{endTime}
         , #{userId}
-        , #{ecsTaskId,jdbcType=VARCHAR}
         , #{options}
         )
     </insert>

@@ -39,3 +39,5 @@ backtest:
     host: "tcp://52.79.171.130:2376"
     resultTimeout: 60000
     image: "busybox"
+    base: "btc"
+    capicalBase: 1.0

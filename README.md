@@ -66,13 +66,13 @@ ssh ec2-user@api.gncloud.io -i gncloud-io.pem
 		- task
 		    - id
             - exchangeName
-            - baseCurrency
+            - base
             - capitalBase
             - live
             - simulationOrder
             - startTime
             - endTime
-            - dataFrequency
+            - timeInterval
         - exchangeAuths [array type]
             - exchange
             - key
@@ -111,7 +111,7 @@ curl -X POST \
 	"task":{
 		"id":"a0b95b56-f015-4785-b950-917c12497afa",
 		"exchangeName":"poloniex",
-		"baseCurrency":"btc",
+		"base":"btc",
 		"capitalBase":"10000",
 		"live":"true",
 		"simulationOrder":"false"
