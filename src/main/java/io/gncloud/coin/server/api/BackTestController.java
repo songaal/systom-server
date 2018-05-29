@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
+import static io.gncloud.coin.server.api.IdentityController.ACCESS_TOKEN;
+
 /*
  * create joonwoo 2018. 3. 21.
  *
@@ -46,11 +48,13 @@ public class BackTestController extends AbstractController {
     }
 
     @PostMapping("/backtest")
-    public ResponseEntity<?> waitRunBackTestTask(@RequestAttribute("userId") String userId, @RequestBody Task task) throws TimeoutException, InterruptedException {
+    public ResponseEntity<?> waitRunBackTestTask(@CookieValue(ACCESS_TOKEN) String accessToken, @RequestAttribute("userId") String userId, @RequestBody Task task) throws TimeoutException, InterruptedException {
         try {
             task.setBase(base);
             task.setCapitalBase(capicalBase);
             task.setUserId(userId);
+            task.setAccessToken(accessToken);
+
             Map<String, Object> resultJson = taskService.waitRunBackTestTask(task);
             return new ResponseEntity<>(resultJson, HttpStatus.OK);
         } catch (AbstractException e){

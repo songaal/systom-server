@@ -23,15 +23,15 @@ public class DockerStartTest {
     @Autowired
     private DockerUtils dockerUtils;
 
-    List<String> cmd = Arrays.asList("run.py");
+    List<String> cmd = Arrays.asList("python", "run.py");
     int tmpI = 0;
     @Test
     public void startTest() {
-        try {
-            dockerUtils.run("test1","868448630378.dkr.ecr.ap-northeast-2.amazonaws.com/cctrader:latest", cmd);
-        }catch (InterruptedException e) {
-            logger.error("", e);
-        }
+//        try {
+////            dockerUtils.run("test1","868448630378.dkr.ecr.ap-northeast-2.amazonaws.com/cctrader:latest", cmd);
+//        }catch (InterruptedException e) {
+//            logger.error("", e);
+//        }
     }
 
     @Test

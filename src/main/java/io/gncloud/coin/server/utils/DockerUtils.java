@@ -3,7 +3,9 @@ package io.gncloud.coin.server.utils;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.DockerCmdExecFactory;
+import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Frame;
+import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -30,13 +33,13 @@ public class DockerUtils {
 
     @Value("${backtest.host}")
     private String dockerHost;
-    @Value("${backtest.registry}")
-    private String registry;
     @Value("${backtest.container.readTimeout}")
     private int readTimeout;
     @Value("${backtest.container.connectTimeout}")
     private int connTimeout;
 
+    @Value("${backtest.image}")
+    private String backTestImage;
 
     private DockerClientConfig config;
     private DockerCmdExecFactory factory;
@@ -56,12 +59,24 @@ public class DockerUtils {
                                   .build();
     }
 
-    public String run(String taskId, String image, List<String> cmd) throws InterruptedException {
+    public void run(int taskId, List<String> envList, List<String> cmd) throws InterruptedException {
         DockerClient dockerClient = getClient();
 
-        CreateContainerResponse container = dockerClient.createContainerCmd(image)
-                .withCmd(cmd)
-                .exec();
+
+        Volume hostDataVolume = new Volume("/data");
+        Bind gastDataVolume = new Bind("/coinArk/data", hostDataVolume);
+
+        List<Volume> volumeList = new ArrayList<>();
+        volumeList.add(hostDataVolume);
+        List<Bind> bindList = new ArrayList<>();
+        bindList.add(gastDataVolume);
+
+        CreateContainerResponse container = dockerClient.createContainerCmd(backTestImage)
+                                                        .withEnv(envList)
+                                                        .withCmd(cmd)
+                                                        .withVolumes(volumeList)
+                                                        .withBinds(bindList)
+                                                        .exec();
 
         String containerId = container.getId();
         backtestLogger.info("[{}] Created ContainerId: {}", taskId, containerId);
@@ -83,14 +98,12 @@ public class DockerUtils {
 
         int exitCode = waitContainerResultCallback.awaitStatusCode();
         if (exitCode != 0) {
-            backtestLogger.info("[{}] Container ExitCode not 0 {}", taskId, exitCode);
-            throw new InterruptedException("ExitCode " + exitCode);
+            backtestLogger.error("[" + taskId + "] Container ExitCode not zero.. return code: " + exitCode);
+            throw new InterruptedException("BackTest Running Fail");
         } else {
             dockerClient.removeContainerCmd(containerId).withForce(true).exec();
             backtestLogger.info("[{}] BackTest Docker Run Finished!", taskId);
         }
-//        TODO return taskId
-        return containerId;
     }
 
     class LogContainerTestCallback extends LogContainerResultCallback {

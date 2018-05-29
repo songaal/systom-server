@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -40,9 +39,6 @@ public class TaskService {
 
     @Value("${backtest.resultTimeout}")
     private long polingTimeout;
-
-    @Value("${backtest.image}")
-    private String image;
 
     @Autowired
     private IdentityService identityService;
@@ -67,10 +63,10 @@ public class TaskService {
     public Map<String, Object> waitRunBackTestTask(Task task) throws InterruptedException, TimeoutException, ParameterException, AuthenticationException, OperationException {
 
         isNotEmpty(task.getStrategyId(), "strategyId");
-        isNotEmpty(task.getExchangeName(), "exchangeName");
+        isNotEmpty(task.getExchangeName(), "exchange");
         isNotEmpty(task.getBase(), "base");
         isNotZero(task.getCapitalBase(), "capitalBase");
-        isNotEmpty(task.getTimeInterval(), "dataFrequency");
+        isNotEmpty(task.getTimeInterval(), "timeInterval");
         isNotEmpty(task.getStartTime(), "start");
         isNotEmpty(task.getEndTime(), "end");
 
@@ -83,17 +79,17 @@ public class TaskService {
             }
             logger.info("BackTest Task Id: {}", task.getId());
 
-            String id = dockerUtils.run("name", image, Arrays.asList("python", "run.py"));
+            dockerUtils.run(task.getId(), task.getRunEnv(), task.getRunCommand());
 
             Map<String, Object> resultJson = null;
             long startTime = System.currentTimeMillis();
-            logger.info("[{}] BackTest result wait... id: {}", task.getId(), id);
             while (true) {
                 Thread.sleep(500);
-                resultJson = backTestResult.get(id);
+                logger.info("[{}] BackTest result wait... id: {}", task.getId(), task.getId());
+                resultJson = backTestResult.get(task.getId());
                 if (resultJson != null) {
                     backtestLogger.info("[{}] BackTest result catch!", task.getId());
-                    backTestResult.remove(id);
+                    backTestResult.remove(task.getId());
                     break;
                 } else if ( (System.currentTimeMillis() - startTime) >= polingTimeout ) {
                     backtestLogger.info("[{}] BackTest Response Timeout Error.", task.getId());
@@ -114,42 +110,42 @@ public class TaskService {
         return backTestResult.get(id);
     }
 
-    public Task runBackTestTask(String userId, String accessToken, Task task) throws ParameterException, OperationException, AuthenticationException {
-        isNotEmpty(task.getStrategyId(), "strategyId");
-        isNotEmpty(task.getExchangeName(), "exchangeName");
-        isNotEmpty(task.getBase(), "baseCurrency");
-        isNotZero(task.getCapitalBase(), "capitalBase");
-        isNotEmpty(task.getTimeInterval(), "dataFrequency");
-        isNotEmpty(task.getStartTime(), "start");
-        isNotEmpty(task.getEndTime(), "end");
-
-        Strategy strategy = strategyService.getStrategy(task.getStrategyId());
-
-        task.setStrategyVersion(strategy.getVersion());
-        task.setUserId(userId);
-        try {
-            logger.debug("[ BACK TEST ] RUN {}", task);
-
-            int resultCount = sqlSession.insert("backtest.insertHistory", task);
-            if(resultCount != 1){
-                throw new OperationException("[FAIL] Insert Failed Test History. result count: " + resultCount);
-            }
-
-            List<KeyValuePair> environmentList = new ArrayList<>();
-            environmentList.add(new KeyValuePair().withName("access_token").withValue(accessToken));
-            environmentList.add(new KeyValuePair().withName("test_id").withValue(String.valueOf(task.getId())));
-
-            RunTaskResult result = awsUtils.runTask(task, environmentList);
-
-            String ecsTaskId = result.getTasks().get(0).getTaskArn().split("/")[1];
-            logger.debug("ecs task id: {}", ecsTaskId);
-            task.setEcsTaskId(ecsTaskId);
-            return task;
-        } catch (Throwable t){
-            logger.error("", t);
-            throw new OperationException("[FAIL] Running BackTest.");
-        }
-    }
+//    public Task runBackTestTask(String userId, String accessToken, Task task) throws ParameterException, OperationException, AuthenticationException {
+//        isNotEmpty(task.getStrategyId(), "strategyId");
+//        isNotEmpty(task.getExchangeName(), "exchangeName");
+//        isNotEmpty(task.getBase(), "baseCurrency");
+//        isNotZero(task.getCapitalBase(), "capitalBase");
+//        isNotEmpty(task.getTimeInterval(), "dataFrequency");
+//        isNotEmpty(task.getStartTime(), "start");
+//        isNotEmpty(task.getEndTime(), "end");
+//
+//        Strategy strategy = strategyService.getStrategy(task.getStrategyId());
+//
+//        task.setStrategyVersion(strategy.getVersion());
+//        task.setUserId(userId);
+//        try {
+//            logger.debug("[ BACK TEST ] RUN {}", task);
+//
+//            int resultCount = sqlSession.insert("backtest.insertHistory", task);
+//            if(resultCount != 1){
+//                throw new OperationException("[FAIL] Insert Failed Test History. result count: " + resultCount);
+//            }
+//
+//            List<KeyValuePair> environmentList = new ArrayList<>();
+//            environmentList.add(new KeyValuePair().withName("access_token").withValue(accessToken));
+//            environmentList.add(new KeyValuePair().withName("test_id").withValue(String.valueOf(task.getId())));
+//
+//            RunTaskResult result = awsUtils.runTask(task, environmentList);
+//
+//            String ecsTaskId = result.getTasks().get(0).getTaskArn().split("/")[1];
+//            logger.debug("ecs task id: {}", ecsTaskId);
+//            task.setEcsTaskId(ecsTaskId);
+//            return task;
+//        } catch (Throwable t){
+//            logger.error("", t);
+//            throw new OperationException("[FAIL] Running BackTest.");
+//        }
+//    }
 
     public Task runAgentTask(String userId, String accessToken, Integer agentId, boolean isLiveMode) throws ParameterException, OperationException {
 

@@ -33,6 +33,15 @@ public class Task {
     private boolean simulationOrder = true;
     private String version;
     private Integer exchangeKeyId;
+    private String accessToken;
+
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
+    }
 
     /** BackTest 전용 파라미터 시작 */
     private String startTime;
@@ -210,23 +219,29 @@ public class Task {
         this.userId = userId;
     }
 
+    public List<String> getRunEnv(){
+        List<String> env = new ArrayList<>();
+        env.add("exchange=" + this.getExchangeName());
+        env.add("access_token=" + this.getAccessToken());
+        logger.debug("run.py env: {}", env);
+        return env;
+    }
+
     public List<String> getRunCommand(){
         List<String> cmd = new ArrayList<>();
         cmd.add("python3");
         cmd.add("run.py");
-        cmd.add(String.valueOf(this.getStrategyId()));
-        cmd.add(this.getExchangeName());
-        cmd.add(String.valueOf(this.getCapitalBase()));
-        cmd.add(this.getBase());
-        cmd.add(String.valueOf(this.isLive()));
-        if(this.isLive()){
-            cmd.add(String.valueOf(this.simulationOrder));
-        }else{
-            cmd.add(this.getStartTime());
-            cmd.add(this.getEndTime());
-            cmd.add(this.getTimeInterval());
-        }
-        logger.debug("request Parameter >> {}", cmd);
+        cmd.add("task_id=" + String.valueOf(this.getStrategyId()));
+        cmd.add("initial_cash=" +String.valueOf(this.getCapitalBase()));
+        cmd.add("initial_base=" +String.valueOf(this.getCapitalBase()));
+        cmd.add("initial_coin=" +String.valueOf(this.getCapitalBase()));
+        cmd.add("base=" + this.getBase());
+        cmd.add("coin=" + this.getBase());
+        cmd.add("start=" + this.getStartTime());
+        cmd.add("end=" + this.getEndTime());
+        cmd.add("interval=" + this.getTimeInterval());
+        cmd.add("session_type=" + (this.isLive() == false ? "backtest" : "live"));
+        logger.debug("run.py cmd: {}", cmd);
         return cmd;
     }
 
@@ -234,10 +249,10 @@ public class Task {
     public String toString() {
         return "Task{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
                 ", strategyId=" + strategyId +
                 ", strategyVersion='" + strategyVersion + '\'' +
                 ", options='" + options + '\'' +
+                ", name='" + name + '\'' +
                 ", userId='" + userId + '\'' +
                 ", exchangeName='" + exchangeName + '\'' +
                 ", capitalBase=" + capitalBase +
@@ -249,11 +264,11 @@ public class Task {
                 ", live=" + live +
                 ", testTime=" + testTime +
                 ", simulationOrder=" + simulationOrder +
+                ", version='" + version + '\'' +
+                ", exchangeKeyId=" + exchangeKeyId +
                 ", startTime='" + startTime + '\'' +
                 ", endTime='" + endTime + '\'' +
                 ", timeInterval='" + timeInterval + '\'' +
-                ", version='" + version + '\'' +
-                ", exchangeKeyId=" + exchangeKeyId +
                 '}';
     }
 }
