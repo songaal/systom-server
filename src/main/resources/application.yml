@@ -38,6 +38,11 @@ spring:
 backtest:
     host: "tcp://52.79.171.130:2376"
     resultTimeout: 60000
-    image: "busybox"
+    container:
+      readTimeout: 40000
+      connectTimeout: 10000
+#    image: "busybox"
+    registry: "868448630378.dkr.ecr.ap-northeast-2.amazonaws.com"
+    image: "cctrader"
     base: "btc"
     capicalBase: 1.0

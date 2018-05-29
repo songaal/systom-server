@@ -30,6 +30,13 @@ public class DockerUtils {
 
     @Value("${backtest.host}")
     private String dockerHost;
+    @Value("${backtest.registry}")
+    private String registry;
+    @Value("${backtest.container.readTimeout}")
+    private int readTimeout;
+    @Value("${backtest.container.connectTimeout}")
+    private int connTimeout;
+
 
     private DockerClientConfig config;
     private DockerCmdExecFactory factory;
@@ -39,17 +46,17 @@ public class DockerUtils {
         config = DefaultDockerClientConfig.createDefaultConfigBuilder()
                                           .withDockerHost(dockerHost)
                                           .build();
-        factory = new JerseyDockerCmdExecFactory().withReadTimeout(10000)
-                                                  .withConnectTimeout(3000);
+        factory = new JerseyDockerCmdExecFactory().withReadTimeout(readTimeout)
+                                                  .withConnectTimeout(connTimeout);
     }
 
-    protected DockerClient getClient() {
+    public DockerClient getClient() {
         return DockerClientBuilder.getInstance(config)
                                   .withDockerCmdExecFactory(factory)
                                   .build();
     }
 
-    public String run(String name, String image, List<String> cmd) throws InterruptedException {
+    public String run(String taskId, String image, List<String> cmd) throws InterruptedException {
         DockerClient dockerClient = getClient();
 
         CreateContainerResponse container = dockerClient.createContainerCmd(image)
@@ -57,12 +64,12 @@ public class DockerUtils {
                 .exec();
 
         String containerId = container.getId();
-        backtestLogger.info("[{}] Created ContainerId: {}", name, containerId);
+        backtestLogger.info("[{}] Created ContainerId: {}", taskId, containerId);
 
         dockerClient.startContainerCmd(containerId).exec();
         WaitContainerResultCallback waitContainerResultCallback = new WaitContainerResultCallback();
         dockerClient.waitContainerCmd(containerId).exec(waitContainerResultCallback);
-        backtestLogger.info("[{}] Start Container", name);
+        backtestLogger.info("[{}] Start Container", taskId);
 
         LogContainerTestCallback loggingCallback = new LogContainerTestCallback(containerId);
         dockerClient.logContainerCmd(containerId)
@@ -76,11 +83,11 @@ public class DockerUtils {
 
         int exitCode = waitContainerResultCallback.awaitStatusCode();
         if (exitCode != 0) {
-            backtestLogger.info("[{}] Container ExitCode not 0 {}", name, exitCode);
+            backtestLogger.info("[{}] Container ExitCode not 0 {}", taskId, exitCode);
             throw new InterruptedException("ExitCode " + exitCode);
         } else {
             dockerClient.removeContainerCmd(containerId).withForce(true).exec();
-            backtestLogger.info("[{}] BackTest Docker Run Finished!", name);
+            backtestLogger.info("[{}] BackTest Docker Run Finished!", taskId);
         }
 //        TODO return taskId
         return containerId;
