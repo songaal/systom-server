@@ -15,7 +15,7 @@
             ,#{strategyVersion}
             ,#{name}
             ,#{exchangeKeyId,jdbcType=INTEGER}
-            ,#{capitalBase}
+            ,#{initialBase}
             ,#{base}
             ,now()
             ,#{options}
@@ -40,8 +40,8 @@
         <if test="strategyVersion != null and strategyVersion != ''">
             , strategy_version = #{strategyVersion}
         </if>
-        <if test="capitalBase != null and capitalBase != ''">
-            , capital_base = #{capitalBase}
+        <if test="initialBase != null and initialBase != ''">
+            , capital_base = #{initialBase}
         </if>
         <if test="base != null and base != ''">
             , base_currency = #{base}

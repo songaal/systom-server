@@ -173,9 +173,7 @@ public class Agent{
         task.setId(this.id);
         task.setStrategyId(this.getStrategyId());
         task.setBase(this.baseCurrency);
-        task.setCapitalBase(this.capitalBase);
-        task.setLive(true);
-        task.setSimulationOrder(this.simulationOrder);
+        task.setInitialBase(this.capitalBase);
         return task;
     }
 }

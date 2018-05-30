@@ -17,23 +17,29 @@ public class Task {
 
     private Integer id; //backTestId || agentId
     private Integer strategyId;
-    private String strategyVersion;
     private String options;
     private String name;
     private String userId;
     private String exchangeName;
-    private float capitalBase;
-    private String base;
+    private float initialBase = 1.0f;
+    private float initialCash = 0;
+    private float initialCoin = 0;
+    private float commissionRate = 0.001f;
+    private String benchmark_symbol = "btc_usdt";
+    private String base = "btc";
+    private String sessionType = "backtest";
     private String coin;
     private String state;
-    private float revenue;
-    private String ecsTaskId;
-    private boolean live = false;
     private Date testTime;
-    private boolean simulationOrder = true;
-    private String version;
     private Integer exchangeKeyId;
     private String accessToken;
+    private String algoClassName = "Main";
+
+    /** BackTest 전용 파라미터 시작 */
+    private String startTime;
+    private String endTime;
+    private String timeInterval;
+    /** BackTest 전용 파라미터 끝 */
 
     public String getAccessToken() {
         return accessToken;
@@ -43,44 +49,12 @@ public class Task {
         this.accessToken = accessToken;
     }
 
-    /** BackTest 전용 파라미터 시작 */
-    private String startTime;
-    private String endTime;
-    private String timeInterval;
-    /** BackTest 전용 파라미터 끝 */
-
-
-
     public Integer getExchangeKeyId() {
         return exchangeKeyId;
     }
 
     public void setExchangeKeyId(Integer exchangeKeyId) {
         this.exchangeKeyId = exchangeKeyId;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    public String getEcsTaskId() {
-        return ecsTaskId;
-    }
-
-    public void setEcsTaskId(String ecsTaskId) {
-        this.ecsTaskId = ecsTaskId;
-    }
-
-    public String getStrategyVersion() {
-        return strategyVersion;
-    }
-
-    public void setStrategyVersion(String strategyVersion) {
-        this.strategyVersion = strategyVersion;
     }
 
     public String getName() {
@@ -91,14 +65,6 @@ public class Task {
         this.name = name;
     }
 
-    public float getRevenue() {
-        return revenue;
-    }
-
-    public void setRevenue(float revenue) {
-        this.revenue = revenue;
-    }
-
     public String getExchangeName() {
         return exchangeName;
     }
@@ -107,12 +73,12 @@ public class Task {
         this.exchangeName = exchangeName;
     }
 
-    public float getCapitalBase() {
-        return capitalBase;
+    public float getInitialBase() {
+        return initialBase;
     }
 
-    public void setCapitalBase(float capitalBase) {
-        this.capitalBase = capitalBase;
+    public void setInitialBase(float initialBase) {
+        this.initialBase = initialBase;
     }
 
     public String getBase() {
@@ -145,22 +111,6 @@ public class Task {
 
     public void setState(String state) {
         this.state = state;
-    }
-
-    public boolean isLive() {
-        return live;
-    }
-
-    public void setLive(boolean live) {
-        this.live = live;
-    }
-
-    public boolean isSimulationOrder() {
-        return simulationOrder;
-    }
-
-    public void setSimulationOrder(boolean simulationOrder) {
-        this.simulationOrder = simulationOrder;
     }
 
     public String getStartTime() {
@@ -219,11 +169,59 @@ public class Task {
         this.userId = userId;
     }
 
+    public float getInitialCash() {
+        return initialCash;
+    }
+
+    public void setInitialCash(float initialCash) {
+        this.initialCash = initialCash;
+    }
+
+    public float getInitialCoin() {
+        return initialCoin;
+    }
+
+    public void setInitialCoin(float initialCoin) {
+        this.initialCoin = initialCoin;
+    }
+
+    public float getCommissionRate() {
+        return commissionRate;
+    }
+
+    public void setCommissionRate(float commissionRate) {
+        this.commissionRate = commissionRate;
+    }
+
+    public String getBenchmark_symbol() {
+        return benchmark_symbol;
+    }
+
+    public void setBenchmark_symbol(String benchmark_symbol) {
+        this.benchmark_symbol = benchmark_symbol;
+    }
+
+    public String getSessionType() {
+        return sessionType;
+    }
+
+    public void setSessionType(String sessionType) {
+        this.sessionType = sessionType;
+    }
+
+    public String getAlgoClassName() {
+        return algoClassName;
+    }
+
+    public void setAlgoClassName(String algoClassName) {
+        this.algoClassName = algoClassName;
+    }
+
     public List<String> getRunEnv(){
         List<String> env = new ArrayList<>();
         env.add("exchange=" + this.getExchangeName());
         env.add("access_token=" + this.getAccessToken());
-        logger.debug("run.py env: {}", env);
+        logger.debug("task env: {}", env);
         return env;
     }
 
@@ -231,17 +229,18 @@ public class Task {
         List<String> cmd = new ArrayList<>();
         cmd.add("python3");
         cmd.add("run.py");
-        cmd.add("task_id=" + String.valueOf(this.getStrategyId()));
-        cmd.add("initial_cash=" +String.valueOf(this.getCapitalBase()));
-        cmd.add("initial_base=" +String.valueOf(this.getCapitalBase()));
-        cmd.add("initial_coin=" +String.valueOf(this.getCapitalBase()));
+        cmd.add("task_id=" + String.valueOf(this.getId()));
+        cmd.add("initial_cash=" + String.valueOf(this.getInitialCash()));
+        cmd.add("initial_base=" + String.valueOf(this.getInitialBase()));
+        cmd.add("initial_coin=" + String.valueOf(this.getInitialCoin()));
         cmd.add("base=" + this.getBase());
-        cmd.add("coin=" + this.getBase());
+        cmd.add("coin=" + this.getCoin());
         cmd.add("start=" + this.getStartTime());
         cmd.add("end=" + this.getEndTime());
         cmd.add("interval=" + this.getTimeInterval());
-        cmd.add("session_type=" + (this.isLive() == false ? "backtest" : "live"));
-        logger.debug("run.py cmd: {}", cmd);
+        cmd.add("session_type=" + this.getSessionType());
+        cmd.add("algo_class_name=" + this.getAlgoClassName());
+        logger.debug("task cmd: {}", cmd);
         return cmd;
     }
 
@@ -250,22 +249,23 @@ public class Task {
         return "Task{" +
                 "id=" + id +
                 ", strategyId=" + strategyId +
-                ", strategyVersion='" + strategyVersion + '\'' +
                 ", options='" + options + '\'' +
                 ", name='" + name + '\'' +
                 ", userId='" + userId + '\'' +
                 ", exchangeName='" + exchangeName + '\'' +
-                ", capitalBase=" + capitalBase +
+                ", initialBase=" + initialBase +
+                ", initialCash=" + initialCash +
+                ", initialCoin=" + initialCoin +
+                ", commissionRate=" + commissionRate +
+                ", benchmark_symbol='" + benchmark_symbol + '\'' +
                 ", base='" + base + '\'' +
+                ", sessionType='" + sessionType + '\'' +
                 ", coin='" + coin + '\'' +
                 ", state='" + state + '\'' +
-                ", revenue=" + revenue +
-                ", ecsTaskId='" + ecsTaskId + '\'' +
-                ", live=" + live +
                 ", testTime=" + testTime +
-                ", simulationOrder=" + simulationOrder +
-                ", version='" + version + '\'' +
                 ", exchangeKeyId=" + exchangeKeyId +
+                ", accessToken='" + accessToken + '\'' +
+                ", algoClassName='" + algoClassName + '\'' +
                 ", startTime='" + startTime + '\'' +
                 ", endTime='" + endTime + '\'' +
                 ", timeInterval='" + timeInterval + '\'' +

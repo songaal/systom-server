@@ -51,7 +51,7 @@ public class BackTestController extends AbstractController {
     public ResponseEntity<?> waitRunBackTestTask(@CookieValue(ACCESS_TOKEN) String accessToken, @RequestAttribute("userId") String userId, @RequestBody Task task) throws TimeoutException, InterruptedException {
         try {
             task.setBase(base);
-            task.setCapitalBase(capicalBase);
+            task.setInitialBase(capicalBase);
             task.setUserId(userId);
             task.setAccessToken(accessToken);
 
@@ -67,7 +67,7 @@ public class BackTestController extends AbstractController {
     }
 
     @PostMapping("/{id}/result")
-    public ResponseEntity<?> backtestResult(@PathVariable String id, @RequestBody Map<String, Object> resultJson) throws Exception {
+    public ResponseEntity<?> backtestResult(@PathVariable Integer id, @RequestBody Map<String, Object> resultJson) throws Exception {
         taskService.registerBacktestResult(id, resultJson);
         return new ResponseEntity<>(resultJson, HttpStatus.OK);
     }

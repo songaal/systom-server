@@ -19,6 +19,7 @@ aws:
     name: "order_stream"
     shardId: "shard-000000000000"
     limit: 1000
+    use: false
 
 notify:
   telegram:
@@ -37,7 +38,7 @@ spring:
 
 backtest:
     host: "tcp://52.79.171.130:2376"
-    resultTimeout: 60000
+    resultTimeout: 120000
     image: "868448630378.dkr.ecr.ap-northeast-2.amazonaws.com/cctrader:latest"
     base: "btc"
     capicalBase: 1.0

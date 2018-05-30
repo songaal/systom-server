@@ -41,6 +41,8 @@ public class EventService {
     private String shardId;
     @Value("${aws.stream.limit}")
     private int limit;
+    @Value("${aws.stream.use}")
+    private boolean use;
 
     private AmazonKinesis client;
     private String shardIterator;
@@ -55,10 +57,14 @@ public class EventService {
 
     @PostConstruct
     public void init() {
+        if (!use) {
+            logger.info("Kinesis Stream Disabled.");
+            return;
+        }
+
         client = AmazonKinesisClientBuilder.standard()
                 .withRegion(region)
                 .build();
-
 
         //recordSequenceNumber 를 저장소에서 로드한다.
         String recordSequenceNumber = loadLastSequenceNumber(streamName, shardId);
@@ -71,6 +77,9 @@ public class EventService {
     String lastShardIterator = null;
     @Scheduled(fixedDelay= 1000)
     public void scheduled() {
+        if (!use) {
+            return;
+        }
         try {
             if(shardIterator != lastShardIterator) {
                 logger.debug("#### check record by shardIterator : {}", shardIterator);

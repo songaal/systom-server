@@ -37,7 +37,6 @@ public class DockerUtils {
     private int readTimeout;
     @Value("${backtest.container.connectTimeout}")
     private int connTimeout;
-
     @Value("${backtest.image}")
     private String backTestImage;
 
@@ -111,7 +110,7 @@ public class DockerUtils {
         private String backtestName;
 
         LogContainerTestCallback (String backtestName){
-            this.backtestName = backtestName;
+            this.backtestName = backtestName.substring(10);
         }
         @Override
         public void onNext(Frame frame) {

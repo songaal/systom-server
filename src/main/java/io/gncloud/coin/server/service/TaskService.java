@@ -1,12 +1,9 @@
 package io.gncloud.coin.server.service;
 
-import com.amazonaws.services.ecs.model.KeyValuePair;
 import com.amazonaws.services.ecs.model.RunTaskResult;
-import com.amazonaws.services.ecs.model.StopTaskResult;
 import io.gncloud.coin.server.exception.AuthenticationException;
 import io.gncloud.coin.server.exception.OperationException;
 import io.gncloud.coin.server.exception.ParameterException;
-import io.gncloud.coin.server.message.RunBackTestRequest;
 import io.gncloud.coin.server.model.Agent;
 import io.gncloud.coin.server.model.ExchangeKey;
 import io.gncloud.coin.server.model.Strategy;
@@ -21,7 +18,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,7 +34,7 @@ public class TaskService {
     private AwsUtils awsUtils;
 
     @Value("${backtest.resultTimeout}")
-    private long polingTimeout;
+    private long resultTimeout;
 
     @Autowired
     private IdentityService identityService;
@@ -58,14 +54,14 @@ public class TaskService {
     @Autowired
     private DockerUtils dockerUtils;
 
-    private static ConcurrentMap<String, Map<String, Object>> backTestResult = new ConcurrentHashMap<>();
+    private static ConcurrentMap<Integer, Map<String, Object>> backTestResult = new ConcurrentHashMap<>();
 
     public Map<String, Object> waitRunBackTestTask(Task task) throws InterruptedException, TimeoutException, ParameterException, AuthenticationException, OperationException {
 
         isNotEmpty(task.getStrategyId(), "strategyId");
         isNotEmpty(task.getExchangeName(), "exchange");
         isNotEmpty(task.getBase(), "base");
-        isNotZero(task.getCapitalBase(), "capitalBase");
+        isNotZero(task.getInitialBase(), "capitalBase");
         isNotEmpty(task.getTimeInterval(), "timeInterval");
         isNotEmpty(task.getStartTime(), "start");
         isNotEmpty(task.getEndTime(), "end");
@@ -84,17 +80,17 @@ public class TaskService {
             Map<String, Object> resultJson = null;
             long startTime = System.currentTimeMillis();
             while (true) {
-                Thread.sleep(500);
-                logger.info("[{}] BackTest result wait... id: {}", task.getId(), task.getId());
+                Thread.sleep(1000);
                 resultJson = backTestResult.get(task.getId());
                 if (resultJson != null) {
                     backtestLogger.info("[{}] BackTest result catch!", task.getId());
                     backTestResult.remove(task.getId());
                     break;
-                } else if ( (System.currentTimeMillis() - startTime) >= polingTimeout ) {
+                } else if ( (System.currentTimeMillis() - startTime) >= resultTimeout) {
                     backtestLogger.info("[{}] BackTest Response Timeout Error.", task.getId());
                     throw new TimeoutException("[" + task.getId() + "] BackTest Response Timeout Error.");
                 }
+                logger.info("[{}] BackTest result wait... id: {} backTestResult: {}", task.getId(), task.getId(), backTestResult);
             }
             backtestLogger.info("[{}] BackTest Successful.", task.getId());
             return resultJson;
@@ -105,103 +101,72 @@ public class TaskService {
         }
     }
 
-    public Map<String, Object> registerBacktestResult(String id, Map<String, Object> resultJson) {
+    public Map<String, Object> registerBacktestResult(Integer id, Map<String, Object> resultJson) {
         backTestResult.put(id, resultJson);
+        backtestLogger.info("[{}] BackTest Result Saved.", id);
         return backTestResult.get(id);
     }
 
-//    public Task runBackTestTask(String userId, String accessToken, Task task) throws ParameterException, OperationException, AuthenticationException {
-//        isNotEmpty(task.getStrategyId(), "strategyId");
-//        isNotEmpty(task.getExchangeName(), "exchangeName");
-//        isNotEmpty(task.getBase(), "baseCurrency");
-//        isNotZero(task.getCapitalBase(), "capitalBase");
-//        isNotEmpty(task.getTimeInterval(), "dataFrequency");
-//        isNotEmpty(task.getStartTime(), "start");
-//        isNotEmpty(task.getEndTime(), "end");
-//
-//        Strategy strategy = strategyService.getStrategy(task.getStrategyId());
-//
-//        task.setStrategyVersion(strategy.getVersion());
-//        task.setUserId(userId);
-//        try {
-//            logger.debug("[ BACK TEST ] RUN {}", task);
-//
-//            int resultCount = sqlSession.insert("backtest.insertHistory", task);
-//            if(resultCount != 1){
-//                throw new OperationException("[FAIL] Insert Failed Test History. result count: " + resultCount);
-//            }
-//
-//            List<KeyValuePair> environmentList = new ArrayList<>();
-//            environmentList.add(new KeyValuePair().withName("access_token").withValue(accessToken));
-//            environmentList.add(new KeyValuePair().withName("test_id").withValue(String.valueOf(task.getId())));
-//
-//            RunTaskResult result = awsUtils.runTask(task, environmentList);
-//
-//            String ecsTaskId = result.getTasks().get(0).getTaskArn().split("/")[1];
-//            logger.debug("ecs task id: {}", ecsTaskId);
-//            task.setEcsTaskId(ecsTaskId);
-//            return task;
-//        } catch (Throwable t){
-//            logger.error("", t);
-//            throw new OperationException("[FAIL] Running BackTest.");
-//        }
-//    }
-
     public Task runAgentTask(String userId, String accessToken, Integer agentId, boolean isLiveMode) throws ParameterException, OperationException {
-
-        Task task = getAgentTaskFromId(agentId);
-
-        ExchangeKey exchangeKey = exchangeService.selectExchangeKey(new ExchangeKey(task.getExchangeKeyId(), userId));
-        RunBackTestRequest.ExchangeAuth exchangeAuth = null;
-        String exchangeName = exchangeKey.getExchangeName();
-
-        List<KeyValuePair> environmentList = new ArrayList<>();
-        if(isLiveMode) {
-            environmentList.add(new KeyValuePair().withName(exchangeName + "_key").withValue(exchangeAuth.getKey()));
-            environmentList.add(new KeyValuePair().withName(exchangeName + "_secret").withValue(exchangeAuth.getSecret()));
-        }
-        environmentList.add(new KeyValuePair().withName("exchangeList").withValue(exchangeName));
-        environmentList.add(new KeyValuePair().withName("user_id").withValue(userId));
-        environmentList.add(new KeyValuePair().withName("access_token").withValue(accessToken));
-        environmentList.add(new KeyValuePair().withName("agent_id").withValue(String.valueOf(agentId)));
-
-        logger.debug("[ LIVE={} ] RUN {}", isLiveMode, task);
-        RunTaskResult result = null;
-        try {
-            result = awsUtils.runTask(task, environmentList);
-        } catch (Exception e){
-            logger.error("", e);
-            throw new OperationException("[FAIL] ecs task run error");
-        }
-
-        String ecsTaskId = parseTaskId(result);
-        task.setEcsTaskId(ecsTaskId);
-        logger.info("starting ecs: {}", ecsTaskId);
-        Agent agent = new Agent();
-        agent.setId(task.getId());
-        agent.setEcsTaskId(ecsTaskId);
-        agent.setState(Agent.STATE_RUN);
-        agentService.updateAgent(agent);
-        return task;
+//        TODO 에이전트 cctrader 변경
+        throw new OperationException("개발예정");
+//
+//        Task task = getAgentTaskFromId(agentId);
+//
+//        ExchangeKey exchangeKey = exchangeService.selectExchangeKey(new ExchangeKey(task.getExchangeKeyId(), userId));
+//        RunBackTestRequest.ExchangeAuth exchangeAuth = null;
+//        String exchangeName = exchangeKey.getExchangeName();
+//
+//        List<KeyValuePair> environmentList = new ArrayList<>();
+//        if(isLiveMode) {
+//            environmentList.add(new KeyValuePair().withName(exchangeName + "_key").withValue(exchangeAuth.getKey()));
+//            environmentList.add(new KeyValuePair().withName(exchangeName + "_secret").withValue(exchangeAuth.getSecret()));
+//        }
+//        environmentList.add(new KeyValuePair().withName("exchangeList").withValue(exchangeName));
+//        environmentList.add(new KeyValuePair().withName("user_id").withValue(userId));
+//        environmentList.add(new KeyValuePair().withName("access_token").withValue(accessToken));
+//        environmentList.add(new KeyValuePair().withName("agent_id").withValue(String.valueOf(agentId)));
+//
+//        logger.debug("[ LIVE={} ] RUN {}", isLiveMode, task);
+//        RunTaskResult result = null;
+//        try {
+//            result = awsUtils.runTask(task, environmentList);
+//        } catch (Exception e){
+//            logger.error("", e);
+//            throw new OperationException("[FAIL] ecs task run error");
+//        }
+//
+//        String ecsTaskId = parseTaskId(result);
+//        task.setEcsTaskId(ecsTaskId);
+//        logger.info("starting ecs: {}", ecsTaskId);
+//        Agent agent = new Agent();
+//        agent.setId(task.getId());
+//        agent.setEcsTaskId(ecsTaskId);
+//        agent.setState(Agent.STATE_RUN);
+//        agentService.updateAgent(agent);
+//        return task;
     }
 
 
     public Task stopAgentTask(String userId, Integer agentId) throws ParameterException, OperationException {
-        Agent agent = agentService.getAgent(agentId);
-        Task task = new Task();
-        task.setEcsTaskId(agent.getEcsTaskId());
-        StopTaskResult stopTaskResult = null;
-        try {
-            stopTaskResult = awsUtils.stopTask(task.getEcsTaskId(), "User stop request : " + userId + ", " + agentId);
-        } catch (Exception e){
-            logger.error("", e);
-            throw new OperationException("[FAIL] ecs task run error");
-        }
-        com.amazonaws.services.ecs.model.Task stopedTask = stopTaskResult.getTask();
-        logger.debug("Stopped task : {}", stopedTask);
-        agent.setState(Agent.STATE_STOP);
-        agentService.updateAgent(agent);
-        return task;
+//        TODO 에이전트 정지
+        throw new OperationException("개발예정");
+//        Agent agent = agentService.getAgent(agentId);
+//        Task task = new Task();
+//        task.setEcsTaskId(agent.getEcsTaskId());
+//        StopTaskResult stopTaskResult = null;
+//        try {
+//            stopTaskResult = awsUtils.stopTask(task.getEcsTaskId(), "User stop request : " + userId + ", " + agentId);
+//        } catch (Exception e){
+//            logger.error("", e);
+//            throw new OperationException("[FAIL] ecs task run error");
+//        }
+//        com.amazonaws.services.ecs.model.Task stopedTask = stopTaskResult.getTask();
+//        logger.debug("Stopped task : {}", stopedTask);
+//        agent.setState(Agent.STATE_STOP);
+//        agentService.updateAgent(agent);
+//        return task;
+
     }
 
 

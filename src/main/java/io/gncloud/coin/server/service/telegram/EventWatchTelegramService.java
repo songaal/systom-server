@@ -55,7 +55,7 @@ public class EventWatchTelegramService {
     @PostConstruct
     public void init() throws OperationException {
         if(!use){
-            logger.info("Not Use TelegramBot");
+            logger.info("TelegramBot Diabled.");
             return;
         }
         logger.info("Initialize TelegramBot.. {}, {}", botName, botToken);
