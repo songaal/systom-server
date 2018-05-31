@@ -172,7 +172,7 @@ public class Agent{
         Task task = new Task();
         task.setId(this.id);
         task.setStrategyId(this.getStrategyId());
-        task.setBase(this.baseCurrency);
+//        task.setBase(this.baseCurrency);
         task.setInitialBase(this.capitalBase);
         return task;
     }

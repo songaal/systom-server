@@ -11,7 +11,7 @@
         strategy_version,
         test_time,
         exchange_name,
-        coin,
+        symbol,
         start_time,
         end_time,
         user_id,
@@ -21,7 +21,7 @@
         , "1.0"
         , now()
         , #{exchangeName,jdbcType=VARCHAR}
-        , #{coin,jdbcType=VARCHAR}
+        , #{symbol,jdbcType=VARCHAR}
         , #{startTime}
         , #{endTime}
         , #{userId}
@@ -34,7 +34,7 @@
            set strategy_id = #{strategyId}
               , strategy_version = #{strategyVersion}
               , exchange_name = #{exchangeName}
-              , coin  = #{coin,jdbcType=VARCHAR}
+              , symbol  = #{symbol,jdbcType=VARCHAR}
               , ecs_task_id = #{ecsTaskId,jdbcType=VARCHAR}
         where id = #{id}
     </update>
@@ -46,7 +46,7 @@
             a.action,
             a.test_time,
             a.exchange_name,
-            a.coin,
+            a.symbol,
             a.revenue,
             a.start_time,
             a.end_time,

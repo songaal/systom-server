@@ -26,9 +26,10 @@ public class Task {
     private float initialCoin = 0;
     private float commissionRate = 0.001f;
     private String benchmark_symbol = "btc_usdt";
-    private String base = "btc";
+    private String symbol;
+//    private String base = "btc";
     private String sessionType = "backtest";
-    private String coin;
+//    private String coin;
     private String state;
     private Date testTime;
     private Integer exchangeKeyId;
@@ -79,22 +80,6 @@ public class Task {
 
     public void setInitialBase(float initialBase) {
         this.initialBase = initialBase;
-    }
-
-    public String getBase() {
-        return base;
-    }
-
-    public void setBase(String base) {
-        this.base = base;
-    }
-
-    public String getCoin() {
-        return coin;
-    }
-
-    public void setCoin(String coin) {
-        this.coin = coin;
     }
 
     public String getOptions() {
@@ -217,6 +202,14 @@ public class Task {
         this.algoClassName = algoClassName;
     }
 
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public void setSymbol(String symbol) {
+        this.symbol = symbol;
+    }
+
     public List<String> getRunEnv(){
         List<String> env = new ArrayList<>();
         env.add("exchange=" + this.getExchangeName());
@@ -233,8 +226,7 @@ public class Task {
         cmd.add("initial_cash=" + String.valueOf(this.getInitialCash()));
         cmd.add("initial_base=" + String.valueOf(this.getInitialBase()));
         cmd.add("initial_coin=" + String.valueOf(this.getInitialCoin()));
-        cmd.add("base=" + this.getBase());
-        cmd.add("coin=" + this.getCoin());
+        cmd.add("symbol=" + this.getSymbol());
         cmd.add("start=" + this.getStartTime());
         cmd.add("end=" + this.getEndTime());
         cmd.add("interval=" + this.getTimeInterval());
@@ -258,9 +250,8 @@ public class Task {
                 ", initialCoin=" + initialCoin +
                 ", commissionRate=" + commissionRate +
                 ", benchmark_symbol='" + benchmark_symbol + '\'' +
-                ", base='" + base + '\'' +
+                ", symbol='" + symbol + '\'' +
                 ", sessionType='" + sessionType + '\'' +
-                ", coin='" + coin + '\'' +
                 ", state='" + state + '\'' +
                 ", testTime=" + testTime +
                 ", exchangeKeyId=" + exchangeKeyId +

@@ -30,9 +30,6 @@ public class BackTestController extends AbstractController {
     @Autowired
     private TaskService taskService;
 
-    @Value("${backtest.base}")
-    private String base;
-
     @Value("${backtest.capicalBase}")
     private float capicalBase;
 
@@ -50,7 +47,6 @@ public class BackTestController extends AbstractController {
     @PostMapping("/backtest")
     public ResponseEntity<?> waitRunBackTestTask(@CookieValue(ACCESS_TOKEN) String accessToken, @RequestAttribute("userId") String userId, @RequestBody Task task) throws TimeoutException, InterruptedException {
         try {
-            task.setBase(base);
             task.setInitialBase(capicalBase);
             task.setUserId(userId);
             task.setAccessToken(accessToken);

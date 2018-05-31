@@ -60,7 +60,7 @@ public class TaskService {
 
         isNotEmpty(task.getStrategyId(), "strategyId");
         isNotEmpty(task.getExchangeName(), "exchange");
-        isNotEmpty(task.getBase(), "base");
+        isNotEmpty(task.getSymbol(), "symbol");
         isNotZero(task.getInitialBase(), "capitalBase");
         isNotEmpty(task.getTimeInterval(), "timeInterval");
         isNotEmpty(task.getStartTime(), "start");
