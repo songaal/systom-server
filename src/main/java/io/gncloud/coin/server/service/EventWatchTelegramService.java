@@ -1,17 +1,13 @@
-package io.gncloud.coin.server.service.telegram;
+package io.gncloud.coin.server.service;
 
 import io.gncloud.coin.server.exception.OperationException;
 import io.gncloud.coin.server.model.Order;
 import io.gncloud.coin.server.model.UserNotification;
-import io.gncloud.coin.server.service.IdentityService;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.ApiContextInitializer;
-import org.telegram.telegrambots.TelegramBotsApi;
-import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import javax.annotation.PostConstruct;
 import java.text.SimpleDateFormat;
@@ -20,10 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/*
- * create joonwoo 2018. 3. 24.
- * 
- */
+
 @Service
 public class EventWatchTelegramService {
 
@@ -31,7 +24,7 @@ public class EventWatchTelegramService {
 
     public static final String TELEGRAM_SERVICE = "telegram";
 
-    private EventNotifyBot bot;
+//    private EventNotifyBot bot;
     private IdentityService identityService;
 
     @Value("${notify.telegram.botName}")
@@ -59,14 +52,14 @@ public class EventWatchTelegramService {
             return;
         }
         logger.info("Initialize TelegramBot.. {}, {}", botName, botToken);
-        ApiContextInitializer.init();
-        TelegramBotsApi botsApi = new TelegramBotsApi();
-        try {
-            bot = new EventNotifyBot(this, identityService, botName, botToken);
-            botsApi.registerBot(bot);
-        } catch (TelegramApiException e) {
-            logger.error("", e);
-        }
+//        ApiContextInitializer.init();
+//        TelegramBotsApi botsApi = new TelegramBotsApi();
+//        try {
+//            bot = new EventNotifyBot(this, identityService, botName, botToken);
+//            botsApi.registerBot(bot);
+//        } catch (TelegramApiException e) {
+//            logger.error("", e);
+//        }
 
         //초기로딩.
         userChatIdMap = new HashMap<>();
@@ -100,7 +93,12 @@ public class EventWatchTelegramService {
     public void sendMessage(String userId, String text){
         Long chatId = userChatIdMap.get(userId);
         if(chatId != null) {
-            bot.sendMessage(chatId, text);
+            //TODO
+            // 이곳에서는 sqs telegram-bot-coincloud-send 에 메시지를 집어넣는다. 이후 전송은 telegram-server 가 알아서 처리.
+
+
+
+
         }
     }
 

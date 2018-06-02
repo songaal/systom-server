@@ -6,7 +6,6 @@ import com.amazonaws.services.kinesis.model.*;
 import com.google.gson.Gson;
 import io.gncloud.coin.server.model.EventMetadata;
 import io.gncloud.coin.server.model.Order;
-import io.gncloud.coin.server.service.telegram.EventWatchTelegramService;
 import io.gncloud.coin.server.ws.EventWebSocketHandler;
 import io.gncloud.coin.server.ws.WebSocketSessionInfoSet;
 import org.apache.ibatis.session.SqlSession;

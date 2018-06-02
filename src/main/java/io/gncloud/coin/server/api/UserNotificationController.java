@@ -2,7 +2,7 @@ package io.gncloud.coin.server.api;
 
 import io.gncloud.coin.server.exception.AbstractException;
 import io.gncloud.coin.server.model.UserNotification;
-import io.gncloud.coin.server.service.telegram.EventWatchTelegramService;
+import io.gncloud.coin.server.service.EventWatchTelegramService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
