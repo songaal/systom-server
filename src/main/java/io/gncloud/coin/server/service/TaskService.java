@@ -10,6 +10,7 @@ import io.gncloud.coin.server.model.Strategy;
 import io.gncloud.coin.server.model.Task;
 import io.gncloud.coin.server.utils.AwsUtils;
 import io.gncloud.coin.server.utils.DockerUtils;
+import io.gncloud.coin.server.utils.TaskFuture;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 @Service
@@ -36,8 +38,8 @@ public class TaskService {
     @Value("${backtest.resultTimeout}")
     private long resultTimeout;
 
-    @Value("${backtest.capicalBase}")
-    private float capicalBase;
+    @Value("${backtest.capitalBase}")
+    private float capitalBase;
 
     @Autowired
     private IdentityService identityService;
@@ -57,10 +59,10 @@ public class TaskService {
     @Autowired
     private DockerUtils dockerUtils;
 
-    private static ConcurrentMap<Integer, Map<String, Object>> backTestResult = new ConcurrentHashMap<>();
+    private static ConcurrentMap<Integer, TaskFuture> backTestResult = new ConcurrentHashMap<>();
 
     public Map<String, Object> waitRunBackTestTask(Task task) throws InterruptedException, TimeoutException, ParameterException, AuthenticationException, OperationException {
-        task.setInitialBase(capicalBase);
+        task.setInitialBase(capitalBase);
         isNotEmpty(task.getStrategyId(), "strategyId");
         isNotEmpty(task.getExchangeName(), "exchange");
         isNotEmpty(task.getSymbol(), "symbol");
@@ -73,31 +75,27 @@ public class TaskService {
             logger.debug("[ BACK TEST ] RUN {}", task);
 
             int resultCount = sqlSession.insert("backtest.insertHistory", task);
-            if(resultCount != 1){
+            if(resultCount != 1) {
                 throw new OperationException("[FAIL] Insert Failed Test History. result count: " + resultCount);
             }
             logger.info("BackTest Task Id: {}", task.getId());
 
-            dockerUtils.run(task.getId(), task.getRunEnv(), task.getRunCommand());
+            int taskId = task.getId();
+            dockerUtils.run(taskId, task.getRunEnv(), task.getRunCommand());
 
-            Map<String, Object> resultJson = null;
-            long startTime = System.currentTimeMillis();
-            while (true) {
-                Thread.sleep(1000);
-                resultJson = backTestResult.get(task.getId());
-                if (resultJson != null) {
-                    backtestLogger.info("[{}] BackTest result catch!", task.getId());
-                    backTestResult.remove(task.getId());
-                    break;
-                } else if ( (System.currentTimeMillis() - startTime) >= resultTimeout) {
-                    backtestLogger.info("[{}] BackTest Response Timeout Error.", task.getId());
-                    throw new TimeoutException("[" + task.getId() + "] BackTest Response Timeout Error.");
-                }
-                logger.info("[{}] BackTest result wait... id: {} backTestResult: {}", task.getId(), task.getId(), backTestResult);
+            TaskFuture<Map<String, Object>> future = new TaskFuture();
+            backTestResult.put(taskId, future);
+
+            Map<String, Object> resultJson = future.poll(resultTimeout, TimeUnit.MILLISECONDS);
+            backTestResult.remove(task.getId());
+            if (resultJson != null) {
+                backtestLogger.info("[{}] BackTest result catch!", task.getId());
+            } else {
+                backtestLogger.info("[{}] BackTest Response Timeout Error.", task.getId());
+                throw new TimeoutException("[" + task.getId() + "] BackTest Response Timeout Error.");
             }
             backtestLogger.info("[{}] BackTest Successful.", task.getId());
             return resultJson;
-
         } catch (Throwable t) {
             logger.error("", t);
             throw new OperationException("[FAIL] Running BackTest.");
@@ -105,9 +103,14 @@ public class TaskService {
     }
 
     public Map<String, Object> registerBacktestResult(Integer id, Map<String, Object> resultJson) {
-        backTestResult.put(id, resultJson);
-        backtestLogger.info("[{}] BackTest Result Saved.", id);
-        return backTestResult.get(id);
+        TaskFuture taskFuture = backTestResult.get(id);
+        if(taskFuture == null) {
+            backtestLogger.warn("[{}] BackTest Result Saved.", id);
+        } else {
+            taskFuture.offer(resultJson);
+            backtestLogger.warn("[{}] BackTest Result Saved.", id);
+        }
+        return resultJson;
     }
 
     public Task runAgentTask(String userId, String accessToken, Integer agentId, boolean isLiveMode) throws ParameterException, OperationException {
