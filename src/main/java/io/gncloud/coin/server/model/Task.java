@@ -6,6 +6,7 @@ package io.gncloud.coin.server.model;
  */
 
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -14,6 +15,8 @@ import java.util.List;
 // ECS TASK RUN
 public class Task {
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(Task.class);
+    @Value("${backtest.launcher_name}")
+    private String launcher_name;
 
     private Integer id; //backTestId || agentId
     private Integer strategyId;

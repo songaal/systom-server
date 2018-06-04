@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="strategyDeploy">
+
+    <select id="selectDeployVersions" resultType="StrategyDeploy">
+        select id
+             , version
+             , create_time
+             , explanation
+          from strategy_deploy
+         where id = ${id}
+         order by version desc
+    </select>
+
+    <select id="getLastDeployVersion" parameterType="StrategyDeploy" resultType="StrategyDeploy">
+        select id
+             , version
+             , create_time
+             , code
+             , options
+             , user_id
+             , explanation
+         from strategy_deploy
+        where id = ${id}
+          and version = (select max(version)
+                           from strategy_deploy
+                          where id = ${id}
+                          group by id)
+    </select>
+
+    <select id="getDeployVersion" parameterType="StrategyDeploy" resultType="StrategyDeploy">
+        select id
+        , version
+        , create_time
+        , code
+        , options
+        , user_id
+        , explanation
+        from strategy_deploy
+        where id = ${id}
+        and version = ${version}
+    </select>
+
+    <insert id="insertDeployVersion" parameterType="StrategyDeploy">
+        INSERT INTO strategy_deploy (id, version, user_id, create_time, code, options, explanation)
+        VALUES ( ${id}
+                , IFNULL((select *
+                            from (SELECT MAX(version) + 1
+                            FROM strategy_deploy
+                            WHERE ID = ${id}) as t), 1)
+                , #{userId}
+                , now()
+                , #{code}
+                , #{options}
+                , #{explanation}
+                )
+    </insert>
+
+    <delete id="deleteDeployVersion" parameterType="StrategyDeploy">
+        delete from strategy_deploy where id = ${id} and version = ${version}
+    </delete>
+</mapper>

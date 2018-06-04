@@ -8,9 +8,8 @@ import org.springframework.http.HttpStatus;
  */
 public class AuthenticationException extends AbstractException {
 
-
-    public AuthenticationException(HttpStatus status) {
-        super(HttpStatus.UNAUTHORIZED);
+    public AuthenticationException() {
+        super(HttpStatus.UNAUTHORIZED, "You do not have permission.");
     }
 
     public AuthenticationException(String message) {

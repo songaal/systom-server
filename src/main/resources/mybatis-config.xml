@@ -15,6 +15,7 @@
         <typeAlias alias="Agent" type="io.gncloud.coin.server.model.Agent"/>
         <typeAlias alias="Order" type="io.gncloud.coin.server.model.Order"/>
         <typeAlias alias="UserNotification" type="io.gncloud.coin.server.model.UserNotification"/>
+        <typeAlias alias="StrategyDeploy" type="io.gncloud.coin.server.model.StrategyDeploy"/>
     </typeAliases>
 
 </configuration>
