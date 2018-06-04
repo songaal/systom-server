@@ -36,6 +36,9 @@ public class TaskService {
     @Value("${backtest.resultTimeout}")
     private long resultTimeout;
 
+    @Value("${backtest.capicalBase}")
+    private float capicalBase;
+
     @Autowired
     private IdentityService identityService;
 
@@ -57,7 +60,7 @@ public class TaskService {
     private static ConcurrentMap<Integer, Map<String, Object>> backTestResult = new ConcurrentHashMap<>();
 
     public Map<String, Object> waitRunBackTestTask(Task task) throws InterruptedException, TimeoutException, ParameterException, AuthenticationException, OperationException {
-
+        task.setInitialBase(capicalBase);
         isNotEmpty(task.getStrategyId(), "strategyId");
         isNotEmpty(task.getExchangeName(), "exchange");
         isNotEmpty(task.getSymbol(), "symbol");

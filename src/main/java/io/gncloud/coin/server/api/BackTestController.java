@@ -6,7 +6,6 @@ import io.gncloud.coin.server.model.Task;
 import io.gncloud.coin.server.service.TaskService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,9 +29,6 @@ public class BackTestController extends AbstractController {
     @Autowired
     private TaskService taskService;
 
-    @Value("${backtest.capicalBase}")
-    private float capicalBase;
-
     @GetMapping
     public ResponseEntity<?> getBackTestHistory(@RequestParam String strategyId){
         try {
@@ -47,7 +43,6 @@ public class BackTestController extends AbstractController {
     @PostMapping("/backtest")
     public ResponseEntity<?> waitRunBackTestTask(@CookieValue(ACCESS_TOKEN) String accessToken, @RequestAttribute("userId") String userId, @RequestBody Task task) throws TimeoutException, InterruptedException {
         try {
-            task.setInitialBase(capicalBase);
             task.setUserId(userId);
             task.setAccessToken(accessToken);
 
