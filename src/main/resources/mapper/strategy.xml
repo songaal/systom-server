@@ -7,7 +7,6 @@
 
     <select id="getStrategy" parameterType="Strategy" resultType="Strategy">
         SELECT ID
-             , VERSION
              , NAME
              , USER_ID
              , CODE
@@ -26,17 +25,13 @@
             </when>
             <otherwise>and 1=2</otherwise>
         </choose>
-           and version in (select max(version)
-                             from strategy
-                            group by id)
          ORDER BY CREATE_TIME DESC
     </select>
 
 
     <insert id="insertStrategy" parameterType="Strategy" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO strategy(VERSION, NAME, USER_ID, CREATE_TIME, CODE, OPTIONS, WRITER)
-        values( '1'
-              , #{name}
+        INSERT INTO strategy(NAME, USER_ID, CREATE_TIME, CODE, OPTIONS, WRITER)
+        values( #{name}
               , #{userId}
               , now()
               , #{code}

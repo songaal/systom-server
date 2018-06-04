@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 public class OperationException extends AbstractException {
 
     public OperationException() {
-        super(HttpStatus.INTERNAL_SERVER_ERROR);
+        super(HttpStatus.INTERNAL_SERVER_ERROR, "Operation Exception");
     }
 
     public OperationException(String message) {

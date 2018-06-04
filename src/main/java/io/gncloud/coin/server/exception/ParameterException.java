@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 public class ParameterException extends AbstractException {
 
     public ParameterException() {
-        super(HttpStatus.BAD_REQUEST);
+        super(HttpStatus.BAD_REQUEST, "There is Parameter Field Value");
     }
 
     public ParameterException(String field) {
