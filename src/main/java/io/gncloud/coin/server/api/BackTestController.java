@@ -46,7 +46,7 @@ public class BackTestController extends AbstractController {
             task.setUserId(userId);
             task.setAccessToken(accessToken);
 
-            Map<String, Object> resultJson = taskService.waitRunBackTestTask(task);
+            Map<String, Object> resultJson = taskService.runAndWaitBackTestTask(task);
             return new ResponseEntity<>(resultJson, HttpStatus.OK);
         } catch (AbstractException e){
             logger.error("", e);

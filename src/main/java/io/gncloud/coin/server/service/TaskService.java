@@ -61,7 +61,7 @@ public class TaskService {
 
     private static ConcurrentMap<Integer, TaskFuture> backTestResult = new ConcurrentHashMap<>();
 
-    public Map<String, Object> waitRunBackTestTask(Task task) throws InterruptedException, TimeoutException, ParameterException, AuthenticationException, OperationException {
+    public Map<String, Object> runAndWaitBackTestTask(Task task) throws InterruptedException, TimeoutException, ParameterException, AuthenticationException, OperationException {
         task.setInitialBase(capitalBase);
         isNotEmpty(task.getStrategyId(), "strategyId");
         isNotEmpty(task.getExchangeName(), "exchange");
