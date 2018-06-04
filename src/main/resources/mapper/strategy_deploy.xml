@@ -32,16 +32,18 @@
     </select>
 
     <select id="getDeployVersion" parameterType="StrategyDeploy" resultType="StrategyDeploy">
-        select id
-        , version
-        , create_time
-        , code
-        , options
-        , user_id
-        , explanation
-        from strategy_deploy
-        where id = ${id}
-        and version = ${version}
+        select b.id
+        , b.name
+        , a.version
+        , a.create_time
+        , a.code
+        , a.options
+        , a.user_id
+        , a.explanation
+        from strategy_deploy a
+        join strategy b on a.id = b.id
+        where a.id = ${id}
+        and a.version = ${version}
     </select>
 
     <insert id="insertDeployVersion" parameterType="StrategyDeploy">

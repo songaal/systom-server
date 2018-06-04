@@ -40,7 +40,7 @@ backtest:
     host: "tcp://52.79.171.130:2376"
     resultTimeout: 3600000
     image: "868448630378.dkr.ecr.ap-northeast-2.amazonaws.com/cctrader:latest"
-    capicalBase: 1.0
+    capitalBase: 1.0
     container:
           readTimeout: 40000
           connectTimeout: 10000

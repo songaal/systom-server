@@ -17,7 +17,7 @@ import java.util.List;
  */
 
 @RestController
-@RequestMapping("/strategy/{strategyId}/versions")
+@RequestMapping("/v1/strategys/{strategyId}/versions")
 public class StrategyDeployController extends AbstractController{
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(StrategyDeployController.class);

@@ -13,6 +13,8 @@ public class StrategyDeploy {
     private String code;
     private String options;
 
+    private String name;
+
     public String getUserId() {
         return userId;
     }
@@ -59,5 +61,13 @@ public class StrategyDeploy {
 
     public void setOptions(String options) {
         this.options = options;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
