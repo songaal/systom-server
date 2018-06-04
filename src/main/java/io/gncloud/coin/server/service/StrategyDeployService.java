@@ -64,8 +64,11 @@ public class StrategyDeployService {
         return sqlSession.selectList("strategyDeploy.selectDeployVersions", deploy);
     }
 
-    public StrategyDeploy deleteDeployVersion (String userId, Integer strategyId, Integer version) throws AuthenticationException, OperationException {
+    public StrategyDeploy deleteDeployVersion (String userId, Integer strategyId, Integer version) throws AuthenticationException, OperationException, ParameterException {
         StrategyDeploy deploy = getDeployVersion(strategyId, version);
+        if (deploy == null) {
+            throw new ParameterException();
+        }
         if (!userId.equals(deploy.getUserId())) {
             throw new AuthenticationException();
         }
