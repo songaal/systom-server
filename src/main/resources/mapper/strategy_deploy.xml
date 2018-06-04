@@ -5,7 +5,7 @@
 
 <mapper namespace="strategyDeploy">
 
-    <select id="selectDeployVersions" resultType="StrategyDeploy">
+    <select id="selectDeployVersions" parameterType="StrategyDeploy" resultType="StrategyDeploy">
         select id
              , version
              , create_time
@@ -60,6 +60,9 @@
     </insert>
 
     <delete id="deleteDeployVersion" parameterType="StrategyDeploy">
-        delete from strategy_deploy where id = ${id} and version = ${version}
+        delete
+          from strategy_deploy
+         where id = ${id}
+           and version = ${version}
     </delete>
 </mapper>

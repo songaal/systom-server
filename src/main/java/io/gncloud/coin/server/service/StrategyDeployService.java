@@ -59,7 +59,9 @@ public class StrategyDeployService {
     }
 
     public List<StrategyDeploy> selectDeployVersions (Integer strategyId) {
-        return sqlSession.selectList("strategyDeploy.selectDeployVersions", strategyId);
+        StrategyDeploy deploy = new StrategyDeploy();
+        deploy.setId(strategyId);
+        return sqlSession.selectList("strategyDeploy.selectDeployVersions", deploy);
     }
 
     public StrategyDeploy deleteDeployVersion (String userId, Integer strategyId, Integer version) throws AuthenticationException, OperationException {
@@ -67,7 +69,7 @@ public class StrategyDeployService {
         if (!userId.equals(deploy.getUserId())) {
             throw new AuthenticationException();
         }
-        int cnt = sqlSession.delete("strategy.deleteDeployVersion", deploy);
+        int cnt = sqlSession.delete("strategyDeploy.deleteDeployVersion", deploy);
         if (cnt != 1) {
             throw new OperationException();
         }
