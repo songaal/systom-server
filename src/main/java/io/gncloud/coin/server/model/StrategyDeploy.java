@@ -1,5 +1,7 @@
 package io.gncloud.coin.server.model;
 
+import java.util.Date;
+
 /*
  * create joonwoo 2018. 6. 4.
  * 
@@ -12,6 +14,7 @@ public class StrategyDeploy {
     private String explanation;
     private String code;
     private String options;
+    private Date createTime;
 
     private String name;
 
@@ -61,6 +64,14 @@ public class StrategyDeploy {
 
     public void setOptions(String options) {
         this.options = options;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
     }
 
     public String getName() {
