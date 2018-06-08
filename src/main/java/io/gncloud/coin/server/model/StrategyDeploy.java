@@ -1,46 +1,16 @@
 package io.gncloud.coin.server.model;
 
-import java.util.Date;
-
 /*
  * create joonwoo 2018. 6. 4.
  * 
  */
-public class StrategyDeploy {
+public class StrategyDeploy extends Strategy {
 
-    private Integer id;
-    private Integer version;
-    private String userId;
     private String explanation;
-    private String code;
-    private String options;
-    private Date createTime;
-
-    private String name;
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
-    }
+    private String description;
+    private boolean isSell;
+    private float price;
+    private String backtest; /*백테스트 필요 옵션 및 요약 결과*/
 
     public String getExplanation() {
         return explanation;
@@ -50,35 +20,35 @@ public class StrategyDeploy {
         this.explanation = explanation;
     }
 
-    public String getCode() {
-        return code;
+    public String getDescription() {
+        return description;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public String getOptions() {
-        return options;
+    public boolean isSell() {
+        return isSell;
     }
 
-    public void setOptions(String options) {
-        this.options = options;
+    public void setSell(boolean sell) {
+        isSell = sell;
     }
 
-    public Date getCreateTime() {
-        return createTime;
+    public float getPrice() {
+        return price;
     }
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setPrice(float price) {
+        this.price = price;
     }
 
-    public String getName() {
-        return name;
+    public String getBacktest() {
+        return backtest;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setBacktest(String backtest) {
+        this.backtest = backtest;
     }
 }

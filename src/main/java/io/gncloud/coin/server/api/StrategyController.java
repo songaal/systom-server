@@ -23,7 +23,7 @@ import java.util.Map;
  *
  */
 @Controller
-@RequestMapping("/v1/strategys")
+@RequestMapping("/v1/strategies")
 public class StrategyController extends AbstractController {
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(StrategyController.class);

@@ -9,7 +9,7 @@ import java.util.Date;
 public class Strategy {
 
     private Integer id;
-    private String version;
+    private Integer version;
     private String name;
     private Date createTime;
     private Date updateTime;
@@ -17,6 +17,7 @@ public class Strategy {
     private String code;
     private String options;
     private String writer;
+    private boolean isBuyer;
 
     private Integer testId;
 
@@ -76,11 +77,11 @@ public class Strategy {
         this.updateTime = updateTime;
     }
 
-    public String getVersion() {
+    public Integer getVersion() {
         return version;
     }
 
-    public void setVersion(String version) {
+    public void setVersion(Integer version) {
         this.version = version;
     }
 
@@ -106,6 +107,14 @@ public class Strategy {
 
     public void setWriter(String writer) {
         this.writer = writer;
+    }
+
+    public boolean isBuyer() {
+        return isBuyer;
+    }
+
+    public void setBuyer(boolean buyer) {
+        isBuyer = buyer;
     }
 
     @Override

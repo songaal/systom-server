@@ -45,17 +45,22 @@ public class StrategyDeployService {
         return getDeployLastVersion(deploy.getId());
     }
 
-    public StrategyDeploy getDeployLastVersion (Integer strategyId) {
+    private StrategyDeploy getDeployLastVersion (Integer strategyId) {
         StrategyDeploy deploy = new StrategyDeploy();
         deploy.setId(strategyId);
         return sqlSession.selectOne("strategyDeploy.getLastDeployVersion", deploy);
     }
 
-    public StrategyDeploy getDeployVersion (Integer strategyId, Integer version) {
+    public StrategyDeploy getDeployVersion (Integer strategyId, Integer version, String userId) {
         StrategyDeploy deploy = new StrategyDeploy();
         deploy.setId(strategyId);
         deploy.setVersion(version);
-        return sqlSession.selectOne("strategyDeploy.getDeployVersion", deploy);
+        StrategyDeploy registerStrategyDeploy = sqlSession.selectOne("strategyDeploy.getDeployVersion", deploy);
+        if (!registerStrategyDeploy.getUserId().equals(userId)) {
+            registerStrategyDeploy.setCode("");
+            registerStrategyDeploy.setBuyer(true);
+        }
+        return registerStrategyDeploy;
     }
 
     public List<StrategyDeploy> selectDeployVersions (Integer strategyId) {
@@ -65,7 +70,7 @@ public class StrategyDeployService {
     }
 
     public StrategyDeploy deleteDeployVersion (String userId, Integer strategyId, Integer version) throws AuthenticationException, OperationException, ParameterException {
-        StrategyDeploy deploy = getDeployVersion(strategyId, version);
+        StrategyDeploy deploy = getDeployVersion(strategyId, version, userId);
         if (deploy == null) {
             throw new ParameterException();
         }
@@ -78,4 +83,23 @@ public class StrategyDeployService {
         }
         return deploy;
     }
+
+    public List<StrategyDeploy> retrieveStrategyMarketList() {
+        return sqlSession.selectList("strategyDeploy.retrieveStrategyMarketList");
+    }
+
+    public StrategyDeploy saveBackTest(StrategyDeploy strategyDeploy) throws AuthenticationException, OperationException {
+        StrategyDeploy registerStrategy = getDeployVersion(strategyDeploy.getId(), strategyDeploy.getVersion(), strategyDeploy.getUserId());
+        if (!registerStrategy.getUserId().equals(strategyDeploy.getUserId())) {
+            throw new AuthenticationException();
+        }
+        int updateRow = sqlSession.update("strategyDeploy.saveBackTest", strategyDeploy);
+        if (updateRow != 1) {
+            throw new OperationException("[Sql Exception] update row: " + updateRow);
+        }
+        return registerStrategy;
+    }
+
+
+
 }

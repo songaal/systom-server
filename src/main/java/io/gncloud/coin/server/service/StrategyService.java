@@ -39,40 +39,34 @@ public class StrategyService {
             if(result != 1){
                 throw new OperationException("[FAIL] Insert Failed Strategy. result count: " + result);
             }
-            return getStrategy(strategy.getId());
+            return getStrategy(strategy.getId(), strategy.getUserId());
         } catch (Exception e){
             logger.error("", e);
             throw new OperationException("[FAIL] Insert Failed Strategy");
         }
     }
 
-    public Strategy getStrategy(Integer strategyId) throws ParameterException, OperationException, AuthenticationException {
-        return getStrategy(strategyId, null);
-    }
-
     public Strategy getStrategy(Integer strategyId, String userId) throws ParameterException, OperationException, AuthenticationException {
         isNotNull(strategyId, "strategyId");
-
+        isNotNull(userId, "userId");
         Strategy strategy = new Strategy(strategyId, userId);
         try {
             strategy = sqlSession.selectOne("strategy.getStrategy", strategy);
-            if (strategy == null) {
-                logger.info("[FAIL] Not Authentication StrategyId: {}, userId: {}", strategyId, userId);
-                throw new AuthenticationException("[FAIL] Not Authentication");
+            if (!strategy.getUserId().equals(userId)) {
+                strategy.setCode("");
+                strategy.setBuyer(true);
             }
         } catch (Exception e){
             throw new OperationException("[FAIL] Update Failed Strategy: " + strategyId);
-
         }
         return strategy;
     }
-
 
     public List<Strategy> findStrategyByUser(String userId) throws ParameterException, OperationException {
         Strategy strategy = new Strategy();
         strategy.setUserId(userId);
         try {
-            return sqlSession.selectList("strategy.getStrategy", strategy);
+            return sqlSession.selectList("strategy.selectStrategy", strategy);
         }catch (Exception e){
             logger.error("", e);
             throw new OperationException("[FAIL] Failed Strategy");
@@ -94,7 +88,6 @@ public class StrategyService {
 
         strategy.setCode(newStrategy.getCode());
         strategy.setOptions(newStrategy.getOptions());
-        strategy.setName(newStrategy.getName());
 
         logger.debug("UPDATE Strategy: {}", strategy);
 
@@ -113,14 +106,14 @@ public class StrategyService {
         isNotNull(strategyId, "strategyId");
 
         Strategy strategy = getStrategy(strategyId, userId);
-
+        if (strategy == null) {
+            throw new AuthenticationException("You do not have permission.");
+        }
         try {
-            if(strategy != null) {
-                taskService.deleteBackTestHistory(strategy);
-                int result = sqlSession.delete("strategy.deleteStrategy", strategyId);
-                if (result != 1) {
-                    throw new OperationException("[FAIL] deleteStrategy resultCount: " + result);
-                }
+            taskService.deleteBackTestHistory(strategy);
+            int result = sqlSession.delete("strategy.deleteStrategy", strategyId);
+            if (result != 1) {
+                throw new OperationException("[FAIL] deleteStrategy resultCount: " + result);
             }
         } catch(AbstractException e){
             throw new OperationException("[FAIL] deleteStrategy");

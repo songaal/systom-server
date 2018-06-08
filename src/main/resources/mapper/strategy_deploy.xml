@@ -67,4 +67,29 @@
          where id = ${id}
            and version = ${version}
     </delete>
+
+
+    <update id="saveBackTest" parameterType="StrategyDeploy">
+        update strategy_deploy
+           set backtest = #{backtest}
+         where id = ${id}
+           and version = ${version}
+    </update>
+
+    <select id="retrieveStrategyMarketList" resultType="StrategyDeploy">
+        select a.*
+             , b.*
+          from strategy a
+          join (select aa.id
+                    , max(aa.version) as version
+                    , aa.is_sell
+                    , aa.create_time
+                    , aa.explanation
+                 from strategy_deploy aa
+                where aa.is_sell = true
+                group by aa.id ) b on a.id = b.id
+    </select>
+
+
+
 </mapper>

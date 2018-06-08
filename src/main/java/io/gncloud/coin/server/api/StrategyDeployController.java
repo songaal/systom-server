@@ -1,6 +1,7 @@
 package io.gncloud.coin.server.api;
 
 import io.gncloud.coin.server.exception.AbstractException;
+import io.gncloud.coin.server.exception.AuthenticationException;
 import io.gncloud.coin.server.exception.OperationException;
 import io.gncloud.coin.server.model.StrategyDeploy;
 import io.gncloud.coin.server.service.StrategyDeployService;
@@ -17,7 +18,7 @@ import java.util.List;
  */
 
 @RestController
-@RequestMapping("/v1/strategys/{strategyId}/versions")
+@RequestMapping("/v1/strategies/{strategyId}/versions")
 public class StrategyDeployController extends AbstractController{
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(StrategyDeployController.class);
@@ -56,9 +57,10 @@ public class StrategyDeployController extends AbstractController{
 
     @GetMapping("/{version}")
     public ResponseEntity<?> selectStrategyDeployVersion (@PathVariable("strategyId") Integer strategyId,
-                                                          @PathVariable("version") Integer version) {
+                                                          @PathVariable("version") Integer version,
+                                                          @RequestAttribute("userId") String userId) {
         try {
-            StrategyDeploy registerVersion = strategyDeployService.getDeployVersion(strategyId, version);
+            StrategyDeploy registerVersion = strategyDeployService.getDeployVersion(strategyId, version, userId);
             return success(registerVersion);
         } catch (Throwable t){
             logger.error("", t);
@@ -79,7 +81,28 @@ public class StrategyDeployController extends AbstractController{
         }
     }
 
-
+    @PostMapping("/{version}/saveBacktest")
+    public ResponseEntity<?> saveBackTest (@PathVariable("strategyId") Integer strategyId,
+                                           @PathVariable("version") Integer version,
+                                           @RequestAttribute("userId") String userId,
+                                           @RequestBody StrategyDeploy strategyDeploy) {
+        try {
+            strategyDeploy.setVersion(version);
+            strategyDeploy.setId(strategyId);
+            strategyDeploy.setUserId(userId);
+            StrategyDeploy registerStrategyDeploy = strategyDeployService.saveBackTest(strategyDeploy);
+            return success(registerStrategyDeploy);
+        } catch (AuthenticationException e) {
+            logger.error("", e);
+            return e.response();
+        } catch (OperationException e) {
+            logger.error("", e);
+            return e.response();
+        } catch (Throwable t) {
+            logger.error("", t);
+            return new OperationException(t.getMessage()).response();
+        }
+    }
 
 
 

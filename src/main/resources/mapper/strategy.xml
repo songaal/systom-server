@@ -16,18 +16,25 @@
              , WRITER
           FROM strategy
          WHERE 1=1
-        <choose>
-            <when test="id != null and id != ''">
-                and ID = #{id}
-            </when>
-            <when test="userId != null and userId != ''">
-                and USER_ID = #{userId}
-            </when>
-            <otherwise>and 1=2</otherwise>
-        </choose>
-         ORDER BY CREATE_TIME DESC
+           <if test="id != null and id != ''">
+           and ID = #{id}
+           </if>
     </select>
 
+    <select id="selectStrategy" parameterType="Strategy" resultType="Strategy">
+        SELECT ID
+        , NAME
+        , USER_ID
+        , CODE
+        , OPTIONS
+        , CREATE_TIME
+        , UPDATE_TIME
+        , WRITER
+        FROM strategy
+        WHERE 1=1
+        and user_id = #{userId}
+        ORDER BY CREATE_TIME DESC
+    </select>
 
     <insert id="insertStrategy" parameterType="Strategy" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO strategy(NAME, USER_ID, CREATE_TIME, CODE, OPTIONS, WRITER)
@@ -47,11 +54,13 @@
              , NAME = #{name}
              , UPDATE_TIME = now()
          WHERE id = #{id}
+           and user_id = #{userId}
     </update>
 
     <delete id="deleteStrategy" parameterType="Strategy">
         DELETE FROM strategy
         WHERE id = #{id}
+          and user_id = #{userId}
     </delete>
 
 </mapper>
