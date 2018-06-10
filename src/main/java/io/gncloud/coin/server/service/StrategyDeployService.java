@@ -84,10 +84,6 @@ public class StrategyDeployService {
         return deploy;
     }
 
-    public List<StrategyDeploy> retrieveStrategyMarketList() {
-        return sqlSession.selectList("strategyDeploy.retrieveStrategyMarketList");
-    }
-
     public StrategyDeploy saveBackTest(StrategyDeploy strategyDeploy) throws AuthenticationException, OperationException {
         StrategyDeploy registerStrategy = getDeployVersion(strategyDeploy.getId(), strategyDeploy.getVersion(), strategyDeploy.getUserId());
         if (!registerStrategy.getUserId().equals(strategyDeploy.getUserId())) {
@@ -99,7 +95,5 @@ public class StrategyDeployService {
         }
         return registerStrategy;
     }
-
-
 
 }

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="marketplace">
+
+    <select id="retrieveStrategyMarketList" resultType="StrategyDeploy">
+        select a.name
+             , a.user_id
+             , b.*
+          from strategy a
+          join (select aa.id
+                    , max(aa.version) as version
+                    , aa.is_sell
+                    , aa.create_time
+                    , aa.explanation
+                    , aa.price
+                    , aa.backtest
+                    , aa.options
+                    , aa.description
+                 from strategy_deploy aa
+                where aa.is_sell = true
+                group by aa.id) b on a.id = b.id
+    </select>
+
+    <update id="registerStrategyMarket" parameterType="StrategyDeploy">
+        update strategy_deploy
+           set is_sell = true
+             , price = ${price}
+             , description = #{description}
+             , market_create_time = now()
+         where id = ${id}
+           and version = ${version}
+    </update>
+
+
+</mapper>

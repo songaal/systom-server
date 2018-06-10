@@ -40,6 +40,9 @@
         , a.options
         , a.user_id
         , a.explanation
+        , a.is_sell
+        , a.price
+        , a.description
         from strategy_deploy a
         join strategy b on a.id = b.id
         where a.id = ${id}

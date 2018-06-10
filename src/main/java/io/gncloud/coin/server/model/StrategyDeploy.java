@@ -28,11 +28,11 @@ public class StrategyDeploy extends Strategy {
         this.description = description;
     }
 
-    public boolean isSell() {
+    public boolean getIsSell() {
         return isSell;
     }
 
-    public void setSell(boolean sell) {
+    public void setIsSell(boolean sell) {
         isSell = sell;
     }
 
@@ -50,5 +50,17 @@ public class StrategyDeploy extends Strategy {
 
     public void setBacktest(String backtest) {
         this.backtest = backtest;
+    }
+
+
+    @Override
+    public String toString() {
+        return "StrategyDeploy{" +
+                "explanation='" + explanation + '\'' +
+                ", description='" + description + '\'' +
+                ", isSell=" + isSell +
+                ", price=" + price +
+                ", backtest='" + backtest + '\'' +
+                '}';
     }
 }
