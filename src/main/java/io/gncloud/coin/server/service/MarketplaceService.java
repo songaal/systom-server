@@ -1,5 +1,6 @@
 package io.gncloud.coin.server.service;
 
+import io.gncloud.coin.server.exception.AuthenticationException;
 import io.gncloud.coin.server.exception.OperationException;
 import io.gncloud.coin.server.exception.ParameterException;
 import io.gncloud.coin.server.model.Strategy;
@@ -25,6 +26,9 @@ public class MarketplaceService {
     @Autowired
     private StrategyDeployService strategyDeployService;
 
+    @Autowired
+    private PaymentService paymentService;
+
     public List<StrategyDeploy> retrieveStrategyMarketList() throws OperationException {
         try {
             List<StrategyDeploy> registerStrategies = sqlSession.selectList("marketplace.retrieveStrategyMarketList");
@@ -35,7 +39,7 @@ public class MarketplaceService {
         }
     }
 
-    public StrategyDeploy registerStrategyMarket(StrategyDeploy strategyDeploy) throws ParameterException, OperationException {
+    public StrategyDeploy registerStrategyMarket(StrategyDeploy strategyDeploy) throws ParameterException, OperationException, AuthenticationException {
         isNotNull(strategyDeploy, "strategy");
         isNotNull(strategyDeploy.getId(), "strategyId");
         isNotNull(strategyDeploy.getUserId(), "userId");
@@ -43,9 +47,13 @@ public class MarketplaceService {
         isNotNull(strategyDeploy.getPrice(), "price");
         try {
             StrategyDeploy registerStrategy = strategyDeployService.getDeployVersion(strategyDeploy.getId(), strategyDeploy.getVersion(), strategyDeploy.getUserId());
-            if (registerStrategy.getIsSell()) {
+
+            if (!registerStrategy.getUserId().equals(strategyDeploy.getUserId())) {
+                throw new AuthenticationException();
+            }
+            if (registerStrategy.getIsSell().equals("selling")) {
                 logger.warn("Already sold.", registerStrategy);
-                return registerStrategy;
+                throw new OperationException("SQL Exception. update row count: ");
             }
 
             int updateRowCount = sqlSession.update("marketplace.registerStrategyMarket", strategyDeploy);

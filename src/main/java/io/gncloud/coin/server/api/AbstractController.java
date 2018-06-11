@@ -26,5 +26,4 @@ public abstract class AbstractController {
         return new ResponseEntity<>(body, headers, httpStatus);
     }
 
-
 }

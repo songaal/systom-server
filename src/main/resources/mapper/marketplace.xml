@@ -6,22 +6,26 @@
 <mapper namespace="marketplace">
 
     <select id="retrieveStrategyMarketList" resultType="StrategyDeploy">
-        select a.name
-             , a.user_id
-             , b.*
-          from strategy a
-          join (select aa.id
-                    , max(aa.version) as version
-                    , aa.is_sell
-                    , aa.create_time
-                    , aa.explanation
-                    , aa.price
-                    , aa.backtest
-                    , aa.options
-                    , aa.description
-                 from strategy_deploy aa
-                where aa.is_sell = true
-                group by aa.id) b on a.id = b.id
+        SELECT a.id
+            , a.version
+            , a.is_sell
+            , a.create_time
+            , a.price
+            , a.backtest
+            , a.options
+            , a.description
+            , b.name
+            , b.user_id
+            , ifnull(c.sell_count, 0) as sell_count
+        FROM strategy_deploy a
+        JOIN strategy b on a.id = b.id
+        LEFT JOIN (SELECT aa.id
+                        , aa.version
+                        , count(aa.user_id) as sell_count
+                        FROM strategy_sell_history aa
+                        GROUP BY aa.id, aa.version
+            ) c on a.id = c.id and a.version = c.version
+        WHERE a.is_sell = true
     </select>
 
     <update id="registerStrategyMarket" parameterType="StrategyDeploy">

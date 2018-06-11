@@ -77,6 +77,9 @@ public class StrategyDeployService {
         if (!userId.equals(deploy.getUserId())) {
             throw new AuthenticationException();
         }
+        if (getStrategyBuyUserCount(strategyId, version) != 0) {
+            return null;
+        }
         int cnt = sqlSession.delete("strategyDeploy.deleteDeployVersion", deploy);
         if (cnt != 1) {
             throw new OperationException();
@@ -96,4 +99,10 @@ public class StrategyDeployService {
         return registerStrategy;
     }
 
+    public int getStrategyBuyUserCount (Integer strategyId, Integer version){
+        StrategyDeploy strategyDeploy = new StrategyDeploy();
+        strategyDeploy.setId(strategyId);
+        strategyDeploy.setVersion(version);
+        return sqlSession.selectOne("strategyDeploy.getStrategyBuyUserCount", strategyDeploy);
+    }
 }

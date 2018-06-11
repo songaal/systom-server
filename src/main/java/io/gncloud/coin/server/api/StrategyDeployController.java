@@ -3,6 +3,7 @@ package io.gncloud.coin.server.api;
 import io.gncloud.coin.server.exception.AbstractException;
 import io.gncloud.coin.server.exception.AuthenticationException;
 import io.gncloud.coin.server.exception.OperationException;
+import io.gncloud.coin.server.exception.RequestException;
 import io.gncloud.coin.server.model.StrategyDeploy;
 import io.gncloud.coin.server.service.StrategyDeployService;
 import org.slf4j.LoggerFactory;
@@ -74,6 +75,9 @@ public class StrategyDeployController extends AbstractController{
                                                           @RequestAttribute String userId) {
         try {
             StrategyDeploy registerVersion = strategyDeployService.deleteDeployVersion(userId, strategyId, version);
+            if (registerVersion == null) {
+                return new RequestException().response();
+            }
             return success(registerVersion);
         } catch (Throwable t){
             logger.error("", t);

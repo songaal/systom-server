@@ -8,9 +8,10 @@ public class StrategyDeploy extends Strategy {
 
     private String explanation;
     private String description;
-    private boolean isSell;
+    private String isSell;
     private float price;
     private String backtest; /*백테스트 필요 옵션 및 요약 결과*/
+    private int sellCount;
 
     public String getExplanation() {
         return explanation;
@@ -28,12 +29,12 @@ public class StrategyDeploy extends Strategy {
         this.description = description;
     }
 
-    public boolean getIsSell() {
+    public String getIsSell() {
         return isSell;
     }
 
-    public void setIsSell(boolean sell) {
-        isSell = sell;
+    public void setIsSell(String isSell) {
+        this.isSell = isSell;
     }
 
     public float getPrice() {
@@ -52,6 +53,13 @@ public class StrategyDeploy extends Strategy {
         this.backtest = backtest;
     }
 
+    public int getSellCount() {
+        return sellCount;
+    }
+
+    public void setSellCount(int sellCount) {
+        this.sellCount = sellCount;
+    }
 
     @Override
     public String toString() {

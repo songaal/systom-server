@@ -16,7 +16,7 @@ import java.util.List;
  * 
  */
 @RestController
-@RequestMapping("/marketplace")
+@RequestMapping("/v1/marketplace")
 public class MarketplaceController extends AbstractController {
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(MarketplaceController.class);
@@ -53,5 +53,22 @@ public class MarketplaceController extends AbstractController {
             return new OperationException(t.getMessage()).response();
         }
     }
+
+//    @PutMapping("/order")
+//    public ResponseEntity<?> orderStrategy (@RequestAttribute String userId,
+//                                            @RequestBody StrategyDeploy strategyDeploy) {
+//
+//        try {
+//
+////            StrategyDeploy registeredStrategyVersion = marketplaceService.registerStrategyMarket(strategyDeploy);
+//            return success(registeredStrategyVersion);
+//        } catch (AbstractException e) {
+//            logger.error("", e);
+//            return e.response();
+//        } catch (Throwable t) {
+//            logger.error("", t);
+//            return new OperationException(t.getMessage()).response();
+//        }
+//    }
 
 }

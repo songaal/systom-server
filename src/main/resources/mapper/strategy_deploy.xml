@@ -43,6 +43,7 @@
         , a.is_sell
         , a.price
         , a.description
+        , a.backtest
         from strategy_deploy a
         join strategy b on a.id = b.id
         where a.id = ${id}
@@ -93,6 +94,11 @@
                 group by aa.id ) b on a.id = b.id
     </select>
 
-
+    <select id="getStrategyBuyUserCount" resultType="Integer" parameterType="StrategyDeploy">
+        select ifnull(count(*), 0) as sell_count
+          from strategy_sell_history
+         where id = ${id}
+           and version = ${version}
+    </select>
 
 </mapper>
