@@ -5,7 +5,7 @@
 
 <mapper namespace="strategyStatus">
 
-    <select id="getStatus" parameterType="strategyStatus" resultType="strategyStatus">
+    <select id="getStatus" parameterType="StrategyStatus" resultType="StrategyStatus">
         SELECT id
              , version
              , user_id
@@ -17,7 +17,7 @@
            AND user_id = #{userId}
     </select>
 
-    <insert id="insertStatus" parameterType="strategyStatus">
+    <insert id="insertStatus" parameterType="StrategyOrder">
         INSERT INTO strategy_status (id, version, user_id, time, status)
         VALUES ( ${id}
                , ${version}
@@ -27,7 +27,7 @@
         )
     </insert>
 
-    <update id="updateStatus" parameterType="strategyStatus">
+    <update id="updateStatus" parameterType="StrategyStatus">
         UPDATE strategy_status
            SET status = 'use'
              , time = now()

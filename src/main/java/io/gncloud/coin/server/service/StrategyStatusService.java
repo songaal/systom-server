@@ -30,7 +30,7 @@ public class StrategyStatusService {
             if (status != null) {
                 rowCount = sqlSession.update("strategyStatus.updateStatus", status);
             } else {
-                rowCount = sqlSession.insert("strategyStatus.insertStatus", status);
+                rowCount = sqlSession.insert("strategyStatus.insertStatus", strategyOrder);
             }
             if (rowCount != 1) {
                 logger.error("update status row count : " + rowCount);
@@ -39,7 +39,7 @@ public class StrategyStatusService {
             return getStatus(strategyOrder.getUserId(), strategyOrder.getId(), strategyOrder.getVersion());
         } catch (Exception e){
             logger.error("", e);
-            throw new OperationException();
+            throw new ParameterException();
         }
     }
 

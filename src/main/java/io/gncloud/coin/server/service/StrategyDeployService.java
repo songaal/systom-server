@@ -6,6 +6,7 @@ import io.gncloud.coin.server.exception.OperationException;
 import io.gncloud.coin.server.exception.ParameterException;
 import io.gncloud.coin.server.model.Strategy;
 import io.gncloud.coin.server.model.StrategyDeploy;
+import io.gncloud.coin.server.model.StrategyOrder;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,5 +114,9 @@ public class StrategyDeployService {
         StrategyDeploy strategyDeploy = new StrategyDeploy();
         strategyDeploy.setId(strategyId);
         return sqlSession.selectOne("strategyDeploy.getLastSellVersion", strategyDeploy);
+    }
+
+    public void insertSellHistory(StrategyOrder order){
+        sqlSession.insert("strategyDeploy.insertSellHistory", order);
     }
 }

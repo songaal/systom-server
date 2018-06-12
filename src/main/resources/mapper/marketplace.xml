@@ -51,12 +51,4 @@
            AND version = ${version}
     </update>
 
-    <insert id="insertStrategyStatus" parameterType="StrategyDeploy">
-        INSERT INTO status_status(id, version, user_id, status, time)
-        values( ${id}
-              , ${version}
-              , #{userId}
-              , ''
-        )
-    </insert>
 </mapper>

@@ -12,7 +12,7 @@
         )
     </insert>
 
-    <update id="updateCoin" parameterType="User">
+    <update id="updateAmount" parameterType="User">
         UPDATE user_coin
            SET amount = amount + ${amount}
          WHERE user_id = #{userId}

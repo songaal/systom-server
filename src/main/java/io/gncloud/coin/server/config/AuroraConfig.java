@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 import javax.sql.DataSource;
 
@@ -18,6 +19,11 @@ import javax.sql.DataSource;
 public class AuroraConfig {
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(AuroraConfig.class);
+
+    @Bean
+    public DataSourceTransactionManager transactionManager(DataSource dataSource) {
+        return new DataSourceTransactionManager(dataSource);
+    }
 
     @Bean
     public SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception{

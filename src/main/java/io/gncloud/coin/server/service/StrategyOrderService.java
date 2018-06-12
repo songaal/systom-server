@@ -33,7 +33,7 @@ public class StrategyOrderService {
 
 
     @Transactional
-    public StrategyStatus order(StrategyOrder strategyOrder) throws ParameterException, RequestException, OperationException {
+    public StrategyStatus order(StrategyOrder strategyOrder) throws ParameterException, RequestException, OperationException, Exception {
         isNotNull(strategyOrder.getId(), "strategyId");
         isNotNull(strategyOrder.getVersion(), "version");
 
@@ -41,6 +41,7 @@ public class StrategyOrderService {
         if (registerDeployVersion == null || !"selling".equalsIgnoreCase(registerDeployVersion.getIsSell())){
             throw new RequestException();
         }
+        strategyOrder.setPrice(registerDeployVersion.getPrice());
 
         User buyer = userCoinService.getUserCoin(strategyOrder.getUserId());
         if (buyer == null) {
@@ -53,14 +54,16 @@ public class StrategyOrderService {
         float buyerAmount = buyer.getAmount();
         float diffPrice = registerDeployVersion.getPrice() * -1;
         buyer = userCoinService.updateAmount(buyer.getUserId(), diffPrice);
+
         if (buyer.getAmount() != (buyerAmount + diffPrice)) {
             throw new OperationException();
         }
+
+        strategyDeployService.insertSellHistory(strategyOrder);
+
         StrategyStatus status = StrategyStatusService.registerStatus(strategyOrder);
         return status;
     }
-
-
 
 
     private void isNotNull(String field, String label) throws ParameterException {

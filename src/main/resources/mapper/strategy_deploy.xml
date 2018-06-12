@@ -110,4 +110,14 @@
           and a.is_sell = 'selling'
         group by a.id
     </select>
+
+    <insert id="insertSellHistory" parameterType="StrategyOrder">
+        INSERT INTO strategy_sell_history (strategy_id, user_id, create_time, version, price)
+        VALUES ( ${id}
+               , #{userId}
+               , now()
+               , ${version}
+               , ${price}
+        )
+    </insert>
 </mapper>
