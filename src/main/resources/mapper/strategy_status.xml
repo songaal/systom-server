@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="strategyStatus">
+
+    <select id="getStatus" parameterType="strategyStatus" resultType="strategyStatus">
+        SELECT id
+             , version
+             , user_id
+             , status
+             , time
+          FROM strategy_status
+         WHERE id = ${id}
+           AND version = ${version}
+           AND user_id = #{userId}
+    </select>
+
+    <insert id="insertStatus" parameterType="strategyStatus">
+        INSERT INTO strategy_status (id, version, user_id, time, status)
+        VALUES ( ${id}
+               , ${version}
+               , #{userId}
+               , now()
+               , 'use'
+        )
+    </insert>
+
+    <update id="updateStatus" parameterType="strategyStatus">
+        UPDATE strategy_status
+           SET status = 'use'
+             , time = now()
+         WHERE id = ${id}
+           AND version = ${version}
+           AND user_id = #{userId}
+    </update>
+
+</mapper>

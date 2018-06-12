@@ -15,4 +15,9 @@ public class DateTest {
         new SimpleDateFormat("yyyy-mm-dd").format(null);
     }
 
+
+    @Test
+    public void equalsTest() {
+        System.out.println("aa".equals(null));
+    }
 }

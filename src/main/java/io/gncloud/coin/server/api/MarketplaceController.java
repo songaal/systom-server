@@ -1,9 +1,11 @@
 package io.gncloud.coin.server.api;
 
 import io.gncloud.coin.server.exception.AbstractException;
+import io.gncloud.coin.server.exception.AuthenticationException;
 import io.gncloud.coin.server.exception.OperationException;
 import io.gncloud.coin.server.model.StrategyDeploy;
 import io.gncloud.coin.server.service.MarketplaceService;
+import io.gncloud.coin.server.service.StrategyOrderService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,9 @@ public class MarketplaceController extends AbstractController {
 
     @Autowired
     private MarketplaceService marketplaceService;
+
+    @Autowired
+    private StrategyOrderService strategyOrderService;
 
     @GetMapping
     public ResponseEntity<?> retrieveStrategyMarketList () {
@@ -54,21 +59,23 @@ public class MarketplaceController extends AbstractController {
         }
     }
 
-//    @PutMapping("/order")
-//    public ResponseEntity<?> orderStrategy (@RequestAttribute String userId,
-//                                            @RequestBody StrategyDeploy strategyDeploy) {
-//
-//        try {
-//
-////            StrategyDeploy registeredStrategyVersion = marketplaceService.registerStrategyMarket(strategyDeploy);
-//            return success(registeredStrategyVersion);
-//        } catch (AbstractException e) {
-//            logger.error("", e);
-//            return e.response();
-//        } catch (Throwable t) {
-//            logger.error("", t);
-//            return new OperationException(t.getMessage()).response();
-//        }
-//    }
+    @PutMapping("/stopSelling")
+    public ResponseEntity<?> stopSellingStrategyMarket (@RequestAttribute("userId") String userId,
+                                                        @RequestBody StrategyDeploy strategyDeploy) {
+        try {
+            strategyDeploy.setUserId(userId);
+            StrategyDeploy registerStrategyDeploy = marketplaceService.stopSellingStrategyMarket(strategyDeploy);
+            return success(registerStrategyDeploy);
+        } catch (AuthenticationException e) {
+            logger.error("", e);
+            return e.response();
+        } catch (OperationException e) {
+            logger.error("", e);
+            return e.response();
+        } catch (Throwable t) {
+            logger.error("", t);
+            return new OperationException(t.getMessage()).response();
+        }
+    }
 
 }

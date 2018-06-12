@@ -3,6 +3,7 @@ package io.gncloud.coin.server.service;
 import io.gncloud.coin.server.exception.AuthenticationException;
 import io.gncloud.coin.server.exception.OperationException;
 import io.gncloud.coin.server.exception.ParameterException;
+import io.gncloud.coin.server.exception.RequestException;
 import io.gncloud.coin.server.model.Strategy;
 import io.gncloud.coin.server.model.StrategyDeploy;
 import org.apache.ibatis.session.SqlSession;
@@ -27,7 +28,7 @@ public class MarketplaceService {
     private StrategyDeployService strategyDeployService;
 
     @Autowired
-    private PaymentService paymentService;
+    private StrategyOrderService strategyOrderService;
 
     public List<StrategyDeploy> retrieveStrategyMarketList() throws OperationException {
         try {
@@ -39,7 +40,7 @@ public class MarketplaceService {
         }
     }
 
-    public StrategyDeploy registerStrategyMarket(StrategyDeploy strategyDeploy) throws ParameterException, OperationException, AuthenticationException {
+    public StrategyDeploy registerStrategyMarket(StrategyDeploy strategyDeploy) throws ParameterException, OperationException, AuthenticationException, RequestException {
         isNotNull(strategyDeploy, "strategy");
         isNotNull(strategyDeploy.getId(), "strategyId");
         isNotNull(strategyDeploy.getUserId(), "userId");
@@ -53,7 +54,7 @@ public class MarketplaceService {
             }
             if (registerStrategy.getIsSell().equals("selling")) {
                 logger.warn("Already sold.", registerStrategy);
-                throw new OperationException("SQL Exception. update row count: ");
+                throw new RequestException();
             }
 
             int updateRowCount = sqlSession.update("marketplace.registerStrategyMarket", strategyDeploy);
@@ -67,6 +68,34 @@ public class MarketplaceService {
         return strategyDeployService.getDeployVersion(strategyDeploy.getId(), strategyDeploy.getVersion(), strategyDeploy.getUserId());
     }
 
+    public StrategyDeploy stopSellingStrategyMarket(StrategyDeploy strategyDeploy) throws ParameterException, AuthenticationException, RequestException, OperationException {
+        isNotNull(strategyDeploy.getId(), "strategyId");
+        isNotNull(strategyDeploy.getUserId(), "userId");
+        try {
+            Integer version = strategyDeployService.getLastSellVersion(strategyDeploy.getId());
+            isNotNull(version , "version");
+            strategyDeploy.setVersion(version);
+
+            StrategyDeploy registerStrategy = strategyDeployService.getDeployVersion(strategyDeploy.getId(), strategyDeploy.getVersion(), strategyDeploy.getUserId());
+
+            if (!registerStrategy.getUserId().equals(strategyDeploy.getUserId())) {
+                throw new AuthenticationException();
+            }
+
+            if (!registerStrategy.getIsSell().equals("selling")) {
+                throw new RequestException();
+            }
+
+            int updateRowCount = sqlSession.update("marketplace.stopSellingStrategyMarket", strategyDeploy);
+            if (updateRowCount != 1) {
+                throw new OperationException("SQL Exception. update row count: " + updateRowCount);
+            }
+        } catch (Exception e) {
+            logger.error("", e);
+            throw new OperationException(e.getMessage());
+        }
+        return strategyDeployService.getDeployVersion(strategyDeploy.getId(), strategyDeploy.getVersion(), strategyDeploy.getUserId());
+    }
 
     private void isNotNull(String field, String label) throws ParameterException {
         if(field == null || "".equals(field)){
@@ -88,6 +117,5 @@ public class MarketplaceService {
             throw new ParameterException(label);
         }
     }
-
 
 }

@@ -13,7 +13,6 @@
              , OPTIONS
              , CREATE_TIME
              , UPDATE_TIME
-             , WRITER
           FROM strategy
          WHERE 1=1
            <if test="id != null and id != ''">
@@ -22,28 +21,39 @@
     </select>
 
     <select id="selectStrategy" parameterType="Strategy" resultType="Strategy">
-        SELECT ID
-        , NAME
-        , USER_ID
-        , CODE
-        , OPTIONS
-        , CREATE_TIME
-        , UPDATE_TIME
-        , WRITER
-        FROM strategy
+        SELECT a.id
+            , b.last_version
+            , c.sell_version
+            , a.name
+            , a.user_id
+            , a.code
+            , a.options
+            , a.create_time
+            , a.update_time
+        FROM strategy a
+        LEFT JOIN (SELECT aa.id,
+                          max(aa.version) as last_version
+                     FROM strategy_deploy aa
+                    WHERE aa.user_id = #{userId}
+                    GROUP BY aa.id ) b on a.id = b.id
+        LEFT JOIN (SELECT bb.id,
+                          max(bb.version) as sell_version
+                     FROM strategy_deploy bb
+                    WHERE bb.user_id = #{userId}
+                      AND bb.is_sell = 'selling'
+                    GROUP BY bb.id ) c on a.id = c.id
         WHERE 1=1
         and user_id = #{userId}
-        ORDER BY CREATE_TIME DESC
+        ORDER BY a.create_time DESC
     </select>
 
     <insert id="insertStrategy" parameterType="Strategy" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO strategy(NAME, USER_ID, CREATE_TIME, CODE, OPTIONS, WRITER)
+        INSERT INTO strategy(NAME, USER_ID, CREATE_TIME, CODE, OPTIONS)
         values( #{name}
               , #{userId}
               , now()
               , #{code}
               , #{options}
-              , #{userId}
         )
     </insert>
 

@@ -10,6 +10,7 @@
              , version
              , create_time
              , explanation
+             , is_sell
           from strategy_deploy
          where id = ${id}
          order by version desc
@@ -51,7 +52,7 @@
     </select>
 
     <insert id="insertDeployVersion" parameterType="StrategyDeploy">
-        INSERT INTO strategy_deploy (id, version, user_id, create_time, code, options, explanation)
+        INSERT INTO strategy_deploy (id, version, user_id, create_time, code, options, explanation, is_sell)
         VALUES ( ${id}
                 , IFNULL((select *
                             from (SELECT MAX(version) + 1
@@ -62,6 +63,7 @@
                 , #{code}
                 , #{options}
                 , #{explanation}
+                , 'private'
                 )
     </insert>
 
@@ -90,7 +92,7 @@
                     , aa.create_time
                     , aa.explanation
                  from strategy_deploy aa
-                where aa.is_sell = true
+                where aa.is_sell = 'selling'
                 group by aa.id ) b on a.id = b.id
     </select>
 
@@ -101,4 +103,11 @@
            and version = ${version}
     </select>
 
+    <select id="getLastSellVersion" resultType="Integer" parameterType="StrategyDeploy">
+        select max(a.version) as sell_version
+        from strategy_deploy a
+        where a.id = ${id}
+          and a.is_sell = 'selling'
+        group by a.id
+    </select>
 </mapper>

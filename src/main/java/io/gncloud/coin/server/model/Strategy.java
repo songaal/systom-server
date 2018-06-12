@@ -16,8 +16,9 @@ public class Strategy {
     private String userId;
     private String code;
     private String options;
-    private String writer;
     private boolean isBuyer;
+    private Integer lastVersion;
+    private Integer sellVersion;
 
     private Integer testId;
 
@@ -101,20 +102,28 @@ public class Strategy {
         this.options = options;
     }
 
-    public String getWriter() {
-        return writer;
-    }
-
-    public void setWriter(String writer) {
-        this.writer = writer;
-    }
-
     public boolean isBuyer() {
         return isBuyer;
     }
 
     public void setBuyer(boolean buyer) {
         isBuyer = buyer;
+    }
+
+    public Integer getLastVersion() {
+        return lastVersion;
+    }
+
+    public void setLastVersion(Integer lastVersion) {
+        this.lastVersion = lastVersion;
+    }
+
+    public Integer getSellVersion() {
+        return sellVersion;
+    }
+
+    public void setSellVersion(Integer sellVersion) {
+        this.sellVersion = sellVersion;
     }
 
     @Override

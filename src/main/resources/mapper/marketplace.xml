@@ -5,38 +5,58 @@
 
 <mapper namespace="marketplace">
 
-    <select id="retrieveStrategyMarketList" resultType="StrategyDeploy">
-        SELECT a.id
-            , a.version
-            , a.is_sell
-            , a.create_time
-            , a.price
-            , a.backtest
-            , a.options
-            , a.description
-            , b.name
-            , b.user_id
-            , ifnull(c.sell_count, 0) as sell_count
+    <select id="retrieveStrategyMarketList" resultType="StrategyDeploy" parameterType="StrategyDeploy">
+        SELECT
+            a.id,
+            d.version,
+            a.is_sell,
+            a.create_time,
+            a.price,
+            a.backtest,
+            a.options,
+            a.description,
+            b.name,
+            b.user_id,
+            IFNULL(c.sell_count, 0) AS sell_count
         FROM strategy_deploy a
-        JOIN strategy b on a.id = b.id
-        LEFT JOIN (SELECT aa.id
-                        , aa.version
-                        , count(aa.user_id) as sell_count
-                        FROM strategy_sell_history aa
-                        GROUP BY aa.id, aa.version
-            ) c on a.id = c.id and a.version = c.version
-        WHERE a.is_sell = true
+        INNER JOIN strategy b ON a.id = b.id
+        LEFT JOIN (SELECT aa.id, COUNT(aa.user_id) AS sell_count
+                     FROM strategy_sell_history aa
+                    GROUP BY aa.id) c ON a.id = c.id
+        INNER JOIN (SELECT bb.id,
+                           MAX(bb.version) AS version
+                      FROM strategy_deploy bb
+                     WHERE bb.is_sell = 'selling'
+                     GROUP BY bb.id) d ON d.id = a.id AND a.version = d.version
+        <if test="userId != null and userId != ''">
+          AND a.user_id = #{userId}
+        </if>
     </select>
 
     <update id="registerStrategyMarket" parameterType="StrategyDeploy">
-        update strategy_deploy
-           set is_sell = true
+        UPDATE strategy_deploy
+           SET is_sell = 'selling'
              , price = ${price}
              , description = #{description}
              , market_create_time = now()
-         where id = ${id}
-           and version = ${version}
+         WHERE id = ${id}
+           AND version = ${version}
     </update>
 
+    <update id="stopSellingStrategyMarket" parameterType="StrategyDeploy">
+        UPDATE strategy_deploy
+           SET is_sell = 'stop'
+         WHERE id = ${id}
+           AND user_id = #{userId}
+           AND version = ${version}
+    </update>
 
+    <insert id="insertStrategyStatus" parameterType="StrategyDeploy">
+        INSERT INTO status_status(id, version, user_id, status, time)
+        values( ${id}
+              , ${version}
+              , #{userId}
+              , ''
+        )
+    </insert>
 </mapper>

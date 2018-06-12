@@ -51,6 +51,9 @@ public class StrategyDeployService {
         return sqlSession.selectOne("strategyDeploy.getLastDeployVersion", deploy);
     }
 
+    public StrategyDeploy getDeployVersion (Integer strategyId, Integer version) {
+        return getDeployVersion (strategyId, version, null);
+    }
     public StrategyDeploy getDeployVersion (Integer strategyId, Integer version, String userId) {
         StrategyDeploy deploy = new StrategyDeploy();
         deploy.setId(strategyId);
@@ -104,5 +107,11 @@ public class StrategyDeployService {
         strategyDeploy.setId(strategyId);
         strategyDeploy.setVersion(version);
         return sqlSession.selectOne("strategyDeploy.getStrategyBuyUserCount", strategyDeploy);
+    }
+
+    public Integer getLastSellVersion(Integer strategyId) {
+        StrategyDeploy strategyDeploy = new StrategyDeploy();
+        strategyDeploy.setId(strategyId);
+        return sqlSession.selectOne("strategyDeploy.getLastSellVersion", strategyDeploy);
     }
 }
