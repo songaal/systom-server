@@ -38,14 +38,12 @@ public class UserCoinService {
         isNotNull(amount, "Amount");
 
         try {
-            User registeredUserCoin = getUserCoin(userId);
-            if (registeredUserCoin == null) {
+            User registeredUser = getUserCoin(userId);
+            if (registeredUser == null) {
                 insertUserCoin(userId);
             }
-            User user = new User();
-            user.setUserId(userId);
-            user.setAmount(amount);
-            int cnt = sqlSession.update("userCoin.updateAmount", user);
+            registeredUser.setAmount(amount);
+            int cnt = sqlSession.update("userCoin.updateAmount", registeredUser);
             if (cnt != 1) {
                 logger.error("update userCoin count: " + cnt);
                 throw new OperationException();

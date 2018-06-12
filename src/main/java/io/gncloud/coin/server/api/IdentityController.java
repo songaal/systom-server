@@ -2,10 +2,12 @@ package io.gncloud.coin.server.api;
 
 import com.amazonaws.services.cognitoidp.model.*;
 import io.gncloud.coin.server.exception.AbstractException;
+import io.gncloud.coin.server.exception.OperationException;
 import io.gncloud.coin.server.model.ExchangeKey;
 import io.gncloud.coin.server.model.Identity;
 import io.gncloud.coin.server.service.ExchangeService;
 import io.gncloud.coin.server.service.IdentityService;
+import io.gncloud.coin.server.service.UserCoinService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,15 +37,20 @@ public class IdentityController {
 
     @Autowired
     private ExchangeService exchangeService;
+
+    @Autowired
+    private UserCoinService userCoinService;
+
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(IdentityController.class);
 
     /**
      * 회원가입
      * */
     @RequestMapping(value = "/signUp", method = RequestMethod.POST)
-    public ResponseEntity<?> signUp(@RequestBody Identity identity) {
+    public ResponseEntity<?> signUp(@RequestBody Identity identity) throws OperationException {
         AdminCreateUserResult result = identityService.signUp(identity.getUserId(), identity.getEmail());
         UserType user = result.getUser();
+        userCoinService.insertUserCoin(user.getUsername());
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
     /**

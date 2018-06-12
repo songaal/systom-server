@@ -32,4 +32,10 @@ public class UserCoinController extends AbstractController{
         }
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<?> getAmount(@RequestAttribute("userId") String userId) {
+        User registerUser = userCoinService.getUserCoin(userId);
+        return success(registerUser);
+    }
+
 }
