@@ -5,6 +5,7 @@ public class Identity {
     private String password;
     private String email;
     private String session;
+    private boolean isSeller;
 
     public String getUserId() {
         return userId;
@@ -36,6 +37,14 @@ public class Identity {
 
     public void setSession(String session) {
         this.session = session;
+    }
+
+    public boolean isSeller() {
+        return isSeller;
+    }
+
+    public void setSeller(boolean seller) {
+        isSeller = seller;
     }
 
     @Override

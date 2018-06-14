@@ -8,7 +8,9 @@
     <insert id="insertHistory" parameterType="Task" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO test_history
         (strategy_id,
-        strategy_version,
+        <if test="version != null and version != ''">
+            strategy_version,
+        </if>
         test_time,
         exchange_name,
         symbol,
@@ -18,7 +20,9 @@
         options)
         VALUES
         ( #{strategyId}
-        , "1.0"
+        <if test="version != null and version != ''">
+            , #{version}
+        </if>
         , now()
         , #{exchangeName,jdbcType=VARCHAR}
         , #{symbol,jdbcType=VARCHAR}
@@ -66,13 +70,24 @@
     </delete>
 
     <select id="getModel" parameterType="Task" resultType="Strategy">
-        SELECT a.ID
-        , a.CODE
-        , b.OPTIONS
-        FROM strategy a
+        SELECT a.id
+        , a.code
+        , b.options
+        <choose>
+            <when test="version != null and version != ''">
+                FROM strategy_deploy a
+            </when>
+            <otherwise>
+                FROM strategy a
+            </otherwise>
+        </choose>
         join test_history b on a.id = b.strategy_id
         WHERE 1=1
-          and b.ID = #{testId}
-          and b.user_id = #{userId}
+        and b.id = #{id}
+        and b.user_id = #{userId}
+        <if test="version != null and version != ''">
+            and a.version = ${version}
+        </if>
+
     </select>
 </mapper>

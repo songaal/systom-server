@@ -39,6 +39,10 @@ public class DockerUtils {
     private int connTimeout;
     @Value("${backtest.image}")
     private String backTestImage;
+    @Value("${backtest.apiServerHost}")
+    private String apiServerHost;
+    @Value("${backtest.apiGatewayHost}")
+    private String apiGatewayHost;
 
     private DockerClientConfig config;
     private DockerCmdExecFactory factory;
@@ -61,6 +65,8 @@ public class DockerUtils {
     public void run(int taskId, List<String> envList, List<String> cmd) throws InterruptedException {
         DockerClient dockerClient = getClient();
 
+        envList.add("api_server_host=" + apiServerHost);
+        envList.add("api_gateway_host=" + apiGatewayHost);
 
         Volume hostDataVolume = new Volume("/data");
         Bind gastDataVolume = new Bind("/coinArk/data", hostDataVolume);

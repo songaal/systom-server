@@ -2,6 +2,7 @@ package io.gncloud.coin.server.api;
 
 import io.gncloud.coin.server.exception.AbstractException;
 import io.gncloud.coin.server.exception.OperationException;
+import io.gncloud.coin.server.model.Strategy;
 import io.gncloud.coin.server.model.Task;
 import io.gncloud.coin.server.service.TaskService;
 import org.slf4j.LoggerFactory;
@@ -10,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
@@ -57,8 +59,28 @@ public class BackTestController extends AbstractController {
         }
     }
 
+    @GetMapping("/{taskId}/model")
+    public ResponseEntity<?> getStrategyModel(@RequestAttribute String userId,
+                                              @PathVariable Integer taskId,
+                                              @RequestParam(required = false) Integer version) {
+        try {
+            Strategy registerStrategy = taskService.getBackTestModel(taskId, userId, version);
+            Map<String, String> response = new HashMap<>();
+            response.put("code", registerStrategy.getCode());
+            response.put("options", registerStrategy.getOptions());
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (AbstractException e) {
+            logger.error("", e);
+            return e.response();
+        } catch (Throwable t) {
+            logger.error("", t);
+            return new OperationException(t.getMessage()).response();
+        }
+    }
+
     @PostMapping("/{id}/result")
     public ResponseEntity<?> backtestResult(@PathVariable Integer id, @RequestBody Map<String, Object> resultJson) throws Exception {
+        logger.debug("[BACKTEST RESULT] id: {}, result: {}", id, resultJson);
         taskService.registerBacktestResult(id, resultJson);
         return new ResponseEntity<>(resultJson, HttpStatus.OK);
     }

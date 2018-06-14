@@ -4,10 +4,7 @@ import com.amazonaws.services.ecs.model.RunTaskResult;
 import io.gncloud.coin.server.exception.AuthenticationException;
 import io.gncloud.coin.server.exception.OperationException;
 import io.gncloud.coin.server.exception.ParameterException;
-import io.gncloud.coin.server.model.Agent;
-import io.gncloud.coin.server.model.ExchangeKey;
-import io.gncloud.coin.server.model.Strategy;
-import io.gncloud.coin.server.model.Task;
+import io.gncloud.coin.server.model.*;
 import io.gncloud.coin.server.utils.AwsUtils;
 import io.gncloud.coin.server.utils.DockerUtils;
 import io.gncloud.coin.server.utils.TaskFuture;
@@ -105,10 +102,10 @@ public class TaskService {
     public Map<String, Object> registerBacktestResult(Integer id, Map<String, Object> resultJson) {
         TaskFuture taskFuture = backTestResult.get(id);
         if(taskFuture == null) {
-            backtestLogger.warn("[{}] BackTest Result Saved.", id);
+            backtestLogger.error("[{}] BackTest Result Save Fail." + id);
         } else {
             taskFuture.offer(resultJson);
-            backtestLogger.warn("[{}] BackTest Result Saved.", id);
+            backtestLogger.debug("[{}] BackTest Result Saved.", id);
         }
         return resultJson;
     }
@@ -225,17 +222,18 @@ public class TaskService {
         }
     }
 
-    public Strategy getBackTestModel(Integer testId, String userId) throws ParameterException, OperationException {
-        Strategy strategy = new Strategy();
-        strategy.setUserId(userId);
-        strategy.setTestId(testId);
+    public Strategy getBackTestModel(Integer testId, String userId, Integer version) throws ParameterException, OperationException {
+        Task task = new Task();
+        task.setId(testId);
+        task.setUserId(userId);
+        task.setVersion(version);
         try {
-            strategy = sqlSession.selectOne("backtest.getModel", strategy);
+            return sqlSession.selectOne("backtest.getModel", task);
         } catch (Exception e){
+            logger.error("", e);
             throw new OperationException("[FAIL] Update Failed testId: " + testId);
 
         }
-        return strategy;
     }
 
 }

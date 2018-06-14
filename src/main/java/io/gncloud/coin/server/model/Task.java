@@ -6,7 +6,6 @@ package io.gncloud.coin.server.model;
  */
 
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -15,11 +14,11 @@ import java.util.List;
 // ECS TASK RUN
 public class Task {
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(Task.class);
-    @Value("${backtest.launcher_name}")
-    private String launcher_name;
 
+    private String launcher_name;
     private Integer id; //backTestId || agentId
     private Integer strategyId;
+    private Integer version;
     private String options;
     private String name;
     private String userId;
@@ -213,8 +212,26 @@ public class Task {
         this.symbol = symbol;
     }
 
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
+
+    public String getLauncher_name() {
+        return launcher_name;
+    }
+
+    public void setLauncher_name(String launcher_name) {
+        this.launcher_name = launcher_name;
+    }
+
     public List<String> getRunEnv(){
         List<String> env = new ArrayList<>();
+        env.add("benchmark_symbol=" + this.getBenchmark_symbol());
+        env.add("algo_class_name=" + this.getAlgoClassName());
         env.add("exchange=" + this.getExchangeName());
         env.add("access_token=" + this.getAccessToken());
         logger.debug("task env: {}", env);

@@ -14,9 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /*
  * create joonwoo 2018. 3. 22.
@@ -43,23 +41,6 @@ public class StrategyController extends AbstractController {
         try {
             List<Strategy> registerStrategyList = strategyService.findStrategyByUser(userId);
             return success(registerStrategyList);
-        } catch (AbstractException e) {
-            logger.error("", e);
-            return e.response();
-        } catch (Throwable t) {
-            logger.error("", t);
-            return new OperationException(t.getMessage()).response();
-        }
-    }
-
-    @GetMapping("/{strategyId}/model")
-    public ResponseEntity<?> getStrategyModel(@RequestAttribute String userId, @PathVariable Integer strategyId) {
-        try {
-            Strategy registerStrategy = taskService.getBackTestModel(strategyId, userId);
-            Map<String, String> response = new HashMap<>();
-            response.put("code", registerStrategy.getCode());
-            response.put("options", registerStrategy.getOptions());
-            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (AbstractException e) {
             logger.error("", e);
             return e.response();

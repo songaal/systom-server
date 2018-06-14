@@ -26,9 +26,9 @@
             IF(#{param1} = a.user_id, false, true) as is_buyer
         FROM strategy_deploy a
         INNER JOIN strategy b ON a.id = b.id
-        LEFT JOIN (SELECT aa.id, COUNT(aa.user_id) AS sell_count
+        LEFT JOIN (SELECT aa.strategy_id, COUNT(aa.user_id) AS sell_count
                      FROM strategy_sell_history aa
-                    GROUP BY aa.id) c ON a.id = c.id
+                    GROUP BY aa.id) c ON a.id = c.strategy_id
         INNER JOIN (SELECT bb.id,
                            MAX(bb.version) AS version
                       FROM strategy_deploy bb

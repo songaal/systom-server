@@ -37,10 +37,12 @@ spring:
     driver-class-name: "com.mysql.cj.jdbc.Driver"
 
 backtest:
-    host: "tcp://52.79.171.130:2376"
+    host: "tcp://52.78.216.101:2376"
     resultTimeout: 3600000
     image: "868448630378.dkr.ecr.ap-northeast-2.amazonaws.com/cctrader:latest"
     capitalBase: 1.0
+    apiServerHost: "https://api.systom.io"
+    apiGatewayHost: "https://9u3jawxuod.execute-api.ap-northeast-2.amazonaws.com/v1_1"
     container:
           readTimeout: 40000
           connectTimeout: 10000

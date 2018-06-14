@@ -16,9 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -43,6 +41,7 @@ public class IdentityController {
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(IdentityController.class);
 
+    private List<String> seller = Arrays.asList("joonwoo", "songaal");
     /**
      * 회원가입
      * */
@@ -112,9 +111,10 @@ public class IdentityController {
      * 회원정보 조회
      */
     @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<?> userInfo(@CookieValue(value = ACCESS_TOKEN) String accessToken, @CookieValue(value = ID_TOKEN) String idToken) {
+    public ResponseEntity<?> userInfo(@CookieValue(value = ACCESS_TOKEN) String accessToken, @CookieValue(value = ID_TOKEN) String idToken, @RequestAttribute String userId) {
         Map<String, String> payload = identityService.parsePayload(idToken);
         payload.putAll(identityService.parsePayload(accessToken));
+        payload.put("isSeller", String.valueOf(seller.contains(userId)));
         return new ResponseEntity<>(payload, HttpStatus.OK);
     }
 
