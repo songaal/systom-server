@@ -59,6 +59,7 @@ public class StrategyDeployService {
         StrategyDeploy deploy = new StrategyDeploy();
         deploy.setId(strategyId);
         deploy.setVersion(version);
+        deploy.setUserId(userId);
         StrategyDeploy registerStrategyDeploy = sqlSession.selectOne("strategyDeploy.getDeployVersion", deploy);
         if (!registerStrategyDeploy.getUserId().equals(userId)) {
             registerStrategyDeploy.setCode("");
@@ -118,5 +119,9 @@ public class StrategyDeployService {
 
     public void insertSellHistory(StrategyOrder order){
         sqlSession.insert("strategyDeploy.insertSellHistory", order);
+    }
+
+    public List<StrategyDeploy> retrieveOrderStrategy(String userId) {
+        return sqlSession.selectList("strategyDeploy.retrieveOrderStrategy", userId);
     }
 }

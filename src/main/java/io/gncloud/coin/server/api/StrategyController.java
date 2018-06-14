@@ -1,10 +1,11 @@
 package io.gncloud.coin.server.api;
 
-import com.google.gson.Gson;
 import io.gncloud.coin.server.exception.AbstractException;
 import io.gncloud.coin.server.exception.OperationException;
 import io.gncloud.coin.server.model.Strategy;
+import io.gncloud.coin.server.model.StrategyDeploy;
 import io.gncloud.coin.server.service.IdentityService;
+import io.gncloud.coin.server.service.StrategyDeployService;
 import io.gncloud.coin.server.service.StrategyService;
 import io.gncloud.coin.server.service.TaskService;
 import org.slf4j.LoggerFactory;
@@ -14,7 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /*
  * create joonwoo 2018. 3. 22.
@@ -30,17 +33,24 @@ public class StrategyController extends AbstractController {
     private StrategyService strategyService;
 
     @Autowired
+    private StrategyDeployService strategyDeployService;
+
+    @Autowired
     private IdentityService identityService;
 
     @Autowired
     private TaskService taskService;
-    private Gson gson = new Gson();
+
 
     @GetMapping("/me")
     public ResponseEntity<?> getStrategyList(@RequestAttribute String userId) {
         try {
             List<Strategy> registerStrategyList = strategyService.findStrategyByUser(userId);
-            return success(registerStrategyList);
+            List<StrategyDeploy> registerOrderStrategyList = strategyDeployService.retrieveOrderStrategy(userId);
+            Map<String, Object> response = new HashMap<>();
+            response.put("strategyList", registerStrategyList);
+            response.put("orderStrategyList", registerOrderStrategyList);
+            return success(response);
         } catch (AbstractException e) {
             logger.error("", e);
             return e.response();

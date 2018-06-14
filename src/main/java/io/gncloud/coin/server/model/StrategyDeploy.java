@@ -1,5 +1,7 @@
 package io.gncloud.coin.server.model;
 
+import java.util.Date;
+
 /*
  * create joonwoo 2018. 6. 4.
  * 
@@ -13,6 +15,9 @@ public class StrategyDeploy extends Strategy {
     private String backtest; /*백테스트 필요 옵션 및 요약 결과*/
     private int sellCount;
     private String isPurchase;
+
+    private Date orderTime;
+
 
     public String getExplanation() {
         return explanation;
@@ -68,6 +73,14 @@ public class StrategyDeploy extends Strategy {
 
     public void setIsPurchase(String isPurchase) {
         this.isPurchase = isPurchase;
+    }
+
+    public Date getOrderTime() {
+        return orderTime;
+    }
+
+    public void setOrderTime(Date orderTime) {
+        this.orderTime = orderTime;
     }
 
     @Override

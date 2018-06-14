@@ -45,6 +45,11 @@
         , a.price
         , a.description
         , a.backtest
+        , IFNULL((SELECT 'purchase'
+                    FROM strategy_sell_history ee
+                    WHERE ee.user_id = #{userId}
+                    AND ee.strategy_id= a.id
+                    GROUP BY ee.strategy_id), 'Unpurchase') as is_purchase
         from strategy_deploy a
         join strategy b on a.id = b.id
         where a.id = ${id}
@@ -120,4 +125,39 @@
                , ${price}
         )
     </insert>
+
+
+    <select id="retrieveOrderStrategy" resultType="StrategyDeploy" parameterType="String">
+        SELECT a.id
+            , a.name
+            , a.user_id
+            , d.order_time
+            , d.version
+            , d.price
+            , (SELECT max(bb.version)
+                FROM strategy_deploy bb
+                WHERE bb.id = a.id
+                AND bb.is_sell = 'selling'
+                GROUP BY bb.id ) as sell_version
+        FROM strategy a
+        JOIN (SELECT cc.id
+                    , cc.strategy_id
+                    , cc.version
+                    , cc.user_id
+                    , min(cc.create_time) as order_time
+                    , cc.price
+                FROM strategy_sell_history cc
+                where cc.user_id = #{param1}
+                group by cc.strategy_id) d on a.id = d.strategy_id
+        JOIN (SELECT dd.id
+                    , dd.version
+                    , dd.status
+                    , dd.user_id
+                    , dd.time
+                FROM strategy_status dd
+                WHERE dd.user_id = #{param1}) e on a.id = e.id
+        WHERE 1=1
+        and d.user_id = #{param1}
+        ORDER BY d.order_time DESC
+    </select>
 </mapper>
