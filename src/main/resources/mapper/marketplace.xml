@@ -19,10 +19,11 @@
             b.user_id,
             IFNULL(c.sell_count, 0) AS sell_count,
             IFNULL((SELECT 'purchase'
-        FROM strategy_sell_history ee
-        WHERE ee.user_id = #{param1}
-        AND ee.strategy_id= a.id
-        GROUP BY ee.strategy_id), 'Unpurchase') as is_purchase
+                      FROM strategy_sell_history ee
+                     WHERE ee.user_id = #{param1}
+                       AND ee.strategy_id= a.id
+                     GROUP BY ee.strategy_id), 'Unpurchase') as is_purchase,
+            IF(#{param1} = a.user_id, false, true) as is_buyer
         FROM strategy_deploy a
         INNER JOIN strategy b ON a.id = b.id
         LEFT JOIN (SELECT aa.id, COUNT(aa.user_id) AS sell_count
