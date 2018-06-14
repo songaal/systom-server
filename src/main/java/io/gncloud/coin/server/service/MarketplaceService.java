@@ -30,9 +30,9 @@ public class MarketplaceService {
     @Autowired
     private StrategyOrderService strategyOrderService;
 
-    public List<StrategyDeploy> retrieveStrategyMarketList() throws OperationException {
+    public List<StrategyDeploy> retrieveStrategyMarketList(String userId) throws OperationException {
         try {
-            List<StrategyDeploy> registerStrategies = sqlSession.selectList("marketplace.retrieveStrategyMarketList");
+            List<StrategyDeploy> registerStrategies = sqlSession.selectList("marketplace.retrieveStrategyMarketList", userId);
             return registerStrategies;
         } catch (Exception e) {
             logger.error("", e);

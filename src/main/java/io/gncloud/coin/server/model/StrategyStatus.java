@@ -53,4 +53,15 @@ public class StrategyStatus {
     public void setTime(Date time) {
         this.time = time;
     }
+
+    @Override
+    public String toString() {
+        return "StrategyStatus{" +
+                "id=" + id +
+                ", version=" + version +
+                ", userId='" + userId + '\'' +
+                ", status='" + status + '\'' +
+                ", time=" + time +
+                '}';
+    }
 }

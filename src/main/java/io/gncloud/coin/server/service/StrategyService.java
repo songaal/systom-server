@@ -111,7 +111,7 @@ public class StrategyService {
         }
         try {
             taskService.deleteBackTestHistory(strategy);
-            int result = sqlSession.delete("strategy.deleteStrategy", strategyId);
+            int result = sqlSession.delete("strategy.deleteStrategy", strategy);
             if (result != 1) {
                 throw new OperationException("[FAIL] deleteStrategy resultCount: " + result);
             }

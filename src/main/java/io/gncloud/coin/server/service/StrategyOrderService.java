@@ -37,6 +37,11 @@ public class StrategyOrderService {
         isNotNull(strategyOrder.getId(), "strategyId");
         isNotNull(strategyOrder.getVersion(), "version");
 
+        StrategyStatus status = StrategyStatusService.getStatus(strategyOrder.getUserId(), strategyOrder.getId(), strategyOrder.getVersion());
+        if (status != null) {
+            new OperationException("Purchased Strategy");
+        }
+
         StrategyDeploy registerDeployVersion = strategyDeployService.getDeployVersion(strategyOrder.getId(), strategyOrder.getVersion());
         if (registerDeployVersion == null || !"selling".equalsIgnoreCase(registerDeployVersion.getIsSell())){
             throw new RequestException();
@@ -56,13 +61,12 @@ public class StrategyOrderService {
         buyer = userCoinService.updateAmount(buyer.getUserId(), diffPrice);
 
         if (buyer.getAmount() != (buyerAmount + diffPrice)) {
-            throw new OperationException();
+            throw new OperationException("Low balance");
         }
 
         strategyDeployService.insertSellHistory(strategyOrder);
 
-        StrategyStatus status = StrategyStatusService.registerStatus(strategyOrder);
-        return status;
+        return StrategyStatusService.registerStatus(strategyOrder);
     }
 
 

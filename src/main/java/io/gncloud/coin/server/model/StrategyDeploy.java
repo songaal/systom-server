@@ -12,6 +12,7 @@ public class StrategyDeploy extends Strategy {
     private float price;
     private String backtest; /*백테스트 필요 옵션 및 요약 결과*/
     private int sellCount;
+    private String isPurchase;
 
     public String getExplanation() {
         return explanation;
@@ -59,6 +60,14 @@ public class StrategyDeploy extends Strategy {
 
     public void setSellCount(int sellCount) {
         this.sellCount = sellCount;
+    }
+
+    public String getIsPurchase() {
+        return isPurchase;
+    }
+
+    public void setIsPurchase(String isPurchase) {
+        this.isPurchase = isPurchase;
     }
 
     @Override

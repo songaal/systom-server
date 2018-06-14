@@ -36,4 +36,21 @@
            AND user_id = #{userId}
     </update>
 
+    <select id="retrieveUsedStatus" resultType="StrategyStatus">
+        SELECT id
+            , version
+            , user_id
+            , status
+            , time
+        FROM strategy_status
+        WHERE status = 'use'
+    </select>
+
+    <update id="updateUnusedStatus" parameterType="StrategyStatus">
+        UPDATE strategy_status
+        SET status = 'unused'
+        WHERE id = ${id}
+        AND version = ${version}
+        AND user_id = #{userId}
+    </update>
 </mapper>

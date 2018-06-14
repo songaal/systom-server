@@ -30,9 +30,9 @@ public class MarketplaceController extends AbstractController {
     private StrategyOrderService strategyOrderService;
 
     @GetMapping
-    public ResponseEntity<?> retrieveStrategyMarketList () {
+    public ResponseEntity<?> retrieveStrategyMarketList (@RequestAttribute String userId) {
         try {
-            List<StrategyDeploy> strategyDeployList = marketplaceService.retrieveStrategyMarketList();
+            List<StrategyDeploy> strategyDeployList = marketplaceService.retrieveStrategyMarketList(userId);
             return success(strategyDeployList);
         } catch (AbstractException e) {
             logger.error("", e);

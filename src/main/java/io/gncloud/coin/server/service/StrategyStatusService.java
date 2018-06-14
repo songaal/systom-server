@@ -7,7 +7,12 @@ import io.gncloud.coin.server.model.StrategyStatus;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /*
  * create joonwoo 2018. 6. 12.
@@ -51,6 +56,23 @@ public class StrategyStatusService {
         return sqlSession.selectOne("strategyStatus.getStatus", status);
     }
 
+    @Scheduled(fixedDelay = 6000)
+    private void checkExpiration() {
+        List<StrategyStatus> statusList = sqlSession.selectList("strategyStatus.retrieveUsedStatus");
+        int statusSize = statusList.size();
+        long nowTime = new Date().getTime();
+        for (int i=0; i < statusSize; i++){
+            StrategyStatus status = statusList.get(i);
+            Calendar orderTime = Calendar.getInstance();
+            orderTime.setTime(status.getTime());
+            orderTime.add(Calendar.MONTH, 1);
+            long expireTime = orderTime.getTime().getTime();
+            if (expireTime <= nowTime){
+                logger.info("ExpireStatus >> Status: {}", status);
+                sqlSession.update("strategyStatus.updateUnusedStatus", status);
+            }
+        }
+    }
 
 
     private void isNotNull(String field, String label) throws ParameterException {
