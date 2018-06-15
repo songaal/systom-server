@@ -1,12 +1,14 @@
 package io.gncloud.coin.server.utils;
 
+import org.slf4j.LoggerFactory;
+
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 public class TaskFuture<T> {
-
+    private static org.slf4j.Logger logger = LoggerFactory.getLogger(TaskFuture.class);
     private LinkedBlockingQueue<T> queue;
 
     public TaskFuture() {
@@ -17,6 +19,7 @@ public class TaskFuture<T> {
         try {
             queue.put(e);
         } catch (InterruptedException ex) {
+            logger.error("", ex);
         }
     }
 

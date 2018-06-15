@@ -4,7 +4,10 @@ import com.amazonaws.services.ecs.model.RunTaskResult;
 import io.gncloud.coin.server.exception.AuthenticationException;
 import io.gncloud.coin.server.exception.OperationException;
 import io.gncloud.coin.server.exception.ParameterException;
-import io.gncloud.coin.server.model.*;
+import io.gncloud.coin.server.model.Agent;
+import io.gncloud.coin.server.model.ExchangeKey;
+import io.gncloud.coin.server.model.Strategy;
+import io.gncloud.coin.server.model.Task;
 import io.gncloud.coin.server.utils.AwsUtils;
 import io.gncloud.coin.server.utils.DockerUtils;
 import io.gncloud.coin.server.utils.TaskFuture;
@@ -20,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 @Service
@@ -80,10 +82,11 @@ public class TaskService {
             int taskId = task.getId();
             dockerUtils.run(taskId, task.getRunEnv(), task.getRunCommand());
 
-            TaskFuture<Map<String, Object>> future = new TaskFuture();
-            backTestResult.put(taskId, future);
+            TaskFuture<Map<String, Object>> future = backTestResult.get(taskId);
+//            backTestResult.put(taskId, future);
 
-            Map<String, Object> resultJson = future.poll(resultTimeout, TimeUnit.MILLISECONDS);
+//            Map<String, Object> resultJson = future.poll(resultTimeout, TimeUnit.MILLISECONDS);
+            Map<String, Object> resultJson = future.take();
             backTestResult.remove(task.getId());
             if (resultJson != null) {
                 backtestLogger.info("[{}] BackTest result catch!", task.getId());
@@ -100,13 +103,17 @@ public class TaskService {
     }
 
     public Map<String, Object> registerBacktestResult(Integer id, Map<String, Object> resultJson) {
-        TaskFuture taskFuture = backTestResult.get(id);
-        if(taskFuture == null) {
-            backtestLogger.error("[{}] BackTest Result Save Fail." + id);
-        } else {
-            taskFuture.offer(resultJson);
-            backtestLogger.debug("[{}] BackTest Result Saved.", id);
-        }
+//        logger.debug("is Future: {}: {}", id, backTestResult.get(id));
+        TaskFuture<Map<String, Object>> taskFuture = new TaskFuture();
+        taskFuture.offer(resultJson);
+        backTestResult.put(id, taskFuture);
+        backtestLogger.debug("[{}] BackTest Result Saved.", id);
+//        if(taskFuture == null) {
+//            backtestLogger.error("[{}] BackTest Result Save Fail." + id);
+//        } else {
+//            taskFuture.offer(resultJson);
+//            backtestLogger.debug("[{}] BackTest Result Saved.", id);
+//        }
         return resultJson;
     }
 
@@ -236,4 +243,7 @@ public class TaskService {
         }
     }
 
+    public ConcurrentMap<Integer, TaskFuture> getBackTestResult() {
+        return this.backTestResult;
+    }
 }

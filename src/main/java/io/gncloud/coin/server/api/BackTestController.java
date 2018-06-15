@@ -85,4 +85,8 @@ public class BackTestController extends AbstractController {
         return new ResponseEntity<>(resultJson, HttpStatus.OK);
     }
 
+    @GetMapping("/getBacktestResult")
+    public ResponseEntity<?> getBackTestResult(){
+        return success(taskService.getBackTestResult());
+    }
 }

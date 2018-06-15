@@ -38,7 +38,7 @@ public class CredentialsCache
         implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private static final long DEFAULT_TIMEOUT = 15 * 60 * 1000L;
+    private static final long DEFAULT_TIMEOUT = 30 * 60 * 1000L;
 
     private Map<String, Date> cache;
 
