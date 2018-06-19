@@ -13,7 +13,6 @@
             a.create_time,
             a.price,
             a.backtest,
-            a.options,
             a.description,
             b.name,
             b.user_id,

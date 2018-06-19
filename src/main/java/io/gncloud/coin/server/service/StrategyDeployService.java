@@ -38,7 +38,7 @@ public class StrategyDeployService {
         }
 
         deploy.setCode(strategy.getCode());
-        deploy.setOptions(strategy.getOptions());
+//        deploy.setOptions(strategy.getOptions());
         int cnt = sqlSession.insert("strategyDeploy.insertDeployVersion", deploy);
         if (cnt != 1) {
             throw new OperationException("[FAIL] Strategy Deploy insert row: " + cnt);

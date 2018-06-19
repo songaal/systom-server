@@ -31,7 +31,7 @@ public class StrategyService {
 
         isNotNull(strategy.getUserId(), "userId");
         isNotNull(strategy.getCode(), "code");
-        isNotNull(strategy.getOptions(), "options");
+//        isNotNull(strategy.getOptions(), "options");
 
         logger.debug("INSERT Strategy: {}", strategy);
         try {
@@ -78,7 +78,7 @@ public class StrategyService {
         isNotNull(userId, "userId");
         isNotNull(newStrategy.getId(), "strategyId");
         isNotNull(newStrategy.getCode(), "code");
-        isNotNull(newStrategy.getOptions(), "options");
+//        isNotNull(newStrategy.getOptions(), "options");
 
         Strategy strategy = getStrategy(newStrategy.getId(), userId);
 
@@ -87,7 +87,7 @@ public class StrategyService {
         }
 
         strategy.setCode(newStrategy.getCode());
-        strategy.setOptions(newStrategy.getOptions());
+//        strategy.setOptions(newStrategy.getOptions());
 
         logger.debug("UPDATE Strategy: {}", strategy);
 

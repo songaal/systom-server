@@ -10,7 +10,6 @@
              , NAME
              , USER_ID
              , CODE
-             , OPTIONS
              , CREATE_TIME
              , UPDATE_TIME
           FROM strategy
@@ -25,7 +24,6 @@
             , a.name
             , a.user_id
             , a.code
-            , a.options
             , a.create_time
             , a.update_time
         FROM strategy a
@@ -46,19 +44,17 @@
     </select>
 
     <insert id="insertStrategy" parameterType="Strategy" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO strategy(NAME, USER_ID, CREATE_TIME, CODE, OPTIONS)
+        INSERT INTO strategy(NAME, USER_ID, CREATE_TIME, CODE)
         values( #{name}
               , #{userId}
               , now()
               , #{code}
-              , #{options}
         )
     </insert>
 
     <update id="updateStrategy" parameterType="Strategy">
         UPDATE strategy
            SET CODE = #{code}
-             , OPTIONS = #{options}
              , NAME = #{name}
              , UPDATE_TIME = now()
          WHERE id = #{id}

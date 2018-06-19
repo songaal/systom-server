@@ -16,8 +16,7 @@
         symbol,
         start_time,
         end_time,
-        user_id,
-        options)
+        user_id)
         VALUES
         ( #{strategyId}
         <if test="version != null and version != ''">
@@ -29,7 +28,6 @@
         , #{startTime}
         , #{endTime}
         , #{userId}
-        , #{options}
         )
     </insert>
 
@@ -72,7 +70,6 @@
     <select id="getModel" parameterType="Task" resultType="Strategy">
         SELECT a.id
         , a.code
-        , b.options
         <choose>
             <when test="version != null and version != ''">
                 FROM strategy_deploy a

@@ -15,7 +15,7 @@ public class Strategy {
     private Date updateTime;
     private String userId;
     private String code;
-    private String options;
+//    private String options;
     private boolean isBuyer;
     private Integer lastVersion;
     private Integer sellVersion;
@@ -94,13 +94,13 @@ public class Strategy {
         this.name = name;
     }
 
-    public String getOptions() {
-        return options;
-    }
-
-    public void setOptions(String options) {
-        this.options = options;
-    }
+//    public String getOptions() {
+//        return options;
+//    }
+//
+//    public void setOptions(String options) {
+//        this.options = options;
+//    }
 
     public boolean isBuyer() {
         return isBuyer;
@@ -135,7 +135,7 @@ public class Strategy {
                 ", createTime=" + createTime +
                 ", updateTime=" + updateTime +
                 ", userId='" + userId + '\'' +
-                ", options='" + options + '\'' +
+//                ", options='" + options + '\'' +
                 '}';
     }
 }

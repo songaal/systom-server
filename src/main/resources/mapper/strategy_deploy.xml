@@ -21,7 +21,6 @@
              , version
              , create_time
              , code
-             , options
              , user_id
              , explanation
          from strategy_deploy
@@ -38,7 +37,6 @@
         , a.version
         , a.create_time
         , a.code
-        , a.options
         , a.user_id
         , a.explanation
         , a.is_sell
@@ -57,7 +55,7 @@
     </select>
 
     <insert id="insertDeployVersion" parameterType="StrategyDeploy">
-        INSERT INTO strategy_deploy (id, version, user_id, create_time, code, options, explanation, is_sell)
+        INSERT INTO strategy_deploy (id, version, user_id, create_time, code, explanation, is_sell)
         VALUES ( ${id}
                 , IFNULL((select *
                             from (SELECT MAX(version) + 1
@@ -66,7 +64,6 @@
                 , #{userId}
                 , now()
                 , #{code}
-                , #{options}
                 , #{explanation}
                 , 'private'
                 )

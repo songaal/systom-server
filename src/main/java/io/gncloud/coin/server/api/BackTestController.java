@@ -67,7 +67,7 @@ public class BackTestController extends AbstractController {
             Strategy registerStrategy = taskService.getBackTestModel(taskId, userId, version);
             Map<String, String> response = new HashMap<>();
             response.put("code", registerStrategy.getCode());
-            response.put("options", registerStrategy.getOptions());
+//            response.put("options", registerStrategy.getOptions());
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (AbstractException e) {
             logger.error("", e);
