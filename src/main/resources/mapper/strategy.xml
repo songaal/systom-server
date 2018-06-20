@@ -5,66 +5,57 @@
 
 <mapper namespace="strategy">
 
-    <select id="getStrategy" parameterType="Strategy" resultType="Strategy">
-        SELECT ID
-             , NAME
-             , USER_ID
-             , CODE
-             , CREATE_TIME
-             , UPDATE_TIME
-          FROM strategy
-         WHERE 1=1
-           and ID = #{id}
-    </select>
-
-    <select id="selectStrategy" parameterType="Strategy" resultType="Strategy">
-        SELECT a.id
-            , b.last_version
-            , c.sell_version
-            , a.name
-            , a.user_id
-            , a.code
-            , a.create_time
-            , a.update_time
+    <select id="retrieveStrategiesByUserId" parameterType="String" resultType="Strategy">
+        SELECT  a.id,
+                a.name,
+                a.user_id,
+                a.create_time,
+                a.update_time,
+                b.version AS last_deploy_version,
+                c.version AS last_goods_version
         FROM strategy a
         LEFT JOIN (SELECT aa.id,
-                          max(aa.version) as last_version
+                          MAX(aa.version) AS version
                      FROM strategy_deploy aa
-                    WHERE aa.user_id = #{userId}
-                    GROUP BY aa.id ) b on a.id = b.id
-        LEFT JOIN (SELECT bb.id,
-                          max(bb.version) as sell_version
-                     FROM strategy_deploy bb
-                    WHERE bb.user_id = #{userId}
-                      AND bb.is_sell = 'selling'
-                    GROUP BY bb.id ) c on a.id = c.id
-        WHERE 1=1
-        and user_id = #{userId}
+                    WHERE aa.is_trash = false
+                    GROUP BY aa.id) b ON a.id = b.id
+        LEFT JOIN (SELECT bb.strategy_id,
+                          MAX(bb.strategy_version) AS version
+                     FROM goods bb
+        GROUP BY strategy_id) c ON a.id = c.strategy_id
+        WHERE a.user_id = #{userId}
         ORDER BY a.create_time DESC
     </select>
 
-    <insert id="insertStrategy" parameterType="Strategy" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO strategy(NAME, USER_ID, CREATE_TIME, CODE)
-        values( #{name}
-              , #{userId}
-              , now()
-              , #{code}
-        )
+    <insert id="createBlankStrategy" parameterType="Strategy" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO strategy (NAME, USER_ID)
+        VALUES ( #{name}
+               , #{userId} )
     </insert>
+
+    <select id="findStrategyById" parameterType="Strategy" resultType="Strategy">
+        SELECT a.id
+             , a.name
+             , a.user_id
+             , a.create_time
+             , a.update_time
+             , a.code
+        FROM strategy a
+        WHERE  ID = #{id}
+    </select>
 
     <update id="updateStrategy" parameterType="Strategy">
         UPDATE strategy
-           SET CODE = #{code}
-             , NAME = #{name}
-             , UPDATE_TIME = now()
+           SET code = #{code}
+             , update_time = now()
          WHERE id = #{id}
            and user_id = #{userId}
     </update>
 
     <delete id="deleteStrategy" parameterType="Strategy">
         DELETE FROM strategy
-        WHERE id = #{id}
-          and user_id = #{userId}
+         WHERE id = #{id}
+           AND user_id = #{userId}
     </delete>
 
 </mapper>

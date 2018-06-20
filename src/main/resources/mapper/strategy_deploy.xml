@@ -5,156 +5,55 @@
 
 <mapper namespace="strategyDeploy">
 
-    <select id="selectDeployVersions" parameterType="StrategyDeploy" resultType="StrategyDeploy">
-        select id
-             , version
-             , create_time
-             , explanation
-             , is_sell
-          from strategy_deploy
-         where id = ${id}
-         order by version desc
-    </select>
-
-    <select id="getLastDeployVersion" parameterType="StrategyDeploy" resultType="StrategyDeploy">
-        select id
-             , version
-             , create_time
-             , code
-             , user_id
-             , explanation
-         from strategy_deploy
-        where id = ${id}
-          and version = (select max(version)
-                           from strategy_deploy
-                          where id = ${id}
-                          group by id)
-    </select>
-
-    <select id="getDeployVersion" parameterType="StrategyDeploy" resultType="StrategyDeploy">
-        select b.id
-        , b.name
-        , a.version
-        , a.create_time
-        , a.code
-        , a.user_id
-        , a.explanation
-        , a.is_sell
-        , a.price
-        , a.description
-        , a.backtest
-        , IFNULL((SELECT 'purchase'
-                    FROM strategy_sell_history ee
-                    WHERE ee.user_id = #{userId}
-                    AND ee.strategy_id= a.id
-                    GROUP BY ee.strategy_id), 'Unpurchase') as is_purchase
-        from strategy_deploy a
-        join strategy b on a.id = b.id
-        where a.id = ${id}
-        and a.version = ${version}
-    </select>
-
-    <insert id="insertDeployVersion" parameterType="StrategyDeploy">
-        INSERT INTO strategy_deploy (id, version, user_id, create_time, code, explanation, is_sell)
+    <insert id="createDeployVersion" parameterType="Strategy">
+        INSERT INTO strategy_deploy (id, version, code, description)
         VALUES ( ${id}
-                , IFNULL((select *
-                            from (SELECT MAX(version) + 1
-                            FROM strategy_deploy
-                            WHERE ID = ${id}) as t), 1)
-                , #{userId}
-                , now()
-                , #{code}
-                , #{explanation}
-                , 'private'
-                )
-    </insert>
-
-    <delete id="deleteDeployVersion" parameterType="StrategyDeploy">
-        delete
-          from strategy_deploy
-         where id = ${id}
-           and version = ${version}
-    </delete>
-
-
-    <update id="saveBackTest" parameterType="StrategyDeploy">
-        update strategy_deploy
-           set backtest = #{backtest}
-         where id = ${id}
-           and version = ${version}
-    </update>
-
-    <select id="retrieveStrategyMarketList" resultType="StrategyDeploy">
-        select a.*
-             , b.*
-          from strategy a
-          join (select aa.id
-                    , max(aa.version) as version
-                    , aa.is_sell
-                    , aa.create_time
-                    , aa.explanation
-                 from strategy_deploy aa
-                where aa.is_sell = 'selling'
-                group by aa.id ) b on a.id = b.id
-    </select>
-
-    <select id="getStrategyBuyUserCount" resultType="Integer" parameterType="StrategyDeploy">
-        select ifnull(count(*), 0) as sell_count
-          from strategy_sell_history
-         where id = ${id}
-           and version = ${version}
-    </select>
-
-    <select id="getLastSellVersion" resultType="Integer" parameterType="StrategyDeploy">
-        select max(a.version) as sell_version
-        from strategy_deploy a
-        where a.id = ${id}
-          and a.is_sell = 'selling'
-        group by a.id
-    </select>
-
-    <insert id="insertSellHistory" parameterType="StrategyOrder">
-        INSERT INTO strategy_sell_history (strategy_id, user_id, create_time, version, price)
-        VALUES ( ${id}
-               , #{userId}
-               , now()
-               , ${version}
-               , ${price}
+               , IFNULL((SELECT *
+                           FROM (SELECT MAX(version) + 1
+                                   FROM strategy_deploy
+                                  WHERE id = ${id}) as tmp)
+                       , 1)
+               , #{code}
+               , #{description}
         )
     </insert>
 
-
-    <select id="retrieveOrderStrategy" resultType="StrategyDeploy" parameterType="String">
-        SELECT a.id
-            , a.name
-            , a.user_id
-            , d.order_time
-            , d.version
-            , d.price
-            , (SELECT max(bb.version)
-                FROM strategy_deploy bb
-                WHERE bb.id = a.id
-                AND bb.is_sell = 'selling'
-                GROUP BY bb.id ) as sell_version
-        FROM strategy a
-        JOIN (SELECT cc.id
-                    , cc.strategy_id
-                    , cc.version
-                    , cc.user_id
-                    , min(cc.create_time) as order_time
-                    , cc.price
-                FROM strategy_sell_history cc
-                where cc.user_id = #{param1}
-                group by cc.strategy_id) d on a.id = d.strategy_id
-        JOIN (SELECT dd.id
-                    , dd.version
-                    , dd.status
-                    , dd.user_id
-                    , dd.time
-                FROM strategy_status dd
-                WHERE dd.user_id = #{param1}) e on a.id = e.id
-        WHERE 1=1
-        and d.user_id = #{param1}
-        ORDER BY d.order_time DESC
+    <select id="retrieveDeployVersions" parameterType="Strategy" resultType="StrategyDeployVersion">
+        SELECT id
+             , version
+             , create_time
+             , description
+          FROM strategy_deploy
+         WHERE id = ${id}
+           AND is_trash = false
+         ORDER BY version DESC
     </select>
+
+    <select id="getDeployVersion" parameterType="StrategyDeployVersion" resultType="StrategyDeployVersion">
+        SELECT a.id
+             , a.name
+             , a.user_id
+             , b.version
+             , b.create_time
+             , b.description
+             , b.code
+          FROM strategy a
+          JOIN strategy_deploy b on a.id = b.id
+         WHERE b.version = ${version}
+           AND a.id = ${id}
+    </select>
+
+    <update id="deleteDeployVersion" parameterType="StrategyDeployVersion">
+        UPDATE strategy_deploy
+           SET is_trash = true
+         WHERE id = ${id}
+           AND version = ${version}
+    </update>
+
+    <update id="deleteAllDeployVersion" parameterType="Strategy">
+        UPDATE strategy_deploy
+           SET is_trash = true
+         WHERE id = ${id}
+    </update>
+
 </mapper>
