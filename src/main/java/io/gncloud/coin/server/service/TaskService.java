@@ -8,8 +8,8 @@ import io.gncloud.coin.server.model.Agent;
 import io.gncloud.coin.server.model.ExchangeKey;
 import io.gncloud.coin.server.model.Strategy;
 import io.gncloud.coin.server.model.Task;
-import io.gncloud.coin.server.utils.AwsUtils;
 import io.gncloud.coin.server.utils.DockerUtils;
+import io.gncloud.coin.server.utils.EcsUtils;
 import io.gncloud.coin.server.utils.TaskFuture;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,16 +28,16 @@ import java.util.concurrent.TimeoutException;
 public class TaskService {
 
     private static Logger logger = LoggerFactory.getLogger(TaskService.class);
-    private static Logger backtestLogger = LoggerFactory.getLogger("backtestLogger");
-
-    @Resource(name = "awsUtils")
-    private AwsUtils awsUtils;
+    private static Logger backTestLogger = LoggerFactory.getLogger("backTestLogger");
 
     @Value("${backtest.resultTimeout}")
     private long resultTimeout;
 
     @Value("${backtest.capitalBase}")
     private float capitalBase;
+
+    @Autowired
+    private EcsUtils ecsUtils;
 
     @Autowired
     private IdentityService identityService;
@@ -83,18 +82,15 @@ public class TaskService {
             dockerUtils.run(taskId, task.getRunEnv(), task.getRunCommand());
 
             TaskFuture<Map<String, Object>> future = backTestResult.get(taskId);
-//            backTestResult.put(taskId, future);
-
-//            Map<String, Object> resultJson = future.poll(resultTimeout, TimeUnit.MILLISECONDS);
             Map<String, Object> resultJson = future.take();
             backTestResult.remove(task.getId());
             if (resultJson != null) {
-                backtestLogger.info("[{}] BackTest result catch!", task.getId());
+                backTestLogger.info("[{}] BackTest result catch!", task.getId());
             } else {
-                backtestLogger.info("[{}] BackTest Response Timeout Error.", task.getId());
+                backTestLogger.info("[{}] BackTest Response Timeout Error.", task.getId());
                 throw new TimeoutException("[" + task.getId() + "] BackTest Response Timeout Error.");
             }
-            backtestLogger.info("[{}] BackTest Successful.", task.getId());
+            backTestLogger.info("[{}] BackTest Successful.", task.getId());
             return resultJson;
         } catch (Throwable t) {
             logger.error("", t);
@@ -103,17 +99,10 @@ public class TaskService {
     }
 
     public Map<String, Object> registerBacktestResult(Integer id, Map<String, Object> resultJson) {
-//        logger.debug("is Future: {}: {}", id, backTestResult.get(id));
         TaskFuture<Map<String, Object>> taskFuture = new TaskFuture();
         taskFuture.offer(resultJson);
         backTestResult.put(id, taskFuture);
-        backtestLogger.debug("[{}] BackTest Result Saved.", id);
-//        if(taskFuture == null) {
-//            backtestLogger.error("[{}] BackTest Result Save Fail." + id);
-//        } else {
-//            taskFuture.offer(resultJson);
-//            backtestLogger.debug("[{}] BackTest Result Saved.", id);
-//        }
+        backTestLogger.debug("[{}] BackTest Result Saved.", id);
         return resultJson;
     }
 
@@ -140,7 +129,7 @@ public class TaskService {
 //        logger.debug("[ LIVE={} ] RUN {}", isLiveMode, task);
 //        RunTaskResult result = null;
 //        try {
-//            result = awsUtils.runTask(task, environmentList);
+//            result = ecsUtils.runTask(task, environmentList);
 //        } catch (Exception e){
 //            logger.error("", e);
 //            throw new OperationException("[FAIL] ecs task run error");
@@ -166,7 +155,7 @@ public class TaskService {
 //        task.setEcsTaskId(agent.getEcsTaskId());
 //        StopTaskResult stopTaskResult = null;
 //        try {
-//            stopTaskResult = awsUtils.stopTask(task.getEcsTaskId(), "User stop request : " + userId + ", " + agentId);
+//            stopTaskResult = ecsUtils.stopTask(task.getEcsTaskId(), "User stop request : " + userId + ", " + agentId);
 //        } catch (Exception e){
 //            logger.error("", e);
 //            throw new OperationException("[FAIL] ecs task run error");

@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
@@ -31,16 +30,16 @@ public class BackTestController extends AbstractController {
     @Autowired
     private TaskService taskService;
 
-    @GetMapping
-    public ResponseEntity<?> getBackTestHistory(@RequestParam String strategyId){
-        try {
-            List<Task> taskHistory = taskService.getBackTestHistory(strategyId);
-            return new ResponseEntity<>(taskHistory, HttpStatus.OK);
-        } catch (AbstractException e){
-            logger.error("", e);
-            return e.response();
-        }
-    }
+//    @GetMapping
+//    public ResponseEntity<?> getBackTestHistory(@RequestParam String strategyId){
+//        try {
+//            List<Task> taskHistory = taskService.getBackTestHistory(strategyId);
+//            return new ResponseEntity<>(taskHistory, HttpStatus.OK);
+//        } catch (AbstractException e){
+//            logger.error("", e);
+//            return e.response();
+//        }
+//    }
 
     @PostMapping("/backtest")
     public ResponseEntity<?> waitRunBackTestTask(@CookieValue(ACCESS_TOKEN) String accessToken, @RequestAttribute("userId") String userId, @RequestBody Task task) throws TimeoutException, InterruptedException {
@@ -80,7 +79,7 @@ public class BackTestController extends AbstractController {
 
     @PostMapping("/{id}/result")
     public ResponseEntity<?> backtestResult(@PathVariable Integer id, @RequestBody Map<String, Object> resultJson) throws Exception {
-        logger.debug("[BACKTEST RESULT] id: {}, result: {}", id, resultJson);
+        logger.debug("[BACKTEST RESULT] id: {}", id);
         taskService.registerBacktestResult(id, resultJson);
         return new ResponseEntity<>(resultJson, HttpStatus.OK);
     }

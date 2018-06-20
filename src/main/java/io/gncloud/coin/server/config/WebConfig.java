@@ -39,6 +39,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
                 .allowedOrigins("*")
                 .allowedMethods("PUT", "DELETE", "GET", "POST")
                 .allowedHeaders("*")
+                .allowCredentials(true)
                 .maxAge(3600);
         super.addCorsMappings(registry);
     }

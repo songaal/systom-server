@@ -70,6 +70,7 @@
     <select id="getModel" parameterType="Task" resultType="Strategy">
         SELECT a.id
         , a.code
+        , b.options
         <choose>
             <when test="version != null and version != ''">
                 FROM strategy_deploy a

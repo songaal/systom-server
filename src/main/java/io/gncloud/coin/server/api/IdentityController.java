@@ -14,9 +14,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -62,7 +64,7 @@ public class IdentityController {
             AuthenticationResultType authResult = initAuthResult.getAuthenticationResult();
             if(authResult != null) {
                 //쿠키 업데이트
-                updateCredentialCookies(response, authResult.getAccessToken(), authResult.getRefreshToken(), authResult.getIdToken(), authResult.getExpiresIn());
+                identityService.updateCredentialCookies(response, authResult.getAccessToken(), authResult.getRefreshToken(), authResult.getIdToken(), authResult.getExpiresIn());
                 //사용자 정보
                 Map<String, String> payload = identityService.parsePayload(authResult.getAccessToken());
                 return new ResponseEntity<>(payload, HttpStatus.OK);
@@ -86,7 +88,7 @@ public class IdentityController {
         AdminRespondToAuthChallengeResult respondAuthResult = identityService.changeTempPassword(identity.getSession(), identity.getUserId(), identity.getPassword());
         AuthenticationResultType authResult = respondAuthResult.getAuthenticationResult();
         //쿠키 업데이트
-        updateCredentialCookies(response, authResult.getAccessToken(), authResult.getRefreshToken(), authResult.getIdToken(), authResult.getExpiresIn());
+        identityService.updateCredentialCookies(response, authResult.getAccessToken(), authResult.getRefreshToken(), authResult.getIdToken(), authResult.getExpiresIn());
         //사용자 정보
         Map<String, String> payload = identityService.parsePayload(authResult.getAccessToken());
         return new ResponseEntity<>(payload, HttpStatus.OK);
@@ -99,7 +101,7 @@ public class IdentityController {
     public ResponseEntity<?> logout(HttpServletResponse response) {
         try {
             //쿠키 삭제
-            updateCredentialCookies(response, "", "", "",0);
+            identityService.updateCredentialCookies(response, "", "", "",0);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             logger.error("", e);
@@ -165,26 +167,4 @@ public class IdentityController {
         }
     }
 
-    private void updateCredentialCookies(HttpServletResponse response, String accessToken, String refreshToken, String idToken, Integer expiresIn) {
-        if(accessToken != null) {
-            Cookie cookie = new Cookie(ACCESS_TOKEN, accessToken);
-            cookie.setMaxAge(expiresIn);
-            cookie.setPath("/");
-            response.addCookie(cookie);
-
-            if(refreshToken != null) {
-                Cookie cookie2 = new Cookie(REFRESH_TOKEN, refreshToken);
-                cookie2.setMaxAge(expiresIn);
-                cookie2.setPath("/");
-                response.addCookie(cookie2);
-            }
-
-            if(idToken != null) {
-                Cookie cookie3 = new Cookie(ID_TOKEN, idToken);
-                cookie3.setMaxAge(expiresIn);
-                cookie3.setPath("/");
-                response.addCookie(cookie3);
-            }
-        }
-    }
 }

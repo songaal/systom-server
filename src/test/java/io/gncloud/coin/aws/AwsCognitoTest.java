@@ -11,7 +11,6 @@ import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -172,6 +171,50 @@ public class AwsCognitoTest {
 
     }
 
+    @Test
+    public void refreshToken() {
+        String refreshToken = "eyJjdHkiOiJKV1QiLCJlbmMiOiJBMjU2R0NNIiwiYWxnIjoiUlNBLU9BRVAifQ.qfjLvVORLarriqVX0XAVVn81l-MyRwKAGfhEYp-oSWUEuC7YyPBRLgZqmyjhoqAumsPSmUs18wECwY3ZFN3BxYHv0KiB0HhJmGZeHM2a6prbEorp9Pj1xhsy-Sclaiw0n5uLg2B6mXRdii4sMo8Grl9rnEZD5ZNF2Zcb7oIRXIssfnmoz0s_C5kG0v9j8Hh-sKrAgfzxgzzvLtOBnLm5Jyymla3nJE62uDmbTZqQ5-7UI2jHPpgmWoxr9DZ3YdDEOKG-c-CZMlmgSpdkdCqjJbzH5FL1DATRfiExbXerf8D99qZWgHdjHexzeoGcBHBsXHcUXJHdlOXp0zWvBMXmdw.NyhDObUmSuyi26UL.Q5eOjlRM2NAv-S2GHWdW29xc8m4aSB2RvkfcKri_jzn_DLq60NdN0gfS4TD4OkX0Zzh9z85U4Vp6eRzHAbxCbGUByXAf2P0fxruLkOf3GS3CzRV4YlzyA3j7RgofYY-AuFCGXKyOBLHioThY4GXOIW1_Z8Jmvr4zMb7lrlMTWlZlS1r7AkzVSh5-6hGcg1_SqZ-WAVQdIZUPr2SrOoX99MYJvj23vS3o5hlllJizAsZXSKsApNLR462NVSUb00QwRn2FQuS2E31h8jOxIgfZ24R9dVAFtfzBzmTznTzFXTPYE_FB-H0FLdv7pglGGO0lQZllxwMceriPPB84XxXZlz2db3con-IHYknGr3E2FoPoh0mGw1ETBgXw7ZtDczaxCI8Sx-qA41cchpibfYCHR1PbdmKfZoeDTtXTqHmUvyeEqNUraHu7Oc2X-MXEEZg-N2GFqk5FPnYCpKee31AY3_MCFTAapdz1o_4Yi9ZBdsHN_FmhwNbX5Jcewoibh_7BdKfDXK66sjOoYvZ8jDLuYk5Rl64zWfig4JjTjZLVZTwtnmxgm6RBCUtxY4gXi7XaBXx7YkTkoLIi0S183sUnPrKc3jLiDO-c6fjLnBaefSbnqcxxTdOm-BtPyMy92tFNIDSUj3jHiXSX1S2MGtX_wik8JEt5WZ2MQMmRHE2vZxuoUtFuadbh-HitJCaboLgKiMFyopp_vd-8qdmtMLHkIVywbKT_rZnZ8qtMRH9sC0LYuLFgv4ax40rAzaPvdMCWIz8_mFFA-9ilyjecF1XKPPgsJSzP-LJA8knpacltJ-JTwk7IEueTZZLUe96-SmgwCd4PbKfaCNoDz--2hTpu2WvyhLFEbSaUf-qJDuvzhRFj0KoKD5QzX7HFksTdeILe6mdU3LKCck9fv-h2TmymHpxX9y1l-2F64lschJLKfG8VKssVJjtarhCVsmdPUvFUX42rOiMU8smovRwC7K2PYbXKfA4nicpfYdm4M6EqnB2_w2hczRZ1tePgvjwy3ZYviL95hUdakUr7FEJKNVAB6gw0Bw-K8BkGL065tUQXAXFfskEP9AMihQNk9E0p9fPevGRwbytVDlmKjpsBXxPSJ8mEwoqlkDBUTakw4lFD-Knj3xpEsuxQ9rDSElv_uogaBXBbDb_5lHW3RicLy2B_h_mNdlG7adBSmWDb4pBSILBqmPMdv2W7aA8VhfexrVMSjKjIcKQGdzves6mtY9RxF7J-L9UkWtxnJg3JHjTNDeY6ZtI9ldsYqJkahk23OVNlL7k4vfiEHD9F2hvWpcJ0Bqw33g.L5HtAMqn9FGSJ8WXYkKHFA";
+        logger.debug("refresh token>> {}", refreshToken);
+
+        Map<String, String> authParams = new HashMap<String, String>();
+        authParams.put("REFRESH_TOKEN", refreshToken);
+
+        AdminInitiateAuthRequest authRequest = new AdminInitiateAuthRequest()
+                .withAuthFlow(AuthFlowType.REFRESH_TOKEN_AUTH)
+                .withAuthParameters(authParams)
+                .withClientId("4km83jbt1d6pg415q4ieqt41b0")
+                .withUserPoolId("ap-northeast-2_8UlVuFFva");
+        cognitoClient = AWSCognitoIdentityProviderClientBuilder.standard().build();
+        AdminInitiateAuthResult AdminInitiateAuthResult = cognitoClient.adminInitiateAuth(authRequest);
+
+        AuthenticationResultType AuthenticationResultType = AdminInitiateAuthResult.getAuthenticationResult();
+
+        logger.debug("old RefreshToken : {}", refreshToken);
+        logger.debug("newAccessToken : {}", AuthenticationResultType.getAccessToken());
+        logger.debug("ExpiresIn : {}", AuthenticationResultType.getExpiresIn());
+        logger.debug("RefreshToken : {}", AuthenticationResultType.getRefreshToken());
+        logger.debug("TokenType : {}", AuthenticationResultType.getTokenType());
 
 
+        AuthenticationResultType = AdminInitiateAuthResult.getAuthenticationResult();
+
+        logger.debug("old RefreshToken : {}", refreshToken);
+        logger.debug("newAccessToken : {}", AuthenticationResultType.getAccessToken());
+        logger.debug("ExpiresIn : {}", AuthenticationResultType.getExpiresIn());
+        logger.debug("RefreshToken : {}", AuthenticationResultType.getRefreshToken());
+        logger.debug("TokenType : {}", AuthenticationResultType.getTokenType());
+    }
+
+    @Test
+    public void resetPassword(){
+
+        AdminResetUserPasswordRequest resetPasswordRequest = new AdminResetUserPasswordRequest()
+                .withUsername("joonwoo")
+                .withUserPoolId("ap-northeast-2_8UlVuFFva");
+        cognitoClient = AWSCognitoIdentityProviderClientBuilder.standard().build();
+
+        AdminResetUserPasswordResult resetUserPasswordResult = cognitoClient.adminResetUserPassword(resetPasswordRequest);
+        logger.debug("resetUserPasswordResult>> {}", resetUserPasswordResult);
+
+    }
 }

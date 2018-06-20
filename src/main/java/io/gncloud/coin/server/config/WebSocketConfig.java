@@ -1,7 +1,6 @@
 package io.gncloud.coin.server.config;
 
 import io.gncloud.coin.server.service.IdentityService;
-import io.gncloud.coin.server.ws.EventWebSocketHandler;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -20,10 +19,10 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler( new EventWebSocketHandler(identityService)
-                , "/agent/*" /* 라이브 트레이딩 에이전트용도 */
-                , "/backtest/*") /* 백테스트용도 */
-                .setAllowedOrigins("*");
+//        registry.addHandler( new EventWebSocketHandler(identityService)
+//                , "/agent/*" /* 라이브 트레이딩 에이전트용도 */
+//                , "/backtest/*") /* 백테스트용도 */
+//                .setAllowedOrigins("*");
     }
 
 }

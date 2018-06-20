@@ -6,7 +6,6 @@ import com.amazonaws.services.cognitoidp.model.*;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.gson.Gson;
-import io.gncloud.coin.server.model.User;
 import io.gncloud.coin.server.utils.CognitoPubKeyStore;
 import io.gncloud.coin.server.utils.CredentialsCache;
 import io.gncloud.coin.server.utils.StringUtils;
@@ -20,17 +19,20 @@ import javax.annotation.PostConstruct;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Base64;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static io.gncloud.coin.server.api.IdentityController.*;
 
 /**
  * 권한, 인증 및 세션 관리 서비스
  */
 @Service
 public class IdentityService {
-    private final String ACCESS_TOKEN = "X-COINCLOUD-ACCESS-TOKEN";
-    private final String REFRESH_TOKEN = "X-COINCLOUD-REFRESH-TOKEN";
+//    private final String ACCESS_TOKEN = "X-COINCLOUD-ACCESS-TOKEN";
+//    private final String REFRESH_TOKEN = "X-COINCLOUD-REFRESH-TOKEN";
 
     private static Logger logger = LoggerFactory.getLogger(IdentityService.class);
 
@@ -187,5 +189,54 @@ public class IdentityService {
         return null;
     }
 
+    public void updateCredentialCookies(HttpServletResponse response, String accessToken, String refreshToken, String idToken, Integer expiresIn) {
+        if(accessToken != null) {
+            Cookie cookie = new Cookie(ACCESS_TOKEN, accessToken);
+            cookie.setMaxAge(expiresIn);
+            cookie.setPath("/");
+            cookie.setHttpOnly(true);
+            response.addCookie(cookie);
+
+            if(refreshToken != null) {
+                Cookie cookie2 = new Cookie(REFRESH_TOKEN, refreshToken);
+                cookie2.setMaxAge(expiresIn);
+                cookie2.setPath("/");
+                cookie2.setHttpOnly(true);
+                response.addCookie(cookie2);
+            }
+
+            if(idToken != null) {
+                Cookie cookie3 = new Cookie(ID_TOKEN, idToken);
+                cookie3.setMaxAge(expiresIn);
+                cookie3.setPath("/");
+                cookie3.setHttpOnly(true);
+                response.addCookie(cookie3);
+            }
+        }
+    }
+
+    public void refreshToken(HttpServletResponse response, String accessToken, String refreshToken, String idToken) {
+        Date expireTime = tokenCache.getTimeout(accessToken);
+//      만료까지 30분 갱신
+        long refreshTimeZone = new Date().getTime() + 1800000;
+        if (expireTime.getTime() > refreshTimeZone) {
+            // 30분보다 많으면 갱신안함.
+            return;
+        }
+
+        Map<String, String> authParams = new HashMap<>();
+        authParams.put("REFRESH_TOKEN", refreshToken);
+
+        AdminInitiateAuthRequest authRequest = new AdminInitiateAuthRequest()
+                .withAuthFlow(AuthFlowType.REFRESH_TOKEN_AUTH)
+                .withAuthParameters(authParams)
+                .withClientId(cognitoClientId)
+                .withUserPoolId(cognitoPoolId);
+
+        AdminInitiateAuthResult AdminInitiateAuthResult = cognitoClient.adminInitiateAuth(authRequest);
+        AuthenticationResultType resultType = AdminInitiateAuthResult.getAuthenticationResult();
+        updateCredentialCookies(response, resultType.getAccessToken(), refreshToken, idToken, resultType.getExpiresIn());
+        tokenCache.addToken(resultType.getAccessToken());
+    }
 
 }

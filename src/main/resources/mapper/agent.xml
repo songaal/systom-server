@@ -70,7 +70,6 @@
         a.exchange_key_id,
         a.capital_base,
         a.base_currency,
-        a.amount,
         a.create_time,
         a.options,
         a.state,

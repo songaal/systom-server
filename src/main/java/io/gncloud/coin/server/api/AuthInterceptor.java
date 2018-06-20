@@ -16,6 +16,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static io.gncloud.coin.server.api.IdentityController.*;
+
 
 /**
  * 권한 인터셉터
@@ -51,7 +53,7 @@ public class AuthInterceptor implements HandlerInterceptor {
                 return true;
             }
 
-            String accessToken = getCookieValue(request, IdentityController.ACCESS_TOKEN);
+            String accessToken = getCookieValue(request, ACCESS_TOKEN);
             if (accessToken == null) {
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
                 return false;
@@ -63,6 +65,9 @@ public class AuthInterceptor implements HandlerInterceptor {
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
                 return false;
             }
+            String refreshToken = getCookieValue(request, REFRESH_TOKEN);
+            String idToken = getCookieValue(request, ID_TOKEN);
+            identityService.refreshToken(response, accessToken, refreshToken, idToken);
 
             Map<String, String> payload = identityService.parsePayload(accessToken);
             String userId = payload.get("username");

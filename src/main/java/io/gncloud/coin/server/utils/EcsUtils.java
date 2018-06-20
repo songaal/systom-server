@@ -15,8 +15,8 @@ import java.util.List;
  * create joonwoo 2018. 3. 21.
  * 
  */
-@Component("awsUtils")
-public class AwsUtils {
+@Component
+public class EcsUtils {
 
     @Value("${aws.profileName}")
     private String awsProfileName;
@@ -32,7 +32,7 @@ public class AwsUtils {
     private AmazonECS client;
 
     @PostConstruct
-    public void setup(){
+    public void init(){
         client = AmazonECSClientBuilder.standard()
                 .withCredentials(new ProfileCredentialsProvider(awsProfileName))
                 .build();

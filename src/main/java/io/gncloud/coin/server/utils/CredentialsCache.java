@@ -90,4 +90,8 @@ public class CredentialsCache
             return true;
         }
     }
+
+    public Date getTimeout(String accessToken){
+        return cache.get(accessToken);
+    }
 }
