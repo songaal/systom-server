@@ -1,6 +1,5 @@
 package io.systom.coin.service;
 
-import io.systom.coin.exception.AuthenticationException;
 import io.systom.coin.exception.OperationException;
 import io.systom.coin.exception.ParameterException;
 import io.systom.coin.model.Strategy;
@@ -15,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeoutException;
@@ -31,52 +31,38 @@ public class TaskService {
     @Value("${backtest.capitalBase}")
     private float capitalBase;
 
-//    @Autowired
-//    private EcsUtils ecsUtils;
-//
-//    @Autowired
-//    private IdentityService identityService;
-//
-//    @Autowired
-//    private OldStrategyService oldStrategyService;
-//
-//    @Autowired
-//    private ExchangeService exchangeService;
-//
-//    @Autowired
-//    private AgentService agentService;
+    @Autowired private SqlSession sqlSession;
+    @Autowired private DockerUtils dockerUtils;
 
-    @Autowired
-    private SqlSession sqlSession;
+//    @Autowired private EcsUtils ecsUtils;
+//    @Autowired private IdentityService identityService;
+//    @Autowired private StrategyService oldStrategyService;
+//    @Autowired private ExchangeService exchangeService;
+//    @Autowired private AgentService agentService;
 
-    @Autowired
-    private DockerUtils dockerUtils;
+    private static ConcurrentMap<String, TaskFuture> backTestResult = new ConcurrentHashMap<>();
 
-    private static ConcurrentMap<Integer, TaskFuture> backTestResult = new ConcurrentHashMap<>();
-
-    public Map<String, Object> runAndWaitBackTestTask(Task task) throws InterruptedException, TimeoutException, ParameterException, AuthenticationException, OperationException {
+    public Map<String, Object> syncBackTest(Task task) throws TimeoutException, ParameterException, OperationException {
         task.setInitialBase(capitalBase);
-//        isNotEmpty(task.getStrategyId(), "strategyId");
-//        isNotEmpty(task.getExchangeName(), "exchange");
-//        isNotEmpty(task.getSymbol(), "symbol");
-//        isNotZero(task.getInitialBase(), "capitalBase");
-//        isNotEmpty(task.getTimeInterval(), "timeInterval");
-//        isNotEmpty(task.getStartTime(), "start");
-//        isNotEmpty(task.getEndTime(), "end");
+
+        isNotEmpty(task.getStrategyId(), "strategyId");
+        isNotEmpty(task.getExchangeName(), "exchange");
+        isNotEmpty(task.getSymbol(), "symbol");
+        isNotZero(task.getInitialBase(), "capitalBase");
+        isNotEmpty(task.getTimeInterval(), "timeInterval");
+        isNotEmpty(task.getStartTime(), "start");
+        isNotEmpty(task.getEndTime(), "end");
 
         try {
             logger.debug("[ BACK TEST ] RUN {}", task);
 
-            int resultCount = sqlSession.insert("backtest.insertHistory", task);
-            if(resultCount != 1) {
-                throw new OperationException("[FAIL] Insert Failed Test History. result count: " + resultCount);
-            }
-            logger.info("BackTest Task Id: {}", task.getId());
+            task.setId(UUID.randomUUID().toString());
 
-            int taskId = task.getId();
-            dockerUtils.run(taskId, task.getRunEnv(), task.getRunCommand());
+            logger.info("Generator Task Id: {}", task.getId());
 
-            TaskFuture<Map<String, Object>> future = backTestResult.get(taskId);
+            dockerUtils.syncRun(task.getId(), task.getRunEnv(), task.getRunCommand());
+
+            TaskFuture<Map<String, Object>> future = backTestResult.get(task.getId());
             Map<String, Object> resultJson = future.take();
             backTestResult.remove(task.getId());
             if (resultJson != null) {
@@ -93,7 +79,7 @@ public class TaskService {
         }
     }
 
-    public Map<String, Object> registerBacktestResult(Integer id, Map<String, Object> resultJson) {
+    public Map<String, Object> registerBacktestResult(String id, Map<String, Object> resultJson) {
         TaskFuture<Map<String, Object>> taskFuture = new TaskFuture();
         taskFuture.offer(resultJson);
         backTestResult.put(id, taskFuture);
@@ -101,7 +87,7 @@ public class TaskService {
         return resultJson;
     }
 
-    public Strategy getBackTestModel(Integer testId, String userId, Integer version) throws ParameterException, OperationException {
+    public Strategy getBackTestModel(String testId, String userId, Integer version) throws ParameterException, OperationException {
         Task task = new Task();
         task.setId(testId);
         task.setUserId(userId);
@@ -115,7 +101,7 @@ public class TaskService {
         }
     }
 
-    public ConcurrentMap<Integer, TaskFuture> getBackTestResult() {
+    public ConcurrentMap<String, TaskFuture> getBackTestResult() {
         return this.backTestResult;
     }
 
@@ -146,7 +132,7 @@ public class TaskService {
 ////            result = ecsUtils.runTask(task, environmentList);
 ////        } catch (Exception e){
 ////            logger.error("", e);
-////            throw new OperationException("[FAIL] ecs task run error");
+////            throw new OperationException("[FAIL] ecs task syncRun error");
 ////        }
 ////
 ////        String ecsTaskId = parseTaskId(result);
@@ -172,7 +158,7 @@ public class TaskService {
 ////            stopTaskResult = ecsUtils.stopTask(task.getEcsTaskId(), "User stop request : " + userId + ", " + agentId);
 ////        } catch (Exception e){
 ////            logger.error("", e);
-////            throw new OperationException("[FAIL] ecs task run error");
+////            throw new OperationException("[FAIL] ecs task syncRun error");
 ////        }
 ////        com.amazonaws.services.ecs.model.Task stopedTask = stopTaskResult.getTask();
 ////        logger.debug("Stopped task : {}", stopedTask);
@@ -198,21 +184,6 @@ public class TaskService {
 //        return task;
 //    }
 //
-//    private void isNotEmpty(String field, String label) throws ParameterException {
-//        if(field == null || "".equals(field)){
-//            throw new ParameterException(label);
-//        }
-//    }
-//    private void isNotEmpty(Integer field, String label) throws ParameterException {
-//        if(field == null){
-//            throw new ParameterException(label);
-//        }
-//    }
-//    private void isNotZero(float field, String label) throws ParameterException {
-//        if(field == 0.0f){
-//            throw new ParameterException(label);
-//        }
-//    }
 //
 //    public List<Task> getBackTestHistory(String strategyId) throws OperationException {
 //        try {
@@ -232,4 +203,21 @@ public class TaskService {
 //        }
 //    }
 //
+
+
+    private void isNotEmpty(String field, String label) throws ParameterException {
+        if(field == null || "".equals(field)){
+            throw new ParameterException(label);
+        }
+    }
+    private void isNotEmpty(Integer field, String label) throws ParameterException {
+        if(field == null){
+            throw new ParameterException(label);
+        }
+    }
+    private void isNotZero(float field, String label) throws ParameterException {
+        if(field == 0.0f){
+            throw new ParameterException(label);
+        }
+    }
 }

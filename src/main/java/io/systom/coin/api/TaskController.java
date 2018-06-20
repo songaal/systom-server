@@ -30,27 +30,37 @@ public class TaskController extends AbstractController {
     @Autowired
     private TaskService taskService;
 
-    @PostMapping("/backTest")
+    @PostMapping
     public ResponseEntity<?> runBackTest(@CookieValue(ACCESS_TOKEN) String accessToken,
                                          @RequestAttribute String userId,
                                          @RequestBody Task task) throws TimeoutException, InterruptedException {
         try {
-            task.setUserId(userId);
-            task.setAccessToken(accessToken);
-            Map<String, Object> resultJson = taskService.runAndWaitBackTestTask(task);
-            return new ResponseEntity<>(resultJson, HttpStatus.OK);
+            String sessionType = task.getSessionType();
+            if (Task.SESSION_TYPES.live.equals(sessionType) || Task.SESSION_TYPES.paper.equals(sessionType)) {
+//                TODO 라이브, 페이퍼 모드
+
+                return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+            } else if (Task.SESSION_TYPES.backtest.equals(sessionType)) {
+                task.setUserId(userId);
+                task.setAccessToken(accessToken);
+                Map<String, Object> resultJson = taskService.syncBackTest(task);
+                return new ResponseEntity<>(resultJson, HttpStatus.OK);
+            } else {
+                String message = "Unknown session type";
+                return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+            }
         } catch (AbstractException e){
             logger.error("", e);
             return e.response();
         } catch (Throwable t) {
             logger.error("", t);
-            return new OperationException(t.getMessage()).response();
+            return new OperationException().response();
         }
     }
 
     @GetMapping("/{taskId}/model")
     public ResponseEntity<?> getStrategyModel(@RequestAttribute String userId,
-                                              @PathVariable Integer taskId,
+                                              @PathVariable String taskId,
                                               @RequestParam(required = false) Integer version) {
         try {
             Strategy registerStrategy = taskService.getBackTestModel(taskId, userId, version);
@@ -59,17 +69,21 @@ public class TaskController extends AbstractController {
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Throwable t) {
             logger.error("", t);
-            return new OperationException(t.getMessage()).response();
+            return new OperationException().response();
         }
     }
 
     @PostMapping("/{id}/result")
-    public ResponseEntity<?> backtestResult(@PathVariable Integer id, @RequestBody Map<String, Object> resultJson) throws Exception {
-        logger.debug("[BACKTEST RESULT] id: {}", id);
+    public ResponseEntity<?> taskResult(@PathVariable String id,
+                                        @RequestBody Map<String, Object> resultJson) throws Exception {
+        logger.debug("[BACK TEST RESULT] id: {}", id);
         taskService.registerBacktestResult(id, resultJson);
         return new ResponseEntity<>(resultJson, HttpStatus.OK);
     }
 
+
+
+//    test api
     @GetMapping("/getBacktestResult")
     public ResponseEntity<?> getBackTestResult(){
         return success(taskService.getBackTestResult());

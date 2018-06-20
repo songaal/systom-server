@@ -31,7 +31,7 @@
 ////        try {
 ////            task.setUserId(userId);
 ////            task.setAccessToken(accessToken);
-////            Map<String, Object> resultJson = taskService.runAndWaitBackTestTask(task);
+////            Map<String, Object> resultJson = taskService.syncBackTest(task);
 ////            return new ResponseEntity<>(resultJson, HttpStatus.OK);
 ////        } catch (AbstractException e){
 ////            logger.error("", e);

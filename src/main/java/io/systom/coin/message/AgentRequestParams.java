@@ -12,7 +12,7 @@
 //    // id 로 거래소명, key, secret을 조회할 수 있다.
 //    private Integer exchangeKeyId;
 //
-//    //액션. run, stop
+//    //액션. syncRun, stop
 //    private String action;
 //
 //

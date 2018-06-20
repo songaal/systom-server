@@ -15,12 +15,12 @@ import java.util.List;
 public class Task {
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(Task.class);
 
+    public enum SESSION_TYPES { backtest, paper, live }
+
     private String launcher_name;
-    private Integer id; //backTestId || agentId
+    private String id;
     private Integer strategyId;
     private Integer version;
-    private String options;
-    private String name;
     private String userId;
     private String exchangeName;
     private float initialBase = 1.0f;
@@ -29,9 +29,7 @@ public class Task {
     private float commissionRate = 0.001f;
     private String benchmark_symbol = "btc_usdt";
     private String symbol;
-//    private String base = "btc";
-    private String sessionType = "backtest";
-//    private String coin;
+    private String sessionType;
     private String state;
     private Date testTime;
     private Integer exchangeKeyId;
@@ -42,7 +40,17 @@ public class Task {
     private String startTime;
     private String endTime;
     private String timeInterval;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     /** BackTest 전용 파라미터 끝 */
+
 
     public String getAccessToken() {
         return accessToken;
@@ -60,14 +68,6 @@ public class Task {
         this.exchangeKeyId = exchangeKeyId;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getExchangeName() {
         return exchangeName;
     }
@@ -82,14 +82,6 @@ public class Task {
 
     public void setInitialBase(float initialBase) {
         this.initialBase = initialBase;
-    }
-
-    public String getOptions() {
-        return options;
-    }
-
-    public void setOptions(String options) {
-        this.options = options;
     }
 
     public String getState() {
@@ -130,14 +122,6 @@ public class Task {
 
     public void setTestTime(Date testTime) {
         this.testTime = testTime;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
     }
 
     public Integer getStrategyId() {
@@ -241,8 +225,8 @@ public class Task {
     public List<String> getRunCommand(){
         List<String> cmd = new ArrayList<>();
         cmd.add("python3");
-        cmd.add("run.py");
-        cmd.add("task_id=" + String.valueOf(this.getId()));
+        cmd.add("syncRun.py");
+        cmd.add("task_id=" + this.getId());
         cmd.add("initial_cash=" + String.valueOf(this.getInitialCash()));
         cmd.add("initial_base=" + String.valueOf(this.getInitialBase()));
         cmd.add("initial_coin=" + String.valueOf(this.getInitialCoin()));
@@ -261,8 +245,6 @@ public class Task {
         return "Task{" +
                 "id=" + id +
                 ", strategyId=" + strategyId +
-                ", options='" + options + '\'' +
-                ", name='" + name + '\'' +
                 ", userId='" + userId + '\'' +
                 ", exchangeName='" + exchangeName + '\'' +
                 ", initialBase=" + initialBase +

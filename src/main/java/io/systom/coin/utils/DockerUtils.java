@@ -62,7 +62,7 @@ public class DockerUtils {
                                   .build();
     }
 
-    public void run(int taskId, List<String> envList, List<String> cmd) throws InterruptedException {
+    public void syncRun(String taskId, List<String> envList, List<String> cmd) throws InterruptedException {
         DockerClient dockerClient = getClient();
 
         envList.add("api_server_host=" + apiServerHost);

@@ -81,7 +81,7 @@ public class AwsEcsTest {
                                                  .withMemoryReservation(softMemory)
                                                  .withLogConfiguration(logConfiguration)
                                                  .withMountPoints(setupMount())
-                                                 .withCommand("run", "-f", "algo.py"
+                                                 .withCommand("syncRun", "-f", "algo.py"
                                                          , "-x", exchange
                                                          , "-c", coin
                                                          , "--capital-base", String.valueOf(capitalBase)
@@ -109,10 +109,10 @@ public class AwsEcsTest {
         envList.add(newEnv("userId", "testuser"));
         envList.add(newEnv("testKey", "testVal"));
 
-        containerOverride.withName("run")
+        containerOverride.withName("syncRun")
                 .withEnvironment(envList)
                 .withCommand("python3"
-                            ,"run.py"
+                            ,"syncRun.py"
                             ,"faa381fb-fa35-40c2-99e3-f863f1f3c913"
                             ,"bitfinex"
                             ,"usd"
