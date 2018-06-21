@@ -12,6 +12,9 @@
         <typeAlias alias="ExchangeKey" type="io.systom.coin.model.ExchangeKey"/>
         <typeAlias alias="Strategy" type="io.systom.coin.model.Strategy"/>
         <typeAlias alias="StrategyDeployVersion" type="io.systom.coin.model.StrategyDeployVersion"/>
+        <typeAlias alias="BackTestResult" type="io.systom.coin.model.BackTestResult$Result"/>
+        <typeAlias alias="BackTestResult.Trade" type="io.systom.coin.model.BackTestResult$Result$Trade"/>
+        <typeAlias alias="BackTestResult.Value" type="io.systom.coin.model.BackTestResult$Result$Value"/>
     </typeAliases>
 
 </configuration>

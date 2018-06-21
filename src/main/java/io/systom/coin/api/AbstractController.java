@@ -8,7 +8,7 @@ import org.springframework.util.MultiValueMap;
  * create joonwoo 2018. 3. 24.
  *
  */
-public abstract class AbstractController {
+public abstract class AbstractController{
 
     protected ResponseEntity<?> success() {
         return new ResponseEntity<>(HttpStatus.OK);

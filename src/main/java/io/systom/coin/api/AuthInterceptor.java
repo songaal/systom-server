@@ -53,19 +53,23 @@ public class AuthInterceptor implements HandlerInterceptor {
 
             String accessToken = getCookieValue(request, IdentityController.ACCESS_TOKEN);
             if (accessToken == null) {
+                logger.debug("expired accessToken");
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
                 return false;
             }
 
+            String refreshToken = getCookieValue(request, IdentityController.REFRESH_TOKEN);
+            String idToken = getCookieValue(request, IdentityController.ID_TOKEN);
+            identityService.refreshToken(response, accessToken, refreshToken, idToken);
+
             boolean isValid = identityService.isValidAccessToken(accessToken);
+
+            logger.debug("isValid: {}, Token: {}", isValid, accessToken);
 
             if (!isValid) {
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
                 return false;
             }
-            String refreshToken = getCookieValue(request, IdentityController.REFRESH_TOKEN);
-            String idToken = getCookieValue(request, IdentityController.ID_TOKEN);
-            identityService.refreshToken(response, accessToken, refreshToken, idToken);
 
             Map<String, String> payload = identityService.parsePayload(accessToken);
             String userId = payload.get("username");

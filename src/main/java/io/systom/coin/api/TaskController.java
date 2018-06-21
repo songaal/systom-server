@@ -77,10 +77,9 @@ public class TaskController extends AbstractController {
     public ResponseEntity<?> taskResult(@PathVariable String id,
                                         @RequestBody Map<String, Object> resultJson) throws Exception {
         logger.debug("[BACK TEST RESULT] id: {}", id);
-        taskService.registerBacktestResult(id, resultJson);
+        taskService.registerBackTestResult(id, resultJson);
         return new ResponseEntity<>(resultJson, HttpStatus.OK);
     }
-
 
 
 //    test api

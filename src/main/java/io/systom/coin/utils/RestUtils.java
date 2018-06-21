@@ -1,5 +1,6 @@
 package io.systom.coin.utils;
 
+import com.amazonaws.services.ecs.model.ClientException;
 import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,15 +57,22 @@ public class RestUtils {
         headers.setContentType(new MediaType("application", "json", Charset.forName("UTF-8")));
         headers.set("user-agent", AGENT_HEADER);
         HttpEntity<?> entity = new HttpEntity<>(headers);
+        ResponseEntity<String> responseEntity = null;
+        try {
+            responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
 
-        ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+            if (responseEntity.getStatusCode().value() == 401) {
+                return null;
+            }
 
-        if (responseEntity.getStatusCode().value() == 401) {
+            if (!responseEntity.getStatusCode().is2xxSuccessful()) {
+                throw new RuntimeException("Api error :" + responseEntity.toString());
+            }
+
+
+        } catch (ClientException ce) {
+            logger.error("", ce);
             return null;
-        }
-
-        if (!responseEntity.getStatusCode().is2xxSuccessful()) {
-            throw new RuntimeException("Api error :" + responseEntity.toString());
         }
 
         return responseEntity.getBody();

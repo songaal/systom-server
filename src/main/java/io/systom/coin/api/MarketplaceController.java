@@ -1,11 +1,5 @@
-//package io.gncloud.coin.server.api;
+//package io.systom.coin.api;
 //
-//import AbstractException;
-//import AuthenticationException;
-//import OperationException;
-//import io.gncloud.coin.server.model.OldStrategyDeploy;
-//import io.gncloud.coin.server.service.MarketplaceService;
-//import io.gncloud.coin.server.service.StrategyOrderService;
 //import org.slf4j.LoggerFactory;
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.http.ResponseEntity;

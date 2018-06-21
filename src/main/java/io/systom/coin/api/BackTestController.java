@@ -61,7 +61,7 @@
 //    @PostMapping("/{id}/result")
 //    public ResponseEntity<?> backtestResult(@PathVariable Integer id, @RequestBody Map<String, Object> resultJson) throws Exception {
 //        logger.debug("[BACKTEST RESULT] id: {}", id);
-//        taskService.registerBacktestResult(id, resultJson);
+//        taskService.registerBackTestResult(id, resultJson);
 //        return new ResponseEntity<>(resultJson, HttpStatus.OK);
 //    }
 //

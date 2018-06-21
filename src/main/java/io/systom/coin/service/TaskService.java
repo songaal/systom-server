@@ -2,6 +2,7 @@ package io.systom.coin.service;
 
 import io.systom.coin.exception.OperationException;
 import io.systom.coin.exception.ParameterException;
+import io.systom.coin.model.BackTestResult;
 import io.systom.coin.model.Strategy;
 import io.systom.coin.model.Task;
 import io.systom.coin.utils.DockerUtils;
@@ -13,8 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeoutException;
@@ -79,7 +79,7 @@ public class TaskService {
         }
     }
 
-    public Map<String, Object> registerBacktestResult(String id, Map<String, Object> resultJson) {
+    public Map<String, Object> registerBackTestResult(String id, Map<String, Object> resultJson) {
         TaskFuture<Map<String, Object>> taskFuture = new TaskFuture();
         taskFuture.offer(resultJson);
         backTestResult.put(id, taskFuture);
@@ -100,6 +100,78 @@ public class TaskService {
 
         }
     }
+
+    protected void recordBackTestPerformance(int investGoodsId, BackTestResult.Result result) {
+        try {
+            result.setId(investGoodsId);
+            int changeRow = sqlSession.insert("backtest.recordPerformance", result);
+            logger.debug("recordPerformance row: {}", changeRow);
+        } catch (Exception e) {
+
+        }
+    }
+
+    protected void recordBackTestTradeHistory(int investGoodsId, List<BackTestResult.Result.Trade> trades) {
+        trades.forEach(trade -> {
+            trade.setId(investGoodsId);
+        });
+        int changeRow = sqlSession.insert("backtest.recordTradeHistory", trades);
+        logger.debug("recordTradeHistory row: {}", changeRow);
+    }
+
+    protected void recordBackTestValueHistory(int investGoodsId, Map<Long, Float> equities, Map<Long, Float> cumReturns, Map<Long, Float> drawdowns){
+        List<BackTestResult.Result.Value> values = new ArrayList<>();
+        Iterator<Map.Entry<Long, Float>> iterator = equities.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<Long, Float> entry = iterator.next();
+            Long ts = entry.getKey();
+            BackTestResult.Result.Value v = new BackTestResult.Result.Value();
+            v.setId(investGoodsId);
+            v.setTimestamp(ts);
+            v.setEquity(entry.getValue());
+            if (cumReturns.get(ts) != null) {
+                v.setCumReturn(cumReturns.get(ts));
+                cumReturns.remove(ts);
+            }
+            if (drawdowns.get(ts) != null) {
+                v.setDrawdown(drawdowns.get(ts));
+                drawdowns.remove(ts);
+            }
+            values.add(v);
+        }
+
+        iterator = cumReturns.entrySet().iterator();
+        while(iterator.hasNext()){
+            Map.Entry<Long, Float> entry = iterator.next();
+            Long ts = entry.getKey();
+            BackTestResult.Result.Value v = new BackTestResult.Result.Value();
+            v.setId(investGoodsId);
+            v.setTimestamp(ts);
+            v.setCumReturn(cumReturns.get(ts));
+            if (drawdowns.get(ts) != null) {
+                v.setDrawdown(drawdowns.get(ts));
+                drawdowns.remove(ts);
+            }
+            values.add(v);
+        }
+
+        iterator = drawdowns.entrySet().iterator();
+        while(iterator.hasNext()){
+            Map.Entry<Long, Float> entry = iterator.next();
+            Long ts = entry.getKey();
+            BackTestResult.Result.Value v = new BackTestResult.Result.Value();
+            v.setId(investGoodsId);
+            v.setTimestamp(ts);
+            v.setDrawdown(drawdowns.get(ts));
+            values.add(v);
+        }
+        int changeRow = sqlSession.insert("backtest.recordValueHistory", values);
+        logger.debug("recordValueHistory row: {}", changeRow);
+    }
+
+
+
+
 
     public ConcurrentMap<String, TaskFuture> getBackTestResult() {
         return this.backTestResult;

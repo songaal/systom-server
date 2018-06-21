@@ -218,7 +218,7 @@ public class IdentityService {
         Date expireTime = tokenCache.getTimeout(accessToken);
 //      만료까지 30분 갱신
         long refreshTimeZone = new Date().getTime() + 1800000;
-        if (expireTime.getTime() > refreshTimeZone) {
+        if (expireTime == null || expireTime.getTime() > refreshTimeZone) {
             // 30분보다 많으면 갱신안함.
             return;
         }
@@ -234,6 +234,10 @@ public class IdentityService {
 
         AdminInitiateAuthResult AdminInitiateAuthResult = cognitoClient.adminInitiateAuth(authRequest);
         AuthenticationResultType resultType = AdminInitiateAuthResult.getAuthenticationResult();
+        logger.debug("accessToken: {}", resultType.getAccessToken());
+        logger.debug("refreshToken: {}", resultType.getRefreshToken());
+        logger.debug("idToken: {}", resultType.getIdToken());
+        logger.debug("getExpiresIn: {}", resultType.getExpiresIn());
         updateCredentialCookies(response, resultType.getAccessToken(), refreshToken, idToken, resultType.getExpiresIn());
         tokenCache.addToken(resultType.getAccessToken());
     }

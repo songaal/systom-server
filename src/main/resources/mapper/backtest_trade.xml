@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="backtest">
+
+    <insert id="recordPerformance" parameterType="BackTestResult">
+        INSERT INTO performance (id, total_equity, total_equity_usd, total_commission, base_price
+                                , return_pct, max_return_pct, wins_pct, wins_count, lose_count
+                                , trades, pnl_rate, max_drawdown, max_drawdown_duration, wins_return_avg, lose_return_avg)
+        VALUES ( ${id}
+                , ${totalEquity}
+                , ${totalEquityUsd}
+                , ${totalCommission}
+                , ${basePrice}
+                , ${returnPct}
+                , ${maxReturnPct}
+                , ${winsPct}
+                , ${winsCount}
+                , ${loseCount}
+                , ${trades}
+                , ${pnlRate}
+                , ${maxDrawdown}
+                , ${maxDrawdownDuration}
+                , ${winsReturnAvg}
+                , ${loseReturnAvg}
+        )
+    </insert>
+
+    <insert id="recordTradeHistory">
+        INSERT INTO trade_history (id, timestamp, ticker, action, quantity, exchange, price, commission, reason)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            ( ${item.id}
+            , ${item.timestamp}
+            , #{item.ticker}
+            , #{item.action}
+            , ${item.quantity}
+            , #{item.exchange}
+            , ${item.price}
+            , ${item.commission}
+            , #{item.reason}
+            )
+        </foreach>
+    </insert>
+
+    <insert id="recordValueHistory">
+        INSERT INTO value_history (id, timestamp, cum_return, drawdown, equity)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            ( ${item.id}
+            , ${item.timestamp}
+            , #{item.cumReturn}
+            , #{item.drawdown}
+            , #{item.equity}
+            )
+        </foreach>
+    </insert>
+
+</mapper>
