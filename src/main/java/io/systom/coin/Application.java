@@ -17,13 +17,7 @@ public class Application {
 
 	public static void main(String[] args) {
 		try {
-			String isDevTool = System.getenv("devtools");
-			if (isDevTool != null && "true".equals(isDevTool)){
-				System.setProperty("spring.devtools.restart.enabled", "true");
-			} else {
-				System.setProperty("spring.devtools.restart.enabled", "false");
-			}
-
+			System.setProperty("spring.devtools.restart.enabled", "false");
 			SpringApplication.run(Application.class, args);
 		} catch (Throwable t) {
 			t.printStackTrace();

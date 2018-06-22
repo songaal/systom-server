@@ -23,7 +23,7 @@
             , #{version}
         </if>
         , now()
-        , #{exchangeName,jdbcType=VARCHAR}
+        , #{exchange,jdbcType=VARCHAR}
         , #{symbol,jdbcType=VARCHAR}
         , #{startTime}
         , #{endTime}
@@ -35,7 +35,7 @@
         update test_history
            set strategy_id = #{strategyId}
               , strategy_version = #{strategyVersion}
-              , exchange_name = #{exchangeName}
+              , exchange_name = #{exchange}
               , symbol  = #{symbol,jdbcType=VARCHAR}
               , ecs_task_id = #{ecsTaskId,jdbcType=VARCHAR}
         where id = #{id}

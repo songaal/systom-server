@@ -65,7 +65,7 @@ ssh ec2-user@api.gncloud.io -i gncloud-io.pem
 	- #### 파라미터 
 		- task
 		    - id
-            - exchangeName
+            - exchange
             - base
             - initialBase
             - live
@@ -110,7 +110,7 @@ curl -X POST \
   -d '{
 	"task":{
 		"id":"a0b95b56-f015-4785-b950-917c12497afa",
-		"exchangeName":"poloniex",
+		"exchange":"poloniex",
 		"base":"btc",
 		"initialBase":"10000",
 		"live":"true",

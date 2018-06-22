@@ -22,7 +22,7 @@ public class Task {
     private Integer strategyId;
     private Integer version;
     private String userId;
-    private String exchangeName;
+    private String exchange;
     private float initialBase = 1.0f;
     private float initialCash = 0;
     private float initialCoin = 0;
@@ -68,12 +68,12 @@ public class Task {
         this.exchangeKeyId = exchangeKeyId;
     }
 
-    public String getExchangeName() {
-        return exchangeName;
+    public String getExchange() {
+        return exchange;
     }
 
-    public void setExchangeName(String exchangeName) {
-        this.exchangeName = exchangeName;
+    public void setExchange(String exchange) {
+        this.exchange = exchange;
     }
 
     public float getInitialBase() {
@@ -216,7 +216,7 @@ public class Task {
         List<String> env = new ArrayList<>();
         env.add("benchmark_symbol=" + this.getBenchmark_symbol());
         env.add("algo_class_name=" + this.getAlgoClassName());
-        env.add("exchange=" + this.getExchangeName());
+        env.add("exchange=" + this.getExchange());
         env.add("access_token=" + this.getAccessToken());
         logger.debug("task env: {}", env);
         return env;
@@ -246,7 +246,7 @@ public class Task {
                 "id=" + id +
                 ", strategyId=" + strategyId +
                 ", userId='" + userId + '\'' +
-                ", exchangeName='" + exchangeName + '\'' +
+                ", exchange='" + exchange + '\'' +
                 ", initialBase=" + initialBase +
                 ", initialCash=" + initialCash +
                 ", initialCoin=" + initialCoin +

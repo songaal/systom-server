@@ -240,6 +240,7 @@ public class IdentityService {
         logger.debug("getExpiresIn: {}", resultType.getExpiresIn());
         updateCredentialCookies(response, resultType.getAccessToken(), refreshToken, idToken, resultType.getExpiresIn());
         tokenCache.addToken(resultType.getAccessToken());
+        cognitoPubKeyStore.updateKeys();
     }
 
 }

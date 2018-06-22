@@ -5,6 +5,7 @@
 
 <mapper namespace="marketplace">
 
+
     <select id="retrieveStrategyMarketList" resultType="StrategyDeploy" parameterType="String">
         SELECT
             a.id,

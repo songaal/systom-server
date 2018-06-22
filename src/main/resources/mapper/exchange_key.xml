@@ -34,7 +34,7 @@
         insert into exchange_key(user_id, exchange_name, name, api_key, secret_key, create_time)
         values (
         #{userId},
-        #{exchangeName},
+        #{exchange},
         #{name},
         aes_encrypt(#{apiKey}, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{userId})),
         aes_encrypt(#{secretKey}, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{userId})),

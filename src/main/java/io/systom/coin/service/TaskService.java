@@ -46,9 +46,8 @@ public class TaskService {
         task.setInitialBase(capitalBase);
 
         isNotEmpty(task.getStrategyId(), "strategyId");
-        isNotEmpty(task.getExchangeName(), "exchange");
+        isNotEmpty(task.getExchange(), "exchange");
         isNotEmpty(task.getSymbol(), "symbol");
-        isNotZero(task.getInitialBase(), "capitalBase");
         isNotEmpty(task.getTimeInterval(), "timeInterval");
         isNotEmpty(task.getStartTime(), "start");
         isNotEmpty(task.getEndTime(), "end");
@@ -186,7 +185,7 @@ public class TaskService {
 ////
 ////        ExchangeKey exchangeKey = exchangeService.selectExchangeKey(new ExchangeKey(task.getExchangeKeyId(), userId));
 ////        RunBackTestRequest.ExchangeAuth exchangeAuth = null;
-////        String exchangeName = exchangeKey.getExchangeName();
+////        String exchangeName = exchangeKey.getExchange();
 ////
 ////        List<KeyValuePair> environmentList = new ArrayList<>();
 ////        if(isLiveMode) {
@@ -251,7 +250,7 @@ public class TaskService {
 //        Agent agent = agentService.getAgent(agentId);
 //        ExchangeKey exchangeKey = exchangeService.selectExchangeKey(new ExchangeKey(agent.getExchangeKeyId(), agent.getUserId()));
 //        Task task = agent.cloneTask();
-//        task.setExchangeName(exchangeKey.getExchangeName());
+//        task.setExchange(exchangeKey.getExchange());
 //        task.setExchangeKeyId(agent.getExchangeKeyId());
 //        return task;
 //    }

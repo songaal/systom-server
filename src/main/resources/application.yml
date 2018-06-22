@@ -43,6 +43,7 @@ backtest:
     capitalBase: 1.0
     apiServerHost: "https://api.systom.io"
     apiGatewayHost: "https://9u3jawxuod.execute-api.ap-northeast-2.amazonaws.com/v1_1"
+    influxTimeDifference: 3
     container:
           readTimeout: 40000
           connectTimeout: 10000

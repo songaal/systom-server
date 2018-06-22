@@ -17,8 +17,11 @@ public class Goods {
     private String description;
     private float maxLimit;
     private boolean isDisplay;
-    private String exchangeKey;
+    private String exchangeKeyId;
     private Date createTime;
+
+
+    private String startTime;
 
     public Integer getId() {
         return id;
@@ -92,12 +95,12 @@ public class Goods {
         isDisplay = display;
     }
 
-    public String getExchangeKey() {
-        return exchangeKey;
+    public String getExchangeKeyId() {
+        return exchangeKeyId;
     }
 
-    public void setExchangeKey(String exchangeKey) {
-        this.exchangeKey = exchangeKey;
+    public void setExchangeKeyId(String exchangeKeyId) {
+        this.exchangeKeyId = exchangeKeyId;
     }
 
     public Date getCreateTime() {
@@ -106,5 +109,13 @@ public class Goods {
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+    }
+
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
     }
 }

@@ -15,6 +15,8 @@
         <typeAlias alias="BackTestResult" type="io.systom.coin.model.BackTestResult$Result"/>
         <typeAlias alias="BackTestResult.Trade" type="io.systom.coin.model.BackTestResult$Result$Trade"/>
         <typeAlias alias="BackTestResult.Value" type="io.systom.coin.model.BackTestResult$Result$Value"/>
+        <typeAlias alias="Goods" type="io.systom.coin.model.Goods"/>
+
     </typeAliases>
 
 </configuration>
