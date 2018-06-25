@@ -9,6 +9,7 @@
     </settings>
 
     <typeAliases>
+        <typeAlias alias="UserNotification" type="io.systom.coin.model.UserNotification"/>
         <typeAlias alias="ExchangeKey" type="io.systom.coin.model.ExchangeKey"/>
         <typeAlias alias="Strategy" type="io.systom.coin.model.Strategy"/>
         <typeAlias alias="StrategyDeployVersion" type="io.systom.coin.model.StrategyDeployVersion"/>

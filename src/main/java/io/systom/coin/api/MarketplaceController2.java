@@ -25,6 +25,7 @@ public class MarketplaceController2 extends AbstractController {
 //    TODO 판매목록 -> 심볼별 (* is_display = true)
 //    TODO 판매 전략 판매상세 정보(거래소, 심볼 버전 등등)
 
+
     @PostMapping
     public ResponseEntity<?> releases(@RequestAttribute String userId,
                                       @RequestBody Goods goods) {

@@ -5,6 +5,7 @@ import io.systom.coin.exception.AbstractException;
 import io.systom.coin.exception.OperationException;
 import io.systom.coin.model.ExchangeKey;
 import io.systom.coin.model.Identity;
+import io.systom.coin.model.UserNotification;
 import io.systom.coin.service.ExchangeService;
 import io.systom.coin.service.IdentityService;
 import org.slf4j.LoggerFactory;
@@ -160,6 +161,30 @@ public class IdentityController {
             logger.error("", e);
             return e.response();
         }
+    }
+
+    /**
+     * 텔레그램 아이디 수정
+     */
+    @RequestMapping(value = "/telegram", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateTelegram(@RequestAttribute String userId, @RequestBody Map<String, Object> body) {
+        try {
+            String telegramServiceUser = String.valueOf(body.get("telegramServiceUser"));
+            identityService.updateTelegramUserId(userId, telegramServiceUser);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (AbstractException e) {
+            logger.error("", e);
+            return e.response();
+        }
+    }
+
+    /**
+     * 텔레그램 아이디 수정
+     */
+    @RequestMapping(value = "/telegram", method = RequestMethod.GET)
+    public ResponseEntity<?> getUserNotification(@RequestAttribute String userId) {
+        List<UserNotification> notificationList = identityService.getUserNotification(userId);
+        return new ResponseEntity<>(notificationList, HttpStatus.OK);
     }
 
 }

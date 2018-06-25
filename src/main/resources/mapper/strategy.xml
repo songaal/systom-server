@@ -20,7 +20,7 @@
                     WHERE aa.is_trash = false
                     GROUP BY aa.id) b ON a.id = b.id
         LEFT JOIN (SELECT bb.strategy_id,
-                          MAX(bb.strategy_version) AS version
+                          MAX(bb.version) AS version
                      FROM goods bb
         GROUP BY strategy_id) c ON a.id = c.strategy_id
         WHERE a.user_id = #{userId}

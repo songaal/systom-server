@@ -6,23 +6,24 @@ import com.amazonaws.services.cognitoidp.model.*;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.gson.Gson;
+import io.systom.coin.exception.AbstractException;
+import io.systom.coin.model.UserNotification;
 import io.systom.coin.utils.CognitoPubKeyStore;
 import io.systom.coin.utils.CredentialsCache;
 import io.systom.coin.utils.StringUtils;
 import io.systom.coin.ws.WebSocketSessionInfoSet;
 import io.systom.coin.api.IdentityController;
+import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Base64;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -49,6 +50,9 @@ public class IdentityService {
     private String cognitoPoolId;
     @Value("${aws.cognito.clientId}")
     private String cognitoClientId;
+
+    @Autowired
+    private SqlSession sqlSession;
 
     @PostConstruct
     public void init() {
@@ -243,4 +247,21 @@ public class IdentityService {
         cognitoPubKeyStore.updateKeys();
     }
 
+    public void updateTelegramUserId(String userId, String telegramId) throws AbstractException {
+        UserNotification userNotification = new UserNotification();
+        userNotification.setUserId(userId);
+        userNotification.setServiceName("telegram");
+        userNotification.setServiceUser(telegramId);
+        sqlSession.insert("notification.mergeNotification", userNotification);
+    }
+
+    public List<UserNotification> getUserNotification(String userId) {
+        List<UserNotification> userNotifications = null;
+        try {
+            userNotifications = sqlSession.selectList("notification.getUserNotification", userId);
+        } catch (Exception e){
+            logger.error("", e);
+        }
+        return userNotifications;
+    }
 }
