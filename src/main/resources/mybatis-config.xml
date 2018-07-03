@@ -13,10 +13,11 @@
         <typeAlias alias="ExchangeKey" type="io.systom.coin.model.ExchangeKey"/>
         <typeAlias alias="Strategy" type="io.systom.coin.model.Strategy"/>
         <typeAlias alias="StrategyDeployVersion" type="io.systom.coin.model.StrategyDeployVersion"/>
-        <typeAlias alias="BackTestResult" type="io.systom.coin.model.BackTestResult$Result"/>
-        <typeAlias alias="BackTestResult.Trade" type="io.systom.coin.model.BackTestResult$Result$Trade"/>
-        <typeAlias alias="BackTestResult.Value" type="io.systom.coin.model.BackTestResult$Result$Value"/>
+        <typeAlias alias="TaskResult" type="io.systom.coin.model.TaskResult$Result"/>
+        <typeAlias alias="TaskResult.Trade" type="io.systom.coin.model.TaskResult$Result$Trade"/>
+        <typeAlias alias="TaskResult.Value" type="io.systom.coin.model.TaskResult$Result$Value"/>
         <typeAlias alias="Goods" type="io.systom.coin.model.Goods"/>
+        <typeAlias alias="InvestGoods" type="io.systom.coin.model.InvestGoods"/>
 
     </typeAliases>
 

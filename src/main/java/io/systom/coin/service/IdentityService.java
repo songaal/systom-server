@@ -54,6 +54,8 @@ public class IdentityService {
     @Autowired
     private SqlSession sqlSession;
 
+    private List<String> manager = Arrays.asList("joonwoo", "songaal");
+
     @PostConstruct
     public void init() {
         cognitoClient = AWSCognitoIdentityProviderClientBuilder.standard().build();
@@ -263,5 +265,9 @@ public class IdentityService {
             logger.error("", e);
         }
         return userNotifications;
+    }
+
+    public boolean isManager(String userId) {
+        return manager.contains(userId.toLowerCase());
     }
 }

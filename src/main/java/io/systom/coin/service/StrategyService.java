@@ -37,6 +37,12 @@ public class StrategyService {
         if (StringUtils.isBlank(strategy.getName()) || StringUtils.isEmpty(strategy.getName())){
             throw new ParameterException("strategy name");
         }
+
+        Strategy uniqueStrategy = findStrategyByName(strategy.getName(), strategy.getUserId());
+        if (uniqueStrategy != null) {
+            throw new ParameterException("strategy unique name");
+        }
+
         try {
             int changeRow = sqlSession.insert("strategy.createBlankStrategy", strategy);
             if(changeRow != 1){
@@ -55,7 +61,23 @@ public class StrategyService {
         }
         try {
             Strategy registerStrategy = sqlSession.selectOne("strategy.findStrategyById", new Strategy(id, userId));
-            if (!registerStrategy.getUserId().equals(userId)){
+            if (registerStrategy != null && !registerStrategy.getUserId().equals(userId)){
+                registerStrategy.setCode(null);
+            }
+            return registerStrategy;
+        } catch (Exception e){
+            logger.error("", e);
+            throw new OperationException("[FAIL] SQL Execute.");
+        }
+    }
+
+    public Strategy findStrategyByName(String name, String userId) throws ParameterException, OperationException {
+        if (name == null){
+            throw new ParameterException("strategy name");
+        }
+        try {
+            Strategy registerStrategy = sqlSession.selectOne("strategy.findStrategyByName", name);
+            if (registerStrategy != null && !registerStrategy.getUserId().equals(userId)){
                 registerStrategy.setCode(null);
             }
             return registerStrategy;

@@ -9,19 +9,53 @@ import java.util.Date;
 public class Goods {
 
     private Integer id;
+    private String name;
     private Integer strategyId;
     private Integer version;
     private String exchange;
-    private String symbol;
-    private String timeInterval;
+    private String coin;
     private String description;
-    private float maxLimit;
-    private boolean isDisplay;
-    private String exchangeKeyId;
+    private Float amount;
+    private Float maxAmount;
+    private Float minAmount;
+    private String currency;
+    private Boolean isDisplay;
+    private Long recruitStart;
+    private Long recruitEnd;
+    private Long investStart;
+    private Long investEnd;
+    private Long backtestStart;
+    private Long backtestEnd;
+    private String userId;
     private Date createTime;
 
+    private float recruitAmount;
 
-    private String startTime;
+    private TaskResult.Result performance;
+
+    public TaskResult.Result getPerformance() {
+        return performance;
+    }
+
+    public void setPerformance(TaskResult.Result performance) {
+        this.performance = performance;
+    }
+
+    public float getRecruitAmount() {
+        return recruitAmount;
+    }
+
+    public void setRecruitAmount(float recruitAmount) {
+        this.recruitAmount = recruitAmount;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
 
     public Integer getId() {
         return id;
@@ -29,6 +63,14 @@ public class Goods {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Integer getStrategyId() {
@@ -55,20 +97,12 @@ public class Goods {
         this.exchange = exchange;
     }
 
-    public String getSymbol() {
-        return symbol;
+    public String getCoin() {
+        return coin;
     }
 
-    public void setSymbol(String symbol) {
-        this.symbol = symbol;
-    }
-
-    public String getTimeInterval() {
-        return timeInterval;
-    }
-
-    public void setTimeInterval(String timeInterval) {
-        this.timeInterval = timeInterval;
+    public void setCoin(String coin) {
+        this.coin = coin;
     }
 
     public String getDescription() {
@@ -79,28 +113,92 @@ public class Goods {
         this.description = description;
     }
 
-    public float getMaxLimit() {
-        return maxLimit;
+    public Float getMaxAmount() {
+        return maxAmount;
     }
 
-    public void setMaxLimit(float maxLimit) {
-        this.maxLimit = maxLimit;
+    public void setMaxAmount(Float maxAmount) {
+        this.maxAmount = maxAmount;
     }
 
-    public boolean isDisplay() {
+    public Float getMinAmount() {
+        return minAmount;
+    }
+
+    public void setMinAmount(Float minAmount) {
+        this.minAmount = minAmount;
+    }
+
+    public Boolean getDisplay() {
         return isDisplay;
     }
 
-    public void setDisplay(boolean display) {
+    public void setDisplay(Boolean display) {
         isDisplay = display;
     }
 
-    public String getExchangeKeyId() {
-        return exchangeKeyId;
+    public Long getRecruitStart() {
+        return recruitStart;
     }
 
-    public void setExchangeKeyId(String exchangeKeyId) {
-        this.exchangeKeyId = exchangeKeyId;
+    public void setRecruitStart(Long recruitStart) {
+        this.recruitStart = recruitStart;
+    }
+
+    public Long getRecruitEnd() {
+        return recruitEnd;
+    }
+
+    public void setRecruitEnd(Long recruitEnd) {
+        this.recruitEnd = recruitEnd;
+    }
+
+    public Long getInvestStart() {
+        return investStart;
+    }
+
+    public void setInvestStart(Long investStart) {
+        this.investStart = investStart;
+    }
+
+    public Long getInvestEnd() {
+        return investEnd;
+    }
+
+    public void setInvestEnd(Long investEnd) {
+        this.investEnd = investEnd;
+    }
+
+    public Long getBacktestStart() {
+        return backtestStart;
+    }
+
+    public void setBacktestStart(Long backtestStart) {
+        this.backtestStart = backtestStart;
+    }
+
+    public Long getBacktestEnd() {
+        return backtestEnd;
+    }
+
+    public void setBacktestEnd(Long backtestEnd) {
+        this.backtestEnd = backtestEnd;
+    }
+
+    public Float getAmount() {
+        return amount;
+    }
+
+    public void setAmount(Float amount) {
+        this.amount = amount;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public Date getCreateTime() {
@@ -109,13 +207,5 @@ public class Goods {
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
-    }
-
-    public String getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(String startTime) {
-        this.startTime = startTime;
     }
 }

@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,19 +27,17 @@ import java.util.Map;
 @RequestMapping("/auth")
 public class IdentityController {
 
+    private static org.slf4j.Logger logger = LoggerFactory.getLogger(IdentityController.class);
+
     public final static String ACCESS_TOKEN = "COINCLOUD-ACCESS-TOKEN";
     public final static String REFRESH_TOKEN = "COINCLOUD-REFRESH-TOKEN";
     public final static String ID_TOKEN = "COINCLOUD-ID-TOKEN";
 
     @Autowired
     private IdentityService identityService;
-
     @Autowired
     private ExchangeService exchangeService;
 
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(IdentityController.class);
-
-    private List<String> seller = Arrays.asList("joonwoo", "songaal");
     /**
      * 회원가입
      * */
@@ -112,7 +109,7 @@ public class IdentityController {
     public ResponseEntity<?> userInfo(@CookieValue(value = ACCESS_TOKEN) String accessToken, @CookieValue(value = ID_TOKEN) String idToken, @RequestAttribute String userId) {
         Map<String, String> payload = identityService.parsePayload(idToken);
         payload.putAll(identityService.parsePayload(accessToken));
-        payload.put("isSeller", String.valueOf(seller.contains(userId)));
+        payload.put("isManager", String.valueOf(identityService.isManager(userId)));
         return new ResponseEntity<>(payload, HttpStatus.OK);
     }
 

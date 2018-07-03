@@ -2,7 +2,7 @@ package io.systom.coin.service;
 
 import io.systom.coin.exception.OperationException;
 import io.systom.coin.exception.ParameterException;
-import io.systom.coin.model.BackTestResult;
+import io.systom.coin.model.TaskResult;
 import io.systom.coin.model.Strategy;
 import io.systom.coin.model.Task;
 import io.systom.coin.utils.DockerUtils;
@@ -100,7 +100,7 @@ public class TaskService {
         }
     }
 
-    protected void recordBackTestPerformance(int investGoodsId, BackTestResult.Result result) {
+    protected void recordBackTestPerformance(int investGoodsId, TaskResult.Result result) {
         try {
             result.setId(investGoodsId);
             int changeRow = sqlSession.insert("backtest.recordPerformance", result);
@@ -110,7 +110,7 @@ public class TaskService {
         }
     }
 
-    protected void recordBackTestTradeHistory(int investGoodsId, List<BackTestResult.Result.Trade> trades) {
+    protected void recordBackTestTradeHistory(int investGoodsId, List<TaskResult.Result.Trade> trades) {
         trades.forEach(trade -> {
             trade.setId(investGoodsId);
         });
@@ -119,12 +119,12 @@ public class TaskService {
     }
 
     protected void recordBackTestValueHistory(int investGoodsId, Map<Long, Float> equities, Map<Long, Float> cumReturns, Map<Long, Float> drawdowns){
-        List<BackTestResult.Result.Value> values = new ArrayList<>();
+        List<TaskResult.Result.Value> values = new ArrayList<>();
         Iterator<Map.Entry<Long, Float>> iterator = equities.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<Long, Float> entry = iterator.next();
             Long ts = entry.getKey();
-            BackTestResult.Result.Value v = new BackTestResult.Result.Value();
+            TaskResult.Result.Value v = new TaskResult.Result.Value();
             v.setId(investGoodsId);
             v.setTimestamp(ts);
             v.setEquity(entry.getValue());
@@ -143,7 +143,7 @@ public class TaskService {
         while(iterator.hasNext()){
             Map.Entry<Long, Float> entry = iterator.next();
             Long ts = entry.getKey();
-            BackTestResult.Result.Value v = new BackTestResult.Result.Value();
+            TaskResult.Result.Value v = new TaskResult.Result.Value();
             v.setId(investGoodsId);
             v.setTimestamp(ts);
             v.setCumReturn(cumReturns.get(ts));
@@ -158,7 +158,7 @@ public class TaskService {
         while(iterator.hasNext()){
             Map.Entry<Long, Float> entry = iterator.next();
             Long ts = entry.getKey();
-            BackTestResult.Result.Value v = new BackTestResult.Result.Value();
+            TaskResult.Result.Value v = new TaskResult.Result.Value();
             v.setId(investGoodsId);
             v.setTimestamp(ts);
             v.setDrawdown(drawdowns.get(ts));

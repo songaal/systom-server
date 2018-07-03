@@ -1,5 +1,5 @@
 #
-# General Config
+# General TradeConfig
 #
 
 aws:
@@ -19,12 +19,6 @@ aws:
     name: "order_stream"
     shardId: "shard-000000000000"
     limit: 1000
-    use: false
-
-notify:
-  telegram:
-    botName: ""
-    botToken: ""
     use: false
 
 spring:

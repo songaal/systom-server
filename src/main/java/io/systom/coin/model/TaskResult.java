@@ -10,7 +10,7 @@ import java.util.Map;
  * create joonwoo 2018. 6. 20.
  * 
  */
-public class BackTestResult {
+public class TaskResult {
 
     private String status;
     private String message;

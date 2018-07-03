@@ -24,4 +24,13 @@ public class TimestampTest {
         logger.debug("{}~{}", lastTimestampStart, lastTimestampEnd);
         logger.debug("{}~{}", new Date(lastTimestampStart), new Date(lastTimestampEnd));
     }
+
+    @Test
+    public void timeStampTest() {
+        Calendar to = Calendar.getInstance();
+        to.add(Calendar.MONTH, 3);
+        System.out.println(System.currentTimeMillis());
+        System.out.println(to.getTimeInMillis());
+
+    }
 }

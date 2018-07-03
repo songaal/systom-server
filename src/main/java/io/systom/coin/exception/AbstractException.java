@@ -10,7 +10,7 @@ import java.util.Map;
  * create joonwoo 2018. 3. 24.
  *
  */
-public abstract class AbstractException extends Throwable {
+public abstract class AbstractException extends RuntimeException {
 
     protected Map<String, Object> responseBody = new HashMap<>();
     protected HttpStatus status;

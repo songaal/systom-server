@@ -5,8 +5,60 @@
 
 <mapper namespace="marketplace">
 
+    <select id="findGoodsByStrategy" parameterType="StrategyDeployVersion" resultType="Goods">
+        SELECT id
+            , strategy_id
+            , version
+            , exchange
+            , symbol
+            , time_interval
+            , description
+            , max_limit
+            , is_display
+            , create_time
+            , exchange_key
+        FROM goods
+        WHERE strategy_id = ${id}
+        <if test="version != null and version != ''">
+            AND version = ${version}
+        </if>
+    </select>
 
-    <select id="retrieveStrategyMarketList" resultType="StrategyDeploy" parameterType="String">
+    <select id="getGoods" parameterType="Integer" resultType="Goods">
+        SELECT id
+            , strategy_id
+            , version
+            , exchange
+            , symbol
+            , time_interval
+            , description
+            , max_limit
+            , is_display
+            , create_time
+            , exchange_key
+        FROM goods
+        WHERE id = ${param1}
+    </select>
+
+    <insert id="insertGoods" parameterType="Goods" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO goods (strategy_id, version, exchange, symbol, time_interval, description, max_limit, exchange_key)
+        VALUES ( ${strategyId}
+               , ${version}
+               , #{exchange}
+               , #{symbol}
+               , #{timeInterval}
+               , #{description}
+               , ${maxLimit}
+               , ${exchangeKeyId}
+        )
+    </insert>
+
+
+
+
+
+
+    <select id="retrieveStrategyMarketList" resultType="StrategyDeployVersion" parameterType="String">
         SELECT
             a.id,
             d.version,
@@ -36,7 +88,7 @@
                      GROUP BY bb.id) d ON d.id = a.id AND a.version = d.version
     </select>
 
-    <update id="registerStrategyMarket" parameterType="StrategyDeploy">
+    <update id="registerStrategyMarket" parameterType="StrategyDeployVersion">
         UPDATE strategy_deploy
            SET is_sell = 'selling'
              , price = ${price}
@@ -46,7 +98,7 @@
            AND version = ${version}
     </update>
 
-    <update id="stopSellingStrategyMarket" parameterType="StrategyDeploy">
+    <update id="stopSellingStrategyMarket" parameterType="StrategyDeployVersion">
         UPDATE strategy_deploy
            SET is_sell = 'stop'
          WHERE id = ${id}

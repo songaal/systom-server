@@ -16,7 +16,6 @@ public class Strategy {
     private String code;
 
 //    전략 목록
-    private Integer lastGoodsVersion;
     private Integer lastDeployVersion;
 
     public Strategy() {}
@@ -77,14 +76,6 @@ public class Strategy {
 
     public void setCode(String code) {
         this.code = code;
-    }
-
-    public Integer getLastGoodsVersion() {
-        return lastGoodsVersion;
-    }
-
-    public void setLastGoodsVersion(Integer lastGoodsVersion) {
-        this.lastGoodsVersion = lastGoodsVersion;
     }
 
     public Integer getLastDeployVersion() {

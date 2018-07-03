@@ -11,20 +11,15 @@
                 a.user_id,
                 a.create_time,
                 a.update_time,
-                b.version AS last_deploy_version,
-                c.version AS last_goods_version
-        FROM strategy a
-        LEFT JOIN (SELECT aa.id,
-                          MAX(aa.version) AS version
-                     FROM strategy_deploy aa
-                    WHERE aa.is_trash = false
-                    GROUP BY aa.id) b ON a.id = b.id
-        LEFT JOIN (SELECT bb.strategy_id,
-                          MAX(bb.version) AS version
-                     FROM goods bb
-        GROUP BY strategy_id) c ON a.id = c.strategy_id
-        WHERE a.user_id = #{userId}
-        ORDER BY a.create_time DESC
+                b.version AS last_deploy_version
+          FROM strategy a
+          LEFT JOIN (SELECT aa.id,
+                            MAX(aa.version) AS version
+                       FROM strategy_deploy aa
+                      WHERE aa.is_trash = false
+                      GROUP BY aa.id) b ON a.id = b.id
+         WHERE a.user_id = #{userId}
+         ORDER BY a.create_time DESC
     </select>
 
     <insert id="createBlankStrategy" parameterType="Strategy" useGeneratedKeys="true" keyProperty="id">
@@ -42,6 +37,17 @@
              , a.code
         FROM strategy a
         WHERE  ID = #{id}
+    </select>
+
+    <select id="findStrategyByName" parameterType="String" resultType="Strategy">
+        SELECT a.id
+             , a.name
+             , a.user_id
+             , a.create_time
+             , a.update_time
+             , a.code
+          FROM strategy a
+         WHERE  a.name = #{param1}
     </select>
 
     <update id="updateStrategy" parameterType="Strategy">

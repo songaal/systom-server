@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="goods">
+
+    <insert id="registerGoods" parameterType="Goods" keyProperty="id" keyColumn="id" useGeneratedKeys="true">
+        INSERT INTO goods (strategy_id, version, exchange, coin, description, max_amount
+                          , min_amount, recruit_start, recruit_end, invest_start, invest_end
+                          , backtest_start, backtest_end, amount, currency, name, user_id)
+        VALUES (${strategyId},
+                ${version},
+                #{exchange},
+                #{coin},
+                #{description},
+                ${maxAmount},
+                ${minAmount},
+                ${recruitStart},
+                ${recruitEnd},
+                ${investStart},
+                ${investEnd},
+                ${backtestStart},
+                ${backtestEnd},
+                ${amount},
+                #{currency},
+                #{name},
+                #{userId}
+        )
+    </insert>
+
+    <insert id="insertInvestGoods" parameterType="InvestGoods" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO invest_goods (goods_id, user_id, exchange_key_id, amount)
+        VALUES (${goodsId},
+                #{userId},
+                ${exchangeKeyId},
+                ${amount}
+        )
+    </insert>
+
+    <insert id="insertGoodsPerformance" keyProperty="id" useGeneratedKeys="true" keyColumn="id" parameterType="InvestGoods">
+        INSERT INTO performance (id, total_equity, total_equity_usd, total_commission, base_price
+                                , return_pct, max_return_pct, wins_pct, wins_count, lose_count
+                                , trades, pnl_rate, max_drawdown, max_drawdown_duration, wins_return_avg, lose_return_avg)
+        VALUES ( ${id}, 0, 0, 0, ${amount}, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+    </insert>
+
+    <select id="getGoodsMeta" parameterType="Integer" resultType="Goods">
+        SELECT a.id
+             , a.strategy_id
+             , a.version
+             , a.exchange
+             , a.coin
+             , a.description
+             , a.max_amount
+             , a.min_amount
+             , a.is_display
+             , a.create_time
+             , a.ecs_id
+             , a.recruit_start
+             , a.recruit_end
+             , a.invest_start
+             , a.invest_end
+             , a.backtest_start
+             , a.backtest_end
+             , a.amount
+             , a.currency
+             , a.name
+             , a.user_id
+             , ifnull(b.recruit_amount, 0) as recruit_amount
+          FROM goods a
+          JOIN (SELECT aa.id
+                     , aa.goods_id
+                     , sum(aa.amount) as recruit_amount
+                  FROM invest_goods aa
+                 WHERE aa.goods_id = #{param1}
+                 GROUP BY aa.goods_id
+             ) b ON a.id = b.goods_id
+         WHERE a.id = #{param1}
+    </select>
+
+    <select id="findInvestIdByUser" parameterType="InvestGoods" resultType="InvestGoods">
+        SELECT a.id
+             , a.goods_id
+             , a.user_id
+             , a.exchange_key_id
+             , amount
+          FROM invest_goods a
+         WHERE 1=1
+           AND a.goods_id = ${goodsId}
+           <if test="userId != null and userId != ''">
+           AND a.user_id = #{userId}
+           </if>
+    </select>
+
+    <select id="getGoodsPerformance" parameterType="Integer" resultType="TaskResult">
+        SELECT a.id
+             , a.total_equity
+             , a.total_equity_usd
+             , a.total_commission
+             , a.base_price
+             , a.return_pct
+             , a.max_return_pct
+             , a.wins_pct
+             , a.wins_count
+             , a.lose_count
+             , a.trades
+             , a.pnl_rate
+             , a.max_drawdown
+             , a.max_drawdown_duration
+             , a.wins_return_avg
+             , a.lose_return_avg
+             , a.create_time
+          FROM performance a
+         WHERE a.id = #{param1}
+    </select>
+
+
+
+    <select id="retrieveTradeHistory" parameterType="Integer" resultType="TaskResult.Trade">
+        SELECT a.id
+             , a.timestamp
+             , a.ticker
+             , a.action
+             , a.quantity
+             , a.exchange
+             , a.price
+             , a.commission
+             , a.reason
+          FROM trade_history a
+         WHERE a.id = #{param1}
+         ORDER BY a.timestamp DESC
+    </select>
+
+    <select id="retrieveRecruitGoodsList" parameterType="Goods" resultType="Goods">
+        <![CDATA[
+        SELECT a.id
+            , a.strategy_id
+            , a.version
+            , a.exchange
+            , a.coin
+            , a.description
+            , a.max_amount
+            , a.min_amount
+            , a.is_display
+            , a.create_time
+            , a.ecs_id
+            , a.recruit_start
+            , a.recruit_end
+            , a.invest_start
+            , a.invest_end
+            , a.backtest_start
+            , a.backtest_end
+            , a.amount
+            , ifnull(b.recruit_amount, 0) as recruit_amount
+            , a.currency
+            , a.name
+            , a.user_id
+        FROM goods a
+        LEFT JOIN (SELECT aa.goods_id
+						, sum(aa.amount) as recruit_amount
+				     FROM invest_goods aa
+					GROUP BY aa.goods_id
+            ) b on a.id = b.goods_id
+        WHERE a.recruit_start <= ${recruitStart}
+          AND a.recruit_end >= ${recruitEnd}
+          AND a.is_display = ${isDisplay}
+          AND a.exchange = #{exchange}
+        ORDER BY recruit_amount DESC
+        ]]>
+    </select>
+
+    <update id="updateGoodsHide" parameterType="Goods">
+        UPDATE goods
+           SET is_display = false
+         WHERE id = ${id}
+    </update>
+
+    <update id="updateGoodsShow" parameterType="Goods">
+        UPDATE goods
+        SET is_display = true
+        WHERE id = ${id}
+    </update>
+
+    <delete id="deleteTradeHistory" parameterType="Integer">
+        DELETE FROM trade_history
+         WHERE id = #{id}
+    </delete>
+
+    <delete id="deletePerformance" parameterType="Integer">
+        DELETE FROM performance
+         WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteValueHistory" parameterType="Integer">
+        DELETE FROM value_history
+        WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteInvestGoods" parameterType="Integer">
+        DELETE FROM invest_goods
+         WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteGoods" parameterType="Integer">
+        DELETE FROM goods
+         WHERE id = #{id}
+    </delete>
+
+</mapper>

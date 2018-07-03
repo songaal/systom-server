@@ -5,7 +5,7 @@
 
 <mapper namespace="backtest">
 
-    <insert id="recordPerformance" parameterType="BackTestResult">
+    <insert id="recordPerformance" parameterType="TaskResult">
         INSERT INTO performance (id, total_equity, total_equity_usd, total_commission, base_price
                                 , return_pct, max_return_pct, wins_pct, wins_count, lose_count
                                 , trades, pnl_rate, max_drawdown, max_drawdown_duration, wins_return_avg, lose_return_avg)

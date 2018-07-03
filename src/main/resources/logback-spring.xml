@@ -51,6 +51,8 @@
 
     <logger name="com.amazonaws" level="INFO" additivity="false" />
 
+    <logger name="org.mybatis.spring" level="INFO" additivity="false" />
+
     <logger name="strategyLogger" level="DEBUG" additivity="false" >
         <appender-ref ref="strategylog" />
     </logger>

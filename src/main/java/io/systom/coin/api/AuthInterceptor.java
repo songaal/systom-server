@@ -32,7 +32,6 @@ public class AuthInterceptor implements HandlerInterceptor {
     // 토큰 확인 안하는 URL
     private List<String> exceptUrl = Arrays.asList( "/auth/login", "/auth/signUp", "/ping", "/ws", "/error", "/auth/changeTempPassword");
 
-
     /**
      * api 요청시 권환 확인
      *
@@ -84,7 +83,6 @@ public class AuthInterceptor implements HandlerInterceptor {
 
     @Override
     public void postHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o, ModelAndView modelAndView) throws Exception {
-
     }
 
     @Override
