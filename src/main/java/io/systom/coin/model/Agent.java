@@ -48,11 +48,11 @@
 //        this.exchangeKeyName = exchangeKeyName;
 //    }
 //
-//    public String getExchangeName() {
+//    public String getExchange() {
 //        return exchangeName;
 //    }
 //
-//    public void setExchangeName(String exchangeName) {
+//    public void setExchange(String exchangeName) {
 //        this.exchangeName = exchangeName;
 //    }
 //

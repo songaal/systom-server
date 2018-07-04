@@ -29,7 +29,7 @@
         )
     </insert>
 
-    <insert id="insertInvestGoods" parameterType="InvestGoods" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    <insert id="addInvestors" parameterType="InvestGoods" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO invest_goods (goods_id, user_id, exchange_key_id, amount)
         VALUES (${goodsId},
                 #{userId},
@@ -38,7 +38,7 @@
         )
     </insert>
 
-    <insert id="insertGoodsPerformance" keyProperty="id" useGeneratedKeys="true" keyColumn="id" parameterType="InvestGoods">
+    <insert id="addBlankPerformance" keyProperty="id" useGeneratedKeys="true" keyColumn="id" parameterType="InvestGoods">
         INSERT INTO performance (id, total_equity, total_equity_usd, total_commission, base_price
                                 , return_pct, max_return_pct, wins_pct, wins_count, lose_count
                                 , trades, pnl_rate, max_drawdown, max_drawdown_duration, wins_return_avg, lose_return_avg)
@@ -79,6 +79,17 @@
          WHERE a.id = #{param1}
     </select>
 
+    <select id="findInvestIdByUserList" parameterType="InvestGoods" resultType="InvestGoods">
+        SELECT a.id
+        , a.goods_id
+        , a.user_id
+        , a.exchange_key_id
+        , amount
+        FROM invest_goods a
+        WHERE 1=1
+        AND a.goods_id = ${goodsId}
+    </select>
+
     <select id="findInvestIdByUser" parameterType="InvestGoods" resultType="InvestGoods">
         SELECT a.id
              , a.goods_id
@@ -88,9 +99,7 @@
           FROM invest_goods a
          WHERE 1=1
            AND a.goods_id = ${goodsId}
-           <if test="userId != null and userId != ''">
            AND a.user_id = #{userId}
-           </if>
     </select>
 
     <select id="getGoodsPerformance" parameterType="Integer" resultType="TaskResult">
@@ -132,8 +141,7 @@
          ORDER BY a.timestamp DESC
     </select>
 
-    <select id="retrieveRecruitGoodsList" parameterType="Goods" resultType="Goods">
-        <![CDATA[
+    <select id="retrieveGoodsList" parameterType="Goods" resultType="Goods">
         SELECT a.id
             , a.strategy_id
             , a.version
@@ -156,17 +164,53 @@
             , a.currency
             , a.name
             , a.user_id
+            , ifnull(c.is_invest, false) as is_invest
         FROM goods a
         LEFT JOIN (SELECT aa.goods_id
 						, sum(aa.amount) as recruit_amount
 				     FROM invest_goods aa
 					GROUP BY aa.goods_id
             ) b on a.id = b.goods_id
-        WHERE a.recruit_start <= ${recruitStart}
-          AND a.recruit_end >= ${recruitEnd}
-          AND a.is_display = ${isDisplay}
+        LEFT JOIN (SELECT bb.goods_id
+						, true as is_invest
+				     FROM invest_goods bb
+                    WHERE bb.user_id = #{userId}
+				   GROUP BY bb.goods_id
+		    ) c on a.id = c.goods_id
+        WHERE 1=1
           AND a.exchange = #{exchange}
-        ORDER BY recruit_amount DESC
+        <if test="isDisplay != null and isDisplay != ''">
+            AND a.is_display = ${isDisplay}
+        </if>
+        <choose>
+            <when test="recruitStart != null and recruitStart != '' and recruitEnd != null and recruitEnd != ''">
+            <![CDATA[
+                AND a.recruit_start <= ${recruitStart}
+                AND a.recruit_end >= ${recruitEnd}
+            ]]>
+            </when>
+            <when test="investStart != null and investStart != '' and investEnd != null and investEnd != ''">
+            <![CDATA[
+                AND a.invest_start <= ${investStart}
+                AND a.invest_end >= ${investEnd}
+            ]]>
+            </when>
+            <when test="investStart != null and investStart != ''">
+            <![CDATA[
+                AND a.invest_start < ${investStart}
+            ]]>
+            </when>
+            <when test="investEnd != null and investEnd != ''">
+            <![CDATA[
+                AND a.invest_end >= ${investEnd}
+            ]]>
+            </when>
+            <otherwise>
+                1 = 2
+            </otherwise>
+        </choose>
+        <![CDATA[
+        ORDER BY is_display DESC, invest_start DESC, recruit_amount DESC
         ]]>
     </select>
 
@@ -194,7 +238,7 @@
 
     <delete id="deleteValueHistory" parameterType="Integer">
         DELETE FROM value_history
-        WHERE id = #{id}
+         WHERE id = #{id}
     </delete>
 
     <delete id="deleteInvestGoods" parameterType="Integer">
@@ -202,9 +246,31 @@
          WHERE id = #{id}
     </delete>
 
-    <delete id="deleteGoods" parameterType="Integer">
+    <delete id="deleteGoodsMeta" parameterType="Integer">
         DELETE FROM goods
          WHERE id = #{id}
     </delete>
+
+    <update id="updateGoodsMeta" parameterType="Goods">
+        UPDATE goods
+           SET strategy_id    = ${strategyId}
+             , version        = ${version}
+             , exchange       = #{exchange}
+             , coin           = #{coin}
+             , description    = #{description}
+             , amount         = ${amount}
+             , max_amount     = ${maxAmount}
+             , min_amount     = ${minAmount}
+             , currency       = #{currency}
+             , recruit_start  = ${recruitStart}
+             , recruit_end    = ${recruitEnd}
+             , invest_start   = ${investStart}
+             , invest_end     = ${investEnd}
+             , backtest_start = ${backtestStart}
+             , backtest_end   = ${backtestEnd}
+             , name           = #{name}
+      WHERE id = ${id}
+        AND user_id = #{userId}
+    </update>
 
 </mapper>

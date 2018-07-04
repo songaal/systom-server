@@ -13,6 +13,7 @@ public class InvestGoods {
     private Float amount;
     private Integer exchangeKeyId;
     private Date createTime;
+    private boolean isInvest;
 
     public InvestGoods() {}
 
@@ -21,6 +22,14 @@ public class InvestGoods {
         this.userId = userId;
         this.amount = amount;
         this.exchangeKeyId = exchangeKeyId;
+    }
+
+    public boolean isInvest() {
+        return isInvest;
+    }
+
+    public void setInvest(boolean invest) {
+        isInvest = invest;
     }
 
     public Integer getId() {

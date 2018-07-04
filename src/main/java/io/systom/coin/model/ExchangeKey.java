@@ -11,7 +11,7 @@ public class ExchangeKey {
     private int id;
     /** userId로 암호화/복호화 하므로 userId 는 필수. */
     private String userId;
-    private String exchangeName;
+    private String exchange;
     private String name;
     private String apiKey;
     private String secretKey;
@@ -41,12 +41,12 @@ public class ExchangeKey {
         this.userId = userId;
     }
 
-    public String getExchangeName() {
-        return exchangeName;
+    public String getExchange() {
+        return exchange;
     }
 
-    public void setExchangeName(String exchangeName) {
-        this.exchangeName = exchangeName;
+    public void setExchange(String exchange) {
+        this.exchange = exchange;
     }
 
     public String getName() {

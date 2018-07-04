@@ -8,7 +8,7 @@
     <select id="selectKeys" parameterType="String" resultType="ExchangeKey">
         select id
              , user_id
-             , exchange_name
+             , exchange
              , name
              , aes_decrypt(api_key, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{userId})) as api_key
              , create_time
@@ -20,7 +20,7 @@
     <select id="selectKey" parameterType="ExchangeKey" resultType="ExchangeKey">
         select id
         , user_id
-        , exchange_name
+        , exchange
         , name
         , aes_decrypt(api_key, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{userId})) as api_key
         , aes_decrypt(secret_key, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{userId})) as secret_key
@@ -31,7 +31,7 @@
     </select>
 
     <insert id="insertKey" parameterType="ExchangeKey" useGeneratedKeys="true" keyProperty="id">
-        insert into exchange_key(user_id, exchange_name, name, api_key, secret_key, create_time)
+        insert into exchange_key(user_id, exchange, name, api_key, secret_key, create_time)
         values (
         #{userId},
         #{exchange},

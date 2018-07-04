@@ -33,6 +33,16 @@ public class Goods {
 
     private TaskResult.Result performance;
 
+    private boolean isInvest;
+
+    public boolean isInvest() {
+        return isInvest;
+    }
+
+    public void setInvest(boolean invest) {
+        isInvest = invest;
+    }
+
     public TaskResult.Result getPerformance() {
         return performance;
     }
