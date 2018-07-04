@@ -13,7 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /*
  * create joonwoo 2018. 7. 3.
@@ -188,7 +191,47 @@ public class InvestGoodsService {
 
     public List<Goods> retrieveGoodsList(Goods searchGoods) {
         try {
-            return sqlSession.selectList("goods.retrieveGoodsList", searchGoods);
+            List<Goods> registerGoodsList = sqlSession.selectList("goods.retrieveGoodsList", searchGoods);
+
+            if (registerGoodsList != null && registerGoodsList.size() > 0) {
+                List<Integer> goodsIdList = new ArrayList<>();
+                int registerGoodsSize = registerGoodsList.size();
+                for(int i=0; i < registerGoodsSize; i++){
+                    goodsIdList.add(registerGoodsList.get(i).getId());
+                }
+
+                Map<String, Object> search = new HashMap<>();
+                search.put("goodsIdList", goodsIdList);
+                search.put("userId", BOT_USER_ID);
+                List<InvestGoods> investGoodsList = sqlSession.selectList("goods.retrieveInvestGoodsList", search);
+                int investGoodsSize = investGoodsList.size();
+
+                List<TaskResult.Result> performanceList = sqlSession.selectList("goods.retrievePerformance", search);
+                int performanceSize = performanceList.size();
+
+                for (int i=0; i < investGoodsSize; i++) {
+                    Integer goodsId = investGoodsList.get(i).getGoodsId();
+                    Integer investId = investGoodsList.get(i).getId();
+
+                    Goods tmpGoods = null;
+                    TaskResult.Result tmpPerformance = null;
+
+                    for(int j=0; j < registerGoodsSize; j++){
+                        if(goodsId.equals(registerGoodsList.get(j).getId())){
+                            tmpGoods = registerGoodsList.get(j);
+                            break;
+                        }
+                    }
+                    for(int j=0; j < performanceSize; j++){
+                        if(investId.equals(performanceList.get(j).getId())) {
+                            tmpPerformance = performanceList.get(j);
+                            break;
+                        }
+                    }
+                    tmpGoods.setPerformance(tmpPerformance);
+                }
+            }
+            return registerGoodsList;
         } catch (Exception e) {
             logger.error("", e);
             throw new OperationException("[FAIL] SQL Execute.");

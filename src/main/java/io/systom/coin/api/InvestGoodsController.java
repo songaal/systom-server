@@ -50,21 +50,24 @@ public class InvestGoodsController extends AbstractController{
     @GetMapping
     public ResponseEntity<?> retrieveGoodsList(@RequestAttribute String userId,
                                                       @RequestParam String exchange,
-                                                      @RequestParam(required = false) String types) {
+                                                      @RequestParam(required = false) String type) {
         try {
             List<Goods> registerRecruitGoodsList = new ArrayList<>();
             long nowTime = System.currentTimeMillis();
             Goods searchGoods = null;
-            if (types != null && identityService.isManager(userId)) {
-                String[] typeArr = types.split(",");
-                if (Arrays.binarySearch(typeArr, GOODS_TYPE.wait) >= 0) {
+            if (type != null && identityService.isManager(userId)) {
+                List<String> typeList = Arrays.asList(type.split(","));
+
+                if (typeList.contains(GOODS_TYPE.wait.name())) {
+                    logger.debug("retrieveGoodsList wait");
                     searchGoods = new Goods();
                     searchGoods.setUserId(userId);
                     searchGoods.setExchange(exchange);
                     searchGoods.setInvestStart(nowTime);
                     registerRecruitGoodsList.addAll(investGoodsService.retrieveGoodsList(searchGoods));
                 }
-                if (Arrays.binarySearch(typeArr, GOODS_TYPE.running) >= 0) {
+                if (typeList.contains(GOODS_TYPE.running.name())) {
+                    logger.debug("retrieveGoodsList running");
                     searchGoods = new Goods();
                     searchGoods.setUserId(userId);
                     searchGoods.setExchange(exchange);
@@ -72,7 +75,8 @@ public class InvestGoodsController extends AbstractController{
                     searchGoods.setInvestEnd(nowTime);
                     registerRecruitGoodsList.addAll(investGoodsService.retrieveGoodsList(searchGoods));
                 }
-                if (Arrays.binarySearch(typeArr, GOODS_TYPE.close) >= 0) {
+                if (typeList.contains(GOODS_TYPE.close.name())) {
+                    logger.debug("retrieveGoodsList close");
                     searchGoods = new Goods();
                     searchGoods.setUserId(userId);
                     searchGoods.setExchange(exchange);

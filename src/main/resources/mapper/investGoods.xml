@@ -81,10 +81,10 @@
 
     <select id="findInvestIdByUserList" parameterType="InvestGoods" resultType="InvestGoods">
         SELECT a.id
-        , a.goods_id
-        , a.user_id
-        , a.exchange_key_id
-        , amount
+             , a.goods_id
+             , a.user_id
+             , a.exchange_key_id
+             , amount
         FROM invest_goods a
         WHERE 1=1
         AND a.goods_id = ${goodsId}
@@ -212,6 +212,47 @@
         <![CDATA[
         ORDER BY is_display DESC, invest_start DESC, recruit_amount DESC
         ]]>
+    </select>
+
+    <select id="retrieveInvestGoodsList" parameterType="HashMap" resultType="InvestGoods">
+        SELECT a.id
+             , a.goods_id
+             , a.user_id
+             , a.exchange_key_id
+             , a.amount
+          FROM invest_goods a
+         WHERE a.user_id = #{userId}
+           AND a.goods_id in
+        <foreach collection="goodsIdList" separator="," item="item" open="(" close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="retrievePerformance" parameterType="HashMap" resultType="TaskResult">
+        SELECT a.id
+             , a.total_equity
+             , a.total_equity_usd
+             , a.total_commission
+             , a.base_price
+             , a.return_pct
+             , a.max_return_pct
+             , a.wins_pct
+             , a.wins_count
+             , a.lose_count
+             , a.trades
+             , a.pnl_rate
+             , a.max_drawdown
+             , a.max_drawdown_duration
+             , a.wins_return_avg
+             , a.lose_return_avg
+             , a.create_time
+          FROM performance a
+          JOIN invest_goods b on a.id = b.id
+         WHERE b.user_id = #{userId}
+           AND b.goods_id in
+        <foreach collection="goodsIdList" separator="," item="item" open="(" close=")">
+            #{item}
+        </foreach>
     </select>
 
     <update id="updateGoodsHide" parameterType="Goods">
