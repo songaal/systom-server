@@ -78,7 +78,7 @@ public class InvestGoodsService {
             logger.error("", e);
             throw new OperationException("[FAIL] SQL Execute.");
         }
-        return getGoods(target.getId(), BOT_USER_ID);
+        return getGoods(target.getId());
     }
 
     protected float calculationMaxAmount(float amount) {
@@ -88,7 +88,7 @@ public class InvestGoodsService {
         return amount / 100;
     }
 
-    protected Integer addInvestors(InvestGoods investor) {
+    protected InvestGoods addInvestors(InvestGoods investor) {
         try {
             int changeRow = sqlSession.insert("goods.addInvestors", investor);
             if (changeRow != 1) {
@@ -98,7 +98,7 @@ public class InvestGoodsService {
             logger.error("", e);
             throw new OperationException("[FAIL] SQL Execute.");
         }
-        return investor.getId();
+        return investor;
     }
 
     protected TaskResult.Result addBlankPerformance(Integer investId, float amount) {
@@ -115,6 +115,10 @@ public class InvestGoodsService {
             throw new OperationException("[FAIL] SQL Execute.");
         }
         return getGoodsPerformance(investId);
+    }
+
+    private Goods getGoods(Integer goodsId) {
+        return getGoods(goodsId, BOT_USER_ID);
     }
 
     private Goods getGoods(Integer goodsId, String userId) {
@@ -239,7 +243,7 @@ public class InvestGoodsService {
     }
 
     public Goods updateRecruitGoodsHide(Integer id, String userId) {
-        Goods registerGoods = getGoods(id, BOT_USER_ID);
+        Goods registerGoods = getGoods(id);
         if (registerGoods == null || registerGoods.getInvestStart() <= System.currentTimeMillis()) {
             throw new ParameterException("GoodsId");
         }
@@ -255,11 +259,11 @@ public class InvestGoodsService {
             logger.error("", e);
             throw new OperationException("[FAIL] SQL Execute.");
         }
-        return getGoods(id, BOT_USER_ID);
+        return getGoods(id);
     }
 
     public Goods updateRecruitGoodsShow(Integer id, String userId) {
-        Goods registerGoods = getGoods(id, BOT_USER_ID);
+        Goods registerGoods = getGoods(id);
         if (registerGoods == null || registerGoods.getInvestStart() <= System.currentTimeMillis()) {
             throw new ParameterException("GoodsId");
         }
@@ -275,7 +279,7 @@ public class InvestGoodsService {
             logger.error("", e);
             throw new OperationException("[FAIL] SQL Execute.");
         }
-        return getGoods(id, BOT_USER_ID);
+        return getGoods(id);
     }
 
     @Transactional
@@ -405,7 +409,7 @@ public class InvestGoodsService {
             throw new OperationException("[FAIL] SQL Execute");
         }
 
-        return getGoods(target.getId(), BOT_USER_ID);
+        return getGoods(target.getId());
     }
 
     @Transactional

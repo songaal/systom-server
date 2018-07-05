@@ -69,12 +69,13 @@
              , a.user_id
              , ifnull(b.recruit_amount, 0) as recruit_amount
           FROM goods a
-          JOIN (SELECT aa.id
-                     , aa.goods_id
-                     , sum(aa.amount) as recruit_amount
-                  FROM invest_goods aa
-                 WHERE aa.goods_id = #{param1}
-                 GROUP BY aa.goods_id
+          LEFT JOIN (SELECT aa.id
+                          , aa.goods_id
+                          , sum(aa.amount) as recruit_amount
+                       FROM invest_goods aa
+                      WHERE aa.goods_id = #{param1}
+                        AND aa.user_id != '0'
+                      GROUP BY aa.goods_id
              ) b ON a.id = b.goods_id
          WHERE a.id = #{param1}
     </select>
@@ -169,6 +170,7 @@
         LEFT JOIN (SELECT aa.goods_id
 						, sum(aa.amount) as recruit_amount
 				     FROM invest_goods aa
+                    WHERE aa.user_id != '0'
 					GROUP BY aa.goods_id
             ) b on a.id = b.goods_id
         LEFT JOIN (SELECT bb.goods_id
@@ -197,12 +199,12 @@
             </when>
             <when test="investStart != null and investStart != ''">
             <![CDATA[
-                AND a.invest_start < ${investStart}
+                AND a.invest_start > ${investStart}
             ]]>
             </when>
             <when test="investEnd != null and investEnd != ''">
             <![CDATA[
-                AND a.invest_end >= ${investEnd}
+                AND a.invest_end < ${investEnd}
             ]]>
             </when>
             <otherwise>
