@@ -117,11 +117,11 @@ public class InvestGoodsService {
         return getGoodsPerformance(investId);
     }
 
-    private Goods getGoods(Integer goodsId) {
+    public Goods getGoods(Integer goodsId) {
         return getGoods(goodsId, BOT_USER_ID);
     }
 
-    private Goods getGoods(Integer goodsId, String userId) {
+    public Goods getGoods(Integer goodsId, String userId) {
         Goods registerGoods = getGoodsMeta(goodsId);
         InvestGoods registerInvestGoods = findInvestIdByUser(registerGoods.getId(), userId);
         TaskResult.Result performance = getGoodsPerformance(registerInvestGoods.getId());
@@ -130,19 +130,19 @@ public class InvestGoodsService {
         return registerGoods;
     }
 
-    public Goods getRecruitGoods(Integer goodsId) {
-        Goods registerGoods = getGoodsMeta(goodsId);
-        long nowTime = System.currentTimeMillis();
-        if (registerGoods != null && registerGoods.getDisplay()
-                && nowTime >= registerGoods.getRecruitStart()
-                && nowTime <= registerGoods.getRecruitEnd()) {
-            InvestGoods registerInvestGoods = findInvestIdByUser(registerGoods.getId(), BOT_USER_ID);
-            TaskResult.Result performance = getGoodsPerformance(registerInvestGoods.getId());
-            performance.setTradeHistory(retrieveTradeHistory(registerInvestGoods.getId()));
-            registerGoods.setPerformance(performance);
-        }
-        return registerGoods;
-    }
+//    public Goods getRecruitGoods(Integer goodsId) {
+//        Goods registerGoods = getGoodsMeta(goodsId);
+//        long nowTime = System.currentTimeMillis();
+//        if (registerGoods != null && registerGoods.getDisplay()
+//                && nowTime >= registerGoods.getRecruitStart()
+//                && nowTime <= registerGoods.getRecruitEnd()) {
+//            InvestGoods registerInvestGoods = findInvestIdByUser(registerGoods.getId(), BOT_USER_ID);
+//            TaskResult.Result performance = getGoodsPerformance(registerInvestGoods.getId());
+//            performance.setTradeHistory(retrieveTradeHistory(registerInvestGoods.getId()));
+//            registerGoods.setPerformance(performance);
+//        }
+//        return registerGoods;
+//    }
 
     public List<InvestGoods> findInvestIdByUserList(Integer goodsId) {
         InvestGoods investGoods = new InvestGoods();
