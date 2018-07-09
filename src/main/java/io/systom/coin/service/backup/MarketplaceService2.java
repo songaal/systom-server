@@ -6,7 +6,7 @@
 //import io.systom.coin.exception.RequestException;
 //import io.systom.coin.model.Goods;
 //import io.systom.coin.model.StrategyDeployVersion;
-//import io.systom.coin.model.Task;
+//import io.systom.coin.model.backup.Task;
 //import io.systom.coin.service.StrategyDeployService;
 //import io.systom.coin.service.TaskService;
 //import io.systom.coin.utils.StringUtils;

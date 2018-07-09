@@ -24,10 +24,9 @@ public class InvestGoodsController extends AbstractController{
 
     @GetMapping("/{goodsId}")
     public ResponseEntity<?> getInvestGoods(@RequestAttribute String userId,
-                                         @PathVariable Integer goodsId) {
-
+                                            @PathVariable Integer goodsId) {
         try {
-            InvestGoods registerInvestGoods = investGoodsService.findInvestIdByUser(goodsId, userId);
+            InvestGoods registerInvestGoods = investGoodsService.findInvestGoodsByUser(goodsId, userId);
             if (registerInvestGoods == null) {
                 throw new ParameterException("goodsId");
             }

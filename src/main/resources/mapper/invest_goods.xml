@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="investGoods">
+
+    <insert id="registrationInvestor" parameterType="InvestGoods" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO invest_goods (goods_id, user_id, exchange_key_id, cash)
+        VALUES (${goodsId},
+                #{userId},
+                ${exchangeKeyId},
+                ${cash}
+        )
+    </insert>
+
+
+    <delete id="deleteInvestGoods" parameterType="Integer">
+        DELETE FROM invest_goods
+        WHERE id = #{id}
+    </delete>
+
+    <select id="findInvestIdByUserList" parameterType="InvestGoods" resultType="InvestGoods">
+        SELECT a.id
+             , a.goods_id
+             , a.user_id
+             , a.exchange_key_id
+             , cash
+        FROM invest_goods a
+        WHERE 1=1
+        AND a.goods_id = ${goodsId}
+    </select>
+
+    <select id="findInvestIdByUser" parameterType="InvestGoods" resultType="InvestGoods">
+        SELECT a.id
+             , a.goods_id
+             , a.user_id
+             , a.exchange_key_id
+             , cash
+          FROM invest_goods a
+         WHERE 1=1
+           AND a.goods_id = ${goodsId}
+           AND a.user_id = #{userId}
+    </select>
+
+    <select id="retrieveInvestGoodsList" parameterType="HashMap" resultType="InvestGoods">
+        SELECT a.id
+             , a.goods_id
+             , a.user_id
+             , a.exchange_key_id
+             , a.cash
+          FROM invest_goods a
+         WHERE a.user_id = #{userId}
+           AND a.goods_id in
+        <foreach collection="goodsIdList" separator="," item="item" open="(" close=")">
+            #{item}
+        </foreach>
+    </select>
+
+
+</mapper>

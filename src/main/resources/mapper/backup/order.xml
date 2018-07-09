@@ -12,10 +12,10 @@
              , action
              , order_type
              , price
-             , amount
+             , cash
              , base
              , fee
-             , amount
+             , cash
              , exchange_order_id
              , description
           from order_history
@@ -25,17 +25,17 @@
 
     <insert id="insertOrder" parameterType="Order" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO order_history
-        (agent_id, timestamp, action, order_type, price, amount, base, fee, amount, exchange_order_id, description)
+        (agent_id, timestamp, action, order_type, price, cash, base, fee, cash, exchange_order_id, description)
         VALUES
         (#{agentId},
         #{timestamp},
         #{action},
         #{orderType},
         #{price},
-        #{amount},
+        #{cash},
         #{base},
         #{fee},
-        #{amount},
+        #{cash},
         #{exchangeOrderId},
         #{description}
         )

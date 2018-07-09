@@ -1,4 +1,4 @@
-package io.systom.coin.model;
+package io.systom.coin.model.backup;
 
 /*
  * create joonwoo 2018. 3. 21.

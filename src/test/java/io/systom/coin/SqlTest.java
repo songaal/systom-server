@@ -2,7 +2,7 @@ package io.systom.coin;
 
 import io.systom.coin.model.Goods;
 import io.systom.coin.model.InvestGoods;
-import io.systom.coin.model.TaskResult;
+import io.systom.coin.model.backup.TaskResult;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,8 +32,8 @@ public class SqlTest {
         searchGoods = new Goods();
         searchGoods.setUserId("0");
         searchGoods.setExchange("binance");
-        searchGoods.setRecruitStart(System.currentTimeMillis());
-        searchGoods.setRecruitEnd(System.currentTimeMillis());
+//        searchGoods.setRecruitStart(System.currentTimeMillis());
+//        searchGoods.setRecruitEnd(System.currentTimeMillis());
         List<Goods> registerGoodsList = sqlSession.selectList("goods.retrieveGoodsList", searchGoods);
 
         List<Integer> goodsIdList = new ArrayList<>();
@@ -70,7 +70,7 @@ public class SqlTest {
                         break;
                     }
                 }
-                tmpGoods.setPerformance(tmpPerformance);
+//                tmpGoods.setPerformance(tmpPerformance);
             }
         }
         System.out.println(registerGoodsList);

@@ -53,14 +53,14 @@
 //            throw new RequestException();
 //        }
 //
-//        if (buyer.getAmount() < registerDeployVersion.getPrice()) {
+//        if (buyer.getInvestCash() < registerDeployVersion.getPrice()) {
 //            throw new RequestException();
 //        }
-//        float buyerAmount = buyer.getAmount();
+//        float buyerAmount = buyer.getInvestCash();
 //        float diffPrice = registerDeployVersion.getPrice() * -1;
 //        buyer = userCoinService.updateAmount(buyer.getUserId(), diffPrice);
 //
-//        if (buyer.getAmount() != (buyerAmount + diffPrice)) {
+//        if (buyer.getInvestCash() != (buyerAmount + diffPrice)) {
 //            throw new OperationException("Low balance");
 //        }
 //

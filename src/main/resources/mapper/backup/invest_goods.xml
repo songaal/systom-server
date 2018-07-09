@@ -6,13 +6,13 @@
 <mapper namespace="goods">
 
     <insert id="registerGoods" parameterType="Goods" keyProperty="id" keyColumn="id" useGeneratedKeys="true">
-        INSERT INTO goods (strategy_id, version, exchange, coin, description, max_amount
+        INSERT INTO goods (strategy_id, version, exchange, coinUnit, description, max_amount
                           , min_amount, recruit_start, recruit_end, invest_start, invest_end
-                          , backtest_start, backtest_end, amount, currency, name, user_id)
+                          , backtest_start, backtest_end, cash, cashUnit, name, user_id)
         VALUES (${strategyId},
                 ${version},
                 #{exchange},
-                #{coin},
+                #{coinUnit},
                 #{description},
                 ${maxAmount},
                 ${minAmount},
@@ -20,21 +20,21 @@
                 ${recruitEnd},
                 ${investStart},
                 ${investEnd},
-                ${backtestStart},
-                ${backtestEnd},
-                ${amount},
-                #{currency},
+                ${testStart},
+                ${testEnd},
+                ${cash},
+                #{cashUnit},
                 #{name},
                 #{userId}
         )
     </insert>
 
     <insert id="addInvestors" parameterType="InvestGoods" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO invest_goods (goods_id, user_id, exchange_key_id, amount)
+        INSERT INTO invest_goods (goods_id, user_id, exchange_key_id, cash)
         VALUES (${goodsId},
                 #{userId},
                 ${exchangeKeyId},
-                ${amount}
+                ${cash}
         )
     </insert>
 
@@ -42,7 +42,7 @@
         INSERT INTO performance (id, total_equity, total_equity_usd, total_commission, base_price
                                 , return_pct, max_return_pct, wins_pct, wins_count, lose_count
                                 , trades, pnl_rate, max_drawdown, max_drawdown_duration, wins_return_avg, lose_return_avg)
-        VALUES ( ${id}, 0, 0, 0, ${amount}, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        VALUES ( ${id}, 0, 0, 0, ${cash}, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
     </insert>
 
     <select id="getGoodsMeta" parameterType="Integer" resultType="Goods">
@@ -50,7 +50,7 @@
              , a.strategy_id
              , a.version
              , a.exchange
-             , a.coin
+             , a.coinUnit
              , a.description
              , a.max_amount
              , a.min_amount
@@ -63,15 +63,15 @@
              , a.invest_end
              , a.backtest_start
              , a.backtest_end
-             , a.amount
-             , a.currency
+             , a.cash
+             , a.cashUnit
              , a.name
              , a.user_id
              , ifnull(b.recruit_amount, 0) as recruit_amount
           FROM goods a
           LEFT JOIN (SELECT aa.id
                           , aa.goods_id
-                          , sum(aa.amount) as recruit_amount
+                          , sum(aa.cash) as recruit_amount
                        FROM invest_goods aa
                       WHERE aa.goods_id = #{param1}
                         AND aa.user_id != '0'
@@ -85,7 +85,7 @@
              , a.goods_id
              , a.user_id
              , a.exchange_key_id
-             , amount
+             , cash
         FROM invest_goods a
         WHERE 1=1
         AND a.goods_id = ${goodsId}
@@ -96,7 +96,7 @@
              , a.goods_id
              , a.user_id
              , a.exchange_key_id
-             , amount
+             , cash
           FROM invest_goods a
          WHERE 1=1
            AND a.goods_id = ${goodsId}
@@ -147,7 +147,7 @@
             , a.strategy_id
             , a.version
             , a.exchange
-            , a.coin
+            , a.coinUnit
             , a.description
             , a.max_amount
             , a.min_amount
@@ -160,15 +160,15 @@
             , a.invest_end
             , a.backtest_start
             , a.backtest_end
-            , a.amount
+            , a.cash
             , ifnull(b.recruit_amount, 0) as recruit_amount
-            , a.currency
+            , a.cashUnit
             , a.name
             , a.user_id
             , ifnull(c.is_invest, false) as is_invest
         FROM goods a
         LEFT JOIN (SELECT aa.goods_id
-						, sum(aa.amount) as recruit_amount
+						, sum(aa.cash) as recruit_amount
 				     FROM invest_goods aa
                     WHERE aa.user_id != '0'
 					GROUP BY aa.goods_id
@@ -221,7 +221,7 @@
              , a.goods_id
              , a.user_id
              , a.exchange_key_id
-             , a.amount
+             , a.cash
           FROM invest_goods a
          WHERE a.user_id = #{userId}
            AND a.goods_id in
@@ -299,18 +299,18 @@
            SET strategy_id    = ${strategyId}
              , version        = ${version}
              , exchange       = #{exchange}
-             , coin           = #{coin}
+             , coinUnit           = #{coinUnit}
              , description    = #{description}
-             , amount         = ${amount}
+             , cash         = ${cash}
              , max_amount     = ${maxAmount}
              , min_amount     = ${minAmount}
-             , currency       = #{currency}
+             , cashUnit       = #{cashUnit}
              , recruit_start  = ${recruitStart}
              , recruit_end    = ${recruitEnd}
              , invest_start   = ${investStart}
              , invest_end     = ${investEnd}
-             , backtest_start = ${backtestStart}
-             , backtest_end   = ${backtestEnd}
+             , backtest_start = ${testStart}
+             , backtest_end   = ${testEnd}
              , name           = #{name}
       WHERE id = ${id}
         AND user_id = #{userId}

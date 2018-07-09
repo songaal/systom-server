@@ -9,63 +9,28 @@ import java.util.Date;
 public class Goods {
 
     private Integer id;
-    private String name;
     private Integer strategyId;
     private Integer version;
     private String exchange;
-    private String coin;
+    private String coinUnit;
+    private String baseUnit;
+    private String name;
     private String description;
-    private Float amount;
-    private Float maxAmount;
-    private Float minAmount;
-    private String currency;
+    private Float cash;
+    private String cashUnit;
     private Boolean isDisplay;
-    private Long recruitStart;
-    private Long recruitEnd;
-    private Long investStart;
-    private Long investEnd;
-    private Long backtestStart;
-    private Long backtestEnd;
+    private Integer recruitStart;
+    private Integer recruitEnd;
+    private Integer investStart;
+    private Integer investEnd;
+    private Integer testStart;
+    private Integer testEnd;
     private String userId;
     private Date createTime;
-
-    private float recruitAmount;
-
-    private TaskResult.Result performance;
-
-    private boolean isInvest;
-
-    public boolean isInvest() {
-        return isInvest;
-    }
-
-    public void setInvest(boolean invest) {
-        isInvest = invest;
-    }
-
-    public TaskResult.Result getPerformance() {
-        return performance;
-    }
-
-    public void setPerformance(TaskResult.Result performance) {
-        this.performance = performance;
-    }
-
-    public float getRecruitAmount() {
-        return recruitAmount;
-    }
-
-    public void setRecruitAmount(float recruitAmount) {
-        this.recruitAmount = recruitAmount;
-    }
-
-    public String getCurrency() {
-        return currency;
-    }
-
-    public void setCurrency(String currency) {
-        this.currency = currency;
-    }
+    private Float testReturnPct;
+    private String testMonthlyReturn;
+    private float recruitCash;
+    private Integer investId;
 
     public Integer getId() {
         return id;
@@ -73,14 +38,6 @@ public class Goods {
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public Integer getStrategyId() {
@@ -107,12 +64,28 @@ public class Goods {
         this.exchange = exchange;
     }
 
-    public String getCoin() {
-        return coin;
+    public String getCoinUnit() {
+        return coinUnit;
     }
 
-    public void setCoin(String coin) {
-        this.coin = coin;
+    public void setCoinUnit(String coinUnit) {
+        this.coinUnit = coinUnit;
+    }
+
+    public String getBaseUnit() {
+        return baseUnit;
+    }
+
+    public void setBaseUnit(String baseUnit) {
+        this.baseUnit = baseUnit;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getDescription() {
@@ -123,20 +96,20 @@ public class Goods {
         this.description = description;
     }
 
-    public Float getMaxAmount() {
-        return maxAmount;
+    public Float getCash() {
+        return cash;
     }
 
-    public void setMaxAmount(Float maxAmount) {
-        this.maxAmount = maxAmount;
+    public void setCash(Float cash) {
+        this.cash = cash;
     }
 
-    public Float getMinAmount() {
-        return minAmount;
+    public String getCashUnit() {
+        return cashUnit;
     }
 
-    public void setMinAmount(Float minAmount) {
-        this.minAmount = minAmount;
+    public void setCashUnit(String cashUnit) {
+        this.cashUnit = cashUnit;
     }
 
     public Boolean getDisplay() {
@@ -147,60 +120,52 @@ public class Goods {
         isDisplay = display;
     }
 
-    public Long getRecruitStart() {
+    public Integer getRecruitStart() {
         return recruitStart;
     }
 
-    public void setRecruitStart(Long recruitStart) {
+    public void setRecruitStart(Integer recruitStart) {
         this.recruitStart = recruitStart;
     }
 
-    public Long getRecruitEnd() {
+    public Integer getRecruitEnd() {
         return recruitEnd;
     }
 
-    public void setRecruitEnd(Long recruitEnd) {
+    public void setRecruitEnd(Integer recruitEnd) {
         this.recruitEnd = recruitEnd;
     }
 
-    public Long getInvestStart() {
+    public Integer getInvestStart() {
         return investStart;
     }
 
-    public void setInvestStart(Long investStart) {
+    public void setInvestStart(Integer investStart) {
         this.investStart = investStart;
     }
 
-    public Long getInvestEnd() {
+    public Integer getInvestEnd() {
         return investEnd;
     }
 
-    public void setInvestEnd(Long investEnd) {
+    public void setInvestEnd(Integer investEnd) {
         this.investEnd = investEnd;
     }
 
-    public Long getBacktestStart() {
-        return backtestStart;
+    public Integer getTestStart() {
+        return testStart;
     }
 
-    public void setBacktestStart(Long backtestStart) {
-        this.backtestStart = backtestStart;
+    public void setTestStart(Integer testStart) {
+        this.testStart = testStart;
     }
 
-    public Long getBacktestEnd() {
-        return backtestEnd;
+    public Integer getTestEnd() {
+        return testEnd;
     }
 
-    public void setBacktestEnd(Long backtestEnd) {
-        this.backtestEnd = backtestEnd;
-    }
-
-    public Float getAmount() {
-        return amount;
-    }
-
-    public void setAmount(Float amount) {
-        this.amount = amount;
+    public void setTestEnd(Integer testEnd) {
+        this.testEnd = testEnd;
     }
 
     public String getUserId() {
@@ -217,5 +182,37 @@ public class Goods {
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+    }
+
+    public float getRecruitCash() {
+        return recruitCash;
+    }
+
+    public void setRecruitCash(float recruitCash) {
+        this.recruitCash = recruitCash;
+    }
+
+    public Integer getInvestId() {
+        return investId;
+    }
+
+    public void setInvestId(Integer investId) {
+        this.investId = investId;
+    }
+
+    public Float getTestReturnPct() {
+        return testReturnPct;
+    }
+
+    public void setTestReturnPct(Float testReturnPct) {
+        this.testReturnPct = testReturnPct;
+    }
+
+    public String getTestMonthlyReturn() {
+        return testMonthlyReturn;
+    }
+
+    public void setTestMonthlyReturn(String testMonthlyReturn) {
+        this.testMonthlyReturn = testMonthlyReturn;
     }
 }

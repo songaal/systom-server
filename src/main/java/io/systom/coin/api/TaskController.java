@@ -3,7 +3,7 @@ package io.systom.coin.api;
 import io.systom.coin.exception.AbstractException;
 import io.systom.coin.exception.OperationException;
 import io.systom.coin.model.Strategy;
-import io.systom.coin.model.Task;
+import io.systom.coin.model.backup.Task;
 import io.systom.coin.service.TaskService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

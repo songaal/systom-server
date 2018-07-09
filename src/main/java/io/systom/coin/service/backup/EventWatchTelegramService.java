@@ -117,9 +117,9 @@
 //                                , order.getExchange()
 //                                , order.getBase()
 //                                , order.getPrice()
-//                                , order.getCoin()
-//                                , order.getAmount()
-//                                , order.getAmount() < 0 ? "판매" : "구매"
+//                                , order.getCoinUnit()
+//                                , order.getCash()
+//                                , order.getCash() < 0 ? "판매" : "구매"
 //                );
 //                sendMessage(userId, msg);
 //            } catch (Exception e){

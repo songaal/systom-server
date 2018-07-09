@@ -42,7 +42,7 @@
 //            if (registeredUser == null) {
 //                insertUserCoin(userId);
 //            }
-//            registeredUser.setAmount(amount);
+//            registeredUser.setInvestCash(amount);
 //            int cnt = sqlSession.update("userCoin.updateAmount", registeredUser);
 //            if (cnt != 1) {
 //                logger.error("update userCoin count: " + cnt);

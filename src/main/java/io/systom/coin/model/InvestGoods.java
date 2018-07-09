@@ -10,26 +10,17 @@ public class InvestGoods {
     private Integer id;
     private Integer goodsId;
     private String userId;
-    private Float amount;
+    private Float investCash;
     private Integer exchangeKeyId;
     private Date createTime;
-    private boolean isInvest;
 
     public InvestGoods() {}
 
-    public InvestGoods(Integer goodsId, String userId, Float amount, Integer exchangeKeyId) {
+    public InvestGoods(Integer goodsId, String userId, Float investCash, Integer exchangeKeyId) {
         this.goodsId = goodsId;
         this.userId = userId;
-        this.amount = amount;
+        this.investCash = investCash;
         this.exchangeKeyId = exchangeKeyId;
-    }
-
-    public boolean isInvest() {
-        return isInvest;
-    }
-
-    public void setInvest(boolean invest) {
-        isInvest = invest;
     }
 
     public Integer getId() {
@@ -64,12 +55,12 @@ public class InvestGoods {
         this.exchangeKeyId = exchangeKeyId;
     }
 
-    public Float getAmount() {
-        return amount;
+    public Float getInvestCash() {
+        return investCash;
     }
 
-    public void setAmount(Float amount) {
-        this.amount = amount;
+    public void setInvestCash(Float investCash) {
+        this.investCash = investCash;
     }
 
     public Date getCreateTime() {

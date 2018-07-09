@@ -9,16 +9,17 @@
     </settings>
 
     <typeAliases>
-        <typeAlias alias="UserNotification" type="io.systom.coin.model.UserNotification"/>
-        <typeAlias alias="ExchangeKey" type="io.systom.coin.model.ExchangeKey"/>
-        <typeAlias alias="Strategy" type="io.systom.coin.model.Strategy"/>
-        <typeAlias alias="StrategyDeployVersion" type="io.systom.coin.model.StrategyDeployVersion"/>
-        <typeAlias alias="TaskResult" type="io.systom.coin.model.TaskResult$Result"/>
-        <typeAlias alias="TaskResult.Trade" type="io.systom.coin.model.TaskResult$Result$Trade"/>
-        <typeAlias alias="TaskResult.Value" type="io.systom.coin.model.TaskResult$Result$Value"/>
-        <typeAlias alias="Goods" type="io.systom.coin.model.Goods"/>
-        <typeAlias alias="InvestGoods" type="io.systom.coin.model.InvestGoods"/>
+        <typeAlias alias="UserNotification" type="io.systom.coinUnit.model.UserNotification"/>
+        <typeAlias alias="ExchangeKey" type="io.systom.coinUnit.model.ExchangeKey"/>
+        <typeAlias alias="Strategy" type="io.systom.coinUnit.model.Strategy"/>
+        <typeAlias alias="StrategyDeployVersion" type="io.systom.coinUnit.model.StrategyDeployVersion"/>
+        <typeAlias alias="Goods" type="io.systom.coinUnit.model.Goods"/>
+        <typeAlias alias="InvestGoods" type="io.systom.coinUnit.model.InvestGoods"/>
 
+
+        <!--<typeAlias alias="TaskResult" type="io.systom.coinUnit.model.TaskResult$Result"/>-->
+        <!--<typeAlias alias="TaskResult.Trade" type="io.systom.coinUnit.model.TaskResult$Result$Trade"/>-->
+        <!--<typeAlias alias="TaskResult.Value" type="io.systom.coinUnit.model.TaskResult$Result$Value"/>-->
     </typeAliases>
 
 </configuration>

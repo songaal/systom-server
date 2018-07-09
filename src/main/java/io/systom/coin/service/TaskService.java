@@ -2,9 +2,9 @@ package io.systom.coin.service;
 
 import io.systom.coin.exception.OperationException;
 import io.systom.coin.exception.ParameterException;
-import io.systom.coin.model.TaskResult;
+import io.systom.coin.model.backup.TaskResult;
 import io.systom.coin.model.Strategy;
-import io.systom.coin.model.Task;
+import io.systom.coin.model.backup.Task;
 import io.systom.coin.utils.DockerUtils;
 import io.systom.coin.utils.TaskFuture;
 import org.apache.ibatis.session.SqlSession;

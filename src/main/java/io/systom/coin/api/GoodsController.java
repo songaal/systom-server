@@ -4,17 +4,15 @@ import io.systom.coin.exception.AbstractException;
 import io.systom.coin.exception.AuthenticationException;
 import io.systom.coin.exception.OperationException;
 import io.systom.coin.model.Goods;
-import io.systom.coin.model.InvestGoods;
+import io.systom.coin.service.GoodsService;
 import io.systom.coin.service.IdentityService;
-import io.systom.coin.service.InvestGoodsService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /*
  * create joonwoo 2018. 7. 3.
@@ -26,18 +24,18 @@ public class GoodsController extends AbstractController{
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(GoodsController.class);
 
     @Autowired
-    private InvestGoodsService investGoodsService;
+    private GoodsService goodsService;
     @Autowired
     private IdentityService identityService;
 
-    private enum GOODS_TYPE { wait, running, close }
+    public enum GOODS_TYPE { wait, running, close }
 
     @PostMapping
     public ResponseEntity<?> registerGoods(@RequestAttribute String userId,
-                                                 @RequestBody Goods target) {
+                                           @RequestBody Goods target) {
         try {
             target.setUserId(userId);
-            Goods registerGoods = investGoodsService.registerInvestGoods(target);
+            Goods registerGoods = goodsService.registerInvestGoods(target);
             return success(registerGoods);
         } catch (AbstractException e) {
             logger.error("", e);
@@ -50,11 +48,11 @@ public class GoodsController extends AbstractController{
 
     @GetMapping
     public ResponseEntity<?> retrieveGoodsList(@RequestAttribute String userId,
-                                                      @RequestParam String exchange,
-                                                      @RequestParam(required = false) String type) {
+                                               @RequestParam String exchange,
+                                               @RequestParam(required = false) String type) {
         try {
-            List<Goods> registerRecruitGoodsList = new ArrayList<>();
-            long nowTime = System.currentTimeMillis();
+            List<Goods> registerGoodsList = new ArrayList<>();
+            int nowTime = Integer.parseInt(new SimpleDateFormat("yyyymmdd").format(new Date()));
             Goods searchGoods = null;
             if (type != null && identityService.isManager(userId)) {
                 List<String> typeList = Arrays.asList(type.split(","));
@@ -65,7 +63,8 @@ public class GoodsController extends AbstractController{
                     searchGoods.setUserId(userId);
                     searchGoods.setExchange(exchange);
                     searchGoods.setInvestStart(nowTime);
-                    registerRecruitGoodsList.addAll(investGoodsService.retrieveGoodsList(searchGoods));
+                    searchGoods.setDisplay(false);
+                    registerGoodsList.addAll(goodsService.retrieveGoodsList(searchGoods));
                 }
                 if (typeList.contains(GOODS_TYPE.running.name())) {
                     logger.debug("retrieveGoodsList running");
@@ -74,7 +73,8 @@ public class GoodsController extends AbstractController{
                     searchGoods.setExchange(exchange);
                     searchGoods.setInvestStart(nowTime);
                     searchGoods.setInvestEnd(nowTime);
-                    registerRecruitGoodsList.addAll(investGoodsService.retrieveGoodsList(searchGoods));
+                    searchGoods.setDisplay(false);
+                    registerGoodsList.addAll(goodsService.retrieveGoodsList(searchGoods));
                 }
                 if (typeList.contains(GOODS_TYPE.close.name())) {
                     logger.debug("retrieveGoodsList close");
@@ -82,7 +82,8 @@ public class GoodsController extends AbstractController{
                     searchGoods.setUserId(userId);
                     searchGoods.setExchange(exchange);
                     searchGoods.setInvestEnd(nowTime);
-                    registerRecruitGoodsList.addAll(investGoodsService.retrieveGoodsList(searchGoods));
+                    searchGoods.setDisplay(false);
+                    registerGoodsList.addAll(goodsService.retrieveGoodsList(searchGoods));
                 }
             } else {
                 searchGoods = new Goods();
@@ -91,9 +92,9 @@ public class GoodsController extends AbstractController{
                 searchGoods.setDisplay(true);
                 searchGoods.setExchange(exchange);
                 searchGoods.setUserId(userId);
-                registerRecruitGoodsList = investGoodsService.retrieveGoodsList(searchGoods);
+                registerGoodsList = goodsService.retrieveGoodsList(searchGoods);
             }
-            return success(registerRecruitGoodsList);
+            return success(registerGoodsList);
         } catch (AbstractException e) {
             logger.error("", e);
             return e.response();
@@ -107,15 +108,12 @@ public class GoodsController extends AbstractController{
     public ResponseEntity<?> getGoods(@RequestAttribute String userId,
                                       @PathVariable Integer id) {
         try {
-            Goods registerGoods = investGoodsService.getGoods(id);
-            long nowTime = System.currentTimeMillis();
-            InvestGoods investGoods = investGoodsService.findInvestIdByUser(id, userId);
-            if (investGoods != null) {
-                registerGoods.setInvest(true);
-            }
+            Goods registerGoods = goodsService.getGoods(id, userId);
+            int nowTime = Integer.parseInt(new SimpleDateFormat("yyyymmdd").format(new Date()));
+
             if (!identityService.isManager(userId)
-                    && registerGoods.getRecruitStart() > nowTime
-                    && registerGoods.getRecruitEnd() < nowTime) {
+                    && registerGoods.getRecruitStart().intValue() > nowTime
+                    && registerGoods.getRecruitEnd().intValue() < nowTime) {
                 throw new AuthenticationException();
             }
             return success(registerGoods);
@@ -129,10 +127,10 @@ public class GoodsController extends AbstractController{
     }
 
     @PutMapping("/{id}/hide")
-    public ResponseEntity<?> updateRecruitGoodsHide(@RequestAttribute String userId,
+    public ResponseEntity<?> updateGoodsHide(@RequestAttribute String userId,
                                              @PathVariable Integer id) {
         try {
-            Goods registerGoods = investGoodsService.updateRecruitGoodsHide(id, userId);
+            Goods registerGoods = goodsService.updateGoodsHide(id, userId);
             return success(registerGoods);
         } catch (AbstractException e) {
             logger.error("", e);
@@ -144,10 +142,10 @@ public class GoodsController extends AbstractController{
     }
 
     @PutMapping("/{id}/show")
-    public ResponseEntity<?> updateRecruitGoodsShow(@RequestAttribute String userId,
-                                                    @PathVariable Integer id) {
+    public ResponseEntity<?> updateGoodsShow(@RequestAttribute String userId,
+                                             @PathVariable Integer id) {
         try {
-            Goods registerGoods = investGoodsService.updateRecruitGoodsShow(id, userId);
+            Goods registerGoods = goodsService.updateGoodsShow(id, userId);
             return success(registerGoods);
         } catch (AbstractException e) {
             logger.error("", e);
@@ -159,13 +157,13 @@ public class GoodsController extends AbstractController{
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateRecruitGoods(@PathVariable Integer id,
-                                                @RequestBody Goods target,
-                                                @RequestAttribute String userId) {
+    public ResponseEntity<?> updateGoods(@PathVariable Integer id,
+                                         @RequestBody Goods target,
+                                         @RequestAttribute String userId) {
         try {
             target.setId(id);
             target.setUserId(userId);
-            Goods registerGoods = investGoodsService.updateRecruitGoods(target);
+            Goods registerGoods = goodsService.updateGoods(target);
             return success(registerGoods);
         } catch (AbstractException e) {
             logger.error("", e);
@@ -177,10 +175,10 @@ public class GoodsController extends AbstractController{
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteRecruitGoods(@RequestAttribute String userId,
-                                                @PathVariable Integer id) {
+    public ResponseEntity<?> deleteGoods(@RequestAttribute String userId,
+                                         @PathVariable Integer id) {
         try {
-            Goods deleteRecruitGoods = investGoodsService.deleteGoods(id, userId);
+            Goods deleteRecruitGoods = goodsService.deleteGoods(id, userId);
             return success(deleteRecruitGoods);
         } catch (AbstractException e) {
             logger.error("", e);

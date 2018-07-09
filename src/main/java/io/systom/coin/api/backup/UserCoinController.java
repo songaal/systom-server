@@ -24,7 +24,7 @@
 //    @PostMapping
 //    public ResponseEntity<?> chargeAmount(@RequestAttribute("userId") String userId, @RequestBody User user) {
 //        try {
-//            User registerUser = userCoinService.updateAmount(userId, user.getAmount());
+//            User registerUser = userCoinService.updateAmount(userId, user.getInvestCash());
 //            return success(registerUser);
 //        } catch (AbstractException e) {
 //            logger.error("", e);
@@ -33,7 +33,7 @@
 //    }
 //
 //    @GetMapping("/me")
-//    public ResponseEntity<?> getAmount(@RequestAttribute("userId") String userId) {
+//    public ResponseEntity<?> getInvestCash(@RequestAttribute("userId") String userId) {
 //        User registerUser = userCoinService.getUserCoin(userId);
 //        return success(registerUser);
 //    }

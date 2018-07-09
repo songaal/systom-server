@@ -2,7 +2,7 @@ package io.systom.coin;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import io.systom.coin.model.TaskResult;
+import io.systom.coin.model.backup.TaskResult;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="goods">
+
+    <insert id="registerGoods" parameterType="Goods" keyProperty="id" keyColumn="id" useGeneratedKeys="true">
+        INSERT INTO goods (strategy_id, version, exchange, coin_unit, base_unit, cash_unit, cash
+                          , recruit_start, recruit_end, invest_start, invest_end, test_start, test_end
+                          , name, description, user_id)
+        VALUES (${strategyId},
+                ${version},
+                #{exchange},
+                #{coinUnit},
+                #{baseUnit},
+                #{cash_unit},
+                ${cash},
+                ${recruitStart},
+                ${recruitEnd},
+                ${investStart},
+                ${investEnd},
+                ${testStart},
+                ${testEnd},
+                #{name},
+                #{description},
+                #{userId}
+        )
+    </insert>
+
+    <select id="getGoods" parameterType="Goods" resultType="Goods">
+        SELECT a.id
+             , a.strategy_id
+             , a.version
+             , a.exchange
+             , a.coin_unit
+             , a.base_unit
+             , a.name
+             , a.description
+             , a.cash
+             , a.cash_unit
+             , a.is_display
+             , a.recruit_start
+             , a.recruit_end
+             , a.invest_start
+             , a.invest_end
+             , a.test_start
+             , a.test_end
+             , a.test_monthly_return
+             , a.test_return_pct
+             , a.user_id
+             , ifnull(b.recruit_amount, 0) as invest_cash
+            <if test="userId != null and userId != ''">
+             , c.invest_id
+            </if>
+             , a.create_time
+             , a.ecs_id
+          FROM goods a
+          LEFT JOIN (SELECT aa.id
+                           , aa.goods_id
+                           , sum(aa.invest_cash) as invest_cash
+                        FROM invest_goods aa
+                       WHERE aa.goods_id = ${id}
+                       GROUP BY aa.goods_id
+             ) b ON a.id = b.goods_id
+          <if test="userId != null and userId != ''">
+          LEFT JOIN (SELECT bb.goods_id
+                          , bb.id as invest_id
+                       FROM invest_goods bb
+                      WHERE bb.user_id = #{userId}
+                      GROUP BY bb.goods_id
+             ) c on a.id = c.goods_id
+          </if>
+         WHERE a.id = ${id}
+    </select>
+
+    <select id="retrieveGoodsList" parameterType="Goods" resultType="Goods">
+        SELECT a.id
+             , a.strategy_id
+             , a.version
+             , a.exchange
+             , a.coin_unit
+             , a.base_unit
+             , a.description
+             , a.is_display
+             , a.create_time
+             , a.recruit_start
+             , a.recruit_end
+             , a.invest_start
+             , a.invest_end
+             , a.test_start
+             , a.test_end
+             , a.cash
+             , a.cash_unit
+             , a.name
+             , a.user_id
+             , a.test_monthly_return
+             , a.test_return_pct
+             , a.create_time
+             , ifnull(b.invest_cash, 0) as invest_cash
+             , c.invest_id
+          FROM goods a
+          LEFT JOIN (SELECT aa.goods_id
+						  , sum(aa.invest_cash) as invest_cash
+				       FROM invest_goods aa
+					  GROUP BY aa.goods_id
+             ) b on a.id = b.goods_id
+          LEFT JOIN (SELECT bb.goods_id
+						  , bb.id as invest_id
+				       FROM invest_goods bb
+                      WHERE bb.user_id = #{userId}
+				     GROUP BY bb.goods_id
+		      ) c on a.id = c.goods_id
+          WHERE 1=1
+            AND a.exchange = #{exchange}
+        <if test="isDisplay != null and isDisplay != ''">
+            AND a.is_display = ${isDisplay}
+        </if>
+        <choose>
+            <when test="recruitStart != null and recruitStart != '' and recruitEnd != null and recruitEnd != ''">
+            <![CDATA[
+                AND a.recruit_start <= ${recruitStart}
+                AND a.recruit_end >= ${recruitEnd}
+            ]]>
+            </when>
+            <when test="investStart != null and investStart != '' and investEnd != null and investEnd != ''">
+            <![CDATA[
+                AND a.invest_start <= ${investStart}
+                AND a.invest_end >= ${investEnd}
+            ]]>
+            </when>
+            <when test="investStart != null and investStart != ''">
+            <![CDATA[
+                AND a.invest_start > ${investStart}
+            ]]>
+            </when>
+            <when test="investEnd != null and investEnd != ''">
+            <![CDATA[
+                AND a.invest_end < ${investEnd}
+            ]]>
+            </when>
+            <otherwise>
+                1 = 2
+            </otherwise>
+        </choose>
+        <![CDATA[
+        ORDER BY id DESC
+        ]]>
+    </select>
+
+    <update id="updateGoodsHide" parameterType="Integer">
+        UPDATE goods
+           SET is_display = false
+         WHERE id = #{id}
+    </update>
+
+    <update id="updateGoodsShow" parameterType="Integer">
+        UPDATE goods
+        SET is_display = true
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteGoods" parameterType="Integer">
+        DELETE FROM goods
+         WHERE id = #{id}
+    </delete>
+
+    <update id="updateGoods" parameterType="Goods">
+        UPDATE goods
+           SET strategy_id         = ${strategyId}
+             , version             = ${version}
+             , exchange            = #{exchange}
+             , coin_unit           = #{coinUnit}
+             , base_unit           = #{baseUnit}
+             , ecs_id              = ${ecsId}
+             , name                = #{name}
+             , description         = #{description}
+             , cash                = ${cash}
+             , cash_unit           = #{cash_unit}
+             , recruit_start       = ${recruitStart}
+             , recruit_end         = ${recruitEnd}
+             , invest_start        = ${investStart}
+             , invest_end          = ${investEnd}
+             , test_start          = ${testStart}
+             , test_end            = ${testEnd}
+             , test_monthly_return = #{testMonthlyReturn}
+             , test_return_pct     = #{testReturnPct}
+       WHERE id = ${id}
+    </update>
+
+</mapper>

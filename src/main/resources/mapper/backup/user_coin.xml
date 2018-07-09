@@ -6,7 +6,7 @@
 <mapper namespace="userCoin">
 
     <insert id="insertUserCoin" parameterType="String">
-        INSERT INTO user_coin (user_id, amount)
+        INSERT INTO user_coin (user_id, cash)
         VALUES ( #{param1}
                , 0
         )
@@ -14,13 +14,13 @@
 
     <update id="updateAmount" parameterType="User">
         UPDATE user_coin
-           SET amount = amount + ${amount}
+           SET cash = cash + ${cash}
          WHERE user_id = #{userId}
     </update>
 
     <select id="getUserCoin" parameterType="String" resultType="User">
         SELECT user_id
-             , amount
+             , cash
           FROM user_coin
          WHERE user_id = #{userId}
     </select>

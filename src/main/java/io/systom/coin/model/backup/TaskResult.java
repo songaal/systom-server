@@ -1,4 +1,4 @@
-package io.systom.coin.model;
+package io.systom.coin.model.backup;
 
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;

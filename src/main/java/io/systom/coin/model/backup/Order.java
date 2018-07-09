@@ -58,11 +58,11 @@
 //        this.exchange = exchange;
 //    }
 //
-//    public String getCoin() {
+//    public String getCoinUnit() {
 //        return coin;
 //    }
 //
-//    public void setCoin(String coin) {
+//    public void setCoinUnit(String coin) {
 //        this.coin = coin;
 //    }
 //
@@ -74,11 +74,11 @@
 //        this.base = base;
 //    }
 //
-//    public Double getAmount() {
+//    public Double getCash() {
 //        return amount;
 //    }
 //
-//    public void setAmount(Double amount) {
+//    public void setCash(Double amount) {
 //        this.amount = amount;
 //    }
 //
