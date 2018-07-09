@@ -14,7 +14,7 @@
                 #{exchange},
                 #{coinUnit},
                 #{baseUnit},
-                #{cash_unit},
+                #{cashUnit},
                 ${cash},
                 ${recruitStart},
                 ${recruitEnd},
@@ -49,7 +49,7 @@
              , a.test_monthly_return
              , a.test_return_pct
              , a.user_id
-             , ifnull(b.recruit_amount, 0) as invest_cash
+             , b.invest_cash
             <if test="userId != null and userId != ''">
              , c.invest_id
             </if>
@@ -172,11 +172,10 @@
              , exchange            = #{exchange}
              , coin_unit           = #{coinUnit}
              , base_unit           = #{baseUnit}
-             , ecs_id              = ${ecsId}
              , name                = #{name}
              , description         = #{description}
              , cash                = ${cash}
-             , cash_unit           = #{cash_unit}
+             , cash_unit           = #{cashUnit}
              , recruit_start       = ${recruitStart}
              , recruit_end         = ${recruitEnd}
              , invest_start        = ${investStart}

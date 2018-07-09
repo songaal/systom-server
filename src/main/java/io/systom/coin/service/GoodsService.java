@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /*
@@ -39,6 +41,7 @@ public class GoodsService {
     @Autowired
     private InvestGoodsService investGoodsService;
 
+    public static final String DATE_FORMAT = "yyyyMMdd";
     @Transactional
     public Goods registerInvestGoods(Goods target){
 
@@ -90,7 +93,8 @@ public class GoodsService {
 
     public Goods updateGoodsHide(Integer id, String userId) {
         Goods registerGoods = getGoods(id);
-        if (registerGoods == null || registerGoods.getInvestStart() <= System.currentTimeMillis()) {
+        int nowTime = Integer.parseInt(new SimpleDateFormat(DATE_FORMAT).format(new Date()));
+        if (registerGoods == null || registerGoods.getInvestStart().intValue() <= nowTime) {
             throw new ParameterException("GoodsId");
         } else if (!identityService.isManager(userId)) {
             throw new AuthenticationException();
@@ -109,7 +113,8 @@ public class GoodsService {
 
     public Goods updateGoodsShow(Integer id, String userId) {
         Goods registerGoods = getGoods(id);
-        if (registerGoods == null || registerGoods.getInvestStart() <= System.currentTimeMillis()) {
+        int nowTime = Integer.parseInt(new SimpleDateFormat(DATE_FORMAT).format(new Date()));
+        if (registerGoods == null || registerGoods.getInvestStart().intValue() <= nowTime) {
             throw new ParameterException("GoodsId");
         } else if (!identityService.isManager(userId)) {
             throw new AuthenticationException();
@@ -158,11 +163,12 @@ public class GoodsService {
     @Transactional
     public Goods updateGoods(Goods target) {
         Goods registerGoods = getGoods(target.getId());
+        int nowTime = Integer.parseInt(new SimpleDateFormat(DATE_FORMAT).format(new Date()));
         if (registerGoods == null) {
             throw new ParameterException("inValid GoodsId");
         } else if (!registerGoods.getUserId().equals(target.getUserId())) {
             throw new AuthenticationException();
-        } else if (registerGoods.getRecruitEnd().longValue() < System.currentTimeMillis()) {
+        } else if (registerGoods.getRecruitEnd().longValue() < nowTime) {
             throw new RequestException("Goods that cannot be modified");
         } else if (!isGoodsValidation(target)) {
             throw new ParameterException("Require");
@@ -220,27 +226,27 @@ public class GoodsService {
             logger.debug("Invalid currency");
             return false;
         } else if (target.getRecruitStart() == null || target.getRecruitEnd() == null
-                || String.valueOf(target.getRecruitStart()).length() != 13
-                || String.valueOf(target.getRecruitEnd()).length() != 13
-                || target.getRecruitStart().longValue() >= target.getRecruitEnd().longValue()) {
+                || String.valueOf(target.getRecruitStart()).length() != 8
+                || String.valueOf(target.getRecruitEnd()).length() != 8
+                || target.getRecruitStart().intValue() > target.getRecruitEnd().intValue()) {
 //            모집 시작일은 모집 종료일보다 클 수 없음.
             logger.debug("Invalid RecruitDate");
             return false;
         } else if (target.getInvestStart() == null || target.getInvestEnd() == null
-                || String.valueOf(target.getInvestStart()).length() != 13
-                || String.valueOf(target.getInvestEnd()).length() != 13
-                || target.getInvestStart().longValue() >= target.getInvestEnd().longValue()) {
+                || String.valueOf(target.getInvestStart()).length() != 8
+                || String.valueOf(target.getInvestEnd()).length() != 8
+                || target.getInvestStart().intValue() > target.getInvestEnd().intValue()) {
             logger.debug("Invalid investDate");
 //            투자 시작일은 모집 종료일보다 클 수 없음.
             return false;
         } else if (target.getTestStart() == null || target.getTestEnd() == null
-                || String.valueOf(target.getTestStart()).length() != 13
-                || String.valueOf(target.getTestEnd()).length() != 13
-                || target.getTestStart().longValue() >= target.getTestEnd().longValue()) {
+                || String.valueOf(target.getTestStart()).length() != 8
+                || String.valueOf(target.getTestEnd()).length() != 8
+                || target.getTestStart().intValue() > target.getTestEnd().intValue()) {
             logger.debug("Invalid BackTestDate");
 //            백테스트 시작일은 모집 종료일보다 클 수 없음.
             return false;
-        } else if (target.getRecruitEnd().longValue() >= target.getInvestStart().longValue()) {
+        } else if (target.getRecruitEnd().longValue() > target.getInvestStart().longValue()) {
             logger.debug("Invalid RecruitEnd >= InvestStart");
 //            모집 종료일은 투자 시작일보다 클 수 없음.
             return false;

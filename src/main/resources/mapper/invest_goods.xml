@@ -6,11 +6,11 @@
 <mapper namespace="investGoods">
 
     <insert id="registrationInvestor" parameterType="InvestGoods" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO invest_goods (goods_id, user_id, exchange_key_id, cash)
+        INSERT INTO invest_goods (goods_id, user_id, exchange_key_id, invest_cash)
         VALUES (${goodsId},
                 #{userId},
                 ${exchangeKeyId},
-                ${cash}
+                ${investCash}
         )
     </insert>
 
@@ -20,23 +20,23 @@
         WHERE id = #{id}
     </delete>
 
-    <select id="findInvestIdByUserList" parameterType="InvestGoods" resultType="InvestGoods">
+    <select id="findInvestGoodsByUserList" parameterType="InvestGoods" resultType="InvestGoods">
         SELECT a.id
              , a.goods_id
              , a.user_id
              , a.exchange_key_id
-             , cash
+             , invest_cash
         FROM invest_goods a
         WHERE 1=1
         AND a.goods_id = ${goodsId}
     </select>
 
-    <select id="findInvestIdByUser" parameterType="InvestGoods" resultType="InvestGoods">
+    <select id="findInvestGoodsByUser" parameterType="InvestGoods" resultType="InvestGoods">
         SELECT a.id
              , a.goods_id
              , a.user_id
              , a.exchange_key_id
-             , cash
+             , invest_cash
           FROM invest_goods a
          WHERE 1=1
            AND a.goods_id = ${goodsId}
@@ -48,7 +48,7 @@
              , a.goods_id
              , a.user_id
              , a.exchange_key_id
-             , a.cash
+             , a.invest_cash
           FROM invest_goods a
          WHERE a.user_id = #{userId}
            AND a.goods_id in

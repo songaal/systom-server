@@ -29,7 +29,7 @@ public class Goods {
     private Date createTime;
     private Float testReturnPct;
     private String testMonthlyReturn;
-    private float recruitCash;
+    private Float investGoods;
     private Integer investId;
 
     public Integer getId() {
@@ -184,12 +184,12 @@ public class Goods {
         this.createTime = createTime;
     }
 
-    public float getRecruitCash() {
-        return recruitCash;
+    public Float getInvestGoods() {
+        return investGoods;
     }
 
-    public void setRecruitCash(float recruitCash) {
-        this.recruitCash = recruitCash;
+    public void setInvestGoods(Float investGoods) {
+        this.investGoods = investGoods;
     }
 
     public Integer getInvestId() {

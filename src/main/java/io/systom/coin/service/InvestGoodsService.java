@@ -16,6 +16,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import static io.systom.coin.service.GoodsService.DATE_FORMAT;
+
 /*
  * create joonwoo 2018. 7. 3.
  * 
@@ -63,7 +65,7 @@ public class InvestGoodsService {
 
     public InvestGoods registrationInvestor(InvestGoods investor) {
         Goods registerGoods = goodsService.getGoods(investor.getGoodsId());
-        long nowTs = System.currentTimeMillis();
+        long nowTs = Integer.parseInt(new SimpleDateFormat(DATE_FORMAT).format(new Date()));
         if (registerGoods == null || !registerGoods.getDisplay()) {
 
             throw new RequestException("invalid goods");
@@ -101,12 +103,12 @@ public class InvestGoodsService {
             throw new OperationException("[FAIL] SQL Execute.");
         }
 
-        return investor;
+        return findInvestGoodsByUser(investor.getGoodsId(), investor.getUserId());
     }
 
     public InvestGoods removeInvestor(InvestGoods investor) {
         Goods registerGoods = goodsService.getGoods(investor.getGoodsId());
-        int nowTime = Integer.parseInt(new SimpleDateFormat("yyyymmdd").format(new Date()));
+        int nowTime = Integer.parseInt(new SimpleDateFormat(DATE_FORMAT).format(new Date()));
 
         if (registerGoods == null) {
             throw new ParameterException("goodsId");

@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static io.systom.coin.service.GoodsService.DATE_FORMAT;
+
 /*
  * create joonwoo 2018. 7. 3.
  * 
@@ -52,7 +54,7 @@ public class GoodsController extends AbstractController{
                                                @RequestParam(required = false) String type) {
         try {
             List<Goods> registerGoodsList = new ArrayList<>();
-            int nowTime = Integer.parseInt(new SimpleDateFormat("yyyymmdd").format(new Date()));
+            int nowTime = Integer.parseInt(new SimpleDateFormat(DATE_FORMAT).format(new Date()));
             Goods searchGoods = null;
             if (type != null && identityService.isManager(userId)) {
                 List<String> typeList = Arrays.asList(type.split(","));
@@ -109,7 +111,7 @@ public class GoodsController extends AbstractController{
                                       @PathVariable Integer id) {
         try {
             Goods registerGoods = goodsService.getGoods(id, userId);
-            int nowTime = Integer.parseInt(new SimpleDateFormat("yyyymmdd").format(new Date()));
+            int nowTime = Integer.parseInt(new SimpleDateFormat(DATE_FORMAT).format(new Date()));
 
             if (!identityService.isManager(userId)
                     && registerGoods.getRecruitStart().intValue() > nowTime
