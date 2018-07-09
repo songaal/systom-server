@@ -77,4 +77,5 @@ public class InvestGoodsController extends AbstractController{
         }
     }
 
+
 }
