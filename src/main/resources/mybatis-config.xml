@@ -15,6 +15,10 @@
         <typeAlias alias="StrategyDeployVersion" type="io.systom.coin.model.StrategyDeployVersion"/>
         <typeAlias alias="Goods" type="io.systom.coin.model.Goods"/>
         <typeAlias alias="InvestGoods" type="io.systom.coin.model.InvestGoods"/>
+        <typeAlias alias="PerformanceSummary" type="io.systom.coin.model.PerformanceSummary"/>
+        <typeAlias alias="PerformanceDaily" type="io.systom.coin.model.PerformanceDaily"/>
+        <typeAlias alias="Trade" type="io.systom.coin.model.Trade"/>
+        <typeAlias alias="UserMonthlyInvest" type="io.systom.coin.model.UserMonthlyInvest"/>
     </typeAliases>
 
 

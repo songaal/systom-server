@@ -12,11 +12,16 @@ public class PerformanceSummary {
     private float base;
     private float cash;
     private float equity;
-    private float dailyReturn;
-    private float dailyReturnPct;
-    private float cumReturn;
-    private float cumReturnPct;
-    private Date updated;
+    private float sumReturn;
+    private float sumReturnPct;
+    private float mdd;
+    private float pnlRate;
+    private float avgProfit;
+    private float avgLose;
+    private int trades;
+    private int winCount;
+    private int loseCount;
+    private Date createTime;
 
     public Integer getId() {
         return id;
@@ -58,43 +63,83 @@ public class PerformanceSummary {
         this.equity = equity;
     }
 
-    public float getDailyReturn() {
-        return dailyReturn;
+    public float getSumReturn() {
+        return sumReturn;
     }
 
-    public void setDailyReturn(float dailyReturn) {
-        this.dailyReturn = dailyReturn;
+    public void setSumReturn(float sumReturn) {
+        this.sumReturn = sumReturn;
     }
 
-    public float getDailyReturnPct() {
-        return dailyReturnPct;
+    public float getSumReturnPct() {
+        return sumReturnPct;
     }
 
-    public void setDailyReturnPct(float dailyReturnPct) {
-        this.dailyReturnPct = dailyReturnPct;
+    public void setSumReturnPct(float sumReturnPct) {
+        this.sumReturnPct = sumReturnPct;
     }
 
-    public float getCumReturn() {
-        return cumReturn;
+    public float getMdd() {
+        return mdd;
     }
 
-    public void setCumReturn(float cumReturn) {
-        this.cumReturn = cumReturn;
+    public void setMdd(float mdd) {
+        this.mdd = mdd;
     }
 
-    public float getCumReturnPct() {
-        return cumReturnPct;
+    public float getPnlRate() {
+        return pnlRate;
     }
 
-    public void setCumReturnPct(float cumReturnPct) {
-        this.cumReturnPct = cumReturnPct;
+    public void setPnlRate(float pnlRate) {
+        this.pnlRate = pnlRate;
     }
 
-    public Date getUpdated() {
-        return updated;
+    public float getAvgProfit() {
+        return avgProfit;
     }
 
-    public void setUpdated(Date updated) {
-        this.updated = updated;
+    public void setAvgProfit(float avgProfit) {
+        this.avgProfit = avgProfit;
+    }
+
+    public float getAvgLose() {
+        return avgLose;
+    }
+
+    public void setAvgLose(float avgLose) {
+        this.avgLose = avgLose;
+    }
+
+    public int getTrades() {
+        return trades;
+    }
+
+    public void setTrades(int trades) {
+        this.trades = trades;
+    }
+
+    public int getWinCount() {
+        return winCount;
+    }
+
+    public void setWinCount(int winCount) {
+        this.winCount = winCount;
+    }
+
+    public int getLoseCount() {
+        return loseCount;
+    }
+
+    public void setLoseCount(int loseCount) {
+        this.loseCount = loseCount;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
     }
 }

@@ -1,12 +1,11 @@
 package io.systom.coin.service;
 
 import io.systom.coin.config.TradeConfig;
+import io.systom.coin.exception.AuthenticationException;
 import io.systom.coin.exception.OperationException;
 import io.systom.coin.exception.ParameterException;
 import io.systom.coin.exception.RequestException;
-import io.systom.coin.model.ExchangeKey;
-import io.systom.coin.model.Goods;
-import io.systom.coin.model.InvestGoods;
+import io.systom.coin.model.*;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import static io.systom.coin.service.GoodsService.BOT_USER_ID;
 import static io.systom.coin.service.GoodsService.DATE_FORMAT;
 
 /*
@@ -39,6 +39,123 @@ public class InvestGoodsService {
     private ExchangeService exchangeService;
     @Autowired
     private GoodsService goodsService;
+    @Autowired
+    private PerformanceService performanceService;
+    @Autowired
+    private TradeService tradeService;
+
+    public InvestGoods registrationInvestor(InvestGoods investor) {
+        Goods registerGoods = goodsService.getGoods(investor.getGoodsId());
+        boolean isBot = investor.getUserId() == BOT_USER_ID;
+
+        if (!isBot) {
+            long nowTs = Integer.parseInt(new SimpleDateFormat(DATE_FORMAT).format(new Date()));
+            if (registerGoods == null || !registerGoods.getDisplay()) {
+                throw new RequestException("invalid goods");
+            } else if (Integer.parseInt(registerGoods.getRecruitStart()) > nowTs
+                    ||Integer.parseInt(registerGoods.getRecruitEnd()) < nowTs) {
+                throw new RequestException("not recruit invest goods");
+            } else if(investor.getInvestCash() == null
+                    || investor.getInvestCash().floatValue() <= 0) {
+                throw new ParameterException("invest amount");
+            }
+            ExchangeKey exchangeKey = new ExchangeKey();
+            exchangeKey.setId(investor.getExchangeKeyId());
+            exchangeKey.setUserId(investor.getUserId());
+            exchangeKey = exchangeService.selectExchangeKey(exchangeKey);
+            if (exchangeKey == null
+                    || !registerGoods.getExchange().toLowerCase().equals(exchangeKey.getExchange().toLowerCase())) {
+                throw new RequestException("invalid exchange key");
+            }
+        }
+
+        InvestGoods investGoods = findInvestGoodsByUser(investor.getGoodsId(), investor.getUserId());
+        if (investGoods != null) {
+            throw new RequestException("goods that are already investing");
+        }
+
+        try {
+            int changeRow = sqlSession.insert("investGoods.registrationInvestor", investor);
+            if (changeRow != 1) {
+                throw new OperationException("[FAIL] SQL Execute. change row: " + changeRow);
+            }
+        } catch (Exception e){
+            logger.error("", e);
+            throw new OperationException("[FAIL] SQL Execute.");
+        }
+
+        PerformanceSummary performanceSummary = new PerformanceSummary();
+        performanceSummary.setId(investor.getId());
+        performanceService.insertPerformanceSummary(performanceSummary);
+
+        return getInvestGoods(investor.getId());
+    }
+
+    public InvestGoods getInvestGoods(Integer investId) {
+        try {
+            return sqlSession.selectOne("investGoods.getInvestGoods", investId);
+        } catch (Exception e) {
+            logger.error("", e);
+            throw new OperationException("[FAIL] SQL Execute.");
+        }
+    }
+
+    public Goods getInvestGoodsDetail(Integer investId, String userId) {
+        InvestGoods investGoods = getInvestGoods(investId);
+        if (investGoods == null) {
+            throw new ParameterException("investId");
+        } else if (!investGoods.getUserId().equals(userId)) {
+            throw new AuthenticationException();
+        }
+
+        Goods registerGoods = goodsService.getGoods(investGoods.getGoodsId(), userId);
+        List<Trade> tradeHistory = tradeService.getTradeHistory(investId);
+        registerGoods.setTradeHistory(tradeHistory);
+        PerformanceSummary performanceSummary = performanceService.getPerformanceSummary(investId);
+        registerGoods.setPerformanceSummary(performanceSummary);
+        List<PerformanceDaily> performanceDailyList = performanceService.getPerformanceDailyList(investId);
+        registerGoods.setPerformanceDaily(performanceDailyList);
+        return registerGoods;
+    }
+
+    public InvestGoods removeInvestor(int investId, String userId) {
+        InvestGoods investGoods = getInvestGoods(investId);
+        if (investGoods == null){
+            throw new ParameterException("investId");
+        } else if (!investGoods.getUserId().equals(userId)) {
+            throw new AuthenticationException();
+        }
+
+        Goods registerGoods = goodsService.getGoods(investGoods.getGoodsId());
+        int nowTime = Integer.parseInt(new SimpleDateFormat(DATE_FORMAT).format(new Date()));
+        if (Integer.parseInt(registerGoods.getRecruitStart()) > nowTime
+                || Integer.parseInt(registerGoods.getRecruitEnd()) < nowTime) {
+            throw new RequestException("not recruit invest goods");
+        }
+
+        performanceService.deletePerformanceSummary(investId);
+
+        try {
+            int changeRow = sqlSession.delete("investGoods.deleteInvestGoods", investGoods.getId());
+            if (changeRow != 1) {
+                throw new OperationException("[FAIL] SQL Execute. change row: " + changeRow);
+            }
+        } catch (Exception e){
+            logger.error("", e);
+            throw new OperationException();
+        }
+
+        return investGoods;
+    }
+
+    public List<Goods> retrieveInvestGoods(String userId) {
+        try {
+            return sqlSession.selectList("investGoods.retrieveInvestGoods", userId);
+        } catch (Exception e) {
+            logger.error("", e);
+            throw new OperationException("[FAIL] SQL Execute.");
+        }
+    }
 
     public List<InvestGoods> findInvestGoodsByUserList(Integer goodsId) {
         InvestGoods investGoods = new InvestGoods();
@@ -62,79 +179,4 @@ public class InvestGoodsService {
             throw new OperationException("[FAIL] SQL Execute.");
         }
     }
-
-    public InvestGoods registrationInvestor(InvestGoods investor) {
-        Goods registerGoods = goodsService.getGoods(investor.getGoodsId());
-        long nowTs = Integer.parseInt(new SimpleDateFormat(DATE_FORMAT).format(new Date()));
-        if (registerGoods == null || !registerGoods.getDisplay()) {
-
-            throw new RequestException("invalid goods");
-        } else if (registerGoods.getRecruitStart().intValue() > nowTs
-                ||registerGoods.getRecruitEnd().intValue() < nowTs) {
-
-            throw new RequestException("not recruit invest goods");
-        } else if(investor.getInvestCash() == null
-                || investor.getInvestCash().floatValue() <= 0) {
-
-            throw new ParameterException("invest amount");
-        }
-
-        ExchangeKey exchangeKey = new ExchangeKey();
-        exchangeKey.setId(investor.getExchangeKeyId());
-        exchangeKey.setUserId(investor.getUserId());
-        exchangeKey = exchangeService.selectExchangeKey(exchangeKey);
-        if (exchangeKey == null
-                || !registerGoods.getExchange().toLowerCase().equals(exchangeKey.getExchange().toLowerCase())) {
-            throw new RequestException("invalid exchange key");
-        }
-
-        InvestGoods investGoods = findInvestGoodsByUser(investor.getGoodsId(), investor.getUserId());
-        if (investGoods != null) {
-            throw new RequestException("goods that are already investing");
-        }
-
-        try {
-            int changeRow = sqlSession.insert("investGoods.registrationInvestor", investor);
-            if (changeRow != 1) {
-                throw new OperationException("[FAIL] SQL Execute. change row: " + changeRow);
-            }
-        } catch (Exception e){
-            logger.error("", e);
-            throw new OperationException("[FAIL] SQL Execute.");
-        }
-
-        return findInvestGoodsByUser(investor.getGoodsId(), investor.getUserId());
-    }
-
-    public InvestGoods removeInvestor(InvestGoods investor) {
-        Goods registerGoods = goodsService.getGoods(investor.getGoodsId());
-        int nowTime = Integer.parseInt(new SimpleDateFormat(DATE_FORMAT).format(new Date()));
-
-        if (registerGoods == null) {
-            throw new ParameterException("goodsId");
-        } else if (registerGoods.getRecruitStart().intValue() > nowTime
-                ||registerGoods.getRecruitEnd().intValue() < nowTime) {
-            throw new RequestException("not recruit invest goods");
-        }
-
-        InvestGoods investGoods = findInvestGoodsByUser(investor.getGoodsId(), investor.getUserId());
-        if (investGoods == null) {
-            throw new RequestException("I can not cancel.");
-        }
-
-        try {
-            int changeRow = sqlSession.delete("investGoods.deleteInvestGoods", investGoods.getId());
-            if (changeRow != 1) {
-                throw new OperationException("[FAIL] SQL Execute. change row: " + changeRow);
-            }
-        } catch (Exception e){
-            logger.error("", e);
-            throw new OperationException();
-        }
-
-        return investGoods;
-    }
-
-
-
 }

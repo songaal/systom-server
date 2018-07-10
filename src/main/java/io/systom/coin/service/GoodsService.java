@@ -1,13 +1,12 @@
 package io.systom.coin.service;
 
+import com.google.gson.Gson;
 import io.systom.coin.config.TradeConfig;
 import io.systom.coin.exception.AuthenticationException;
 import io.systom.coin.exception.OperationException;
 import io.systom.coin.exception.ParameterException;
 import io.systom.coin.exception.RequestException;
-import io.systom.coin.model.Goods;
-import io.systom.coin.model.InvestGoods;
-import io.systom.coin.model.StrategyDeployVersion;
+import io.systom.coin.model.*;
 import io.systom.coin.utils.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.LoggerFactory;
@@ -16,8 +15,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static io.systom.coin.utils.DateUtils.formatDate;
 
 /*
  * create joonwoo 2018. 7. 3.
@@ -40,10 +42,17 @@ public class GoodsService {
     private ExchangeService exchangeService;
     @Autowired
     private InvestGoodsService investGoodsService;
+    @Autowired
+    private TradeService tradeService;
 
     public static final String DATE_FORMAT = "yyyyMMdd";
+
+    public static final String BOT_USER_ID = "0";
+    public static final float BOT_INVEST_CASH = 0f;
+    public static final int BOT_EXCHANGE_KEY_ID = 0;
+
     @Transactional
-    public Goods registerInvestGoods(Goods target){
+    public Goods registerGoods(Goods target){
 
         if (!identityService.isManager(target.getUserId())){
             throw new AuthenticationException();
@@ -55,6 +64,16 @@ public class GoodsService {
         target.setExchange(target.getExchange().toLowerCase());
         target.setCoinUnit(target.getCoinUnit().toLowerCase());
 
+        List<TestMonthlyReturn> testMonthlyReturnList = generatorTestMonthlyReturns(target.getTestStart(), target.getTestEnd());
+        int monthLength = testMonthlyReturnList.size();
+        float avgReturnPct = 0;
+        for (int i=0; i < monthLength; i++) {
+            avgReturnPct += testMonthlyReturnList.get(i).getReturnPct();
+        }
+        avgReturnPct = avgReturnPct / monthLength;
+        target.setTestReturnPct(avgReturnPct);
+        target.setTestMonthlyReturn(new Gson().toJson(testMonthlyReturnList));
+
         try {
             int changeRow = sqlSession.insert("goods.registerGoods", target);
             if (changeRow != 1) {
@@ -64,6 +83,14 @@ public class GoodsService {
             logger.error("", e);
             throw new OperationException("[FAIL] SQL Execute.");
         }
+
+        InvestGoods botInvestGoods = new InvestGoods();
+        botInvestGoods.setGoodsId(target.getId());
+        botInvestGoods.setUserId(BOT_USER_ID);
+        botInvestGoods.setInvestCash(BOT_INVEST_CASH);
+        botInvestGoods.setExchangeKeyId(BOT_EXCHANGE_KEY_ID);
+        investGoodsService.registrationInvestor(botInvestGoods);
+
         return getGoods(target.getId());
     }
 
@@ -74,12 +101,25 @@ public class GoodsService {
         Goods searchGoods = new Goods();
         searchGoods.setId(goodsId);
         searchGoods.setUserId(userId);
+        Goods registerGoods = null;
+
         try {
-            return  sqlSession.selectOne("goods.getGoods", searchGoods);
+            registerGoods = sqlSession.selectOne("goods.getGoods", searchGoods);
+            if (registerGoods == null) {
+                throw new ParameterException("goodsId");
+            }
         } catch (Exception e) {
             logger.error("", e);
             throw new OperationException("[FAIL] SQL Execute.");
         }
+
+        InvestGoods botInvestGoods = investGoodsService.findInvestGoodsByUser(registerGoods.getId(), BOT_USER_ID);
+        if (botInvestGoods != null) {
+            List<Trade> tradeHistory = tradeService.getTradeHistory(botInvestGoods.getId());
+            registerGoods.setTradeHistory(tradeHistory);
+        }
+
+        return registerGoods;
     }
 
     public List<Goods> retrieveGoodsList(Goods searchGoods) {
@@ -94,7 +134,7 @@ public class GoodsService {
     public Goods updateGoodsHide(Integer id, String userId) {
         Goods registerGoods = getGoods(id);
         int nowTime = Integer.parseInt(new SimpleDateFormat(DATE_FORMAT).format(new Date()));
-        if (registerGoods == null || registerGoods.getInvestStart().intValue() <= nowTime) {
+        if (registerGoods == null || Integer.parseInt(registerGoods.getInvestStart()) <= nowTime) {
             throw new ParameterException("GoodsId");
         } else if (!identityService.isManager(userId)) {
             throw new AuthenticationException();
@@ -114,7 +154,7 @@ public class GoodsService {
     public Goods updateGoodsShow(Integer id, String userId) {
         Goods registerGoods = getGoods(id);
         int nowTime = Integer.parseInt(new SimpleDateFormat(DATE_FORMAT).format(new Date()));
-        if (registerGoods == null || registerGoods.getInvestStart().intValue() <= nowTime) {
+        if (registerGoods == null || Integer.parseInt(registerGoods.getInvestStart()) <= nowTime) {
             throw new ParameterException("GoodsId");
         } else if (!identityService.isManager(userId)) {
             throw new AuthenticationException();
@@ -168,7 +208,7 @@ public class GoodsService {
             throw new ParameterException("inValid GoodsId");
         } else if (!registerGoods.getUserId().equals(target.getUserId())) {
             throw new AuthenticationException();
-        } else if (registerGoods.getRecruitEnd().longValue() < nowTime) {
+        } else if (Integer.parseInt(registerGoods.getRecruitEnd()) < nowTime) {
             throw new RequestException("Goods that cannot be modified");
         } else if (!isGoodsValidation(target)) {
             throw new ParameterException("Require");
@@ -228,25 +268,25 @@ public class GoodsService {
         } else if (target.getRecruitStart() == null || target.getRecruitEnd() == null
                 || String.valueOf(target.getRecruitStart()).length() != 8
                 || String.valueOf(target.getRecruitEnd()).length() != 8
-                || target.getRecruitStart().intValue() > target.getRecruitEnd().intValue()) {
+                || Integer.parseInt(target.getRecruitStart()) > Integer.parseInt(target.getRecruitEnd())) {
 //            모집 시작일은 모집 종료일보다 클 수 없음.
             logger.debug("Invalid RecruitDate");
             return false;
         } else if (target.getInvestStart() == null || target.getInvestEnd() == null
                 || String.valueOf(target.getInvestStart()).length() != 8
                 || String.valueOf(target.getInvestEnd()).length() != 8
-                || target.getInvestStart().intValue() > target.getInvestEnd().intValue()) {
+                || Integer.parseInt(target.getInvestStart()) > Integer.parseInt(target.getInvestEnd())) {
             logger.debug("Invalid investDate");
 //            투자 시작일은 모집 종료일보다 클 수 없음.
             return false;
         } else if (target.getTestStart() == null || target.getTestEnd() == null
                 || String.valueOf(target.getTestStart()).length() != 8
                 || String.valueOf(target.getTestEnd()).length() != 8
-                || target.getTestStart().intValue() > target.getTestEnd().intValue()) {
+                || Integer.parseInt(target.getTestStart()) > Integer.parseInt(target.getTestEnd())) {
             logger.debug("Invalid BackTestDate");
 //            백테스트 시작일은 모집 종료일보다 클 수 없음.
             return false;
-        } else if (target.getRecruitEnd().longValue() > target.getInvestStart().longValue()) {
+        } else if (Integer.parseInt(target.getRecruitEnd()) > Integer.parseInt(target.getInvestStart())) {
             logger.debug("Invalid RecruitEnd >= InvestStart");
 //            모집 종료일은 투자 시작일보다 클 수 없음.
             return false;
@@ -272,6 +312,33 @@ public class GoodsService {
         }
 
         return true;
+    }
+
+    protected List<TestMonthlyReturn> generatorTestMonthlyReturns(String testStart, String testEnd) {
+        int startYear = Integer.parseInt(testStart.substring(0, 4));
+        int startMonth = Integer.parseInt(testStart.substring(4, 6));
+        int endYear = Integer.parseInt(testEnd.substring(0, 4));
+        int endMonth = Integer.parseInt(testEnd.substring(4, 6));
+
+        List<TestMonthlyReturn> testMonthlyReturnList = new ArrayList<>();
+        boolean isSameYear = true;
+        for(int y=startYear; y <= endYear; y++) {
+            if (y < endYear) {
+                for (int m = startMonth; m <= 12; m++) {
+                    testMonthlyReturnList.add(new TestMonthlyReturn(formatDate(y, m, null), 0));
+                }
+                isSameYear = false;
+            } else if (y == endYear) {
+                int sm = startMonth;
+                if (!isSameYear) {
+                    sm = 1;
+                }
+                for (int m = sm; m <= endMonth; m++) {
+                    testMonthlyReturnList.add(new TestMonthlyReturn(formatDate(y, m, null), 0));
+                }
+            }
+        }
+        return testMonthlyReturnList;
     }
 
 }

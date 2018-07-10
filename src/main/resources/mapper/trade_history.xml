@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="tradeHistory">
+
+    <insert id="investTrade" parameterType="Trade">
+        INSERT INTO trade_history
+        (id, time, symbol, action, quantity, price, commission, reason)
+        VALUES ( ${id}
+               , #{time}
+               , #{symbol}
+               , #{action}
+               , #{quantity}
+               , ${price}
+               , ${commission}
+               , #{reason}
+        )
+    </insert>
+
+    <select id="getTradeHistory" parameterType="Integer" resultType="Trade">
+        SELECT a.id
+             , a.time
+             , a.symbol
+             , a.action
+             , a.quantity
+             , a.price
+             , a.commission
+             , a.reason
+          FROM trade_history a
+          JOIN invest_goods b on a.id = b.id
+         WHERE b.id = #{id}
+    </select>
+
+
+</mapper>

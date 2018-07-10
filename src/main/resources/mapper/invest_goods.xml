@@ -14,6 +14,17 @@
         )
     </insert>
 
+    <select id="getInvestGoods" parameterType="Integer" resultType="InvestGoods">
+        SELECT a.id
+        , a.goods_id
+        , a.user_id
+        , a.exchange_key_id
+        , a.invest_cash
+        , a.create_time
+        FROM invest_goods a
+        WHERE 1=1
+        AND a.id = #{param1}
+    </select>
 
     <delete id="deleteInvestGoods" parameterType="Integer">
         DELETE FROM invest_goods
@@ -43,18 +54,33 @@
            AND a.user_id = #{userId}
     </select>
 
-    <select id="retrieveInvestGoodsList" parameterType="HashMap" resultType="InvestGoods">
+    <select id="retrieveInvestGoods" parameterType="String" resultType="Goods">
         SELECT a.id
-             , a.goods_id
+             , a.strategy_id
+             , a.version
+             , a.exchange
+             , a.coin_unit
+             , a.base_unit
+             , a.description
+             , a.is_display
+             , a.create_time
+             , a.recruit_start
+             , a.recruit_end
+             , a.invest_start
+             , a.invest_end
+             , a.test_start
+             , a.test_end
+             , a.cash
+             , a.cash_unit
+             , a.name
              , a.user_id
-             , a.exchange_key_id
-             , a.invest_cash
-          FROM invest_goods a
-         WHERE a.user_id = #{userId}
-           AND a.goods_id in
-        <foreach collection="goodsIdList" separator="," item="item" open="(" close=")">
-            #{item}
-        </foreach>
+             , a.test_monthly_return
+             , a.test_return_pct
+             , a.create_time
+             , b.id as invest_id
+          FROM goods a
+          JOIN invest_goods b on a.id = b.goods_id
+         WHERE b.user_id = #{param1}
     </select>
 
 

@@ -8,7 +8,7 @@
     <insert id="registerGoods" parameterType="Goods" keyProperty="id" keyColumn="id" useGeneratedKeys="true">
         INSERT INTO goods (strategy_id, version, exchange, coin_unit, base_unit, cash_unit, cash
                           , recruit_start, recruit_end, invest_start, invest_end, test_start, test_end
-                          , name, description, user_id)
+                          , name, description, user_id, test_monthly_return, test_return_pct)
         VALUES (${strategyId},
                 ${version},
                 #{exchange},
@@ -24,7 +24,9 @@
                 ${testEnd},
                 #{name},
                 #{description},
-                #{userId}
+                #{userId},
+                #{testMonthlyReturn},
+                #{testReturnPct}
         )
     </insert>
 
@@ -144,7 +146,7 @@
             </otherwise>
         </choose>
         <![CDATA[
-        ORDER BY id DESC
+         ORDER BY id DESC
         ]]>
     </select>
 
@@ -184,7 +186,7 @@
              , test_end            = ${testEnd}
              , test_monthly_return = #{testMonthlyReturn}
              , test_return_pct     = #{testReturnPct}
-       WHERE id = ${id}
+         WHERE id = ${id}
     </update>
 
 </mapper>

@@ -1,6 +1,7 @@
 package io.systom.coin.model;
 
 import java.util.Date;
+import java.util.List;
 
 /*
  * create joonwoo 2018. 6. 21.
@@ -19,18 +20,21 @@ public class Goods {
     private Float cash;
     private String cashUnit;
     private Boolean isDisplay;
-    private Integer recruitStart;
-    private Integer recruitEnd;
-    private Integer investStart;
-    private Integer investEnd;
-    private Integer testStart;
-    private Integer testEnd;
+    private String recruitStart;
+    private String recruitEnd;
+    private String investStart;
+    private String investEnd;
+    private String testStart;
+    private String testEnd;
     private String userId;
     private Date createTime;
     private Float testReturnPct;
     private String testMonthlyReturn;
-    private Float investGoods;
+
     private Integer investId;
+    private List<Trade> tradeHistory;
+    private PerformanceSummary performanceSummary;
+    private List<PerformanceDaily> performanceDaily;
 
     public Integer getId() {
         return id;
@@ -120,51 +124,51 @@ public class Goods {
         isDisplay = display;
     }
 
-    public Integer getRecruitStart() {
+    public String getRecruitStart() {
         return recruitStart;
     }
 
-    public void setRecruitStart(Integer recruitStart) {
+    public void setRecruitStart(String recruitStart) {
         this.recruitStart = recruitStart;
     }
 
-    public Integer getRecruitEnd() {
+    public String getRecruitEnd() {
         return recruitEnd;
     }
 
-    public void setRecruitEnd(Integer recruitEnd) {
+    public void setRecruitEnd(String recruitEnd) {
         this.recruitEnd = recruitEnd;
     }
 
-    public Integer getInvestStart() {
+    public String getInvestStart() {
         return investStart;
     }
 
-    public void setInvestStart(Integer investStart) {
+    public void setInvestStart(String investStart) {
         this.investStart = investStart;
     }
 
-    public Integer getInvestEnd() {
+    public String getInvestEnd() {
         return investEnd;
     }
 
-    public void setInvestEnd(Integer investEnd) {
+    public void setInvestEnd(String investEnd) {
         this.investEnd = investEnd;
     }
 
-    public Integer getTestStart() {
+    public String getTestStart() {
         return testStart;
     }
 
-    public void setTestStart(Integer testStart) {
+    public void setTestStart(String testStart) {
         this.testStart = testStart;
     }
 
-    public Integer getTestEnd() {
+    public String getTestEnd() {
         return testEnd;
     }
 
-    public void setTestEnd(Integer testEnd) {
+    public void setTestEnd(String testEnd) {
         this.testEnd = testEnd;
     }
 
@@ -184,22 +188,6 @@ public class Goods {
         this.createTime = createTime;
     }
 
-    public Float getInvestGoods() {
-        return investGoods;
-    }
-
-    public void setInvestGoods(Float investGoods) {
-        this.investGoods = investGoods;
-    }
-
-    public Integer getInvestId() {
-        return investId;
-    }
-
-    public void setInvestId(Integer investId) {
-        this.investId = investId;
-    }
-
     public Float getTestReturnPct() {
         return testReturnPct;
     }
@@ -214,5 +202,37 @@ public class Goods {
 
     public void setTestMonthlyReturn(String testMonthlyReturn) {
         this.testMonthlyReturn = testMonthlyReturn;
+    }
+
+    public Integer getInvestId() {
+        return investId;
+    }
+
+    public void setInvestId(Integer investId) {
+        this.investId = investId;
+    }
+
+    public List<Trade> getTradeHistory() {
+        return tradeHistory;
+    }
+
+    public void setTradeHistory(List<Trade> tradeHistory) {
+        this.tradeHistory = tradeHistory;
+    }
+
+    public PerformanceSummary getPerformanceSummary() {
+        return performanceSummary;
+    }
+
+    public void setPerformanceSummary(PerformanceSummary performanceSummary) {
+        this.performanceSummary = performanceSummary;
+    }
+
+    public List<PerformanceDaily> getPerformanceDaily() {
+        return performanceDaily;
+    }
+
+    public void setPerformanceDaily(List<PerformanceDaily> performanceDaily) {
+        this.performanceDaily = performanceDaily;
     }
 }

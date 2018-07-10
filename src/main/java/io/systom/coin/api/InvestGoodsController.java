@@ -2,13 +2,15 @@ package io.systom.coin.api;
 
 import io.systom.coin.exception.AbstractException;
 import io.systom.coin.exception.OperationException;
-import io.systom.coin.exception.ParameterException;
+import io.systom.coin.model.Goods;
 import io.systom.coin.model.InvestGoods;
 import io.systom.coin.service.InvestGoodsService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /*
  * create joonwoo 2018. 7. 6.
@@ -22,30 +24,10 @@ public class InvestGoodsController extends AbstractController{
     @Autowired
     private InvestGoodsService investGoodsService;
 
-    @GetMapping("/{goodsId}")
-    public ResponseEntity<?> getInvestGoods(@RequestAttribute String userId,
-                                            @PathVariable Integer goodsId) {
-        try {
-            InvestGoods registerInvestGoods = investGoodsService.findInvestGoodsByUser(goodsId, userId);
-            if (registerInvestGoods == null) {
-                throw new ParameterException("goodsId");
-            }
-            return success(registerInvestGoods);
-        } catch (AbstractException e) {
-            logger.error("", e);
-            return e.response();
-        } catch (Throwable t) {
-            logger.error("Throwable: ", t);
-            return new OperationException().response();
-        }
-    }
-
-    @PostMapping("/{goodsId}")
-    public ResponseEntity<?> registrationInvestor(@PathVariable Integer goodsId,
-                                                  @RequestAttribute String userId,
+    @PostMapping
+    public ResponseEntity<?> registrationInvestor(@RequestAttribute String userId,
                                                   @RequestBody InvestGoods investor) {
         try {
-            investor.setGoodsId(goodsId);
             investor.setUserId(userId);
             InvestGoods investGoods = investGoodsService.registrationInvestor(investor);
             return success(investGoods);
@@ -58,14 +40,43 @@ public class InvestGoodsController extends AbstractController{
         }
     }
 
-    @DeleteMapping("/{goodsId}")
-    public ResponseEntity<?> removeInvestor(@PathVariable Integer goodsId,
-                                            @RequestAttribute String userId,
-                                            @RequestBody InvestGoods investor) {
+    @GetMapping
+    public ResponseEntity<?> retrieveInvestGoods(@RequestAttribute String userId) {
         try {
-            investor.setGoodsId(goodsId);
-            investor.setUserId(userId);
-            InvestGoods investGoods = investGoodsService.removeInvestor(investor);
+            List<Goods> registerInvestGoods = investGoodsService.retrieveInvestGoods(userId);
+            return success(registerInvestGoods);
+        } catch (AbstractException e) {
+            logger.error("", e);
+            return e.response();
+        } catch (Throwable t) {
+            logger.error("Throwable: ", t);
+            return new OperationException().response();
+        }
+    }
+
+
+    @GetMapping("/{investId}")
+    public ResponseEntity<?> getInvestGoodsDetail(@RequestAttribute String userId,
+                                            @PathVariable Integer investId) {
+        try {
+            Goods registerGoodsDetail = investGoodsService.getInvestGoodsDetail(investId, userId);
+            return success(registerGoodsDetail);
+        } catch (AbstractException e) {
+            logger.error("", e);
+            return e.response();
+        } catch (Throwable t) {
+            logger.error("Throwable: ", t);
+            return new OperationException().response();
+        }
+    }
+
+
+
+    @DeleteMapping("/{investId}")
+    public ResponseEntity<?> removeInvestor(@PathVariable Integer investId,
+                                            @RequestAttribute String userId) {
+        try {
+            InvestGoods investGoods = investGoodsService.removeInvestor(investId, userId);
             return success(investGoods);
         } catch (AbstractException e) {
             logger.error("", e);

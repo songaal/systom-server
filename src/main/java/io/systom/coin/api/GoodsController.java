@@ -12,7 +12,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 import static io.systom.coin.service.GoodsService.DATE_FORMAT;
 
@@ -37,7 +40,7 @@ public class GoodsController extends AbstractController{
                                            @RequestBody Goods target) {
         try {
             target.setUserId(userId);
-            Goods registerGoods = goodsService.registerInvestGoods(target);
+            Goods registerGoods = goodsService.registerGoods(target);
             return success(registerGoods);
         } catch (AbstractException e) {
             logger.error("", e);
@@ -54,7 +57,7 @@ public class GoodsController extends AbstractController{
                                                @RequestParam(required = false) String type) {
         try {
             List<Goods> registerGoodsList = new ArrayList<>();
-            int nowTime = Integer.parseInt(new SimpleDateFormat(DATE_FORMAT).format(new Date()));
+            String nowTime = new SimpleDateFormat(DATE_FORMAT).format(new Date());
             Goods searchGoods = null;
             if (type != null && identityService.isManager(userId)) {
                 List<String> typeList = Arrays.asList(type.split(","));
@@ -114,8 +117,8 @@ public class GoodsController extends AbstractController{
             int nowTime = Integer.parseInt(new SimpleDateFormat(DATE_FORMAT).format(new Date()));
 
             if (!identityService.isManager(userId)
-                    && registerGoods.getRecruitStart().intValue() > nowTime
-                    && registerGoods.getRecruitEnd().intValue() < nowTime) {
+                    && Integer.parseInt(registerGoods.getRecruitStart()) > nowTime
+                    && Integer.parseInt(registerGoods.getRecruitEnd()) < nowTime) {
                 throw new AuthenticationException();
             }
             return success(registerGoods);

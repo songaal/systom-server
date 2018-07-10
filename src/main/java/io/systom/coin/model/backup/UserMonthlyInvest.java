@@ -1,25 +1,25 @@
-package io.systom.coin.model;
+package io.systom.coin.model.backup;
 
 import java.util.Date;
 
 /*
- * create joonwoo 2018. 7. 9.
+ * create joonwoo 2018. 7. 10.
  * 
  */
 public class UserMonthlyInvest {
 
-    private String userId;
+    private Integer userId;
     private String date;
     private float cash;
     private float profit;
     private float profitPct;
     private Date updated;
 
-    public String getUserId() {
+    public Integer getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(Integer userId) {
         this.userId = userId;
     }
 
