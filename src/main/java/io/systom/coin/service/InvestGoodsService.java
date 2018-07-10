@@ -84,9 +84,11 @@ public class InvestGoodsService {
             throw new OperationException("[FAIL] SQL Execute.");
         }
 
-        PerformanceSummary performanceSummary = new PerformanceSummary();
-        performanceSummary.setId(investor.getId());
-        performanceService.insertPerformanceSummary(performanceSummary);
+        if (!isBot) {
+            PerformanceSummary performanceSummary = new PerformanceSummary();
+            performanceSummary.setId(investor.getId());
+            performanceService.insertPerformanceSummary(performanceSummary);
+        }
 
         return getInvestGoods(investor.getId());
     }

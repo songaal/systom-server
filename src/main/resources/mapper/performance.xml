@@ -26,12 +26,12 @@
     </insert>
 
     <delete id="deletePerformanceSummary" parameterType="Integer">
-        DELETE performance_summary
+        DELETE FROM performance_summary
          WHERE id = #{param1}
     </delete>
 
     <delete id="deletePerformanceDaily" parameterType="Integer">
-        DELETE performance_daily
+        DELETE FROM performance_daily
         WHERE id = #{param1}
     </delete>
 
@@ -70,6 +70,33 @@
           FROM performance_daily a
          WHERE a.id = #{param1}
     </select>
+
+    <select id="retrievePerformanceDaily" resultType="PerformanceDaily" parameterType="Integer">
+        SELECT a.id
+             , a.updated
+             , a.completed
+          FROM performance_daily a
+         WHERE ( a.completed is null
+            OR a.updated > a.completed)
+         ORDER BY updated
+         LIMIT #{param1}
+    </select>
+
+    <!--SELECT a.id-->
+    <!--, a.date-->
+    <!--, a.market_price-->
+    <!--, a.cash-->
+    <!--, a.coin-->
+    <!--, a.base-->
+    <!--, a.equity-->
+    <!--, a.daily_return-->
+    <!--, a.daily_return_pct-->
+    <!--, a.cum_return-->
+    <!--, a.cum_return_pct-->
+    <!--, a.updated-->
+    <!--FROM performance_daily a-->
+    <!--WHERE ( a.completed is null-->
+    <!--OR a.updated > a.completed )-->
 
 
 </mapper>

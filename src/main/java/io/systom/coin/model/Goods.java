@@ -31,6 +31,8 @@ public class Goods {
     private Float testReturnPct;
     private String testMonthlyReturn;
 
+    private float investCash;
+
     private Integer investId;
     private List<Trade> tradeHistory;
     private PerformanceSummary performanceSummary;
@@ -234,5 +236,13 @@ public class Goods {
 
     public void setPerformanceDaily(List<PerformanceDaily> performanceDaily) {
         this.performanceDaily = performanceDaily;
+    }
+
+    public float getInvestCash() {
+        return investCash;
+    }
+
+    public void setInvestCash(float investCash) {
+        this.investCash = investCash;
     }
 }

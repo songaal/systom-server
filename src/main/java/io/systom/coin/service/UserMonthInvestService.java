@@ -24,7 +24,7 @@ public class UserMonthInvestService {
     public List<UserMonthlyInvest> retrieveUserMonthInvestList(String userId) {
         List<UserMonthlyInvest> userMonthlyInvestList = null;
         try {
-            userMonthlyInvestList = sqlSession.selectList("userMonthlyInvestList.retrieveUserMonthInvestList", userId);
+            userMonthlyInvestList = sqlSession.selectList("userMonthlyInvest.retrieveUserMonthInvestList", userId);
             if (userMonthlyInvestList == null) {
                 userMonthlyInvestList = new ArrayList<>();
             }
@@ -34,6 +34,5 @@ public class UserMonthInvestService {
         }
         return userMonthlyInvestList;
     }
-
 
 }

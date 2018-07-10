@@ -7,15 +7,13 @@
 
     <select id="retrieveUserMonthInvestList" parameterType="String" resultType="UserMonthlyInvest">
         SELECT a.user_id
-             , a.month
+             , a.date
              , a.cash
              , a.profit
              , a.profit_pct
              , a.updated
         FROM user_monthly_invest a
-        WHERE a.user_id = #{userId}
+        WHERE a.user_id = #{param1}
     </select>
-
-    
 
 </mapper>

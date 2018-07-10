@@ -60,18 +60,13 @@ public class GoodsService {
             throw new ParameterException("Require");
         }
 
-        target.setCashUnit(target.getCashUnit().toLowerCase());
         target.setExchange(target.getExchange().toLowerCase());
+        target.setCashUnit(target.getCashUnit().toLowerCase());
+        target.setBaseUnit(target.getBaseUnit().toLowerCase());
         target.setCoinUnit(target.getCoinUnit().toLowerCase());
 
         List<TestMonthlyReturn> testMonthlyReturnList = generatorTestMonthlyReturns(target.getTestStart(), target.getTestEnd());
-        int monthLength = testMonthlyReturnList.size();
-        float avgReturnPct = 0;
-        for (int i=0; i < monthLength; i++) {
-            avgReturnPct += testMonthlyReturnList.get(i).getReturnPct();
-        }
-        avgReturnPct = avgReturnPct / monthLength;
-        target.setTestReturnPct(avgReturnPct);
+        target.setTestReturnPct(0f);
         target.setTestMonthlyReturn(new Gson().toJson(testMonthlyReturnList));
 
         try {
@@ -133,8 +128,7 @@ public class GoodsService {
 
     public Goods updateGoodsHide(Integer id, String userId) {
         Goods registerGoods = getGoods(id);
-        int nowTime = Integer.parseInt(new SimpleDateFormat(DATE_FORMAT).format(new Date()));
-        if (registerGoods == null || Integer.parseInt(registerGoods.getInvestStart()) <= nowTime) {
+        if (registerGoods == null) {
             throw new ParameterException("GoodsId");
         } else if (!identityService.isManager(userId)) {
             throw new AuthenticationException();
@@ -153,8 +147,7 @@ public class GoodsService {
 
     public Goods updateGoodsShow(Integer id, String userId) {
         Goods registerGoods = getGoods(id);
-        int nowTime = Integer.parseInt(new SimpleDateFormat(DATE_FORMAT).format(new Date()));
-        if (registerGoods == null || Integer.parseInt(registerGoods.getInvestStart()) <= nowTime) {
+        if (registerGoods == null) {
             throw new ParameterException("GoodsId");
         } else if (!identityService.isManager(userId)) {
             throw new AuthenticationException();
@@ -182,7 +175,7 @@ public class GoodsService {
         }
 
         List<InvestGoods> registerInvestGoodsList = investGoodsService.findInvestGoodsByUserList(id);
-        if (registerInvestGoodsList == null || registerInvestGoodsList.size() > 0) {
+        if (registerInvestGoodsList == null || registerInvestGoodsList.size() > 1) {
             throw new RequestException("not empty");
         }
 
@@ -208,8 +201,6 @@ public class GoodsService {
             throw new ParameterException("inValid GoodsId");
         } else if (!registerGoods.getUserId().equals(target.getUserId())) {
             throw new AuthenticationException();
-        } else if (Integer.parseInt(registerGoods.getRecruitEnd()) < nowTime) {
-            throw new RequestException("Goods that cannot be modified");
         } else if (!isGoodsValidation(target)) {
             throw new ParameterException("Require");
         }
@@ -217,13 +208,14 @@ public class GoodsService {
         if (!registerGoods.getTestStart().equals(target.getTestStart())
                 ||!registerGoods.getTestEnd().equals(target.getTestEnd())) {
 //            백테스트 시간이 변경되면 기존 백테스트 전체 삭제
-            target.setTestMonthlyReturn(null);
+            List<TestMonthlyReturn> testMonthlyReturnList = generatorTestMonthlyReturns(target.getTestStart(), target.getTestEnd());
+            target.setTestMonthlyReturn(new Gson().toJson(testMonthlyReturnList));
             target.setTestReturnPct(0f);
         }
 
         target.setExchange(target.getExchange().toLowerCase());
         target.setCashUnit(target.getCashUnit().toLowerCase());
-        target.setBaseUnit(target.getCashUnit().toLowerCase());
+        target.setBaseUnit(target.getBaseUnit().toLowerCase());
         target.setCoinUnit(target.getCoinUnit().toLowerCase());
 
         try {

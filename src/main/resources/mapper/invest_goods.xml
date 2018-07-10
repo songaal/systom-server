@@ -5,6 +5,10 @@
 
 <mapper namespace="investGoods">
 
+    <resultMap id="GoodsMap" type="io.systom.coin.model.Goods">
+        <association property="performanceSummary" column="invest_id" select="performance.getPerformanceSummary" />
+    </resultMap>
+
     <insert id="registrationInvestor" parameterType="InvestGoods" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO invest_goods (goods_id, user_id, exchange_key_id, invest_cash)
         VALUES (${goodsId},
@@ -54,7 +58,7 @@
            AND a.user_id = #{userId}
     </select>
 
-    <select id="retrieveInvestGoods" parameterType="String" resultType="Goods">
+    <select id="retrieveInvestGoods" parameterType="String" resultMap="GoodsMap">
         SELECT a.id
              , a.strategy_id
              , a.version
