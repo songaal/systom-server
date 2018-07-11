@@ -1,10 +1,13 @@
 package io.systom.coin;
 
-import io.systom.coin.model.PerformanceDaily;
+import io.systom.coin.model.UserMonthlyInvest;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 /*
  * create joonwoo 2018. 7. 11.
@@ -17,29 +20,30 @@ public class MonthInvestTest {
 
     @Test
     public void calculationTest() {
-
-
-        PerformanceDaily d1 = randomPerformance(1, -1);
-        PerformanceDaily d2 = randomPerformance(1, -1);
-        PerformanceDaily d3 = randomPerformance(1, -1);
-
-        logger.debug("d1: {}", d1);
-        logger.debug("d2: {}", d2);
-        logger.debug("d3: {}", d3);
-    }
-
-
-    public PerformanceDaily randomPerformance(int id,
-                                              int trends) {
-
-        PerformanceDaily daily = new PerformanceDaily();
-        daily.setId(id);
-        daily.setUpdated(new Date());
-        if (trends >= 0) {
-            daily.setEquity((float) Math.random() * 100);
-        } else {
-            daily.setEquity(((float) Math.random() * 100) * -1);
+//        int monthSize = tmpMonthInvest.size();
+        String lastDate = new SimpleDateFormat("yyyyMM").format(Calendar.getInstance().getTime());
+        lastDate = "201802";
+        int lastYear = Integer.parseInt(lastDate.substring(0, 4));
+        int lastMonth = Integer.parseInt(lastDate.substring(5, 6));
+        boolean isChangeYear = false;
+        List<UserMonthlyInvest> monthlyInvestList = new ArrayList<>();
+        for (int y = lastYear; y >= lastYear - 1; y--) {
+            if (isChangeYear) {
+                lastMonth = 12;
+            }
+            for (int m = lastMonth; m >= 1; m--) {
+                logger.debug("{}{}", y, m);
+                monthlyInvestList.add(new UserMonthlyInvest());
+                if (monthlyInvestList.size() == 6) {
+                    break;
+                }
+            }
+            if (monthlyInvestList.size() == 6) {
+                break;
+            } else {
+                isChangeYear = true;
+            }
         }
-        return daily;
     }
+
 }

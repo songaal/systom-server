@@ -5,15 +5,39 @@
 
 <mapper namespace="userMonthlyInvest">
 
-    <select id="retrieveUserMonthInvestList" parameterType="String" resultType="UserMonthlyInvest">
+    <select id="retrieveUserMonthInvestList" resultType="UserMonthlyInvest">
         SELECT a.user_id
              , a.date
              , a.init_cash
              , a.monthly_return
              , a.monthly_return_pct
              , a.updated
-        FROM user_monthly_invest a
-        WHERE a.user_id = #{param1}
+             , b.sum_cash
+          FROM user_monthly_invest a
+          JOIN (SELECT aa.user_id
+                     , SUM(aa.init_cash) as sum_cash
+                  FROM user_monthly_invest aa
+                 WHERE aa.user_id = #{param1}
+                 GROUP BY aa.user_id
+             ) b on a.user_id = b.user_id
+         WHERE a.user_id = #{param1}
+         ORDER BY a.date asc
+         LIMIT 6
     </select>
-
+    <select id="getDailyInvest" parameterType="String" resultType="HashMap">
+        <![CDATA[
+        SELECT IFNULL(SUM(a.cash), 0) as cash
+             , IFNULL(SUM(a.equity), 0) as equity
+          FROM performance_daily a
+         WHERE a.id in (SELECT aa.id
+                        FROM invest_goods aa
+                       WHERE aa.user_id = #{param1}
+                         AND aa.goods_id in (SELECT bb.id
+                                               FROM goods bb
+                                              WHERE substring(bb.invest_start, 1, 6) >= date_format(now() , '%Y%m')
+                                                AND substring(bb.invest_end, 1, 6) <= date_format(now() , '%Y%m')
+                                            )
+                     )
+        ]]>
+    </select>
 </mapper>

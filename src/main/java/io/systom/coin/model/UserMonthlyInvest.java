@@ -11,9 +11,11 @@ public class UserMonthlyInvest {
     private String userId;
     private String date;
     private float initCash;
-    private float profit;
-    private float profitPct;
+    private float monthlyReturn;
+    private float monthlyReturnPct;
     private Date updated;
+
+    private float sumCash;
 
     public String getUserId() {
         return userId;
@@ -39,20 +41,20 @@ public class UserMonthlyInvest {
         this.initCash = initCash;
     }
 
-    public float getProfit() {
-        return profit;
+    public float getMonthlyReturn() {
+        return monthlyReturn;
     }
 
-    public void setProfit(float profit) {
-        this.profit = profit;
+    public void setMonthlyReturn(float monthlyReturn) {
+        this.monthlyReturn = monthlyReturn;
     }
 
-    public float getProfitPct() {
-        return profitPct;
+    public float getMonthlyReturnPct() {
+        return monthlyReturnPct;
     }
 
-    public void setProfitPct(float profitPct) {
-        this.profitPct = profitPct;
+    public void setMonthlyReturnPct(float monthlyReturnPct) {
+        this.monthlyReturnPct = monthlyReturnPct;
     }
 
     public Date getUpdated() {
@@ -61,5 +63,13 @@ public class UserMonthlyInvest {
 
     public void setUpdated(Date updated) {
         this.updated = updated;
+    }
+
+    public float getSumCash() {
+        return sumCash;
+    }
+
+    public void setSumCash(float sumCash) {
+        this.sumCash = sumCash;
     }
 }

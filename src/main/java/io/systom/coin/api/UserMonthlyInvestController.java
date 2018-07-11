@@ -2,7 +2,7 @@ package io.systom.coin.api;
 
 import io.systom.coin.exception.AbstractException;
 import io.systom.coin.exception.OperationException;
-import io.systom.coin.model.backup.UserMonthlyInvest;
+import io.systom.coin.model.UserMonthlyInvest;
 import io.systom.coin.service.UserMonthInvestService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 /*
  * create joonwoo 2018. 7. 10.
@@ -30,8 +31,10 @@ public class UserMonthlyInvestController extends AbstractController {
     @GetMapping
     public ResponseEntity<?> retrieveUserMonthInvest(@RequestAttribute String userId) {
         try {
+            Map<String, Object> response = userMonthInvestService.getDailyInvest(userId);
             List<UserMonthlyInvest> userMonthlyInvestList = userMonthInvestService.retrieveUserMonthInvestList(userId);
-            return success(userMonthlyInvestList);
+            response.put("userMonthlyInvestList", userMonthlyInvestList);
+            return success(response);
         } catch (AbstractException e) {
             logger.error("", e);
             return e.response();
