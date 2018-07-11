@@ -10,7 +10,7 @@ public class UserMonthlyInvest {
 
     private String userId;
     private String date;
-    private float cash;
+    private float initCash;
     private float profit;
     private float profitPct;
     private Date updated;
@@ -31,12 +31,12 @@ public class UserMonthlyInvest {
         this.date = date;
     }
 
-    public float getCash() {
-        return cash;
+    public float getInitCash() {
+        return initCash;
     }
 
-    public void setCash(float cash) {
-        this.cash = cash;
+    public void setInitCash(float initCash) {
+        this.initCash = initCash;
     }
 
     public float getProfit() {

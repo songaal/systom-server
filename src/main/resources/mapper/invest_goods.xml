@@ -6,6 +6,7 @@
 <mapper namespace="investGoods">
 
     <resultMap id="GoodsMap" type="io.systom.coin.model.Goods">
+        <result property="investId" column="invest_id"></result>
         <association property="performanceSummary" column="invest_id" select="performance.getPerformanceSummary" />
     </resultMap>
 
@@ -20,19 +21,19 @@
 
     <select id="getInvestGoods" parameterType="Integer" resultType="InvestGoods">
         SELECT a.id
-        , a.goods_id
-        , a.user_id
-        , a.exchange_key_id
-        , a.invest_cash
-        , a.create_time
-        FROM invest_goods a
-        WHERE 1=1
-        AND a.id = #{param1}
+             , a.goods_id
+             , a.user_id
+             , a.exchange_key_id
+             , a.invest_cash
+             , a.create_time
+          FROM invest_goods a
+         WHERE 1=1
+           AND a.id = #{param1}
     </select>
 
     <delete id="deleteInvestGoods" parameterType="Integer">
         DELETE FROM invest_goods
-        WHERE id = #{id}
+         WHERE id = #{id}
     </delete>
 
     <select id="findInvestGoodsByUserList" parameterType="InvestGoods" resultType="InvestGoods">
@@ -41,9 +42,9 @@
              , a.user_id
              , a.exchange_key_id
              , invest_cash
-        FROM invest_goods a
-        WHERE 1=1
-        AND a.goods_id = ${goodsId}
+          FROM invest_goods a
+         WHERE 1=1
+           AND a.goods_id = ${goodsId}
     </select>
 
     <select id="findInvestGoodsByUser" parameterType="InvestGoods" resultType="InvestGoods">

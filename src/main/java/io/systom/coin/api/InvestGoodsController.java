@@ -10,7 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /*
  * create joonwoo 2018. 7. 6.
@@ -43,8 +46,10 @@ public class InvestGoodsController extends AbstractController{
     @GetMapping
     public ResponseEntity<?> retrieveInvestGoods(@RequestAttribute String userId) {
         try {
-            List<Goods> registerInvestGoods = investGoodsService.retrieveInvestGoods(userId);
-            return success(registerInvestGoods);
+            Map<String, Object> response = new HashMap<>();
+            response.put("registerInvestGoodsList", investGoodsService.retrieveInvestGoods(userId));
+            response.put("nowDate", new SimpleDateFormat("yyyyMMdd").format(new Date()));
+            return success(response);
         } catch (AbstractException e) {
             logger.error("", e);
             return e.response();

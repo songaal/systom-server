@@ -115,4 +115,22 @@ public class PerformanceDaily {
     public void setUpdated(Date updated) {
         this.updated = updated;
     }
+
+    @Override
+    public String toString() {
+        return "PerformanceDaily{" +
+                "id=" + id +
+                ", date='" + date + '\'' +
+                ", marketPrice=" + marketPrice +
+                ", cash=" + cash +
+                ", coin=" + coin +
+                ", base=" + base +
+                ", equity=" + equity +
+                ", dailyReturn=" + dailyReturn +
+                ", dailyReturnPct=" + dailyReturnPct +
+                ", cumReturn=" + cumReturn +
+                ", cumReturnPct=" + cumReturnPct +
+                ", updated=" + updated +
+                '}';
+    }
 }
