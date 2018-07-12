@@ -50,6 +50,7 @@
              , a.trades
              , a.win_count
              , a.lose_count
+             , a.commission
           FROM performance_summary a
          WHERE a.id = #{param1}
     </select>

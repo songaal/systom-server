@@ -22,6 +22,7 @@ public class PerformanceSummary {
     private int winCount;
     private int loseCount;
     private Date createTime;
+    private float commission;
 
     public Integer getId() {
         return id;
@@ -141,5 +142,13 @@ public class PerformanceSummary {
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+    }
+
+    public float getCommission() {
+        return commission;
+    }
+
+    public void setCommission(float commission) {
+        this.commission = commission;
     }
 }
