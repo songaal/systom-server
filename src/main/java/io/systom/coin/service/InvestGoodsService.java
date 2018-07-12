@@ -114,6 +114,8 @@ public class InvestGoodsService {
         List<Trade> tradeHistory = tradeService.getTradeHistory(investId);
         registerGoods.setTradeHistory(tradeHistory);
         PerformanceSummary performanceSummary = performanceService.getPerformanceSummary(investId);
+        InvestGoods registerInvestGoods = getInvestGoods(investId);
+        registerGoods.setInvestCash(registerInvestGoods.getInvestCash());
         registerGoods.setPerformanceSummary(performanceSummary);
         List<PerformanceDaily> performanceDailyList = performanceService.getPerformanceDailyList(investId);
         registerGoods.setPerformanceDaily(performanceDailyList);

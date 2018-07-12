@@ -67,6 +67,10 @@ public class IdentityController {
                 result.put("session", initAuthResult.getSession());
                 return new ResponseEntity<>(result, HttpStatus.OK);
             }
+        } catch (UserNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (NotAuthorizedException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Throwable t) {
             logger.error("login error", t);
             throw t;
