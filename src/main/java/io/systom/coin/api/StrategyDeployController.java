@@ -100,5 +100,20 @@ public class StrategyDeployController extends AbstractController{
         }
     }
 
+    @GetMapping("/{version}/model")
+    public ResponseEntity<?> getStrategyModel (@PathVariable Integer id,
+                                               @PathVariable(required = false) Integer version) {
+        logger.debug("getDeployVersion > id: {}, version: {}, user_id: {}", id, version);
+        try {
+            String model = strategyDeployService.getStrategyModel(id, version);
+            return success(model);
+        } catch (AbstractException e) {
+            logger.error("", e);
+            return e.response();
+        } catch (Throwable t){
+            logger.error("", t);
+            return new OperationException().response();
+        }
 
+    }
 }

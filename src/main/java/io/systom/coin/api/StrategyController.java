@@ -101,4 +101,5 @@ public class StrategyController extends AbstractController {
             return new OperationException(t.getMessage()).response();
         }
     }
+
 }

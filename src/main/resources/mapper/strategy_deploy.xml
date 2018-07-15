@@ -56,4 +56,24 @@
          WHERE id = ${id}
     </update>
 
+    <select id="getStrategyModel" parameterType="StrategyDeployVersion" resultType="String">
+        SELECT
+        <choose>
+            <when test="version != null and version != ''">
+                b.code
+            </when>
+            <otherwise>
+                a.code
+            </otherwise>
+        </choose>
+          FROM strategy a
+        <if test="version != null and version != ''">
+            JOIN strategy_deploy b on a.id = b.id
+        </if>
+         WHERE a.id = ${id}
+        <if test="version != null and version != ''">
+            AND b.version = ${version}
+        </if>
+    </select>
+
 </mapper>

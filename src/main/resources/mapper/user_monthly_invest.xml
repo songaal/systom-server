@@ -24,6 +24,7 @@
          ORDER BY a.date asc
          LIMIT 6
     </select>
+
     <select id="getDailyInvest" parameterType="String" resultType="HashMap">
         <![CDATA[
         SELECT IFNULL(SUM(a.cash), 0) as cash
@@ -40,4 +41,54 @@
                      )
         ]]>
     </select>
+
+
+    <select id="retrieveUpdateTargetUserList" resultType="String">
+        SELECT aa.user_id
+          FROM invest_goods aa
+          JOIN performance_daily bb on aa.id = bb.id
+         WHERE bb.date LIKE date_format(NOW(), '%Y%m__')
+           AND aa.user_id NOT IN ('0')
+           AND aa.invest_cash NOT IN ('0')
+         GROUP BY aa.user_id
+    </select>
+
+    <select id="getUserMonthlyInvest" parameterType="String" resultType="UserMonthlyInvest">
+        SELECT a.user_id
+             , date_format(now(), '%Y%m') as date
+             , a.invest_cash as init_cash
+             , b.month_return as monthly_return
+          FROM (select aa.user_id
+                     , sum(aa.invest_cash) as invest_cash
+                  from invest_goods aa
+                  join performance_daily bb on aa.id = bb.id
+                 where bb.date like date_format(now(), '%Y%m__')
+                   and aa.user_id not in ('0')
+                   and aa.invest_cash not in('0')
+                 group by aa.user_id) a
+          join (select cc.user_id
+                     , sum(dd.sum_return) as month_return
+                  from invest_goods cc
+                  join performance_summary dd on cc.id = dd.id
+                 where cc.user_id not in ('0')
+                   and cc.invest_cash not in('0')
+                 group by cc.user_id
+            ) b on a.user_id = b.user_id
+        WHERE a.user_id = #{param1}
+    </select>
+
+    <update id="updateMonthlyInvest" parameterType="UserMonthlyInvest">
+        INSERT INTO user_monthly_invest (user_id, date, init_cash, monthly_return, monthly_return_pct)
+        VALUES ( #{userId}
+               , #{date}
+               , ${initCash}
+               , ${monthlyReturn}
+               , ${monthlyReturnPct}
+        )
+        ON DUPLICATE KEY
+        UPDATE init_cash = ${initCash}
+             , monthly_return = ${monthlyReturn}
+             , monthly_return_pct = ${monthlyReturnPct}
+             , updated = now()
+    </update>
 </mapper>

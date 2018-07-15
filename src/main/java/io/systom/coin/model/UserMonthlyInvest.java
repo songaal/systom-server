@@ -72,4 +72,17 @@ public class UserMonthlyInvest {
     public void setSumCash(float sumCash) {
         this.sumCash = sumCash;
     }
+
+    @Override
+    public String toString() {
+        return "UserMonthlyInvest{" +
+                "userId='" + userId + '\'' +
+                ", date='" + date + '\'' +
+                ", initCash=" + initCash +
+                ", monthlyReturn=" + monthlyReturn +
+                ", monthlyReturnPct=" + monthlyReturnPct +
+                ", updated=" + updated +
+                ", sumCash=" + sumCash +
+                '}';
+    }
 }

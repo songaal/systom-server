@@ -118,4 +118,17 @@ public class StrategyDeployService {
 
         return retrieveDeployVersions(registerStrategy);
     }
+
+    public String getStrategyModel (Integer strategyId, Integer version) throws ParameterException, OperationException {
+        StrategyDeployVersion deployVersion = new StrategyDeployVersion();
+        deployVersion.setId(strategyId);
+        deployVersion.setVersion(version);
+        try {
+            String model = sqlSession.selectOne("strategyDeploy.getStrategyModel", deployVersion);
+            return model;
+        } catch (Exception e){
+            logger.error("", e);
+            throw new OperationException("[FAIL] SQL Execute.");
+        }
+    }
 }
