@@ -100,8 +100,8 @@
 //                agentService.updateAgentMode(agentId, agentRequestParams.getMode());
 //                boolean isLiveMode = AgentRequestParams.LIVE_MODE.equalsIgnoreCase(agentRequestParams.getMode());
 //                task = taskService.runAgentTask(userId, accessToken, agentId, isLiveMode);
-//                task.setStartTime("");
-//                task.setEndTime("");
+//                task.setStartDate("");
+//                task.setEndDate("");
 //                task.setTimeInterval("");
 //            } else if(AgentRequestParams.STOP_ACTION.equalsIgnoreCase(agentRequestParams.getAction())) {
 //                task = taskService.stopAgentTask(userId, agentId);

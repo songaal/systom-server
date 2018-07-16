@@ -1,19 +1,20 @@
 package io.systom.coin.api;
 
 import io.systom.coin.service.IdentityService;
+import io.systom.coin.service.TaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,12 +29,13 @@ public class AuthInterceptor implements HandlerInterceptor {
 
     @Autowired
     private IdentityService identityService;
+
+    @Autowired
+    private TaskService taskService;
     //ip 내부망은 true  , 그외 false
 
     // 토큰 확인 안하는 URL
-    private List<String> exceptUrl = Arrays.asList( "/auth/login", "/auth/signUp", "/ping", "/ws", "/error", "/auth/changeTempPassword");
-
-    private Map<String, String> accessKeyUrl = new HashMap<>();
+    private List<String> exceptUrl = Arrays.asList( "/auth/login", "/auth/signUp", "/ping", "/error", "/auth/changeTempPassword");
 
     /**
      * api 요청시 권환 확인
@@ -48,10 +50,15 @@ public class AuthInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         try {
             String url = request.getRequestURI();
-            String accessKey = request.getHeader("accessKey");
-            if (accessKey != null && isAccessKeyUrl(url, accessKey)) {
-                return true;
+
+            Object urlTemplateVariables = request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
+            if (urlTemplateVariables != null) {
+                Map<String, String> pathVariables = (Map<String, String>) urlTemplateVariables;
+                if (taskService.isWaitTask(pathVariables.get("taskId")) != null) {
+                    return true;
+                }
             }
+
             if (exceptUrl.contains(url)) {
                 return true;
             }
@@ -107,16 +114,4 @@ public class AuthInterceptor implements HandlerInterceptor {
         return null;
     }
 
-    public void addAccessKeyUrl (String url, String accessKey) {
-        this.accessKeyUrl.put(url, accessKey);
-    }
-
-    public boolean isAccessKeyUrl (String url, String accessKey) {
-        if (this.accessKeyUrl.get(url) != null && this.accessKeyUrl.get(url) == accessKey) {
-            this.accessKeyUrl.remove(url);
-            return true;
-        } else {
-            return false;
-        }
-    }
 }

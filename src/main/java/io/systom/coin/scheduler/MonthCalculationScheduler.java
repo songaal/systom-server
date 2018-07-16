@@ -1,6 +1,5 @@
-package io.systom.coin;
+package io.systom.coin.scheduler;
 
-import io.systom.coin.exception.OperationException;
 import io.systom.coin.model.PerformanceDaily;
 import io.systom.coin.model.UserMonthlyInvest;
 import org.apache.ibatis.session.SqlSession;
@@ -26,8 +25,8 @@ public class MonthCalculationScheduler {
     @Autowired
     private SqlSession sqlSession;
     // 6시간
-    @Scheduled(fixedDelay= 6 * 60 * 60)
-    public void convertToSummary() {
+    @Scheduled(fixedDelay= 6 * 1000 * 60 * 60)
+    public void monthCalculation() {
         List<String> userList = sqlSession.selectList("userMonthlyInvest.retrieveUpdateTargetUserList");
         int userSize = userList.size();
         for(int i=0; i<userSize; i++) {

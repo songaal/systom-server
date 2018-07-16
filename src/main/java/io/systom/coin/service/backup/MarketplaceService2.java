@@ -45,7 +45,7 @@
 //        String symbol = target.getSymbol();
 //        String exchange = target.getExchange();
 //        String timeInterval = target.getTimeInterval();
-//        String startTime = target.getStartTime();
+//        String startTime = target.getStartDate();
 //
 //        if ( strategyId == null || version == null
 //                || StringUtils.isEmpty(exchange) || StringUtils.isBlank(exchange)
@@ -88,7 +88,7 @@
 //        backTestTask.setStrategyId(strategyId);
 //        backTestTask.setExchange(exchange);
 //        backTestTask.setSymbol(symbol);
-//        backTestTask.setStartTime(startTime);
+//        backTestTask.setStartDate(startTime);
 //
 ////        TaskResult backTestResult = taskService.syncBackTest(backTestTask);
 //

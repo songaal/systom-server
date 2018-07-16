@@ -32,11 +32,9 @@ spring:
 
 backtest:
     host: "tcp://52.78.216.101:2376"
-    resultTimeout: 3600000
-    image: "868448630378.dkr.ecr.ap-northeast-2.amazonaws.com/cctrader:latest"
-    capitalBase: 1.0
+#    image: "868448630378.dkr.ecr.ap-northeast-2.amazonaws.com/cctrader:latest"
+    image: "868448630378.dkr.ecr.ap-northeast-2.amazonaws.com/systom:latest"
     apiServerHost: "https://api.systom.io"
-    apiGatewayHost: "https://9u3jawxuod.execute-api.ap-northeast-2.amazonaws.com/v1_1"
     influxTimeDifference: 3
     container:
           readTimeout: 40000

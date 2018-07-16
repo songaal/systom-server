@@ -3,9 +3,7 @@ package io.systom.coin.utils;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.DockerCmdExecFactory;
-import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Frame;
-import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
@@ -18,7 +16,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -41,8 +38,6 @@ public class DockerUtils {
     private String backTestImage;
     @Value("${backtest.apiServerHost}")
     private String apiServerHost;
-    @Value("${backtest.apiGatewayHost}")
-    private String apiGatewayHost;
 
     private DockerClientConfig config;
     private DockerCmdExecFactory factory;
@@ -62,25 +57,13 @@ public class DockerUtils {
                                   .build();
     }
 
-    public void syncRun(String taskId, List<String> envList, List<String> cmd) throws InterruptedException {
+    public void syncRun(String taskId, List<String> env, List<String> cmd) throws InterruptedException {
         DockerClient dockerClient = getClient();
-
-        envList.add("api_server_host=" + apiServerHost);
-        envList.add("api_gateway_host=" + apiGatewayHost);
-
-        Volume hostDataVolume = new Volume("/data");
-        Bind gastDataVolume = new Bind("/coinArk/data", hostDataVolume);
-
-        List<Volume> volumeList = new ArrayList<>();
-        volumeList.add(hostDataVolume);
-        List<Bind> bindList = new ArrayList<>();
-        bindList.add(gastDataVolume);
+        env.add("API_SERVER_HOST=" + apiServerHost);
 
         CreateContainerResponse container = dockerClient.createContainerCmd(backTestImage)
-                                                        .withEnv(envList)
+                                                        .withEnv(env)
                                                         .withCmd(cmd)
-                                                        .withVolumes(volumeList)
-                                                        .withBinds(bindList)
                                                         .exec();
 
         String containerId = container.getId();
@@ -91,7 +74,7 @@ public class DockerUtils {
         dockerClient.waitContainerCmd(containerId).exec(waitContainerResultCallback);
         backtestLogger.info("[{}] Start Container", taskId);
 
-        LogContainerTestCallback loggingCallback = new LogContainerTestCallback(containerId);
+        LogContainerTestCallback loggingCallback = new LogContainerTestCallback(taskId);
         dockerClient.logContainerCmd(containerId)
                 .withStdErr(true)
                 .withStdOut(true)
@@ -102,25 +85,25 @@ public class DockerUtils {
         loggingCallback.awaitCompletion();
 
         int exitCode = waitContainerResultCallback.awaitStatusCode();
-        if (exitCode != 0) {
-            backtestLogger.error("[" + taskId + "] Container ExitCode not zero.. return code: " + exitCode);
-            throw new InterruptedException("BackTest Running Fail");
-        } else {
+        if (exitCode == 0) {
             dockerClient.removeContainerCmd(containerId).withForce(true).exec();
             backtestLogger.info("[{}] BackTest Docker Run Finished!", taskId);
+        } else {
+            backtestLogger.error("[" + taskId + "] Container ExitCode not zero.. return code: " + exitCode);
+            throw new InterruptedException("BackTest Running Fail");
         }
     }
 
     class LogContainerTestCallback extends LogContainerResultCallback {
         private org.slf4j.Logger strategyLogger = LoggerFactory.getLogger("strategyLogger");
-        private String backtestName;
+        private String taskId;
 
-        LogContainerTestCallback (String backtestName){
-            this.backtestName = backtestName.substring(10);
+        LogContainerTestCallback (String taskId){
+            this.taskId = taskId.substring(0, 8);
         }
         @Override
         public void onNext(Frame frame) {
-            strategyLogger.info( "[{}] {}", backtestName, new String(frame.getPayload(), Charset.defaultCharset()) );
+            strategyLogger.info( "[{}] {}", taskId, new String(frame.getPayload(), Charset.defaultCharset()) );
         }
     }
 }

@@ -67,7 +67,7 @@
                    and aa.invest_cash not in('0')
                  group by aa.user_id) a
           join (select cc.user_id
-                     , sum(dd.sum_return) as month_return
+                     , sum(dd.equity) as month_return
                   from invest_goods cc
                   join performance_summary dd on cc.id = dd.id
                  where cc.user_id not in ('0')

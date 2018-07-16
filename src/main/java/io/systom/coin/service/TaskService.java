@@ -1,10 +1,11 @@
 package io.systom.coin.service;
 
+import io.systom.coin.exception.AuthenticationException;
 import io.systom.coin.exception.OperationException;
 import io.systom.coin.exception.ParameterException;
-import io.systom.coin.model.backup.TaskResult;
-import io.systom.coin.model.Strategy;
-import io.systom.coin.model.backup.Task;
+import io.systom.coin.exception.RequestException;
+import io.systom.coin.model.StrategyDeployVersion;
+import io.systom.coin.model.Task;
 import io.systom.coin.utils.DockerUtils;
 import io.systom.coin.utils.TaskFuture;
 import org.apache.ibatis.session.SqlSession;
@@ -14,7 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeoutException;
@@ -25,14 +27,15 @@ public class TaskService {
     private static Logger logger = LoggerFactory.getLogger(TaskService.class);
     private static Logger backTestLogger = LoggerFactory.getLogger("backTestLogger");
 
-    @Value("${backtest.resultTimeout}")
-    private long resultTimeout;
+    @Value("${backtest.apiServerHost}")
+    private String apiServerHost;
 
-    @Value("${backtest.capitalBase}")
-    private float capitalBase;
-
-    @Autowired private SqlSession sqlSession;
-    @Autowired private DockerUtils dockerUtils;
+    @Autowired
+    private SqlSession sqlSession;
+    @Autowired
+    private DockerUtils dockerUtils;
+    @Autowired
+    private IdentityService identityService;
 
 //    @Autowired private EcsUtils ecsUtils;
 //    @Autowired private IdentityService identityService;
@@ -40,133 +43,177 @@ public class TaskService {
 //    @Autowired private ExchangeService exchangeService;
 //    @Autowired private AgentService agentService;
 
+    private static Map<String, Task> waitTaskList = new ConcurrentHashMap<>();
     private static ConcurrentMap<String, TaskFuture> backTestResult = new ConcurrentHashMap<>();
 
-    public Map<String, Object> syncBackTest(Task task) throws TimeoutException, ParameterException, OperationException {
-        task.setInitialBase(capitalBase);
+    public Task isWaitTask(String taskId) {
+        if (taskId != null && waitTaskList.get(taskId) != null) {
+            return waitTaskList.get(taskId);
+        } else {
+            return null;
+        }
+    }
 
+    public Map<String, Object> syncBackTest(Task task) throws TimeoutException, ParameterException, OperationException {
+        if (task.getUserId() == null || !identityService.isManager(task.getUserId())) {
+            throw new AuthenticationException();
+        }
         isNotEmpty(task.getStrategyId(), "strategyId");
         isNotEmpty(task.getExchange(), "exchange");
-        isNotEmpty(task.getSymbol(), "symbol");
-        isNotEmpty(task.getTimeInterval(), "timeInterval");
-        isNotEmpty(task.getStartTime(), "start");
-        isNotEmpty(task.getEndTime(), "end");
+        isNotEmpty(task.getCoinUnit(), "coinUnit");
+        isNotEmpty(task.getBaseUnit(), "baseUnit");
+        isNotEmpty(task.getCashUnit(), "cashUnit");
+        isNotEmpty(task.getStartDate(), "start");
+        isNotEmpty(task.getEndDate(), "end");
 
         try {
             logger.debug("[ BACK TEST ] RUN {}", task);
-
             task.setId(UUID.randomUUID().toString());
 
-            logger.info("Generator Task Id: {}", task.getId());
+            logger.info("Generator Task taskId: {}", task.getId());
+            waitTaskList.put(task.getId(), task);
 
-            dockerUtils.syncRun(task.getId(), task.getRunEnv(), task.getRunCommand());
+            dockerUtils.syncRun(task.getId(), task.getDockerRunEnv(), task.getDockerRunCommand());
+        } catch (Throwable t) {
+            logger.error("", t);
+            waitTaskList.remove(task.getId());
+            throw new OperationException("[FAIL] Running BackTest.");
+        }
 
+        Map<String, Object> resultJson = null;
+        try {
             TaskFuture<Map<String, Object>> future = backTestResult.get(task.getId());
-            Map<String, Object> resultJson = future.take();
+
+            resultJson = future.take();
+            waitTaskList.remove(task.getId());
             backTestResult.remove(task.getId());
             if (resultJson != null) {
                 backTestLogger.info("[{}] BackTest result catch!", task.getId());
-            } else {
-                backTestLogger.info("[{}] BackTest Response Timeout Error.", task.getId());
-                throw new TimeoutException("[" + task.getId() + "] BackTest Response Timeout Error.");
             }
             backTestLogger.info("[{}] BackTest Successful.", task.getId());
-            return resultJson;
-        } catch (Throwable t) {
-            logger.error("", t);
-            throw new OperationException("[FAIL] Running BackTest.");
+        } catch (Exception e){
+            logger.error("", e);
+            waitTaskList.remove(task.getId());
+            throw new OperationException("[FAIL] Not Catch Performance");
         }
-    }
-
-    public Map<String, Object> registerBackTestResult(String id, Map<String, Object> resultJson) {
-        TaskFuture<Map<String, Object>> taskFuture = new TaskFuture();
-        taskFuture.offer(resultJson);
-        backTestResult.put(id, taskFuture);
-        backTestLogger.debug("[{}] BackTest Result Saved.", id);
         return resultJson;
     }
 
-    public Strategy getBackTestModel(String testId, String userId, Integer version) throws ParameterException, OperationException {
-        Task task = new Task();
-        task.setId(testId);
-        task.setUserId(userId);
-        task.setVersion(version);
+
+    public String getTaskModel(String taskId) throws ParameterException, OperationException {
+        Task task = waitTaskList.get(taskId);
+        if (task == null) {
+            throw new RequestException("invalid taskId");
+        }
+        StrategyDeployVersion deployVersion = new StrategyDeployVersion();
+        deployVersion.setId(task.getStrategyId());
+        deployVersion.setVersion(task.getVersion());
         try {
-            return sqlSession.selectOne("backtest.getModel", task);
+            return sqlSession.selectOne("strategyDeploy.getStrategyModel", deployVersion);
         } catch (Exception e){
             logger.error("", e);
-            throw new OperationException("[FAIL] Update Failed testId: " + testId);
-
+            throw new OperationException("[FAIL] sql execute");
         }
     }
 
-    protected void recordBackTestPerformance(int investGoodsId, TaskResult.Result result) {
-        try {
-            result.setId(investGoodsId);
-            int changeRow = sqlSession.insert("backtest.recordPerformance", result);
-            logger.debug("recordPerformance row: {}", changeRow);
-        } catch (Exception e) {
-
+    public Map<String, Object> registerBackTestResult(String taskId, Map<String, Object> resultJson) {
+        if (isWaitTask(taskId) != null) {
+            TaskFuture<Map<String, Object>> taskFuture = new TaskFuture();
+            taskFuture.offer(resultJson);
+            backTestResult.put(taskId, taskFuture);
+            backTestLogger.debug("[{}] BackTest Result Saved.", taskId);
+            return resultJson;
+        } else {
+            return null;
         }
     }
 
-    protected void recordBackTestTradeHistory(int investGoodsId, List<TaskResult.Result.Trade> trades) {
-        trades.forEach(trade -> {
-            trade.setId(investGoodsId);
-        });
-        int changeRow = sqlSession.insert("backtest.recordTradeHistory", trades);
-        logger.debug("recordTradeHistory row: {}", changeRow);
+
+
+    public void saveSimpleWaitTask(Task task) {
+        waitTaskList.put(task.getId(), task);
+    }
+    public Map<String, Task> getSimpleWaitTask() {
+        return waitTaskList;
     }
 
-    protected void recordBackTestValueHistory(int investGoodsId, Map<Long, Float> equities, Map<Long, Float> cumReturns, Map<Long, Float> drawdowns){
-        List<TaskResult.Result.Value> values = new ArrayList<>();
-        Iterator<Map.Entry<Long, Float>> iterator = equities.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<Long, Float> entry = iterator.next();
-            Long ts = entry.getKey();
-            TaskResult.Result.Value v = new TaskResult.Result.Value();
-            v.setId(investGoodsId);
-            v.setTimestamp(ts);
-            v.setEquity(entry.getValue());
-            if (cumReturns.get(ts) != null) {
-                v.setCumReturn(cumReturns.get(ts));
-                cumReturns.remove(ts);
-            }
-            if (drawdowns.get(ts) != null) {
-                v.setDrawdown(drawdowns.get(ts));
-                drawdowns.remove(ts);
-            }
-            values.add(v);
-        }
 
-        iterator = cumReturns.entrySet().iterator();
-        while(iterator.hasNext()){
-            Map.Entry<Long, Float> entry = iterator.next();
-            Long ts = entry.getKey();
-            TaskResult.Result.Value v = new TaskResult.Result.Value();
-            v.setId(investGoodsId);
-            v.setTimestamp(ts);
-            v.setCumReturn(cumReturns.get(ts));
-            if (drawdowns.get(ts) != null) {
-                v.setDrawdown(drawdowns.get(ts));
-                drawdowns.remove(ts);
-            }
-            values.add(v);
-        }
 
-        iterator = drawdowns.entrySet().iterator();
-        while(iterator.hasNext()){
-            Map.Entry<Long, Float> entry = iterator.next();
-            Long ts = entry.getKey();
-            TaskResult.Result.Value v = new TaskResult.Result.Value();
-            v.setId(investGoodsId);
-            v.setTimestamp(ts);
-            v.setDrawdown(drawdowns.get(ts));
-            values.add(v);
-        }
-        int changeRow = sqlSession.insert("backtest.recordValueHistory", values);
-        logger.debug("recordValueHistory row: {}", changeRow);
-    }
+
+
+
+
+
+
+
+
+//    protected void recordBackTestPerformance(int investGoodsId, TaskResult.Result result) {
+//        try {
+//            result.setId(investGoodsId);
+//            int changeRow = sqlSession.insert("backtest.recordPerformance", result);
+//            logger.debug("recordPerformance row: {}", changeRow);
+//        } catch (Exception e) {
+//
+//        }
+//    }
+
+//    protected void recordBackTestTradeHistory(int investGoodsId, List<TaskResult.Result.Trade> trades) {
+//        trades.forEach(trade -> {
+//            trade.setId(investGoodsId);
+//        });
+//        int changeRow = sqlSession.insert("backtest.recordTradeHistory", trades);
+//        logger.debug("recordTradeHistory row: {}", changeRow);
+//    }
+
+//    protected void recordBackTestValueHistory(int investGoodsId, Map<Long, Float> equities, Map<Long, Float> cumReturns, Map<Long, Float> drawdowns){
+//        List<TaskResult.Result.Value> values = new ArrayList<>();
+//        Iterator<Map.Entry<Long, Float>> iterator = equities.entrySet().iterator();
+//        while (iterator.hasNext()) {
+//            Map.Entry<Long, Float> entry = iterator.next();
+//            Long ts = entry.getKey();
+//            TaskResult.Result.Value v = new TaskResult.Result.Value();
+//            v.setId(investGoodsId);
+//            v.setTimestamp(ts);
+//            v.setEquity(entry.getValue());
+//            if (cumReturns.get(ts) != null) {
+//                v.setCumReturn(cumReturns.get(ts));
+//                cumReturns.remove(ts);
+//            }
+//            if (drawdowns.get(ts) != null) {
+//                v.setDrawdown(drawdowns.get(ts));
+//                drawdowns.remove(ts);
+//            }
+//            values.add(v);
+//        }
+//
+//        iterator = cumReturns.entrySet().iterator();
+//        while(iterator.hasNext()){
+//            Map.Entry<Long, Float> entry = iterator.next();
+//            Long ts = entry.getKey();
+//            TaskResult.Result.Value v = new TaskResult.Result.Value();
+//            v.setId(investGoodsId);
+//            v.setTimestamp(ts);
+//            v.setCumReturn(cumReturns.get(ts));
+//            if (drawdowns.get(ts) != null) {
+//                v.setDrawdown(drawdowns.get(ts));
+//                drawdowns.remove(ts);
+//            }
+//            values.add(v);
+//        }
+//
+//        iterator = drawdowns.entrySet().iterator();
+//        while(iterator.hasNext()){
+//            Map.Entry<Long, Float> entry = iterator.next();
+//            Long ts = entry.getKey();
+//            TaskResult.Result.Value v = new TaskResult.Result.Value();
+//            v.setId(investGoodsId);
+//            v.setTimestamp(ts);
+//            v.setDrawdown(drawdowns.get(ts));
+//            values.add(v);
+//        }
+//        int changeRow = sqlSession.insert("backtest.recordValueHistory", values);
+//        logger.debug("recordValueHistory row: {}", changeRow);
+//    }
 
 
 

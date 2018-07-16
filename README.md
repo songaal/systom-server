@@ -70,8 +70,8 @@ ssh ec2-user@api.gncloud.io -i gncloud-io.pem
             - initialBase
             - live
             - simulationOrder
-            - startTime
-            - endTime
+            - startDate
+            - endDate
             - timeInterval
         - exchangeAuths [array type]
             - exchange
