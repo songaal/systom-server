@@ -38,10 +38,10 @@ public class StrategyService {
             throw new ParameterException("strategy name");
         }
 
-        Strategy uniqueStrategy = findStrategyByName(strategy.getName(), strategy.getUserId());
-        if (uniqueStrategy != null) {
-            throw new ParameterException("strategy unique name");
-        }
+//        Strategy uniqueStrategy = findStrategyByName(strategy.getName(), strategy.getUserId());
+//        if (uniqueStrategy != null) {
+//            throw new ParameterException("strategy unique name");
+//        }
 
         try {
             int changeRow = sqlSession.insert("strategy.createBlankStrategy", strategy);

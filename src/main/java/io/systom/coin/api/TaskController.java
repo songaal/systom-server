@@ -57,9 +57,9 @@ public class TaskController extends AbstractController {
 
     @PostMapping("/{taskId}/result")
     public ResponseEntity<?> testTaskResult(@PathVariable String taskId,
-                                        @RequestBody Map<String, Object> resultJson) throws Exception {
+                                            @RequestBody Map<String, Object> result) throws Exception {
         logger.debug("[BACK TEST RESULT] taskId: {}", taskId);
-        Map<String, Object> saveResult = taskService.registerBackTestResult(taskId, resultJson);
+        Map<String, Object> saveResult = taskService.registerBackTestResult(taskId, result);
         return success(saveResult);
     }
 

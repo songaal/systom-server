@@ -15,10 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeoutException;
@@ -41,6 +38,8 @@ public class TaskService {
 
     private static Map<String, Task> waitTaskList = new ConcurrentHashMap<>();
     private static ConcurrentMap<String, TaskFuture> backTestResult = new ConcurrentHashMap<>();
+
+    private final String RESULT_JSON = "resultJson";
 
     public Task isWaitTask(String taskId) {
         if (taskId != null && waitTaskList.get(taskId) != null) {
@@ -83,6 +82,7 @@ public class TaskService {
             TaskFuture<Map<String, Object>> future = backTestResult.get(task.getId());
             resultJson = future.take();
             if (resultJson != null) {
+                resultJson = (Map<String, Object>) resultJson.get(RESULT_JSON);
                 backTestLogger.info("[{}] BackTest result catch!", task.getId());
             }
             backTestLogger.info("[{}] BackTest Successful.", task.getId());
@@ -114,8 +114,10 @@ public class TaskService {
 
     public Map<String, Object> registerBackTestResult(String taskId, Map<String, Object> resultJson) {
         if (isWaitTask(taskId) != null) {
+            Map<String, Object> resultMap = new HashMap<>();
+            resultMap.put(RESULT_JSON, resultJson);
             TaskFuture<Map<String, Object>> taskFuture = new TaskFuture();
-            taskFuture.offer(resultJson);
+            taskFuture.offer(resultMap);
             backTestResult.put(taskId, taskFuture);
             backTestLogger.debug("[{}] BackTest Result Saved.", taskId);
             return resultJson;

@@ -44,37 +44,31 @@
 
 
     <select id="retrieveUpdateTargetUserList" resultType="String">
-        SELECT aa.user_id
-          FROM invest_goods aa
-          JOIN performance_daily bb on aa.id = bb.id
-         WHERE bb.date LIKE date_format(NOW(), '%Y%m__')
-           AND aa.user_id NOT IN ('0')
-           AND aa.invest_cash NOT IN ('0')
-         GROUP BY aa.user_id
+        <![CDATA[
+        SELECT bb.user_id
+          FROM goods aa
+          JOIN invest_goods bb on aa.id = bb.goods_id
+         WHERE bb.user_id not in('0')
+           AND bb.invest_cash not in ('0')
+           AND (cast(substring(aa.invest_start, 1, 6) as decimal) <= cast(date_format(now(), '%Y%m') as decimal)
+            OR cast(substring(aa.invest_end, 1, 6) as decimal) >= cast(date_format(now(), '%Y%m') as decimal) )
+        GROUP BY bb.user_id
+        ]]>
     </select>
 
     <select id="getUserMonthlyInvest" parameterType="String" resultType="UserMonthlyInvest">
-        SELECT a.user_id
+        <![CDATA[
+        SELECT SUM(aa.init_cash) as init_cash
+             , SUM(aa.equity) as month_equity
              , date_format(now(), '%Y%m') as date
-             , a.invest_cash as init_cash
-             , b.month_return as monthly_return
-          FROM (select aa.user_id
-                     , sum(aa.invest_cash) as invest_cash
-                  from invest_goods aa
-                  join performance_daily bb on aa.id = bb.id
-                 where bb.date like date_format(now(), '%Y%m__')
-                   and aa.user_id not in ('0')
-                   and aa.invest_cash not in('0')
-                 group by aa.user_id) a
-          join (select cc.user_id
-                     , sum(dd.equity) as month_return
-                  from invest_goods cc
-                  join performance_summary dd on cc.id = dd.id
-                 where cc.user_id not in ('0')
-                   and cc.invest_cash not in('0')
-                 group by cc.user_id
-            ) b on a.user_id = b.user_id
-        WHERE a.user_id = #{param1}
+          FROM performance_summary aa
+         WHERE aa.id in (SELECT bbb.id
+                           FROM goods aaa
+                           JOIN invest_goods bbb on aaa.id = bbb.goods_id
+                          WHERE bbb.user_id = #{param1}
+                            AND (cast(substring(aaa.invest_start, 1, 6) as decimal) <= cast(date_format(now(), '%Y%m') as decimal)
+                             OR cast(substring(aaa.invest_end, 1, 6) as decimal) >= cast(date_format(now(), '%Y%m') as decimal)))
+        ]]>
     </select>
 
     <update id="updateMonthlyInvest" parameterType="UserMonthlyInvest">

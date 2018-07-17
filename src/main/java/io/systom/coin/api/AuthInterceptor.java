@@ -90,7 +90,9 @@ public class AuthInterceptor implements HandlerInterceptor {
             return true;
         } catch (Exception e) {
             logger.error("error in authInterceptor.", e);
-            throw e;
+//            throw e;
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            return false;
         }
     }
 

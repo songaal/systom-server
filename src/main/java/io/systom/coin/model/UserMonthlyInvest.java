@@ -16,6 +16,15 @@ public class UserMonthlyInvest {
     private Date updated;
 
     private float sumCash;
+    private float monthEquity;
+
+    public float getMonthEquity() {
+        return monthEquity;
+    }
+
+    public void setMonthEquity(float monthEquity) {
+        this.monthEquity = monthEquity;
+    }
 
     public String getUserId() {
         return userId;

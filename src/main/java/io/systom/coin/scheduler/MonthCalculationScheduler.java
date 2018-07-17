@@ -21,7 +21,7 @@ public class MonthCalculationScheduler {
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(MonthCalculationScheduler.class);
 
-    @Value("${scheduler.isMonthCalculation")
+    @Value("${scheduler.isMonthCalculation}")
     private String isMonthCalculation;
 
     private ConcurrentLinkedQueue<PerformanceDaily> performanceDailyQueue = new ConcurrentLinkedQueue<>();
@@ -31,7 +31,8 @@ public class MonthCalculationScheduler {
     // 6시간
     @Scheduled(fixedDelay= 6 * 1000 * 60 * 60)
     public void monthCalculation() {
-        if (!isMonthCalculation.toLowerCase().equals("true")) {
+        if (!"true".equalsIgnoreCase(isMonthCalculation)) {
+            logger.debug("MonthCalculation Disabled");
             return;
         }
         logger.debug("------- User Monthly Calculation Start -------");
@@ -41,9 +42,13 @@ public class MonthCalculationScheduler {
             UserMonthlyInvest userMonthlyInvest = sqlSession.selectOne("userMonthlyInvest.getUserMonthlyInvest", userList.get(i));
             try {
                 float pct = 0;
-                if (userMonthlyInvest.getMonthlyReturn() != 0 && userMonthlyInvest.getInitCash() != 0) {
-                    pct = userMonthlyInvest.getInitCash() / userMonthlyInvest.getMonthlyReturn();
+                float ret = 0;
+                if (userMonthlyInvest.getMonthEquity() != 0 && userMonthlyInvest.getInitCash() != 0) {
+                    pct = userMonthlyInvest.getInitCash() / userMonthlyInvest.getMonthEquity();
+                    ret = userMonthlyInvest.getMonthEquity() - userMonthlyInvest.getInitCash();
                 }
+                userMonthlyInvest.setUserId(userList.get(i));
+                userMonthlyInvest.setMonthlyReturn(ret);
                 userMonthlyInvest.setMonthlyReturnPct(pct);
                 sqlSession.insert("userMonthlyInvest.updateMonthlyInvest", userMonthlyInvest);
             } catch (Exception e) {
@@ -52,15 +57,6 @@ public class MonthCalculationScheduler {
         }
         logger.debug("------- User Monthly Calculation end -------");
     }
-
-//    protected void retrievePerformanceDaily() {
-//        try {
-//            sqlSession.selectList("performance.retrievePerformanceDaily");
-//        } catch (Exception e) {
-//            logger.error("", e);
-//            throw new OperationException("[FAIL] SCHEDULER Run Execute Error.");
-//        }
-//    }
 
 
 }
