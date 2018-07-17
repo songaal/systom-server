@@ -27,17 +27,10 @@ public class TaskController extends AbstractController {
 
     @PostMapping
     public ResponseEntity<?> syncBackTest(@RequestAttribute String userId,
-                                          @RequestParam(required = false) boolean isDry,
                                           @RequestBody Task task) throws InterruptedException {
         try {
-            Map<String, Object> resultJson = null;
-            if (!isDry) {
-                task.setUserId(userId);
-                resultJson  = taskService.syncBackTest(task);
-            } else {
-                taskService.saveSimpleWaitTask(task);
-            }
-
+            task.setUserId(userId);
+            Map<String, Object> resultJson = taskService.syncBackTest(task);
             return success(resultJson);
         } catch (AbstractException e){
             logger.error("", e);
@@ -67,12 +60,6 @@ public class TaskController extends AbstractController {
                                         @RequestBody Map<String, Object> resultJson) throws Exception {
         logger.debug("[BACK TEST RESULT] taskId: {}", taskId);
         Map<String, Object> saveResult = taskService.registerBackTestResult(taskId, resultJson);
-        return success(saveResult);
-    }
-
-    @GetMapping("getSimpleWaitTask")
-    public ResponseEntity<?> getSimpleWaitTask() {
-        Map<String, Task> saveResult = taskService.getSimpleWaitTask();
         return success(saveResult);
     }
 

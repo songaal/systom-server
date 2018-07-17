@@ -5,6 +5,7 @@ import io.systom.coin.model.UserMonthlyInvest;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +21,9 @@ public class MonthCalculationScheduler {
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(MonthCalculationScheduler.class);
 
+    @Value("${scheduler.isMonthCalculation")
+    private String isMonthCalculation;
+
     private ConcurrentLinkedQueue<PerformanceDaily> performanceDailyQueue = new ConcurrentLinkedQueue<>();
 
     @Autowired
@@ -27,6 +31,10 @@ public class MonthCalculationScheduler {
     // 6시간
     @Scheduled(fixedDelay= 6 * 1000 * 60 * 60)
     public void monthCalculation() {
+        if (!isMonthCalculation.toLowerCase().equals("true")) {
+            return;
+        }
+        logger.debug("------- User Monthly Calculation Start -------");
         List<String> userList = sqlSession.selectList("userMonthlyInvest.retrieveUpdateTargetUserList");
         int userSize = userList.size();
         for(int i=0; i<userSize; i++) {
@@ -42,6 +50,7 @@ public class MonthCalculationScheduler {
                 logger.error("", e);
             }
         }
+        logger.debug("------- User Monthly Calculation end -------");
     }
 
 //    protected void retrievePerformanceDaily() {

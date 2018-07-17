@@ -30,14 +30,15 @@ public class DockerUtils {
 
     @Value("${backtest.host}")
     private String dockerHost;
+
     @Value("${backtest.container.readTimeout}")
     private int readTimeout;
+
     @Value("${backtest.container.connectTimeout}")
     private int connTimeout;
+
     @Value("${backtest.image}")
     private String backTestImage;
-    @Value("${backtest.apiServerHost}")
-    private String apiServerHost;
 
     private DockerClientConfig config;
     private DockerCmdExecFactory factory;
@@ -59,8 +60,6 @@ public class DockerUtils {
 
     public void syncRun(String taskId, List<String> env, List<String> cmd) throws InterruptedException {
         DockerClient dockerClient = getClient();
-        env.add("API_SERVER_HOST=" + apiServerHost);
-
         CreateContainerResponse container = dockerClient.createContainerCmd(backTestImage)
                                                         .withEnv(env)
                                                         .withCmd(cmd)

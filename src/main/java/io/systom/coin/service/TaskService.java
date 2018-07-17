@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,8 +29,8 @@ public class TaskService {
     private static Logger logger = LoggerFactory.getLogger(TaskService.class);
     private static Logger backTestLogger = LoggerFactory.getLogger("backTestLogger");
 
-    @Value("${backtest.apiServerHost}")
-    private String apiServerHost;
+    @Value("${backtest.apiServerUrl}")
+    private String apiServerUrl;
 
     @Autowired
     private SqlSession sqlSession;
@@ -36,12 +38,6 @@ public class TaskService {
     private DockerUtils dockerUtils;
     @Autowired
     private IdentityService identityService;
-
-//    @Autowired private EcsUtils ecsUtils;
-//    @Autowired private IdentityService identityService;
-//    @Autowired private StrategyService oldStrategyService;
-//    @Autowired private ExchangeService exchangeService;
-//    @Autowired private AgentService agentService;
 
     private static Map<String, Task> waitTaskList = new ConcurrentHashMap<>();
     private static ConcurrentMap<String, TaskFuture> backTestResult = new ConcurrentHashMap<>();
@@ -66,35 +62,35 @@ public class TaskService {
         isNotEmpty(task.getStartDate(), "start");
         isNotEmpty(task.getEndDate(), "end");
 
+        logger.debug("[ BACK TEST ] RUN {}", task);
+
+        task.setId(UUID.randomUUID().toString());
+        waitTaskList.put(task.getId(), task);
+        logger.info("Generator Task taskId: {}", task.getId());
+
+        List<String> envList = mergeTaskEnvRequire(task.getSignalRunEnv());
+        List<String> cmdList = mergeTaskCmdRequire(task.getSignalRunCmd());
+
         try {
-            logger.debug("[ BACK TEST ] RUN {}", task);
-            task.setId(UUID.randomUUID().toString());
-
-            logger.info("Generator Task taskId: {}", task.getId());
-            waitTaskList.put(task.getId(), task);
-
-            dockerUtils.syncRun(task.getId(), task.getDockerRunEnv(), task.getDockerRunCommand());
+            dockerUtils.syncRun(task.getId(), envList, cmdList);
         } catch (Throwable t) {
             logger.error("", t);
-            waitTaskList.remove(task.getId());
             throw new OperationException("[FAIL] Running BackTest.");
         }
 
         Map<String, Object> resultJson = null;
         try {
             TaskFuture<Map<String, Object>> future = backTestResult.get(task.getId());
-
             resultJson = future.take();
-            waitTaskList.remove(task.getId());
-            backTestResult.remove(task.getId());
             if (resultJson != null) {
                 backTestLogger.info("[{}] BackTest result catch!", task.getId());
             }
             backTestLogger.info("[{}] BackTest Successful.", task.getId());
         } catch (Exception e){
             logger.error("", e);
-            waitTaskList.remove(task.getId());
             throw new OperationException("[FAIL] Not Catch Performance");
+        } finally {
+            waitTaskList.remove(task.getId());
         }
         return resultJson;
     }
@@ -128,18 +124,18 @@ public class TaskService {
         }
     }
 
-
-
-    public void saveSimpleWaitTask(Task task) {
-        waitTaskList.put(task.getId(), task);
-    }
-    public Map<String, Task> getSimpleWaitTask() {
-        return waitTaskList;
+    protected List<String> mergeTaskEnvRequire(List<String> env){
+        List<String> tmpEnv = new ArrayList<>();
+        tmpEnv.addAll(env);
+        tmpEnv.add("API_SERVER_URL=" + apiServerUrl);
+        return tmpEnv;
     }
 
-
-
-
+    protected List<String> mergeTaskCmdRequire(List<String> cmd){
+        List<String> tmpCmd = new ArrayList<>();
+        tmpCmd.addAll(cmd);
+        return tmpCmd;
+    }
 
 
 

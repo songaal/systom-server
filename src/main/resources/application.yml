@@ -14,16 +14,8 @@ aws:
   cognito:
     userPoolId: "ap-northeast-2_8UlVuFFva"
     clientId: "4km83jbt1d6pg415q4ieqt41b0"
-  stream:
-    region: "ap-northeast-2"
-    name: "order_stream"
-    shardId: "shard-000000000000"
-    limit: 1000
-    use: false
 
 spring:
-  devtools:
-    livereload: true
   datasource:
     url: "jdbc:mysql://gncloudinstance.cygcygiwvnc8.ap-northeast-2.rds.amazonaws.com:3306/systom?useUnicode=true&characterEncoding=utf8"
     username: "gncloud"
@@ -32,10 +24,11 @@ spring:
 
 backtest:
     host: "tcp://52.78.216.101:2376"
-#    image: "868448630378.dkr.ecr.ap-northeast-2.amazonaws.com/cctrader:latest"
-    image: "868448630378.dkr.ecr.ap-northeast-2.amazonaws.com/systom:latest"
-    apiServerHost: "https://api.systom.io"
-    influxTimeDifference: 3
+    image: "868448630378.dkr.ecr.ap-northeast-2.amazonaws.com/systom-signal"
+    apiServerUrl: "https://api.systom.io"
     container:
           readTimeout: 40000
           connectTimeout: 10000
+
+scheduler:
+  isMonthCalculation: "false"

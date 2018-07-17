@@ -113,10 +113,10 @@ public class Task {
         this.cashUnit = cashUnit;
     }
 
-    public List<String> getDockerRunCommand() {
+    public List<String> getSignalRunCmd() {
         List<String> cmd = new ArrayList<>();
         cmd.add("python");
-        cmd.add("downloader.py");
+        cmd.add("systom-signal.py");
         cmd.add("startDate=" + startDate);
         cmd.add("endDate=" + endDate);
         cmd.add("exchange=" + exchange);
@@ -127,7 +127,7 @@ public class Task {
         return cmd;
     }
 
-    public List<String> getDockerRunEnv() {
+    public List<String> getSignalRunEnv() {
         List<String> env = new ArrayList<>();
         env.add(String.format("TASK_ID=%s", this.id));
         return env;
