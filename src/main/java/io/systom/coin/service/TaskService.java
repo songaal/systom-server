@@ -1,6 +1,5 @@
 package io.systom.coin.service;
 
-import com.amazonaws.services.ecs.model.ClientException;
 import com.google.gson.Gson;
 import io.systom.coin.exception.AuthenticationException;
 import io.systom.coin.exception.OperationException;
@@ -15,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -155,17 +153,8 @@ public class TaskService {
         if (!identityService.isManager(task.getUserId())) {
             throw new AuthenticationException();
         }
-//
-        RestTemplate restTemplate = new RestTemplate();
-        Map<String, Object> response = null;
-        try {
-            response = restTemplate.getForObject("https://api.systom.io/result.json", Map.class);
-        } catch (ClientException re) {
-            logger.error("",re);
-        }
-//
-//        Map<String, Object> testResultMap = syncBackTest(task);
-        Map<String, Object> testResultMap = response;
+
+        Map<String, Object> testResultMap = syncBackTest(task);
         if (!"success".equalsIgnoreCase(String.valueOf(testResultMap.get("status")))) {
             throw new OperationException("[Fail] BackTest status: {}" + testResultMap.get("status"));
         }
