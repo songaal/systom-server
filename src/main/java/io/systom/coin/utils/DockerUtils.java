@@ -3,6 +3,7 @@ package io.systom.coin.utils;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.DockerCmdExecFactory;
+import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.model.Frame;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
@@ -84,8 +85,13 @@ public class DockerUtils {
         loggingCallback.awaitCompletion();
 
         int exitCode = waitContainerResultCallback.awaitStatusCode();
-        if (exitCode == 0) {
+        try {
             dockerClient.removeContainerCmd(containerId).withForce(true).exec();
+        } catch (NotFoundException e) {
+            logger.debug("Docker Container Remove Fail. Container Id: {}", containerId);
+        }
+
+        if (exitCode == 0) {
             backtestLogger.info("[{}] BackTest Docker Run Finished!", taskId);
         } else {
             backtestLogger.error("[" + taskId + "] Container ExitCode not zero.. return code: " + exitCode);

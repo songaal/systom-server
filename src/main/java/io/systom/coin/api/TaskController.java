@@ -24,7 +24,6 @@ public class TaskController extends AbstractController {
     @Autowired
     private TaskService taskService;
 
-
     @PostMapping
     public ResponseEntity<?> syncBackTest(@RequestAttribute String userId,
                                           @RequestBody Task task) throws InterruptedException {
@@ -62,11 +61,6 @@ public class TaskController extends AbstractController {
         Map<String, Object> saveResult = taskService.registerBackTestResult(taskId, result);
         return success(saveResult);
     }
-
-
-
-
-
 
 //    @PostMapping
 //    public ResponseEntity<?> runBackTest(@CookieValue(ACCESS_TOKEN) String accessToken,

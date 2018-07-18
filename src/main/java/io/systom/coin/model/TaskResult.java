@@ -1,4 +1,4 @@
-package io.systom.coin.model.backup;
+package io.systom.coin.model;
 
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
@@ -64,6 +64,7 @@ public class TaskResult {
         private int day;
         private String symbol;
         private String exchange;
+        @SerializedName("session_type")
         private String sessionType;
 
         public String getStart() {
@@ -129,7 +130,7 @@ public class TaskResult {
 
 
     public static class Result {
-        private Integer id;
+//        private Integer id;
         @SerializedName("total_equity")
         private float totalEquity;
         @SerializedName("total_equity_usd")
@@ -162,37 +163,10 @@ public class TaskResult {
         @SerializedName("trade_history")
         private List<Trade> tradeHistory;
         @SerializedName("cum_returns")
-        private Map<Long, Float> cumReturns;
-        private Map<Long, Float> drawdowns;
-        private Map<Long, Float> equity;
+        private Map<String, Float> cumReturns;
+        private Map<String, Float> drawdowns;
+        private Map<String, Float> equity;
 
-        public Integer getId() {
-            return id;
-        }
-
-        public void setId(Integer id) {
-            this.id = id;
-        }
-
-        public Map<Long, Float> getEquity() {
-            return equity;
-        }
-
-        public void setEquity(Map<Long, Float> equity) {
-            this.equity = equity;
-        }
-
-        public Map<Long, Float> getCumReturns() {
-            return cumReturns;
-        }
-
-        public void setCumReturns(Map<Long, Float> cumReturns) {
-            this.cumReturns = cumReturns;
-        }
-
-        public Map<Long, Float> getDrawdowns() {
-            return drawdowns;
-        }
 
         public float getBasePrice() {
             return basePrice;
@@ -208,10 +182,6 @@ public class TaskResult {
 
         public void setWinsPct(float winsPct) {
             this.winsPct = winsPct;
-        }
-
-        public void setDrawdowns(Map<Long, Float> drawdowns) {
-            this.drawdowns = drawdowns;
         }
 
         public float getTotalEquity() {
@@ -326,10 +296,34 @@ public class TaskResult {
             this.loseReturnAvg = loseReturnAvg;
         }
 
+        public Map<String, Float> getCumReturns() {
+            return cumReturns;
+        }
+
+        public void setCumReturns(Map<String, Float> cumReturns) {
+            this.cumReturns = cumReturns;
+        }
+
+        public Map<String, Float> getDrawdowns() {
+            return drawdowns;
+        }
+
+        public void setDrawdowns(Map<String, Float> drawdowns) {
+            this.drawdowns = drawdowns;
+        }
+
+        public Map<String, Float> getEquity() {
+            return equity;
+        }
+
+        public void setEquity(Map<String, Float> equity) {
+            this.equity = equity;
+        }
+
         public static class Trade {
-            private Integer id;
-            private long timestamp;
-            private String ticker;
+            private Integer id; //investId
+            private String time;
+            private String symbol;
             private String action;
             private String exchange;
             private float quantity;
@@ -345,20 +339,20 @@ public class TaskResult {
                 this.id = id;
             }
 
-            public long getTimestamp() {
-                return timestamp;
+            public String getTime() {
+                return time;
             }
 
-            public void setTimestamp(long timestamp) {
-                this.timestamp = timestamp;
+            public void setTime(String time) {
+                this.time = time;
             }
 
-            public String getTicker() {
-                return ticker;
+            public String getSymbol() {
+                return symbol;
             }
 
-            public void setTicker(String ticker) {
-                this.ticker = ticker;
+            public void setSymbol(String symbol) {
+                this.symbol = symbol;
             }
 
             public String getAction() {

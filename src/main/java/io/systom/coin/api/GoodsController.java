@@ -4,18 +4,17 @@ import io.systom.coin.exception.AbstractException;
 import io.systom.coin.exception.AuthenticationException;
 import io.systom.coin.exception.OperationException;
 import io.systom.coin.model.Goods;
+import io.systom.coin.model.Task;
 import io.systom.coin.service.GoodsService;
 import io.systom.coin.service.IdentityService;
+import io.systom.coin.service.TaskService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static io.systom.coin.service.GoodsService.DATE_FORMAT;
 
@@ -32,6 +31,8 @@ public class GoodsController extends AbstractController{
     private GoodsService goodsService;
     @Autowired
     private IdentityService identityService;
+    @Autowired
+    private TaskService taskService;
 
     public enum GOODS_TYPE { wait, running, close }
 
@@ -194,4 +195,22 @@ public class GoodsController extends AbstractController{
         }
     }
 
+
+    @PostMapping("/{id}/backTest")
+    public ResponseEntity<?> createTestResult(@PathVariable Integer id,
+                                              @RequestAttribute String userId,
+                                              @RequestBody Task task) {
+        try {
+            task.setGoodsId(id);
+            task.setUserId(userId);
+            Goods registerGoods = taskService.createGoodsBackTest(task);
+            return success(registerGoods);
+        } catch (AbstractException e) {
+            logger.error("", e);
+            return e.response();
+        } catch (Throwable t) {
+            logger.error("Throwable: ", t);
+            return new OperationException().response();
+        }
+    }
 }

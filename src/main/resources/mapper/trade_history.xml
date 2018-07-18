@@ -33,5 +33,25 @@
          WHERE b.id = #{id}
     </select>
 
+    <insert id="insertTradeHistory">
+        INSERT INTO trade_history (id, time, symbol, action, quantity, exchange, price, commission, reason)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            ( ${item.id}
+            , #{item.time}
+            , #{item.symbol}
+            , #{item.action}
+            , ${item.quantity}
+            , #{item.exchange}
+            , ${item.price}
+            , ${item.commission}
+            , #{item.reason}
+            )
+        </foreach>
+    </insert>
 
+    <delete id="deleteTradeHistory" parameterType="Integer">
+        DELETE from trade_history
+         WHERE id = #{param1}
+    </delete>
 </mapper>

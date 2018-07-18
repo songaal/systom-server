@@ -1,11 +1,12 @@
 package io.systom.coin.service;
 
+import com.amazonaws.services.ecs.model.ClientException;
+import com.google.gson.Gson;
 import io.systom.coin.exception.AuthenticationException;
 import io.systom.coin.exception.OperationException;
 import io.systom.coin.exception.ParameterException;
 import io.systom.coin.exception.RequestException;
-import io.systom.coin.model.StrategyDeployVersion;
-import io.systom.coin.model.Task;
+import io.systom.coin.model.*;
 import io.systom.coin.utils.DockerUtils;
 import io.systom.coin.utils.TaskFuture;
 import org.apache.ibatis.session.SqlSession;
@@ -14,11 +15,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeoutException;
+
+import static io.systom.coin.service.GoodsService.BOT_USER_ID;
 
 @Service
 public class TaskService {
@@ -35,6 +41,12 @@ public class TaskService {
     private DockerUtils dockerUtils;
     @Autowired
     private IdentityService identityService;
+    @Autowired
+    private GoodsService goodsService;
+    @Autowired
+    private TradeService tradeService;
+    @Autowired
+    private InvestGoodsService investGoodsService;
 
     private static Map<String, Task> waitTaskList = new ConcurrentHashMap<>();
     private static ConcurrentMap<String, TaskFuture> backTestResult = new ConcurrentHashMap<>();
@@ -58,8 +70,8 @@ public class TaskService {
         isNotEmpty(task.getCoinUnit(), "coinUnit");
         isNotEmpty(task.getBaseUnit(), "baseUnit");
         isNotEmpty(task.getCashUnit(), "cashUnit");
-        isNotEmpty(task.getStartDate(), "start");
-        isNotEmpty(task.getEndDate(), "end");
+        isNotEmpty(task.getStartDate(), "StartDate");
+        isNotEmpty(task.getEndDate(), "endDate");
 
         logger.debug("[ BACK TEST ] RUN {}", task);
 
@@ -139,6 +151,104 @@ public class TaskService {
         return tmpCmd;
     }
 
+    public Goods createGoodsBackTest(Task task) throws TimeoutException, ParseException {
+        if (!identityService.isManager(task.getUserId())) {
+            throw new AuthenticationException();
+        }
+//
+        RestTemplate restTemplate = new RestTemplate();
+        Map<String, Object> response = null;
+        try {
+            response = restTemplate.getForObject("https://api.systom.io/result.json", Map.class);
+        } catch (ClientException re) {
+            logger.error("",re);
+        }
+//
+//        Map<String, Object> testResultMap = syncBackTest(task);
+        Map<String, Object> testResultMap = response;
+        if (!"success".equalsIgnoreCase(String.valueOf(testResultMap.get("status")))) {
+            throw new OperationException("[Fail] BackTest status: {}" + testResultMap.get("status"));
+        }
+        Gson gson = new Gson();
+
+        String testResultJson = gson.toJson(testResultMap);
+        TaskResult testResult = gson.fromJson(testResultJson, TaskResult.class);
+
+        String startDate = testResult.getRequest().getStart();
+        String endDate = testResult.getRequest().getEnd();
+        Map<String, Float> cumReturns = testResult.getResult().getCumReturns();
+        List<Map<String, Object>> monthlyLastDateReturnPctList = monthlyLastDateReturnPct(startDate, endDate, cumReturns);
+
+        float avgTestReturnPct = 0f;
+        for (int i=0; i < monthlyLastDateReturnPctList.size(); i++) {
+            avgTestReturnPct += (float) monthlyLastDateReturnPctList.get(i).get("returnPct");
+        }
+
+        try {
+            Map<String, Object> params = new HashMap<>();
+            params.put("goodsId", task.getGoodsId());
+            params.put("testReturnPct", Float.parseFloat(String.format("%.2f", (avgTestReturnPct / monthlyLastDateReturnPctList.size()))));
+            params.put("testMonthlyReturn", gson.toJson(monthlyLastDateReturnPctList));
+            int changeRow = sqlSession.update("goods.createGoodsBackTest", params);
+            if (changeRow != 1) {
+                logger.error("[FAIL] sql execute. changeRow: {}, params: {}", changeRow, params);
+                throw new OperationException("[FAIL] sql execute. changeRow: {}" + changeRow);
+            }
+
+            InvestGoods botInvestGoods = investGoodsService.findInvestGoodsByUser(task.getGoodsId(), BOT_USER_ID);
+            tradeService.insertTradeHistory(botInvestGoods.getId(), testResult.getResult().getTradeHistory());
+
+        } catch (Exception e) {
+            logger.error("", e);
+            throw new OperationException("[FAIL] sql execute");
+        }
+
+        return goodsService.getGoods(task.getGoodsId(), task.getUserId());
+    }
+
+    protected List<Map<String, Object>> monthlyLastDateReturnPct(String start, String end, Map<String, Float> cumReturnPct) throws ParseException {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+        Calendar curDate = Calendar.getInstance();
+        String endYearMonth = null;
+        try {
+            curDate.setTime(dateFormat.parse(start.replace("-", "")));
+            endYearMonth = end.replace("-", "").substring(0, 6);
+        } catch (ParseException e) {
+            logger.error("parsing error", e);
+            throw e;
+        }
+
+        List<Map<String, Object>> lastMonthDateList = new ArrayList<>();
+        for (int m = 0; m < 100; m++) {
+            int date = curDate.getActualMaximum(Calendar.DAY_OF_MONTH);
+            curDate.set(Calendar.DATE, date);
+            String lastDate = dateFormat.format(curDate.getTime());
+            date = Integer.parseInt(lastDate.substring(6, 8));
+            for (int d = date; d >= 1; d--) {
+                curDate.set(Calendar.DATE, d);
+                String yearMonth = lastDate.substring(0, 6);
+                lastDate = dateFormat.format(curDate.getTime());
+                if (cumReturnPct.get(lastDate) != null) {
+                    Map<String, Object> monthlyReturnPct = new HashMap<>();
+                    monthlyReturnPct.put("date", yearMonth);
+                    monthlyReturnPct.put("returnPct", cumReturnPct.get(lastDate));
+                    lastMonthDateList.add(monthlyReturnPct);
+                    break;
+                } else if (d == 1) {
+                    Map<String, Object> monthlyReturnPct = new HashMap<>();
+                    monthlyReturnPct.put("date", yearMonth);
+                    monthlyReturnPct.put("returnPct", 0f);
+                    lastMonthDateList.add(monthlyReturnPct);
+                }
+            }
+            if (Integer.parseInt(lastDate.substring(0, 6)) >= Integer.parseInt(endYearMonth)) {
+                break;
+            } else {
+                curDate.add(Calendar.MONTH, 1);
+            }
+        }
+        return lastMonthDateList;
+    }
 
 
 

@@ -211,6 +211,8 @@ public class GoodsService {
             List<TestMonthlyReturn> testMonthlyReturnList = generatorTestMonthlyReturns(target.getTestStart(), target.getTestEnd());
             target.setTestMonthlyReturn(new Gson().toJson(testMonthlyReturnList));
             target.setTestReturnPct(0f);
+            InvestGoods botInvestGoods = investGoodsService.findInvestGoodsByUser(registerGoods.getId(), BOT_USER_ID);
+            tradeService.deleteTradeHistory(botInvestGoods.getId());
         }
 
         target.setExchange(target.getExchange().toLowerCase());

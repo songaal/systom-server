@@ -189,4 +189,10 @@
          WHERE id = ${id}
     </update>
 
+    <update id="createGoodsBackTest" parameterType="HashMap">
+        UPDATE goods
+        SET test_monthly_return = #{testMonthlyReturn}
+          , test_return_pct     = #{testReturnPct}
+        WHERE id = ${goodsId}
+    </update>
 </mapper>

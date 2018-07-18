@@ -1,6 +1,7 @@
 package io.systom.coin.service;
 
 import io.systom.coin.exception.OperationException;
+import io.systom.coin.model.TaskResult;
 import io.systom.coin.model.Trade;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.LoggerFactory;
@@ -31,4 +32,29 @@ public class TradeService {
         return tradeHistory;
     }
 
+    public int insertTradeHistory(Integer investId, List<TaskResult.Result.Trade> tradeHistory) {
+        int changeRow = 0;
+        int size = tradeHistory.size();
+        for (int i=0; i < size; i++) {
+            tradeHistory.get(i).setId(investId);
+        }
+        try {
+            changeRow = sqlSession.insert("tradeHistory.insertTradeHistory", tradeHistory);
+        } catch (Exception e){
+            logger.error("", e);
+            throw new OperationException("[FAIL] SQL Execute.");
+        }
+        return changeRow;
+    }
+
+    public int deleteTradeHistory(Integer investId) {
+        int changeRow = 0;
+        try {
+            changeRow = sqlSession.delete("tradeHistory.deleteTradeHistory", investId);
+        } catch (Exception e){
+            logger.error("", e);
+            throw new OperationException("[FAIL] SQL Execute.");
+        }
+        return changeRow;
+    }
 }
