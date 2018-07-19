@@ -29,7 +29,7 @@ public class MonthCalculationScheduler {
     @Autowired
     private SqlSession sqlSession;
     // 6시간
-    @Scheduled(fixedDelay= 6 * 1000 * 60 * 60)
+    @Scheduled(initialDelay = 5 * 1000 * 60, fixedDelay= 6 * 1000 * 60 * 60)
     public void monthCalculation() {
         if (!"true".equalsIgnoreCase(isMonthCalculation)) {
             logger.debug("MonthCalculation Disabled");
