@@ -29,6 +29,7 @@ public class TaskController extends AbstractController {
                                           @RequestBody Task task) throws InterruptedException {
         try {
             task.setUserId(userId);
+            task.setSessionType(Task.SESSION_TYPES.backtest.name());
             Map<String, Object> resultJson = taskService.syncBackTest(task);
             return success(resultJson);
         } catch (AbstractException e){
@@ -57,7 +58,7 @@ public class TaskController extends AbstractController {
     @PostMapping("/{taskId}/result")
     public ResponseEntity<?> testTaskResult(@PathVariable String taskId,
                                             @RequestBody Map<String, Object> result) throws Exception {
-        logger.debug("[BACK TEST RESULT] taskId: {}", taskId);
+        logger.debug("[BACK TEST RESULT] taskId: {}, response: {}", taskId, result);
         Map<String, Object> saveResult = taskService.registerBackTestResult(taskId, result);
         return success(saveResult);
     }

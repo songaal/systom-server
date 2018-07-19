@@ -115,6 +115,7 @@ public class TaskService {
         deployVersion.setId(task.getStrategyId());
         deployVersion.setVersion(task.getVersion());
         try {
+            backTestLogger.info("[{}] Download Modal.", taskId);
             return sqlSession.selectOne("strategyDeploy.getStrategyModel", deployVersion);
         } catch (Exception e){
             logger.error("", e);
@@ -129,7 +130,7 @@ public class TaskService {
             TaskFuture<Map<String, Object>> taskFuture = new TaskFuture();
             taskFuture.offer(resultMap);
             backTestResult.put(taskId, taskFuture);
-            backTestLogger.debug("[{}] BackTest Result Saved.", taskId);
+            backTestLogger.info("[{}] BackTest Result Saved. {}", taskId, resultJson);
             return resultJson;
         } else {
             return null;

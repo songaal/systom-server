@@ -130,7 +130,7 @@ public class TaskResult {
 
 
     public static class Result {
-//        private Integer id;
+        private Integer id;
         @SerializedName("total_equity")
         private float totalEquity;
         @SerializedName("total_equity_usd")

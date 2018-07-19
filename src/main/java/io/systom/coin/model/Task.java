@@ -10,6 +10,8 @@ import java.util.List;
 
 public class Task {
 
+    public enum SESSION_TYPES {backtest, live}
+
     private String id;
 
     private Integer goodsId;
@@ -22,6 +24,15 @@ public class Task {
     private String coinUnit;
     private String baseUnit;
     private String cashUnit;
+    private String sessionType;
+
+    public String getSessionType() {
+        return sessionType;
+    }
+
+    public void setSessionType(String sessionType) {
+        this.sessionType = sessionType;
+    }
 
     private String userId;
 
@@ -116,20 +127,20 @@ public class Task {
     public List<String> getSignalRunCmd() {
         List<String> cmd = new ArrayList<>();
         cmd.add("python");
-        cmd.add("systom-signal.py");
-        cmd.add("startDate=" + startDate);
-        cmd.add("endDate=" + endDate);
-        cmd.add("exchange=" + exchange);
-        cmd.add("coinUnit=" + coinUnit);
-        cmd.add("baseUnit=" + baseUnit);
-        cmd.add("cashUnit=" + cashUnit);
-        cmd.add("endDate=" + endDate);
+        cmd.add("launcher.py");
+        cmd.add("start_date=" + startDate);
+        cmd.add("end_date=" + endDate);
+        cmd.add("exchange_id=" + exchange);
+        cmd.add("coin_unit=" + coinUnit);
+        cmd.add("base_unit=" + baseUnit);
+        cmd.add("cash_unit=" + cashUnit);
         return cmd;
     }
 
     public List<String> getSignalRunEnv() {
         List<String> env = new ArrayList<>();
         env.add(String.format("TASK_ID=%s", this.id));
+        env.add(String.format("SESSION_TYPE=%s", this.sessionType));
         return env;
     }
 
