@@ -1,18 +1,16 @@
 package io.systom.coin.service;
 
 import com.amazonaws.services.cognitoidp.AWSCognitoIdentityProvider;
-import com.amazonaws.services.cognitoidp.AWSCognitoIdentityProviderClientBuilder;
 import com.amazonaws.services.cognitoidp.model.*;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.gson.Gson;
+import io.systom.coin.api.IdentityController;
 import io.systom.coin.exception.AbstractException;
 import io.systom.coin.model.UserNotification;
 import io.systom.coin.utils.CognitoPubKeyStore;
 import io.systom.coin.utils.CredentialsCache;
 import io.systom.coin.utils.StringUtils;
-import io.systom.coin.ws.WebSocketSessionInfoSet;
-import io.systom.coin.api.IdentityController;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,11 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 권한, 인증 및 세션 관리 서비스
@@ -37,7 +33,7 @@ public class IdentityService {
     private static Logger logger = LoggerFactory.getLogger(IdentityService.class);
 
     //웹소켓
-    private Map<String, WebSocketSessionInfoSet> subscriberMap;
+//    private Map<String, WebSocketSessionInfoSet> subscriberMap;
 
     //토큰 캐시.
     private CredentialsCache tokenCache;
@@ -56,17 +52,17 @@ public class IdentityService {
 
     private List<String> manager = Arrays.asList("joonwoo", "songaal");
 
-    @PostConstruct
-    public void init() {
-        cognitoClient = AWSCognitoIdentityProviderClientBuilder.standard().build();
-        tokenCache = new CredentialsCache(10000);
-        cognitoPubKeyStore = new CognitoPubKeyStore(cognitoPoolId);
-        subscriberMap = new ConcurrentHashMap<>();
-    }
-
-    public Map<String, WebSocketSessionInfoSet> getSubscriberMap() {
-        return subscriberMap;
-    }
+//    @PostConstruct
+//    public void init() {
+//        cognitoClient = AWSCognitoIdentityProviderClientBuilder.standard().build();
+//        tokenCache = new CredentialsCache(10000);
+//        cognitoPubKeyStore = new CognitoPubKeyStore(cognitoPoolId);
+//        subscriberMap = new ConcurrentHashMap<>();
+//    }
+//
+//    public Map<String, WebSocketSessionInfoSet> getSubscriberMap() {
+//        return subscriberMap;
+//    }
 
 
     /**
