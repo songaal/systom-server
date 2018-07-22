@@ -110,7 +110,7 @@ public class GoodsService {
 
         InvestGoods botInvestGoods = investGoodsService.findInvestGoodsByUser(registerGoods.getId(), BOT_USER_ID);
         if (botInvestGoods != null) {
-            List<Trade> tradeHistory = tradeService.getTradeHistory(botInvestGoods.getId());
+            List<TaskResult.Result.Trade> tradeHistory = tradeService.getTradeHistory(botInvestGoods.getId());
             registerGoods.setTradeHistory(tradeHistory);
         }
 
@@ -213,6 +213,9 @@ public class GoodsService {
             target.setTestReturnPct(0f);
             InvestGoods botInvestGoods = investGoodsService.findInvestGoodsByUser(registerGoods.getId(), BOT_USER_ID);
             tradeService.deleteTradeHistory(botInvestGoods.getId());
+        } else if (target.getTestReturnPct() == null || target.getTestMonthlyReturn() == null) {
+            target.setTestReturnPct(0f);
+            target.setTestMonthlyReturn(new Gson().toJson(generatorTestMonthlyReturns(target.getTestStart(), target.getTestEnd())));
         }
 
         target.setExchange(target.getExchange().toLowerCase());

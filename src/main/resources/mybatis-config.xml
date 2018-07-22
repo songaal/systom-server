@@ -17,11 +17,11 @@
         <typeAlias alias="InvestGoods" type="io.systom.coin.model.InvestGoods"/>
         <typeAlias alias="PerformanceSummary" type="io.systom.coin.model.PerformanceSummary"/>
         <typeAlias alias="PerformanceDaily" type="io.systom.coin.model.PerformanceDaily"/>
-        <typeAlias alias="Trade" type="io.systom.coin.model.Trade"/>
+        <typeAlias alias="TaskResult$Result$Trade" type="io.systom.coin.model.TaskResult$Result$Trade"/>
         <typeAlias alias="UserMonthlyInvest" type="io.systom.coin.model.UserMonthlyInvest"/>
     </typeAliases>
 
-
+    <!--<typeAlias alias="Trade" type="io.systom.coin.model.Trade"/>-->
     <!--<typeAlias alias="TaskResult" type="io.systom.coinUnit.model.TaskResult$Result"/>-->
     <!--<typeAlias alias="TaskResult.Trade" type="io.systom.coinUnit.model.TaskResult$Result$Trade"/>-->
     <!--<typeAlias alias="TaskResult.Value" type="io.systom.coinUnit.model.TaskResult$Result$Value"/>-->

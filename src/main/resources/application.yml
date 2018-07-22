@@ -15,19 +15,23 @@ aws:
     userPoolId: "ap-northeast-2_8UlVuFFva"
     clientId: "4km83jbt1d6pg415q4ieqt41b0"
 
+
 spring:
   datasource:
     url: "jdbc:mysql://gncloudinstance.cygcygiwvnc8.ap-northeast-2.rds.amazonaws.com:3306/systom?useUnicode=true&characterEncoding=utf8"
     username: "gncloud"
     password: "gnc=1151"
     driver-class-name: "com.mysql.cj.jdbc.Driver"
+#  http:
+#    converters:
+#      preferred-json-mapper: "gson"
 
 backtest:
     host: "tcp://52.78.216.101:2376"
     image: "868448630378.dkr.ecr.ap-northeast-2.amazonaws.com/systom-signal"
-    apiServerUrl: "https://api.systom.io"
+    apiServerUrl: "http://13.125.73.226:9001"
     container:
-          readTimeout: 40000
+          readTimeout: 300000
           connectTimeout: 10000
 
 scheduler:

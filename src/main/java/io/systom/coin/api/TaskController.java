@@ -1,8 +1,10 @@
 package io.systom.coin.api;
 
+import com.google.gson.Gson;
 import io.systom.coin.exception.AbstractException;
 import io.systom.coin.exception.OperationException;
 import io.systom.coin.model.Task;
+import io.systom.coin.model.TaskResult;
 import io.systom.coin.service.TaskService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +32,8 @@ public class TaskController extends AbstractController {
         try {
             task.setUserId(userId);
             task.setSessionType(Task.SESSION_TYPES.backtest.name());
-            Map<String, Object> resultJson = taskService.syncBackTest(task);
-            return success(resultJson);
+            TaskResult taskResult = taskService.syncBackTest(task);
+            return success(taskResult);
         } catch (AbstractException e){
             logger.error("", e);
             return e.response();
@@ -57,11 +59,22 @@ public class TaskController extends AbstractController {
 
     @PostMapping("/{taskId}/result")
     public ResponseEntity<?> testTaskResult(@PathVariable String taskId,
-                                            @RequestBody Map<String, Object> result) throws Exception {
-        logger.debug("[BACK TEST RESULT] taskId: {}, response: {}", taskId, result);
-        Map<String, Object> saveResult = taskService.registerBackTestResult(taskId, result);
+                                            @RequestBody String taskResultJson) throws Exception {
+        logger.debug("[BACK TEST RESULT] taskId: {}, response: {}", taskId, taskResultJson);
+        TaskResult taskResult = new Gson().fromJson(taskResultJson, TaskResult.class);
+        TaskResult saveResult = taskService.registerBackTestResult(taskId, taskResult);
         return success(saveResult);
     }
+
+
+
+    @PostMapping("testTask")
+    public ResponseEntity<?> testTask(@RequestBody Map<String, String> cmd) throws Exception {
+        taskService.testTask(cmd.get("task_id"));
+        return success();
+    }
+
+
 
 //    @PostMapping
 //    public ResponseEntity<?> runBackTest(@CookieValue(ACCESS_TOKEN) String accessToken,

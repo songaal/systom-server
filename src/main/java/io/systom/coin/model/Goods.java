@@ -34,7 +34,7 @@ public class Goods {
     private float investCash;
 
     private Integer investId;
-    private List<Trade> tradeHistory;
+    private List<TaskResult.Result.Trade> tradeHistory;
     private PerformanceSummary performanceSummary;
     private List<PerformanceDaily> performanceDaily;
 
@@ -214,11 +214,11 @@ public class Goods {
         this.investId = investId;
     }
 
-    public List<Trade> getTradeHistory() {
+    public List<TaskResult.Result.Trade> getTradeHistory() {
         return tradeHistory;
     }
 
-    public void setTradeHistory(List<Trade> tradeHistory) {
+    public void setTradeHistory(List<TaskResult.Result.Trade> tradeHistory) {
         this.tradeHistory = tradeHistory;
     }
 

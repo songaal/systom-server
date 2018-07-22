@@ -10,7 +10,7 @@ import java.util.Map;
  * create joonwoo 2018. 6. 20.
  * 
  */
-public class TaskResult {
+public class TaskResult{
 
     private String status;
     private String message;
@@ -58,14 +58,14 @@ public class TaskResult {
         this.result = result;
     }
 
-    public static class Request {
-        private String start;
-        private String end;
-        private int day;
-        private String symbol;
-        private String exchange;
+    public static class Request{
         @SerializedName("session_type")
         private String sessionType;
+        private String start;
+        private String end;
+        private int days;
+        private String symbol;
+        private String exchange;
 
         public String getStart() {
             return start;
@@ -83,12 +83,12 @@ public class TaskResult {
             this.end = end;
         }
 
-        public int getDay() {
-            return day;
+        public int getDays() {
+            return days;
         }
 
-        public void setDay(int day) {
-            this.day = day;
+        public void setDays(int days) {
+            this.days = days;
         }
 
         public String getSymbol() {
@@ -120,7 +120,7 @@ public class TaskResult {
             return "Request{" +
                     "start='" + start + '\'' +
                     ", end='" + end + '\'' +
-                    ", day=" + day +
+                    ", days=" + days +
                     ", symbol='" + symbol + '\'' +
                     ", exchange='" + exchange + '\'' +
                     ", sessionType='" + sessionType + '\'' +
@@ -129,187 +129,42 @@ public class TaskResult {
     }
 
 
-    public static class Result {
-        private Integer id;
-        @SerializedName("total_equity")
-        private float totalEquity;
-        @SerializedName("total_equity_usd")
-        private float totalEquityUsd;
-        @SerializedName("total_commission")
-        private float totalCommission;
-        @SerializedName("base_price")
-        private float basePrice;
-        @SerializedName("return_pct")
-        private float returnPct;
-        @SerializedName("maxReturn_pct")
-        private float maxReturnPct;
-        private int trades;
-        @SerializedName("wins_pct")
-        private float winsPct;
-        @SerializedName("wins_count")
-        private int winsCount;
-        @SerializedName("lose_count")
-        private int loseCount;
-        @SerializedName("pnl_rate")
-        private float pnlRate;
-        @SerializedName("max_drawdown")
-        private float maxDrawdown;
-        @SerializedName("max_drawdown_duration")
-        private float maxDrawdownDuration;
-        @SerializedName("wins_return_avg")
-        private float winsReturnAvg;
-        @SerializedName("lose_return_avg")
-        private float loseReturnAvg;
-        @SerializedName("trade_history")
-        private List<Trade> tradeHistory;
+    public static class Result{
+        private Integer id; //invest id
+
+        @SerializedName("portfolio_stat")
+        private PortfolioStat portfolioStat;
+        private Map<String, Float> equity;
+        private Map<String, Float> drawdowns;
         @SerializedName("cum_returns")
         private Map<String, Float> cumReturns;
-        private Map<String, Float> drawdowns;
-        private Map<String, Float> equity;
+        @SerializedName("max_drawdown_pct")
+        private float maxDrawdownPct;
+        @SerializedName("max_drawdown_duration")
+        private float maxDrawdownDuration;
+        @SerializedName("returns_pct")
+        private float returnsPct;
+        @SerializedName("max_returns_pct")
+        private float maxReturnsPct;
+        @SerializedName("trade_stat")
+        private TradeStat tradeStat;
+        @SerializedName("trade_history")
+        private List<Trade> tradeHistory;
 
-
-        public float getBasePrice() {
-            return basePrice;
+        public Integer getId() {
+            return id;
         }
 
-        public void setBasePrice(float basePrice) {
-            this.basePrice = basePrice;
+        public void setId(Integer id) {
+            this.id = id;
         }
 
-        public float getWinsPct() {
-            return winsPct;
+        public PortfolioStat getPortfolioStat() {
+            return portfolioStat;
         }
 
-        public void setWinsPct(float winsPct) {
-            this.winsPct = winsPct;
-        }
-
-        public float getTotalEquity() {
-            return totalEquity;
-        }
-
-        public void setTotalEquity(float totalEquity) {
-            this.totalEquity = totalEquity;
-        }
-
-        public float getTotalEquityUsd() {
-            return totalEquityUsd;
-        }
-
-        public void setTotalEquityUsd(float totalEquityUsd) {
-            this.totalEquityUsd = totalEquityUsd;
-        }
-
-        public float getTotalCommission() {
-            return totalCommission;
-        }
-
-        public void setTotalCommission(float totalCommission) {
-            this.totalCommission = totalCommission;
-        }
-
-        public float getReturnPct() {
-            return returnPct;
-        }
-
-        public void setReturnPct(float returnPct) {
-            this.returnPct = returnPct;
-        }
-
-        public float getMaxReturnPct() {
-            return maxReturnPct;
-        }
-
-        public void setMaxReturnPct(float maxReturnPct) {
-            this.maxReturnPct = maxReturnPct;
-        }
-
-        public List<Trade> getTradeHistory() {
-            return tradeHistory;
-        }
-
-        public void setTradeHistory(List<Trade> tradeHistory) {
-            this.tradeHistory = tradeHistory;
-        }
-
-        public int getTrades() {
-            return trades;
-        }
-
-        public void setTrades(int trades) {
-            this.trades = trades;
-        }
-
-        public int getWinsCount() {
-            return winsCount;
-        }
-
-        public void setWinsCount(int winsCount) {
-            this.winsCount = winsCount;
-        }
-
-        public int getLoseCount() {
-            return loseCount;
-        }
-
-        public void setLoseCount(int loseCount) {
-            this.loseCount = loseCount;
-        }
-
-        public float getPnlRate() {
-            return pnlRate;
-        }
-
-        public void setPnlRate(float pnlRate) {
-            this.pnlRate = pnlRate;
-        }
-
-        public float getMaxDrawdown() {
-            return maxDrawdown;
-        }
-
-        public void setMaxDrawdown(float maxDrawdown) {
-            this.maxDrawdown = maxDrawdown;
-        }
-
-        public float getMaxDrawdownDuration() {
-            return maxDrawdownDuration;
-        }
-
-        public void setMaxDrawdownDuration(float maxDrawdownDuration) {
-            this.maxDrawdownDuration = maxDrawdownDuration;
-        }
-
-        public float getWinsReturnAvg() {
-            return winsReturnAvg;
-        }
-
-        public void setWinsReturnAvg(float winsReturnAvg) {
-            this.winsReturnAvg = winsReturnAvg;
-        }
-
-        public float getLoseReturnAvg() {
-            return loseReturnAvg;
-        }
-
-        public void setLoseReturnAvg(float loseReturnAvg) {
-            this.loseReturnAvg = loseReturnAvg;
-        }
-
-        public Map<String, Float> getCumReturns() {
-            return cumReturns;
-        }
-
-        public void setCumReturns(Map<String, Float> cumReturns) {
-            this.cumReturns = cumReturns;
-        }
-
-        public Map<String, Float> getDrawdowns() {
-            return drawdowns;
-        }
-
-        public void setDrawdowns(Map<String, Float> drawdowns) {
-            this.drawdowns = drawdowns;
+        public void setPortfolioStat(PortfolioStat portfolioStat) {
+            this.portfolioStat = portfolioStat;
         }
 
         public Map<String, Float> getEquity() {
@@ -320,16 +175,290 @@ public class TaskResult {
             this.equity = equity;
         }
 
+        public Map<String, Float> getDrawdowns() {
+            return drawdowns;
+        }
+
+        public void setDrawdowns(Map<String, Float> drawdowns) {
+            this.drawdowns = drawdowns;
+        }
+
+        public Map<String, Float> getCumReturns() {
+            return cumReturns;
+        }
+
+        public void setCumReturns(Map<String, Float> cumReturns) {
+            this.cumReturns = cumReturns;
+        }
+
+        public float getMaxDrawdownPct() {
+            return maxDrawdownPct;
+        }
+
+        public void setMaxDrawdownPct(float maxDrawdownPct) {
+            this.maxDrawdownPct = maxDrawdownPct;
+        }
+
+        public float getMaxDrawdownDuration() {
+            return maxDrawdownDuration;
+        }
+
+        public void setMaxDrawdownDuration(float maxDrawdownDuration) {
+            this.maxDrawdownDuration = maxDrawdownDuration;
+        }
+
+        public float getReturnsPct() {
+            return returnsPct;
+        }
+
+        public void setReturnsPct(float returnsPct) {
+            this.returnsPct = returnsPct;
+        }
+
+        public float getMaxReturnsPct() {
+            return maxReturnsPct;
+        }
+
+        public void setMaxReturnsPct(float maxReturnsPct) {
+            this.maxReturnsPct = maxReturnsPct;
+        }
+
+        public TradeStat getTradeStat() {
+            return tradeStat;
+        }
+
+        public void setTradeStat(TradeStat tradeStat) {
+            this.tradeStat = tradeStat;
+        }
+
+        public List<Trade> getTradeHistory() {
+            return tradeHistory;
+        }
+
+        public void setTradeHistory(List<Trade> tradeHistory) {
+            this.tradeHistory = tradeHistory;
+        }
+
+        public static class PortfolioStat {
+            @SerializedName("init_cash")
+            private float initCash;
+            @SerializedName("cur_cash")
+            private float curCash;
+            @SerializedName("cash_unit")
+            private String cashUnit;
+            @SerializedName("base_symbol")
+            private String baseSymbol;
+            private float equity;
+            @SerializedName("total_commission")
+            private String totalCommission;
+            @SerializedName("coin_invested")
+            private boolean coinInvested;
+            @SerializedName("base_invested")
+            private boolean baseInvested;
+            private String positions;
+            @SerializedName("update_time")
+            private long updateTime;
+
+            public float getInitCash() {
+                return initCash;
+            }
+
+            public void setInitCash(float initCash) {
+                this.initCash = initCash;
+            }
+
+            public float getCurCash() {
+                return curCash;
+            }
+
+            public void setCurCash(float curCash) {
+                this.curCash = curCash;
+            }
+
+            public String getCashUnit() {
+                return cashUnit;
+            }
+
+            public void setCashUnit(String cashUnit) {
+                this.cashUnit = cashUnit;
+            }
+
+            public String getBaseSymbol() {
+                return baseSymbol;
+            }
+
+            public void setBaseSymbol(String baseSymbol) {
+                this.baseSymbol = baseSymbol;
+            }
+
+            public float getEquity() {
+                return equity;
+            }
+
+            public void setEquity(float equity) {
+                this.equity = equity;
+            }
+
+            public String getTotalCommission() {
+                return totalCommission;
+            }
+
+            public void setTotalCommission(String totalCommission) {
+                this.totalCommission = totalCommission;
+            }
+
+            public boolean isCoinInvested() {
+                return coinInvested;
+            }
+
+            public void setCoinInvested(boolean coinInvested) {
+                this.coinInvested = coinInvested;
+            }
+
+            public boolean isBaseInvested() {
+                return baseInvested;
+            }
+
+            public void setBaseInvested(boolean baseInvested) {
+                this.baseInvested = baseInvested;
+            }
+
+            public String getPositions() {
+                return positions;
+            }
+
+            public void setPositions(String positions) {
+                this.positions = positions;
+            }
+
+            public long getUpdateTime() {
+                return updateTime;
+            }
+
+            public void setUpdateTime(long updateTime) {
+                this.updateTime = updateTime;
+            }
+        }// PortfolioStat end
+
+        public static class TradeStat {
+            @SerializedName("trade_count")
+            private int tradeCount;
+            @SerializedName("win_count")
+            private int winCount;
+            @SerializedName("lose_count")
+            private int loseCount;
+            @SerializedName("win_rate")
+            private float winRate;
+            @SerializedName("profit_rate_sum")
+            private float profitRateSum;
+            @SerializedName("profit_rate_avg")
+            private float profitRateAvg;
+            @SerializedName("loss_rate_sum")
+            private float lossRateSum;
+            @SerializedName("loss_rate_avg")
+            private float lossRateAvg;
+            @SerializedName("pnl_rate")
+            private float pnlRate;
+            @SerializedName("update_time")
+            private long updateTime;
+
+            public int getTradeCount() {
+                return tradeCount;
+            }
+
+            public void setTradeCount(int tradeCount) {
+                this.tradeCount = tradeCount;
+            }
+
+            public int getWinCount() {
+                return winCount;
+            }
+
+            public void setWinCount(int winCount) {
+                this.winCount = winCount;
+            }
+
+            public int getLoseCount() {
+                return loseCount;
+            }
+
+            public void setLoseCount(int loseCount) {
+                this.loseCount = loseCount;
+            }
+
+            public float getWinRate() {
+                return winRate;
+            }
+
+            public void setWinRate(float winRate) {
+                this.winRate = winRate;
+            }
+
+            public float getProfitRateSum() {
+                return profitRateSum;
+            }
+
+            public void setProfitRateSum(float profitRateSum) {
+                this.profitRateSum = profitRateSum;
+            }
+
+            public float getProfitRateAvg() {
+                return profitRateAvg;
+            }
+
+            public void setProfitRateAvg(float profitRateAvg) {
+                this.profitRateAvg = profitRateAvg;
+            }
+
+            public float getLossRateSum() {
+                return lossRateSum;
+            }
+
+            public void setLossRateSum(float lossRateSum) {
+                this.lossRateSum = lossRateSum;
+            }
+
+            public float getLossRateAvg() {
+                return lossRateAvg;
+            }
+
+            public void setLossRateAvg(float lossRateAvg) {
+                this.lossRateAvg = lossRateAvg;
+            }
+
+            public float getPnlRate() {
+                return pnlRate;
+            }
+
+            public void setPnlRate(float pnlRate) {
+                this.pnlRate = pnlRate;
+            }
+
+            public long getUpdateTime() {
+                return updateTime;
+            }
+
+            public void setUpdateTime(long updateTime) {
+                this.updateTime = updateTime;
+            }
+        } // TradeStat end
+
+
         public static class Trade {
             private Integer id; //investId
-            private String time;
-            private String symbol;
+            @SerializedName("trade_time")
+            private String tradeTime;
             private String action;
-            private String exchange;
+            private String symbol;
             private float quantity;
             private float price;
             private float commission;
             private Reason reason;
+            private float pnl;
+            @SerializedName("pnl_rate")
+            private float pnlRate;
+            @SerializedName("avg_price")
+            private float avgPrice;
 
             public Integer getId() {
                 return id;
@@ -339,20 +468,12 @@ public class TaskResult {
                 this.id = id;
             }
 
-            public String getTime() {
-                return time;
+            public String getTradeTime() {
+                return tradeTime;
             }
 
-            public void setTime(String time) {
-                this.time = time;
-            }
-
-            public String getSymbol() {
-                return symbol;
-            }
-
-            public void setSymbol(String symbol) {
-                this.symbol = symbol;
+            public void setTradeTime(String tradeTime) {
+                this.tradeTime = tradeTime;
             }
 
             public String getAction() {
@@ -363,20 +484,20 @@ public class TaskResult {
                 this.action = action;
             }
 
+            public String getSymbol() {
+                return symbol;
+            }
+
+            public void setSymbol(String symbol) {
+                this.symbol = symbol;
+            }
+
             public float getQuantity() {
                 return quantity;
             }
 
             public void setQuantity(float quantity) {
                 this.quantity = quantity;
-            }
-
-            public String getExchange() {
-                return exchange;
-            }
-
-            public void setExchange(String exchange) {
-                this.exchange = exchange;
             }
 
             public float getPrice() {
@@ -395,12 +516,39 @@ public class TaskResult {
                 this.commission = commission;
             }
 
+            public float getPnl() {
+                return pnl;
+            }
+
+            public void setPnl(float pnl) {
+                this.pnl = pnl;
+            }
+
+            public float getPnlRate() {
+                return pnlRate;
+            }
+
+            public void setPnlRate(float pnlRate) {
+                this.pnlRate = pnlRate;
+            }
+
+            public float getAvgPrice() {
+                return avgPrice;
+            }
+
+            public void setAvgPrice(float avgPrice) {
+                this.avgPrice = avgPrice;
+            }
+
             public String getReason() {
                 return reason.toJson();
             }
 
             public void setReason(Reason reason) {
                 this.reason = reason;
+            }
+            public void setStrReason(String reason) {
+                this.reason = new Gson().fromJson(reason, Reason.class);
             }
 
             public static class Reason {
@@ -468,56 +616,16 @@ public class TaskResult {
             }// end reason
         }// end trade
 
-        public static class Value {
-            private Integer id;
-            private Long timestamp;
-            private Float cumReturn;
-            private Float drawdown;
-            private Float equity;
-
-            public Integer getId() {
-                return id;
-            }
-
-            public void setId(Integer id) {
-                this.id = id;
-            }
-
-            public Long getTimestamp() {
-                return timestamp;
-            }
-
-            public void setTimestamp(Long timestamp) {
-                this.timestamp = timestamp;
-            }
-
-            public Float getCumReturn() {
-                return cumReturn;
-            }
-
-            public void setCumReturn(Float cumReturn) {
-                this.cumReturn = cumReturn;
-            }
-
-            public Float getDrawdown() {
-                return drawdown;
-            }
-
-            public void setDrawdown(Float drawdown) {
-                this.drawdown = drawdown;
-            }
-
-            public Float getEquity() {
-                return equity;
-            }
-
-            public void setEquity(Float equity) {
-                this.equity = equity;
-            }
-        }// end value
-
     }// end result
 
-
-
+    @Override
+    public String toString() {
+        return "TaskResult{" +
+                "status='" + status + '\'' +
+                ", message='" + message + '\'' +
+                ", time=" + time +
+                ", request=" + request +
+                ", result=" + result +
+                '}';
+    }
 }// end backTestResult

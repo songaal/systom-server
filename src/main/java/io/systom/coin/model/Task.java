@@ -128,6 +128,8 @@ public class Task {
         List<String> cmd = new ArrayList<>();
         cmd.add("python");
         cmd.add("launcher.py");
+        cmd.add("task_id=" + this.id);
+        cmd.add("session_type=" + this.sessionType);
         cmd.add("start_date=" + startDate);
         cmd.add("end_date=" + endDate);
         cmd.add("exchange_id=" + exchange);
@@ -139,8 +141,6 @@ public class Task {
 
     public List<String> getSignalRunEnv() {
         List<String> env = new ArrayList<>();
-        env.add(String.format("TASK_ID=%s", this.id));
-        env.add(String.format("SESSION_TYPE=%s", this.sessionType));
         return env;
     }
 

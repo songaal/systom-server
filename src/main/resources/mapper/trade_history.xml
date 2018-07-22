@@ -5,11 +5,11 @@
 
 <mapper namespace="tradeHistory">
 
-    <insert id="investTrade" parameterType="Trade">
+    <insert id="investTrade" parameterType="TaskResult$Result$Trade">
         INSERT INTO trade_history
-        (id, time, symbol, action, quantity, price, commission, reason)
+        (id, trade_time, symbol, action, quantity, price, commission, reason)
         VALUES ( ${id}
-               , #{time}
+               , #{tradeTime}
                , #{symbol}
                , #{action}
                , #{quantity}
@@ -19,30 +19,29 @@
         )
     </insert>
 
-    <select id="getTradeHistory" parameterType="Integer" resultType="Trade">
+    <select id="getTradeHistory" parameterType="Integer" resultType="TaskResult$Result$Trade">
         SELECT a.id
-             , a.time
+             , a.trade_time
              , a.symbol
              , a.action
              , a.quantity
              , a.price
              , a.commission
-             , a.reason
+             , a.reason as str_reason
           FROM trade_history a
           JOIN invest_goods b on a.id = b.id
          WHERE b.id = #{id}
     </select>
 
     <insert id="insertTradeHistory">
-        INSERT INTO trade_history (id, time, symbol, action, quantity, exchange, price, commission, reason)
+        INSERT INTO trade_history (id, trade_time, symbol, action, quantity, price, commission, reason)
         VALUES
         <foreach collection="list" item="item" separator=",">
             ( ${item.id}
-            , #{item.time}
+            , #{item.tradeTime}
             , #{item.symbol}
             , #{item.action}
             , ${item.quantity}
-            , #{item.exchange}
             , ${item.price}
             , ${item.commission}
             , #{item.reason}

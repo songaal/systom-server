@@ -16,11 +16,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeoutException;
+import java.util.regex.Pattern;
 
 import static io.systom.coin.service.GoodsService.BOT_USER_ID;
 
@@ -59,7 +59,7 @@ public class TaskService {
         }
     }
 
-    public Map<String, Object> syncBackTest(Task task) throws TimeoutException, ParameterException, OperationException {
+    public TaskResult syncBackTest(Task task) throws TimeoutException, ParameterException, OperationException {
         if (task.getUserId() == null || !identityService.isManager(task.getUserId())) {
             throw new AuthenticationException();
         }
@@ -81,19 +81,24 @@ public class TaskService {
         List<String> cmdList = mergeTaskCmdRequire(task.getSignalRunCmd());
 
         try {
+
             dockerUtils.syncRun(task.getId(), envList, cmdList);
+
+//            RestTemplate restTemplate = new RestTemplate();
+//            String taskResultJson = restTemplate.getForObject("http://localhost:8080/result.json", String.class);
+//            TaskResult taskResult = new Gson().fromJson(taskResultJson, TaskResult.class);
+//            registerBackTestResult(task.getId(), taskResult);
+
         } catch (Throwable t) {
             logger.error("", t);
             throw new OperationException("[FAIL] Running BackTest.");
         }
-
-        Map<String, Object> resultJson = null;
+        TaskResult taskResult = null;
         try {
-            TaskFuture<Map<String, Object>> future = backTestResult.get(task.getId());
-            resultJson = future.take();
-            if (resultJson != null) {
-                resultJson = (Map<String, Object>) resultJson.get(RESULT_JSON);
-                backTestLogger.info("[{}] BackTest result catch!", task.getId());
+            TaskFuture<TaskResult> future = backTestResult.get(task.getId());
+            taskResult = future.take();
+            if (future != null) {
+                backTestLogger.info("[{}] BackTest Task Result catch!", task.getId());
             }
             backTestLogger.info("[{}] BackTest Successful.", task.getId());
         } catch (Exception e){
@@ -102,7 +107,7 @@ public class TaskService {
         } finally {
             waitTaskList.remove(task.getId());
         }
-        return resultJson;
+        return taskResult;
     }
 
 
@@ -123,15 +128,13 @@ public class TaskService {
         }
     }
 
-    public Map<String, Object> registerBackTestResult(String taskId, Map<String, Object> resultJson) {
+    public TaskResult registerBackTestResult(String taskId, TaskResult taskResult) {
         if (isWaitTask(taskId) != null) {
-            Map<String, Object> resultMap = new HashMap<>();
-            resultMap.put(RESULT_JSON, resultJson);
-            TaskFuture<Map<String, Object>> taskFuture = new TaskFuture();
-            taskFuture.offer(resultMap);
+            TaskFuture<TaskResult> taskFuture = new TaskFuture();
+            taskFuture.offer(taskResult);
             backTestResult.put(taskId, taskFuture);
-            backTestLogger.info("[{}] BackTest Result Saved. {}", taskId, resultJson);
-            return resultJson;
+            backTestLogger.info("[{}] BackTest Result Saved. {}", taskId, taskResult);
+            return taskResult;
         } else {
             return null;
         }
@@ -140,13 +143,13 @@ public class TaskService {
     protected List<String> mergeTaskEnvRequire(List<String> env){
         List<String> tmpEnv = new ArrayList<>();
         tmpEnv.addAll(env);
-        tmpEnv.add("API_SERVER_URL=" + apiServerUrl);
         return tmpEnv;
     }
 
     protected List<String> mergeTaskCmdRequire(List<String> cmd){
         List<String> tmpCmd = new ArrayList<>();
         tmpCmd.addAll(cmd);
+        tmpCmd.add("api_server_url=" + apiServerUrl);
         return tmpCmd;
     }
 
@@ -155,30 +158,26 @@ public class TaskService {
             throw new AuthenticationException();
         }
 
-        Map<String, Object> testResultMap = syncBackTest(task);
-        if (!"success".equalsIgnoreCase(String.valueOf(testResultMap.get("status")))) {
-            throw new OperationException("[Fail] BackTest status: {}" + testResultMap.get("status"));
+        TaskResult taskResult = syncBackTest(task);
+        if (!"success".equalsIgnoreCase(taskResult.getStatus())) {
+            throw new OperationException("[Fail] BackTest");
         }
-        Gson gson = new Gson();
-
-        String testResultJson = gson.toJson(testResultMap);
-        TaskResult testResult = gson.fromJson(testResultJson, TaskResult.class);
-
-        String startDate = testResult.getRequest().getStart();
-        String endDate = testResult.getRequest().getEnd();
-        Map<String, Float> cumReturns = testResult.getResult().getCumReturns();
-        List<Map<String, Object>> monthlyLastDateReturnPctList = monthlyLastDateReturnPct(startDate, endDate, cumReturns);
-
-        float avgTestReturnPct = 0f;
-        for (int i=0; i < monthlyLastDateReturnPctList.size(); i++) {
-            avgTestReturnPct += (float) monthlyLastDateReturnPctList.get(i).get("returnPct");
+        Map<String, Float> cumReturns = taskResult.getResult().getCumReturns();
+        List<MonthlyReturn> MonthlyReturnList = monthlyLastDateReturnPct(cumReturns);
+        float sumMrp = 0;
+        float avgMRp = 0;
+        int mRpSize = MonthlyReturnList.size();
+        for (int i=0; i < mRpSize; i++){
+            sumMrp += MonthlyReturnList.get(i).getReturnPct();
         }
-
+        if (sumMrp > 0 && mRpSize > 0) {
+            avgMRp = sumMrp / mRpSize;
+        }
         try {
             Map<String, Object> params = new HashMap<>();
             params.put("goodsId", task.getGoodsId());
-            params.put("testReturnPct", Float.parseFloat(String.format("%.2f", (avgTestReturnPct / monthlyLastDateReturnPctList.size()))));
-            params.put("testMonthlyReturn", gson.toJson(monthlyLastDateReturnPctList));
+            params.put("testReturnPct", avgMRp);
+            params.put("testMonthlyReturn", new Gson().toJson(MonthlyReturnList));
             int changeRow = sqlSession.update("goods.createGoodsBackTest", params);
             if (changeRow != 1) {
                 logger.error("[FAIL] sql execute. changeRow: {}, params: {}", changeRow, params);
@@ -186,7 +185,7 @@ public class TaskService {
             }
 
             InvestGoods botInvestGoods = investGoodsService.findInvestGoodsByUser(task.getGoodsId(), BOT_USER_ID);
-            tradeService.insertTradeHistory(botInvestGoods.getId(), testResult.getResult().getTradeHistory());
+            tradeService.insertTradeHistory(botInvestGoods.getId(), taskResult.getResult().getTradeHistory());
 
         } catch (Exception e) {
             logger.error("", e);
@@ -196,49 +195,49 @@ public class TaskService {
         return goodsService.getGoods(task.getGoodsId(), task.getUserId());
     }
 
-    protected List<Map<String, Object>> monthlyLastDateReturnPct(String start, String end, Map<String, Float> cumReturnPct) throws ParseException {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
-        Calendar curDate = Calendar.getInstance();
-        String endYearMonth = null;
-        try {
-            curDate.setTime(dateFormat.parse(start.replace("-", "")));
-            endYearMonth = end.replace("-", "").substring(0, 6);
-        } catch (ParseException e) {
-            logger.error("parsing error", e);
-            throw e;
-        }
+    protected List<MonthlyReturn> monthlyLastDateReturnPct(Map<String, Float> cumReturnPct) throws ParseException {
+        String tmpDate = null;
 
-        List<Map<String, Object>> lastMonthDateList = new ArrayList<>();
-        for (int m = 0; m < 100; m++) {
-            int date = curDate.getActualMaximum(Calendar.DAY_OF_MONTH);
-            curDate.set(Calendar.DATE, date);
-            String lastDate = dateFormat.format(curDate.getTime());
-            date = Integer.parseInt(lastDate.substring(6, 8));
-            for (int d = date; d >= 1; d--) {
-                curDate.set(Calendar.DATE, d);
-                String yearMonth = lastDate.substring(0, 6);
-                lastDate = dateFormat.format(curDate.getTime());
-                if (cumReturnPct.get(lastDate) != null) {
-                    Map<String, Object> monthlyReturnPct = new HashMap<>();
-                    monthlyReturnPct.put("date", yearMonth);
-                    monthlyReturnPct.put("returnPct", cumReturnPct.get(lastDate));
-                    lastMonthDateList.add(monthlyReturnPct);
-                    break;
-                } else if (d == 1) {
-                    Map<String, Object> monthlyReturnPct = new HashMap<>();
-                    monthlyReturnPct.put("date", yearMonth);
-                    monthlyReturnPct.put("returnPct", 0f);
-                    lastMonthDateList.add(monthlyReturnPct);
-                }
-            }
-            if (Integer.parseInt(lastDate.substring(0, 6)) >= Integer.parseInt(endYearMonth)) {
-                break;
+        Map<String, Float> lastRp = new LinkedHashMap<>();
+        Iterator<Map.Entry<String, Float>> iterator = cumReturnPct.entrySet().iterator();
+
+        while(iterator.hasNext()) {
+            Map.Entry<String, Float> cumReturn = iterator.next();
+            String yyyymm = cumReturn.getKey();
+            if (!Pattern.matches("^[0-9]*$", yyyymm)) {
+                continue;
             } else {
-                curDate.add(Calendar.MONTH, 1);
+                yyyymm = yyyymm.substring(0, 6);
+            }
+
+            float rp = cumReturn.getValue().floatValue();
+            lastRp.put(yyyymm, rp);
+            if (tmpDate == null || !tmpDate.equals(yyyymm)) {
+                tmpDate = yyyymm;
             }
         }
-        return lastMonthDateList;
+        float diff = 0f;
+        List<MonthlyReturn> monthlyReturn = new ArrayList<>();
+        iterator = lastRp.entrySet().iterator();
+        while(iterator.hasNext()) {
+            Map.Entry<String, Float> lastCumReturn = iterator.next();
+            float tmpRp = lastCumReturn.getValue();
+            float rp = tmpRp - diff;
+            diff = tmpRp;
+            MonthlyReturn mr = new MonthlyReturn();
+            mr.setDate(lastCumReturn.getKey());
+            mr.setReturnPct(rp);
+            monthlyReturn.add(mr);
+        }
+        return monthlyReturn;
     }
+
+
+
+
+
+
+
 
 
 
@@ -316,10 +315,6 @@ public class TaskService {
 
 
 
-
-    public ConcurrentMap<String, TaskFuture> getBackTestResult() {
-        return this.backTestResult;
-    }
 
 
 //    public Task runAgentTask(String userId, String accessToken, Integer agentId, boolean isLiveMode) throws ParameterException, OperationException {
@@ -435,5 +430,13 @@ public class TaskService {
         if(field == 0.0f){
             throw new ParameterException(label);
         }
+    }
+
+    public void testTask(String task_id) {
+        Task task = new Task();
+        task.setId(task_id);
+        task.setUserId("joonwoo");
+        task.setStrategyId(18);
+        waitTaskList.put(task_id, task);
     }
 }

@@ -2,7 +2,6 @@ package io.systom.coin.service;
 
 import io.systom.coin.exception.OperationException;
 import io.systom.coin.model.TaskResult;
-import io.systom.coin.model.Trade;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +20,8 @@ public class TradeService {
     @Autowired
     private SqlSession sqlSession;
 
-    public List<Trade> getTradeHistory(int investId) {
-        List<Trade> tradeHistory = null;
+    public List<TaskResult.Result.Trade> getTradeHistory(int investId) {
+        List<TaskResult.Result.Trade> tradeHistory = null;
         try {
             tradeHistory = sqlSession.selectList("tradeHistory.getTradeHistory", investId);
         } catch (Exception e){

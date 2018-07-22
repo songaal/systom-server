@@ -203,6 +203,7 @@ public class GoodsController extends AbstractController{
         try {
             task.setGoodsId(id);
             task.setUserId(userId);
+            task.setSessionType(Task.SESSION_TYPES.backtest.name());
             Goods registerGoods = taskService.createGoodsBackTest(task);
             return success(registerGoods);
         } catch (AbstractException e) {
