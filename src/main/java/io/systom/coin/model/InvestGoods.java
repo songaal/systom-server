@@ -70,4 +70,16 @@ public class InvestGoods {
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
     }
+
+    @Override
+    public String toString() {
+        return "InvestGoods{" +
+                "id=" + id +
+                ", goodsId=" + goodsId +
+                ", userId='" + userId + '\'' +
+                ", investCash=" + investCash +
+                ", exchangeKeyId=" + exchangeKeyId +
+                ", createTime=" + createTime +
+                '}';
+    }
 }

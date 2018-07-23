@@ -30,10 +30,10 @@
 //    public void selectTest(){
 //        Goods searchGoods = new Goods();
 //        searchGoods = new Goods();
-//        searchGoods.setUserId("0");
+//        searchGoods.setAuthorId("0");
 //        searchGoods.setExchange("binance");
-////        searchGoods.setRecruitStart(System.currentTimeMillis());
-////        searchGoods.setRecruitEnd(System.currentTimeMillis());
+////        searchGoods.setCollectStart(System.currentTimeMillis());
+////        searchGoods.setCollectEnd(System.currentTimeMillis());
 //        List<Goods> registerGoodsList = sqlSession.selectList("goods.retrieveGoodsList", searchGoods);
 //
 //        List<Integer> goodsIdList = new ArrayList<>();
@@ -44,7 +44,7 @@
 //        if (registerGoodsSize > 0) {
 //            Map<String, Object> search = new HashMap<>();
 //            search.put("goodsIdList", goodsIdList);
-//            search.put("userId", searchGoods.getUserId());
+//            search.put("userId", searchGoods.getAuthorId());
 //            List<InvestGoods> investGoodsList = sqlSession.selectList("goods.retrieveInvestGoodsList", search);
 //            int investGoodsSize = investGoodsList.size();
 //

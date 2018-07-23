@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.text.ParseException;
 import java.util.*;
@@ -21,8 +22,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
-
-import static io.systom.coin.service.GoodsService.BOT_USER_ID;
 
 @Service
 public class TaskService {
@@ -82,12 +81,12 @@ public class TaskService {
 
         try {
 
-            dockerUtils.syncRun(task.getId(), envList, cmdList);
+//            dockerUtils.syncRun(task.getId(), envList, cmdList);
 
-//            RestTemplate restTemplate = new RestTemplate();
-//            String taskResultJson = restTemplate.getForObject("http://localhost:8080/result.json", String.class);
-//            TaskResult taskResult = new Gson().fromJson(taskResultJson, TaskResult.class);
-//            registerBackTestResult(task.getId(), taskResult);
+            RestTemplate restTemplate = new RestTemplate();
+            String taskResultJson = restTemplate.getForObject("http://localhost:8080/result.json", String.class);
+            TaskResult taskResult = new Gson().fromJson(taskResultJson, TaskResult.class);
+            registerBackTestResult(task.getId(), taskResult);
 
         } catch (Throwable t) {
             logger.error("", t);
@@ -165,27 +164,29 @@ public class TaskService {
         Map<String, Float> cumReturns = taskResult.getResult().getCumReturns();
         List<MonthlyReturn> MonthlyReturnList = monthlyLastDateReturnPct(cumReturns);
         float sumMrp = 0;
-        float avgMRp = 0;
+        float avgMrp = 0;
         int mRpSize = MonthlyReturnList.size();
         for (int i=0; i < mRpSize; i++){
             sumMrp += MonthlyReturnList.get(i).getReturnPct();
         }
         if (sumMrp > 0 && mRpSize > 0) {
-            avgMRp = sumMrp / mRpSize;
+            avgMrp = sumMrp / mRpSize;
         }
+
         try {
+            GoodsTestResult goodsTestResult = new GoodsTestResult();
+            goodsTestResult.setId(task.getGoodsId());
+            goodsTestResult.setTestReturnPct(avgMrp);
+            goodsTestResult.setTestMonthlyReturnList(MonthlyReturnList);
+            goodsTestResult.setTradeHistory(taskResult.getResult().getTradeHistory());
             Map<String, Object> params = new HashMap<>();
             params.put("goodsId", task.getGoodsId());
-            params.put("testReturnPct", avgMRp);
-            params.put("testMonthlyReturn", new Gson().toJson(MonthlyReturnList));
+            params.put("testResult", new Gson().toJson(goodsTestResult));
             int changeRow = sqlSession.update("goods.createGoodsBackTest", params);
             if (changeRow != 1) {
-                logger.error("[FAIL] sql execute. changeRow: {}, params: {}", changeRow, params);
+                logger.error("[FAIL] sql execute. changeRow: {}", changeRow);
                 throw new OperationException("[FAIL] sql execute. changeRow: {}" + changeRow);
             }
-
-            InvestGoods botInvestGoods = investGoodsService.findInvestGoodsByUser(task.getGoodsId(), BOT_USER_ID);
-            tradeService.insertTradeHistory(botInvestGoods.getId(), taskResult.getResult().getTradeHistory());
 
         } catch (Exception e) {
             logger.error("", e);
@@ -388,7 +389,7 @@ public class TaskService {
 //
 //        //agent 테이블을 읽어서 Task에 채워준다.
 //        Agent agent = agentService.getAgent(agentId);
-//        ExchangeKey exchangeKey = exchangeService.selectExchangeKey(new ExchangeKey(agent.getExchangeKeyId(), agent.getUserId()));
+//        ExchangeKey exchangeKey = exchangeService.selectExchangeKey(new ExchangeKey(agent.getExchangeKeyId(), agent.getAuthorId()));
 //        Task task = agent.cloneTask();
 //        task.setExchange(exchangeKey.getExchange());
 //        task.setExchangeKeyId(agent.getExchangeKeyId());

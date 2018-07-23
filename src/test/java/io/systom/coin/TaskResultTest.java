@@ -80,7 +80,7 @@ public class TaskResultTest {
 //            throw new OperationException("[FAIL] sql execute");
 //        }
 
-//        return goodsService.getGoods(task.getGoodsId(), task.getUserId());
+//        return goodsService.getGoods(task.getGoodsId(), task.getAuthorId());
     }
 
     private Map<String, Float> monthlyLastDateReturnPct(Map<String, Float> cumReturnPct) throws ParseException {

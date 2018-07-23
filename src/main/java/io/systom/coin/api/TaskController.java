@@ -87,7 +87,7 @@ public class TaskController extends AbstractController {
 //
 //                return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
 //            } else if (Task.SESSION_TYPES.backtest.equals(sessionType)) {
-//                task.setUserId(userId);
+//                task.setAuthorId(userId);
 //                task.setAccessToken(accessToken);
 //                Map<String, Object> resultJson = taskService.syncBackTest(task);
 //                return new ResponseEntity<>(resultJson, HttpStatus.OK);

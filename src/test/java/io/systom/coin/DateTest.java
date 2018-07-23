@@ -1,6 +1,6 @@
 package io.systom.coin;
 
-import io.systom.coin.model.TestMonthlyReturn;
+import io.systom.coin.model.MonthlyReturn;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
@@ -44,12 +44,12 @@ public class DateTest {
         logger.debug("sm: {}", startMonth);
         logger.debug("sd: {}", startDate);
 
-        List<TestMonthlyReturn> testMonthlyReturnList = new ArrayList<>();
+        List<MonthlyReturn> testMonthlyReturnList = new ArrayList<>();
         boolean isSameYear = true;
         for(int y=startYear; y <= endYear; y++) {
             if (y < endYear) {
                 for (int m = startMonth; m <= 12; m++) {
-                    testMonthlyReturnList.add(new TestMonthlyReturn(formatDate(y, m, null), 0));
+                    testMonthlyReturnList.add(new MonthlyReturn(formatDate(y, m, null), 0));
                 }
                 isSameYear = false;
             } else if (y == endYear) {
@@ -58,7 +58,7 @@ public class DateTest {
                     sm = 1;
                 }
                 for (int m = sm; m <= endMonth; m++) {
-                    testMonthlyReturnList.add(new TestMonthlyReturn(formatDate(y, m, null), 0));
+                    testMonthlyReturnList.add(new MonthlyReturn(formatDate(y, m, null), 0));
                 }
             }
         }

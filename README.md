@@ -200,7 +200,7 @@ POST http://127.0.0.1:8080/auth/login
 ```
 POST http://127.0.0.1:8080/auth/changeTempPassword
 {
-	"userId": "songaal",
+	"authorId": "songaal",
 	"password": "123123",
 	"session": "Fsof-k3FDfxFajErZAHeOwpmZXl66l1quUpVOQ30oSwAPuH63gbMO6sxqr8N4Okv64a5p3WR0U-46EWxxTJt2ogUItBt-pn6RQPcGlY19t-lp6r7_D_hwh8Jmvts0grWmBh82Gvy5mJgSkewgaUkS3xctDZNTkSgACFHJRMnGpUVSI3yltl51vLWoWboILq8uwE2ANVfnjHdyLIkiUFpYT-CfFQ_q9ZCj2dMnPAfXPh9fz8J6xFUXGRaDxi4u4vJEqBgSThCk9PLtJcEm-weIh6gY-W9FLa8Wp5vBEzjkD1ALMqmD4RQ9CnzmE6GAX-6OyN0pXsG_-7sZC5QbDaxoXJzBqxGesEdJGY51yX_sB0Pq7l34V9XH1BDWhea7yhIpG_C3c9NyhXd0krkr_IuoJLIF_AD8V5JJ5F4Xz6CCRYr5QYbfsBesySf03Ns-9AJycu3XBigWH1KS7XinML6QUtwsA644cfJe9E4mQKyo6RT2Ua5Q_hmkW-u4jmpXhviZutJN1TKGXUKg8PL85MU2uSzFSYuXCEJC7fdYA4F3cCCak4N2JVzOA733LyGban9WPVsu5gNtBmxnL1UC5jBt1Rw2IxL6k3PYAGQAuO6ZkaomK5lX8mApXjU8w2gW_Gl2aTv9tuXcevvZUawi6d5o3AH2vlP0s0opYB2-wupBogTEoZxd0AmIo2IWhrlWmqgdGMjIMFP3CXWhWcs8S_pbuvuJguc9lkWL8fck5m1Dk0OZeEZ5FozLT5W3wPW4FH74XLW4OIinCqYbOvG5_ILGgG1vvocR1Ie125IdgFclcQ3u0co_GfF8kKh7y7bUf4R"
 }
@@ -253,7 +253,7 @@ POST /v1/notification/telegram
 [결과]
 ```
 {
-    "userId": "songaal",
+    "authorId": "songaal",
     "serviceName": "telegram",
     "serviceUser": "352354994",
     "title": "songaal",
@@ -277,7 +277,7 @@ GET /v1/notification/telegram
 [결과]
 ```
 {
-    "userId": "songaal",
+    "authorId": "songaal",
     "serviceName": "telegram",
     "serviceUser": "352354994",
     "title": "songaal",
@@ -298,7 +298,7 @@ DELETE /v1/notification/telegram
 [결과]
 ```
 {
-    "userId": "songaal",
+    "authorId": "songaal",
     "serviceName": "telegram",
     "serviceUser": "352354994",
     "title": "songaal",

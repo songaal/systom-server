@@ -69,8 +69,8 @@
              , a.description
              , a.is_display
              , a.create_time
-             , a.recruit_start
-             , a.recruit_end
+             , a.collect_start
+             , a.collect_end
              , a.invest_start
              , a.invest_end
              , a.test_start
@@ -78,9 +78,7 @@
              , a.cash
              , a.cash_unit
              , a.name
-             , a.user_id
-             , a.test_monthly_return
-             , a.test_return_pct
+             , a.test_result
              , a.create_time
              , b.id as invest_id
           FROM goods a

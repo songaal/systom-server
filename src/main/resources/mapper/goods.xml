@@ -7,8 +7,8 @@
 
     <insert id="registerGoods" parameterType="Goods" keyProperty="id" keyColumn="id" useGeneratedKeys="true">
         INSERT INTO goods (strategy_id, version, exchange, coin_unit, base_unit, cash_unit, cash
-                          , recruit_start, recruit_end, invest_start, invest_end, test_start, test_end
-                          , name, description, user_id, test_monthly_return, test_return_pct)
+                          , collect_start, collect_end, invest_start, invest_end, test_start, test_end
+                          , name, description, author_id, test_result)
         VALUES (${strategyId},
                 ${version},
                 #{exchange},
@@ -16,17 +16,16 @@
                 #{baseUnit},
                 #{cashUnit},
                 ${cash},
-                ${recruitStart},
-                ${recruitEnd},
+                ${collectStart},
+                ${collectEnd},
                 ${investStart},
                 ${investEnd},
                 ${testStart},
                 ${testEnd},
                 #{name},
                 #{description},
-                #{userId},
-                #{testMonthlyReturn},
-                #{testReturnPct}
+                #{authorId},
+                #{testResult}
         )
     </insert>
 
@@ -42,21 +41,19 @@
              , a.cash
              , a.cash_unit
              , a.is_display
-             , a.recruit_start
-             , a.recruit_end
+             , a.collect_start
+             , a.collect_end
              , a.invest_start
              , a.invest_end
              , a.test_start
              , a.test_end
-             , a.test_monthly_return
-             , a.test_return_pct
-             , a.user_id
+             , a.test_result
+             , a.author_id
              , b.invest_cash
             <if test="userId != null and userId != ''">
              , c.invest_id
             </if>
              , a.create_time
-             , a.ecs_id
           FROM goods a
           LEFT JOIN (SELECT aa.id
                            , aa.goods_id
@@ -86,8 +83,8 @@
              , a.description
              , a.is_display
              , a.create_time
-             , a.recruit_start
-             , a.recruit_end
+             , a.collect_start
+             , a.collect_end
              , a.invest_start
              , a.invest_end
              , a.test_start
@@ -95,9 +92,8 @@
              , a.cash
              , a.cash_unit
              , a.name
-             , a.user_id
-             , a.test_monthly_return
-             , a.test_return_pct
+             , a.author_id
+             , a.test_result
              , a.create_time
              , ifnull(b.invest_cash, 0) as invest_cash
              , c.invest_id
@@ -112,17 +108,17 @@
 				       FROM invest_goods bb
                       WHERE bb.user_id = #{userId}
 				     GROUP BY bb.goods_id
-		      ) c on a.id = c.goods_id
-          WHERE 1=1
-            AND a.exchange = #{exchange}
+		     ) c on a.id = c.goods_id
+         WHERE 1=1
+           AND a.exchange = #{exchange}
         <if test="isDisplay != null and isDisplay != ''">
-            AND a.is_display = ${isDisplay}
+           AND a.is_display = ${isDisplay}
         </if>
         <choose>
-            <when test="recruitStart != null and recruitStart != '' and recruitEnd != null and recruitEnd != ''">
+            <when test="collectStart != null and collectStart != '' and collectEnd != null and collectEnd != ''">
             <![CDATA[
-                AND a.recruit_start <= ${recruitStart}
-                AND a.recruit_end >= ${recruitEnd}
+                AND a.collect_start <= ${collectStart}
+                AND a.collect_end >= ${collectEnd}
             ]]>
             </when>
             <when test="investStart != null and investStart != '' and investEnd != null and investEnd != ''">
@@ -178,21 +174,20 @@
              , description         = #{description}
              , cash                = ${cash}
              , cash_unit           = #{cashUnit}
-             , recruit_start       = ${recruitStart}
-             , recruit_end         = ${recruitEnd}
+             , collect_start       = ${collectStart}
+             , collect_end         = ${collectEnd}
              , invest_start        = ${investStart}
              , invest_end          = ${investEnd}
              , test_start          = ${testStart}
              , test_end            = ${testEnd}
-             , test_monthly_return = #{testMonthlyReturn}
-             , test_return_pct     = #{testReturnPct}
+             , test_result         = #{testResult}
          WHERE id = ${id}
     </update>
 
     <update id="createGoodsBackTest" parameterType="HashMap">
         UPDATE goods
-        SET test_monthly_return = #{testMonthlyReturn}
-          , test_return_pct     = #{testReturnPct}
-        WHERE id = ${goodsId}
+           SET test_result = #{testResult}
+         WHERE id = ${goodsId}
     </update>
+
 </mapper>

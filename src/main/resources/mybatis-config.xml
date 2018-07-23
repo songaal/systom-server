@@ -19,6 +19,7 @@
         <typeAlias alias="PerformanceDaily" type="io.systom.coin.model.PerformanceDaily"/>
         <typeAlias alias="TaskResult$Result$Trade" type="io.systom.coin.model.TaskResult$Result$Trade"/>
         <typeAlias alias="UserMonthlyInvest" type="io.systom.coin.model.UserMonthlyInvest"/>
+        <typeAlias alias="GoodsTestResult" type="io.systom.coin.model.GoodsTestResult"/>
     </typeAliases>
 
     <!--<typeAlias alias="Trade" type="io.systom.coin.model.Trade"/>-->

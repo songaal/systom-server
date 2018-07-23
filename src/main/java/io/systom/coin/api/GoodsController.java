@@ -26,6 +26,7 @@ import static io.systom.coin.service.GoodsService.DATE_FORMAT;
 @RequestMapping("/v1/goods")
 public class GoodsController extends AbstractController{
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(GoodsController.class);
+    private static org.slf4j.Logger goodsErrorLogger = LoggerFactory.getLogger("goodsError");
 
     @Autowired
     private GoodsService goodsService;
@@ -40,7 +41,7 @@ public class GoodsController extends AbstractController{
     public ResponseEntity<?> registerGoods(@RequestAttribute String userId,
                                            @RequestBody Goods target) {
         try {
-            target.setUserId(userId);
+            target.setAuthorId(userId);
             Goods registerGoods = goodsService.registerGoods(target);
             return success(registerGoods);
         } catch (AbstractException e) {
@@ -66,7 +67,7 @@ public class GoodsController extends AbstractController{
                 if (typeList.contains(GOODS_TYPE.wait.name())) {
                     logger.debug("retrieveGoodsList wait");
                     searchGoods = new Goods();
-                    searchGoods.setUserId(userId);
+                    searchGoods.setAuthorId(userId);
                     searchGoods.setExchange(exchange);
                     searchGoods.setInvestStart(nowTime);
                     searchGoods.setDisplay(false);
@@ -75,7 +76,7 @@ public class GoodsController extends AbstractController{
                 if (typeList.contains(GOODS_TYPE.running.name())) {
                     logger.debug("retrieveGoodsList running");
                     searchGoods = new Goods();
-                    searchGoods.setUserId(userId);
+                    searchGoods.setAuthorId(userId);
                     searchGoods.setExchange(exchange);
                     searchGoods.setInvestStart(nowTime);
                     searchGoods.setInvestEnd(nowTime);
@@ -85,7 +86,7 @@ public class GoodsController extends AbstractController{
                 if (typeList.contains(GOODS_TYPE.close.name())) {
                     logger.debug("retrieveGoodsList close");
                     searchGoods = new Goods();
-                    searchGoods.setUserId(userId);
+                    searchGoods.setAuthorId(userId);
                     searchGoods.setExchange(exchange);
                     searchGoods.setInvestEnd(nowTime);
                     searchGoods.setDisplay(false);
@@ -93,11 +94,11 @@ public class GoodsController extends AbstractController{
                 }
             } else {
                 searchGoods = new Goods();
-                searchGoods.setRecruitStart(nowTime);
-                searchGoods.setRecruitEnd(nowTime);
+                searchGoods.setCollectStart(nowTime);
+                searchGoods.setCollectEnd(nowTime);
                 searchGoods.setDisplay(true);
                 searchGoods.setExchange(exchange);
-                searchGoods.setUserId(userId);
+                searchGoods.setAuthorId(userId);
                 registerGoodsList = goodsService.retrieveGoodsList(searchGoods);
             }
             return success(registerGoodsList);
@@ -118,8 +119,8 @@ public class GoodsController extends AbstractController{
             int nowTime = Integer.parseInt(new SimpleDateFormat(DATE_FORMAT).format(new Date()));
 
             if (!identityService.isManager(userId)
-                    && Integer.parseInt(registerGoods.getRecruitStart()) > nowTime
-                    && Integer.parseInt(registerGoods.getRecruitEnd()) < nowTime) {
+                    && Integer.parseInt(registerGoods.getCollectStart()) > nowTime
+                    && Integer.parseInt(registerGoods.getCollectEnd()) < nowTime) {
                 throw new AuthenticationException();
             }
             return success(registerGoods);
@@ -162,13 +163,29 @@ public class GoodsController extends AbstractController{
         }
     }
 
+    @PostMapping("/{id}/error")
+    public ResponseEntity<?> taskError(@PathVariable Integer id,
+                                       @RequestBody String body) {
+        try {
+            goodsErrorLogger.error("GoodsID[{}] {}",id, body);
+            return success();
+        } catch (AbstractException e) {
+            logger.error("", e);
+            return e.response();
+        } catch (Throwable t) {
+            logger.error("Throwable: ", t);
+            return new OperationException().response();
+        }
+    }
+
+
     @PutMapping("/{id}")
     public ResponseEntity<?> updateGoods(@PathVariable Integer id,
                                          @RequestBody Goods target,
                                          @RequestAttribute String userId) {
         try {
             target.setId(id);
-            target.setUserId(userId);
+            target.setAuthorId(userId);
             Goods registerGoods = goodsService.updateGoods(target);
             return success(registerGoods);
         } catch (AbstractException e) {
@@ -184,8 +201,8 @@ public class GoodsController extends AbstractController{
     public ResponseEntity<?> deleteGoods(@RequestAttribute String userId,
                                          @PathVariable Integer id) {
         try {
-            Goods deleteRecruitGoods = goodsService.deleteGoods(id, userId);
-            return success(deleteRecruitGoods);
+            Goods deleteCollectGoods = goodsService.deleteGoods(id, userId);
+            return success(deleteCollectGoods);
         } catch (AbstractException e) {
             logger.error("", e);
             return e.response();

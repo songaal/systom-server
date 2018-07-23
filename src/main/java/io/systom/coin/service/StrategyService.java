@@ -38,7 +38,7 @@ public class StrategyService {
             throw new ParameterException("strategy name");
         }
 
-//        Strategy uniqueStrategy = findStrategyByName(strategy.getName(), strategy.getUserId());
+//        Strategy uniqueStrategy = findStrategyByName(strategy.getName(), strategy.getAuthorId());
 //        if (uniqueStrategy != null) {
 //            throw new ParameterException("strategy unique name");
 //        }

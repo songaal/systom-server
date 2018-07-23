@@ -15,7 +15,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import static io.systom.coin.service.GoodsService.BOT_USER_ID;
 import static io.systom.coin.service.GoodsService.DATE_FORMAT;
 
 /*
@@ -46,27 +45,24 @@ public class InvestGoodsService {
 
     public InvestGoods registrationInvestor(InvestGoods investor) {
         Goods registerGoods = goodsService.getGoods(investor.getGoodsId());
-        boolean isBot = investor.getUserId() == BOT_USER_ID;
 
-        if (!isBot) {
-            long nowTs = Integer.parseInt(new SimpleDateFormat(DATE_FORMAT).format(new Date()));
-            if (registerGoods == null || !registerGoods.getDisplay()) {
-                throw new RequestException("invalid goods");
-            } else if (Integer.parseInt(registerGoods.getRecruitStart()) > nowTs
-                    ||Integer.parseInt(registerGoods.getRecruitEnd()) < nowTs) {
-                throw new RequestException("not recruit invest goods");
-            } else if(investor.getInvestCash() == null
-                    || investor.getInvestCash().floatValue() <= 0) {
-                throw new ParameterException("invest amount");
-            }
-            ExchangeKey exchangeKey = new ExchangeKey();
-            exchangeKey.setId(investor.getExchangeKeyId());
-            exchangeKey.setUserId(investor.getUserId());
-            exchangeKey = exchangeService.selectExchangeKey(exchangeKey);
-            if (exchangeKey == null
-                    || !registerGoods.getExchange().toLowerCase().equals(exchangeKey.getExchange().toLowerCase())) {
-                throw new RequestException("invalid exchange key");
-            }
+        long nowTs = Integer.parseInt(new SimpleDateFormat(DATE_FORMAT).format(new Date()));
+        if (registerGoods == null || !registerGoods.getDisplay()) {
+            throw new RequestException("invalid goods");
+        } else if (Integer.parseInt(registerGoods.getCollectStart()) > nowTs
+                ||Integer.parseInt(registerGoods.getCollectEnd()) < nowTs) {
+            throw new RequestException("not collect invest goods");
+        } else if(investor.getInvestCash() == null
+                || investor.getInvestCash().floatValue() <= 0) {
+            throw new ParameterException("invest amount");
+        }
+        ExchangeKey exchangeKey = new ExchangeKey();
+        exchangeKey.setId(investor.getExchangeKeyId());
+        exchangeKey.setUserId(investor.getUserId());
+        exchangeKey = exchangeService.selectExchangeKey(exchangeKey);
+        if (exchangeKey == null
+                || !registerGoods.getExchange().toLowerCase().equals(exchangeKey.getExchange().toLowerCase())) {
+            throw new RequestException("invalid exchange key");
         }
 
         InvestGoods investGoods = findInvestGoodsByUser(investor.getGoodsId(), investor.getUserId());
@@ -84,11 +80,9 @@ public class InvestGoodsService {
             throw new OperationException("[FAIL] SQL Execute.");
         }
 
-        if (!isBot) {
-            PerformanceSummary performanceSummary = new PerformanceSummary();
-            performanceSummary.setId(investor.getId());
-            performanceService.insertPerformanceSummary(performanceSummary);
-        }
+        PerformanceSummary performanceSummary = new PerformanceSummary();
+        performanceSummary.setId(investor.getId());
+        performanceService.insertPerformanceSummary(performanceSummary);
 
         return getInvestGoods(investor.getId());
     }
@@ -132,9 +126,9 @@ public class InvestGoodsService {
 
         Goods registerGoods = goodsService.getGoods(investGoods.getGoodsId());
         int nowTime = Integer.parseInt(new SimpleDateFormat(DATE_FORMAT).format(new Date()));
-        if (Integer.parseInt(registerGoods.getRecruitStart()) > nowTime
-                || Integer.parseInt(registerGoods.getRecruitEnd()) < nowTime) {
-            throw new RequestException("not recruit invest goods");
+        if (Integer.parseInt(registerGoods.getCollectStart()) > nowTime
+                || Integer.parseInt(registerGoods.getCollectEnd()) < nowTime) {
+            throw new RequestException("not collect invest goods");
         }
 
         performanceService.deletePerformanceSummary(investId);

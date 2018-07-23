@@ -9,6 +9,12 @@ public class MonthlyReturn {
     private String date;
     private float returnPct;
 
+    public MonthlyReturn() {}
+    public MonthlyReturn(String date, float returnPct) {
+        this.date = date;
+        this.returnPct = returnPct;
+    }
+
     public String getDate() {
         return date;
     }

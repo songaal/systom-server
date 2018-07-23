@@ -20,17 +20,19 @@ public class Goods {
     private Float cash;
     private String cashUnit;
     private Boolean isDisplay;
-    private String recruitStart;
-    private String recruitEnd;
+    private String collectStart;
+    private String collectEnd;
     private String investStart;
     private String investEnd;
     private String testStart;
     private String testEnd;
-    private String userId;
+    private String authorId;
     private Date createTime;
-    private Float testReturnPct;
-    private String testMonthlyReturn;
-
+    private String signalEcsId;
+    private String executorEcsId;
+    private String executorEndpoint;
+    private String testResult;
+    private String userId;
     private float investCash;
 
     private Integer investId;
@@ -126,20 +128,20 @@ public class Goods {
         isDisplay = display;
     }
 
-    public String getRecruitStart() {
-        return recruitStart;
+    public String getCollectStart() {
+        return collectStart;
     }
 
-    public void setRecruitStart(String recruitStart) {
-        this.recruitStart = recruitStart;
+    public void setCollectStart(String collectStart) {
+        this.collectStart = collectStart;
     }
 
-    public String getRecruitEnd() {
-        return recruitEnd;
+    public String getCollectEnd() {
+        return collectEnd;
     }
 
-    public void setRecruitEnd(String recruitEnd) {
-        this.recruitEnd = recruitEnd;
+    public void setCollectEnd(String collectEnd) {
+        this.collectEnd = collectEnd;
     }
 
     public String getInvestStart() {
@@ -174,12 +176,12 @@ public class Goods {
         this.testEnd = testEnd;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getAuthorId() {
+        return authorId;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setAuthorId(String authorId) {
+        this.authorId = authorId;
     }
 
     public Date getCreateTime() {
@@ -190,20 +192,12 @@ public class Goods {
         this.createTime = createTime;
     }
 
-    public Float getTestReturnPct() {
-        return testReturnPct;
+    public String getTestResult() {
+        return testResult;
     }
 
-    public void setTestReturnPct(Float testReturnPct) {
-        this.testReturnPct = testReturnPct;
-    }
-
-    public String getTestMonthlyReturn() {
-        return testMonthlyReturn;
-    }
-
-    public void setTestMonthlyReturn(String testMonthlyReturn) {
-        this.testMonthlyReturn = testMonthlyReturn;
+    public void setTestResult(String testResult) {
+        this.testResult = testResult;
     }
 
     public Integer getInvestId() {
@@ -244,5 +238,71 @@ public class Goods {
 
     public void setInvestCash(float investCash) {
         this.investCash = investCash;
+    }
+
+    public String getSignalEcsId() {
+        return signalEcsId;
+    }
+
+    public void setSignalEcsId(String signalEcsId) {
+        this.signalEcsId = signalEcsId;
+    }
+
+    public String getExecutorEcsId() {
+        return executorEcsId;
+    }
+
+    public void setExecutorEcsId(String executorEcsId) {
+        this.executorEcsId = executorEcsId;
+    }
+
+    public String getExecutorEndpoint() {
+        return executorEndpoint;
+    }
+
+    public void setExecutorEndpoint(String executorEndpoint) {
+        this.executorEndpoint = executorEndpoint;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    @Override
+    public String toString() {
+        return "Goods{" +
+                "id=" + id +
+                ", strategyId=" + strategyId +
+                ", version=" + version +
+                ", exchange='" + exchange + '\'' +
+                ", coinUnit='" + coinUnit + '\'' +
+                ", baseUnit='" + baseUnit + '\'' +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", cash=" + cash +
+                ", cashUnit='" + cashUnit + '\'' +
+                ", isDisplay=" + isDisplay +
+                ", collectStart='" + collectStart + '\'' +
+                ", collectEnd='" + collectEnd + '\'' +
+                ", investStart='" + investStart + '\'' +
+                ", investEnd='" + investEnd + '\'' +
+                ", testStart='" + testStart + '\'' +
+                ", testEnd='" + testEnd + '\'' +
+                ", authorId='" + authorId + '\'' +
+                ", createTime=" + createTime +
+                ", signalEcsId='" + signalEcsId + '\'' +
+                ", executorEcsId='" + executorEcsId + '\'' +
+                ", executorEndpoint='" + executorEndpoint + '\'' +
+                ", testResult='" + testResult + '\'' +
+                ", investCash=" + investCash +
+                ", investId=" + investId +
+                ", tradeHistory=" + tradeHistory +
+                ", performanceSummary=" + performanceSummary +
+                ", performanceDaily=" + performanceDaily +
+                '}';
     }
 }
