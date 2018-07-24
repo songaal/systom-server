@@ -28,6 +28,10 @@ public class AwsEcsTest {
     private int hardMemory = 0;
     private String logRegion = "ap-northeast-2";
     private String logGroup = "ecs-container";
+
+    String family = "test-systom-signal";
+    String name = "signal-container";
+
     private AmazonECS client;
 
     @Before
@@ -38,56 +42,32 @@ public class AwsEcsTest {
     }
 
     @Test
-    public void createTaskTest(){
-//        =========================== parameter start
-        Integer goodsId = 6;
-        String user = "joonwoo";
-        String family = "goods-6-binance-eth";
-        String name = "test6";
-//        =========================== parameter end
-
-        LogConfiguration logConfiguration = new LogConfiguration();
-        logConfiguration.withLogDriver(LogDriver.Awslogs)
-                        .withOptions(getLogOption(goodsId));
-
-        RegisterTaskDefinitionRequest request = new RegisterTaskDefinitionRequest()
-                .withFamily(family)
-                .withTaskRoleArn(taskExcutionRole)
-                .withContainerDefinitions(
-                        new ContainerDefinition().withName(name)
-                                                 .withImage(image)
-                                                 .withCpu(cpu)
-                                                 .withEssential(true)
-                                                 .withMemoryReservation(softMemory)
-                                                 .withLogConfiguration(logConfiguration)
-                                                 .withMountPoints(setupMount())
-                );
-
-        RegisterTaskDefinitionResult response = client.registerTaskDefinition(request);
-        logger.info("taskdifinotion:reversion => {}:{}", response.getTaskDefinition().getFamily(), response.getTaskDefinition().getRevision());
-    }
-
-    @Test
     public void runTask(){
-        String taskDefinition = "tradebot";
-        String reversion = "4";
+        String reversion = "15";
+        String taskDefinition = family + ":" + reversion;
 
         RunTaskRequest runTaskRequest = new RunTaskRequest();
 
         TaskOverride taskOverride = new TaskOverride();
         ContainerOverride containerOverride = new ContainerOverride();
-        List<KeyValuePair> envList = new ArrayList<>();
 
-        containerOverride.withEnvironment(envList)
-                         .withCommand("/bin/bash", "sleep 5");
+        containerOverride.withName(name)
+                .withCommand("python","launcher.py","session_type=backtest","file=sample2","exchange_id=binance","coin_unit=ADA","base_unit=BTC","task_id=123","cash_unit=USDT","start_date=20180401","end_date=20180430");
         taskOverride.withContainerOverrides(containerOverride);
 
-        runTaskRequest.withTaskDefinition(taskDefinition + ":" + reversion)
+        runTaskRequest.withTaskDefinition(taskDefinition)
                 .withOverrides(taskOverride)
                 .withCluster(clusterId);
         RunTaskResult result = client.runTask(runTaskRequest);
 
-        logger.info("result {}", result);
+        ListContainerInstancesResult listContainerInstancesResult = client.listContainerInstances(new ListContainerInstancesRequest().withCluster(clusterId));
+        
+        logger.info("listContainerInstancesResult: {}", listContainerInstancesResult);
+        logger.info("result {}, {}", result, result.getTasks());
+
+
+
+
     }
 
 
@@ -95,9 +75,48 @@ public class AwsEcsTest {
         Map<String, String> logOption = new HashMap<>();
         logOption.put("awslogs-region", logRegion);
         logOption.put("awslogs-group", logGroup);
-        logOption.put("awslogs-stream-prefix", "goodsId=" + goodsId);
+        logOption.put("awslogs-stream-prefix", "" + goodsId);
         return logOption;
     }
+
+
+
+
+
+
+
+
+
+
+
+//    @Test
+//    public void createTaskTest(){
+////        =========================== parameter start
+//        Integer goodsId = 6;
+////        =========================== parameter end
+//
+//        LogConfiguration logConfiguration = new LogConfiguration();
+//        logConfiguration.withLogDriver(LogDriver.Awslogs)
+//                        .withOptions(getLogOption(goodsId));
+//
+//        RegisterTaskDefinitionRequest request = new RegisterTaskDefinitionRequest()
+//                .withFamily(family)
+//                .withTaskRoleArn(taskExcutionRole)
+//                .withContainerDefinitions(
+//                        new ContainerDefinition().withName(name)
+//                                                 .withImage(image)
+//                                                 .withCpu(cpu)
+//                                                 .withEssential(true)
+//                                                 .withMemoryReservation(softMemory)
+//                                                 .withLogConfiguration(logConfiguration)
+//                                                 .withMountPoints(setupMount())
+//                );
+//
+//        RegisterTaskDefinitionResult response = client.registerTaskDefinition(request);
+//        logger.info("taskdifinotion:reversion => {}:{}", response.getTaskDefinition().getFamily(), response.getTaskDefinition().getRevision());
+//    }
+
+
 
 
 
