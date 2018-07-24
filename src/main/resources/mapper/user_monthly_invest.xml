@@ -30,15 +30,15 @@
         SELECT IFNULL(SUM(a.cash), 0) as cash
              , IFNULL(SUM(a.equity), 0) as equity
           FROM performance_daily a
-         WHERE a.id in (SELECT aa.id
-                        FROM invest_goods aa
-                       WHERE aa.user_id = #{param1}
-                         AND aa.goods_id in (SELECT bb.id
-                                               FROM goods bb
-                                              WHERE substring(bb.invest_start, 1, 6) >= date_format(now() , '%Y%m')
-                                                AND substring(bb.invest_end, 1, 6) <= date_format(now() , '%Y%m')
-                                            )
-                     )
+         WHERE a.invest_id in (SELECT aa.id
+                                 FROM invest_goods aa
+                                WHERE aa.user_id = #{param1}
+                                  AND aa.goods_id in (SELECT bb.id
+                                                        FROM goods bb
+                                                       WHERE substring(bb.invest_start, 1, 6) >= date_format(now() , '%Y%m')
+                                                         AND substring(bb.invest_end, 1, 6) <= date_format(now() , '%Y%m')
+                                                     )
+                              )
         ]]>
     </select>
 

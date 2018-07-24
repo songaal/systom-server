@@ -8,8 +8,6 @@ import java.util.Date;
  */
 public class PerformanceSummary {
     private Integer investId;
-    private float coin;
-    private float base;
     private float cash;
     private float initCash;
     private float equity;
@@ -35,22 +33,6 @@ public class PerformanceSummary {
 
     public void setInvestId(Integer investId) {
         this.investId = investId;
-    }
-
-    public float getCoin() {
-        return coin;
-    }
-
-    public void setCoin(float coin) {
-        this.coin = coin;
-    }
-
-    public float getBase() {
-        return base;
-    }
-
-    public void setBase(float base) {
-        this.base = base;
     }
 
     public float getCash() {

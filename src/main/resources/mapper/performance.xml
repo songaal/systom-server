@@ -7,13 +7,11 @@
 
     <insert id="insertPerformanceSummary" parameterType="PerformanceSummary">
         INSERT INTO performance_summary
-        ( invest_id, coin,        base,       cash,       init_cash,     equity,
+        ( invest_id, cash,       init_cash,     equity,
           returns,   returns_pct, mdd,        pnl_rate,   avg_profit,    avg_lose,
           trades,    win_count,   lose_count, commission, coin_invested, base_invested
         )
         VALUES( ${investId}
-              , ${coin}
-              , ${base}
               , ${cash}
               , ${initCash}
               , ${equity}
@@ -44,8 +42,6 @@
 
     <select id="getPerformanceSummary" resultType="PerformanceSummary" parameterType="Integer">
         SELECT a.invest_id
-             , a.coin
-             , a.base
              , a.cash
              , a.init_cash
              , a.equity
@@ -72,8 +68,6 @@
              , a.date
              , a.market_price
              , a.cash
-             , a.coin
-             , a.base
              , a.equity
              , a.returns
              , a.returns_pct
