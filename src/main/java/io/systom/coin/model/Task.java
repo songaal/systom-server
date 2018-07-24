@@ -10,7 +10,7 @@ import java.util.List;
 
 public class Task {
 
-    public enum SESSION_TYPES {backtest, live}
+    public enum SESSION_TYPES {backtest, paper, live}
 
     private String id;
 

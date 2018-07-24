@@ -3,9 +3,11 @@ package io.systom.coin;
 import io.systom.coin.model.Goods;
 import io.systom.coin.model.InvestGoods;
 import io.systom.coin.model.Task;
+import io.systom.coin.scheduler.MonthCalculationScheduler;
 import io.systom.coin.service.GoodsService;
 import io.systom.coin.service.InvestGoodsService;
 import io.systom.coin.service.TaskService;
+import org.apache.ibatis.session.SqlSession;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.LoggerFactory;
@@ -24,6 +26,9 @@ import java.util.concurrent.TimeoutException;
 @SpringBootTest(classes = Application.class)
 public class GoodsTest {
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(GoodsTest.class);
+
+    @Autowired
+    private SqlSession sqlSession;
 
     @Autowired
     private GoodsService goodsService;
@@ -120,7 +125,6 @@ public class GoodsTest {
         investGoods.setDescription("test info");
         logger.info("상품 정보 등록 {}" , goodsService.registerGoods(investGoods));
 
-
         try {
             Task task = new Task();
             task.setUserId("joonwoo");
@@ -156,16 +160,23 @@ public class GoodsTest {
         investor.setGoodsId(investGoods.getId());
         investor.setExchangeKeyId(3);
         investor.setInvestCash(500f);
-        logger.info("상품 투자 등록[testuser] {}" , investGoodsService.registrationInvestor(investor));
+        logger.info("투자 등록[{}] {}" , investor.getUserId(), investGoodsService.registrationInvestor(investor));
 
         logger.info("상품 정보 조회 {}" , goodsService.getGoods(investor.getGoodsId()));
 
-        logger.info("상품 투자 취소[testuser] {}" , investGoodsService.removeInvestor(investor.getId(), "testuser"));
+        logger.info("투자한 상품 정보 조회[{}] {}" , investor.getUserId(), investGoodsService.getInvestGoodsDetail(investor.getId(), investor.getUserId()));
+
+        MonthCalculationScheduler monthCalculationScheduler = new MonthCalculationScheduler();
+        monthCalculationScheduler.setSqlSession(sqlSession);
+        monthCalculationScheduler.monthCalculation();
+
+//        logger.info("투자 취소[{}] {}" , investor.getUserId(), investGoodsService.removeInvestor(investor.getId(), investor.getUserId()));
+
+//        monthCalculationScheduler.monthCalculation();
 
         logger.info("상품 정보 조회 {}" , goodsService.getGoods(investor.getGoodsId()));
 
-
-        logger.info("상품 정보 삭제[{}]{}" , investGoods.getId(), goodsService.deleteGoods(investGoods.getId(), "joonwoo"));
+//        logger.info("상품 정보 삭제[{}]{}" , investGoods.getAuthorId(), goodsService.deleteGoods(investGoods.getId(), investGoods.getAuthorId()));
 
     }
 

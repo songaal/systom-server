@@ -86,5 +86,4 @@
          WHERE b.user_id = #{param1}
     </select>
 
-
 </mapper>

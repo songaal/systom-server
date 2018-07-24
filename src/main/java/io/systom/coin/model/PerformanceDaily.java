@@ -7,25 +7,25 @@ import java.util.Date;
  * 
  */
 public class PerformanceDaily {
-    private Integer id;
+    private Integer investId;
     private String date;
     private float marketPrice;
     private float cash;
     private float coin;
     private float base;
     private float equity;
-    private float dailyReturn;
-    private float dailyReturnPct;
+    private float returns;
+    private float returnsPct;
     private float cumReturn;
     private float cumReturnPct;
-    private Date updated;
+    private Date updateTime;
 
-    public Integer getId() {
-        return id;
+    public Integer getInvestId() {
+        return investId;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setInvestId(Integer investId) {
+        this.investId = investId;
     }
 
     public String getDate() {
@@ -76,20 +76,20 @@ public class PerformanceDaily {
         this.equity = equity;
     }
 
-    public float getDailyReturn() {
-        return dailyReturn;
+    public float getReturns() {
+        return returns;
     }
 
-    public void setDailyReturn(float dailyReturn) {
-        this.dailyReturn = dailyReturn;
+    public void setReturns(float returns) {
+        this.returns = returns;
     }
 
-    public float getDailyReturnPct() {
-        return dailyReturnPct;
+    public float getReturnsPct() {
+        return returnsPct;
     }
 
-    public void setDailyReturnPct(float dailyReturnPct) {
-        this.dailyReturnPct = dailyReturnPct;
+    public void setReturnsPct(float returnsPct) {
+        this.returnsPct = returnsPct;
     }
 
     public float getCumReturn() {
@@ -108,29 +108,29 @@ public class PerformanceDaily {
         this.cumReturnPct = cumReturnPct;
     }
 
-    public Date getUpdated() {
-        return updated;
+    public Date getUpdateTime() {
+        return updateTime;
     }
 
-    public void setUpdated(Date updated) {
-        this.updated = updated;
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
     }
 
     @Override
     public String toString() {
         return "PerformanceDaily{" +
-                "id=" + id +
+                "investId=" + investId +
                 ", date='" + date + '\'' +
                 ", marketPrice=" + marketPrice +
                 ", cash=" + cash +
                 ", coin=" + coin +
                 ", base=" + base +
                 ", equity=" + equity +
-                ", dailyReturn=" + dailyReturn +
-                ", dailyReturnPct=" + dailyReturnPct +
+                ", returns=" + returns +
+                ", returnsPct=" + returnsPct +
                 ", cumReturn=" + cumReturn +
                 ", cumReturnPct=" + cumReturnPct +
-                ", updated=" + updated +
+                ", updateTime=" + updateTime +
                 '}';
     }
 }

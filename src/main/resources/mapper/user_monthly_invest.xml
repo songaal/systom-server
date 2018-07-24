@@ -11,7 +11,7 @@
              , a.init_cash
              , a.monthly_return
              , a.monthly_return_pct
-             , a.updated
+             , a.update_time
              , b.sum_cash
           FROM user_monthly_invest a
           JOIN (SELECT aa.user_id
@@ -48,11 +48,9 @@
         SELECT bb.user_id
           FROM goods aa
           JOIN invest_goods bb on aa.id = bb.goods_id
-         WHERE bb.user_id not in('0')
-           AND bb.invest_cash not in ('0')
-           AND (cast(substring(aa.invest_start, 1, 6) as decimal) <= cast(date_format(now(), '%Y%m') as decimal)
+         WHERE (cast(substring(aa.collect_start, 1, 6) as decimal) <= cast(date_format(now(), '%Y%m') as decimal)
             OR cast(substring(aa.invest_end, 1, 6) as decimal) >= cast(date_format(now(), '%Y%m') as decimal) )
-        GROUP BY bb.user_id
+         GROUP BY bb.user_id
         ]]>
     </select>
 
@@ -62,12 +60,12 @@
              , SUM(aa.equity) as month_equity
              , date_format(now(), '%Y%m') as date
           FROM performance_summary aa
-         WHERE aa.id in (SELECT bbb.id
-                           FROM goods aaa
-                           JOIN invest_goods bbb on aaa.id = bbb.goods_id
-                          WHERE bbb.user_id = #{param1}
-                            AND (cast(substring(aaa.invest_start, 1, 6) as decimal) <= cast(date_format(now(), '%Y%m') as decimal)
-                             OR cast(substring(aaa.invest_end, 1, 6) as decimal) >= cast(date_format(now(), '%Y%m') as decimal)))
+         WHERE aa.invest_id in ( SELECT bbb.id
+                                   FROM goods aaa
+                                   JOIN invest_goods bbb on aaa.id = bbb.goods_id
+                                  WHERE bbb.user_id = #{param1}
+                                    AND (cast(substring(aaa.invest_start, 1, 6) as decimal) <= cast(date_format(now(), '%Y%m') as decimal)
+                                     OR cast(substring(aaa.invest_end, 1, 6) as decimal) >= cast(date_format(now(), '%Y%m') as decimal)) )
         ]]>
     </select>
 
@@ -83,6 +81,6 @@
         UPDATE init_cash = ${initCash}
              , monthly_return = ${monthlyReturn}
              , monthly_return_pct = ${monthlyReturnPct}
-             , updated = now()
+             , update_time = now()
     </update>
 </mapper>

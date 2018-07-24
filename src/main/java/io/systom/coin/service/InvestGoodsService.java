@@ -81,7 +81,10 @@ public class InvestGoodsService {
         }
 
         PerformanceSummary performanceSummary = new PerformanceSummary();
-        performanceSummary.setId(investor.getId());
+        performanceSummary.setInvestId(investor.getId());
+        performanceSummary.setCash(investor.getInvestCash());
+        performanceSummary.setInitCash(investor.getInvestCash());
+        performanceSummary.setEquity(investor.getInvestCash());
         performanceService.insertPerformanceSummary(performanceSummary);
 
         return getInvestGoods(investor.getId());

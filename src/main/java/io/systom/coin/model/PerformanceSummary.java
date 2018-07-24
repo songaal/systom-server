@@ -7,13 +7,14 @@ import java.util.Date;
  * 
  */
 public class PerformanceSummary {
-    private Integer id;
+    private Integer investId;
     private float coin;
     private float base;
     private float cash;
+    private float initCash;
     private float equity;
-    private float sumReturn;
-    private float sumReturnPct;
+    private float returns;
+    private float returns_pct;
     private float mdd;
     private float pnlRate;
     private float avgProfit;
@@ -23,13 +24,17 @@ public class PerformanceSummary {
     private int loseCount;
     private Date createTime;
     private float commission;
+    private boolean coinInvested;
+    private boolean baseInvested;
+    private String positions;
+    private Date updateTime;
 
-    public Integer getId() {
-        return id;
+    public Integer getInvestId() {
+        return investId;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setInvestId(Integer investId) {
+        this.investId = investId;
     }
 
     public float getCoin() {
@@ -64,20 +69,20 @@ public class PerformanceSummary {
         this.equity = equity;
     }
 
-    public float getSumReturn() {
-        return sumReturn;
+    public float getReturns() {
+        return returns;
     }
 
-    public void setSumReturn(float sumReturn) {
-        this.sumReturn = sumReturn;
+    public void setReturns(float returns) {
+        this.returns = returns;
     }
 
-    public float getSumReturnPct() {
-        return sumReturnPct;
+    public float getReturns_pct() {
+        return returns_pct;
     }
 
-    public void setSumReturnPct(float sumReturnPct) {
-        this.sumReturnPct = sumReturnPct;
+    public void setReturns_pct(float returns_pct) {
+        this.returns_pct = returns_pct;
     }
 
     public float getMdd() {
@@ -150,5 +155,45 @@ public class PerformanceSummary {
 
     public void setCommission(float commission) {
         this.commission = commission;
+    }
+
+    public boolean isCoinInvested() {
+        return coinInvested;
+    }
+
+    public void setCoinInvested(boolean coinInvested) {
+        this.coinInvested = coinInvested;
+    }
+
+    public boolean isBaseInvested() {
+        return baseInvested;
+    }
+
+    public void setBaseInvested(boolean baseInvested) {
+        this.baseInvested = baseInvested;
+    }
+
+    public String getPositions() {
+        return positions;
+    }
+
+    public void setPositions(String positions) {
+        this.positions = positions;
+    }
+
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
+    }
+
+    public float getInitCash() {
+        return initCash;
+    }
+
+    public void setInitCash(float initCash) {
+        this.initCash = initCash;
     }
 }

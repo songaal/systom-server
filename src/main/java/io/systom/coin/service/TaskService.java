@@ -81,7 +81,7 @@ public class TaskService {
 
         try {
 
-//            dockerUtils.syncRun(task.getId(), envList, cmdList);
+            dockerUtils.syncRun(task.getId(), envList, cmdList);
 
             RestTemplate restTemplate = new RestTemplate();
             String taskResultJson = restTemplate.getForObject("http://localhost:8080/result.json", String.class);
@@ -234,84 +234,18 @@ public class TaskService {
     }
 
 
+    public void liveRun(Integer goodsId, String userId) {
+
+
+
+
+    }
 
 
 
 
 
 
-
-
-
-
-
-//    protected void recordBackTestPerformance(int investGoodsId, TaskResult.Result result) {
-//        try {
-//            result.setId(investGoodsId);
-//            int changeRow = sqlSession.insert("backtest.recordPerformance", result);
-//            logger.debug("recordPerformance row: {}", changeRow);
-//        } catch (Exception e) {
-//
-//        }
-//    }
-
-//    protected void recordBackTestTradeHistory(int investGoodsId, List<TaskResult.Result.Trade> trades) {
-//        trades.forEach(trade -> {
-//            trade.setId(investGoodsId);
-//        });
-//        int changeRow = sqlSession.insert("backtest.recordTradeHistory", trades);
-//        logger.debug("recordTradeHistory row: {}", changeRow);
-//    }
-
-//    protected void recordBackTestValueHistory(int investGoodsId, Map<Long, Float> equities, Map<Long, Float> cumReturns, Map<Long, Float> drawdowns){
-//        List<TaskResult.Result.Value> values = new ArrayList<>();
-//        Iterator<Map.Entry<Long, Float>> iterator = equities.entrySet().iterator();
-//        while (iterator.hasNext()) {
-//            Map.Entry<Long, Float> entry = iterator.next();
-//            Long ts = entry.getKey();
-//            TaskResult.Result.Value v = new TaskResult.Result.Value();
-//            v.setId(investGoodsId);
-//            v.setTimestamp(ts);
-//            v.setEquity(entry.getValue());
-//            if (cumReturns.get(ts) != null) {
-//                v.setCumReturn(cumReturns.get(ts));
-//                cumReturns.remove(ts);
-//            }
-//            if (drawdowns.get(ts) != null) {
-//                v.setDrawdown(drawdowns.get(ts));
-//                drawdowns.remove(ts);
-//            }
-//            values.add(v);
-//        }
-//
-//        iterator = cumReturns.entrySet().iterator();
-//        while(iterator.hasNext()){
-//            Map.Entry<Long, Float> entry = iterator.next();
-//            Long ts = entry.getKey();
-//            TaskResult.Result.Value v = new TaskResult.Result.Value();
-//            v.setId(investGoodsId);
-//            v.setTimestamp(ts);
-//            v.setCumReturn(cumReturns.get(ts));
-//            if (drawdowns.get(ts) != null) {
-//                v.setDrawdown(drawdowns.get(ts));
-//                drawdowns.remove(ts);
-//            }
-//            values.add(v);
-//        }
-//
-//        iterator = drawdowns.entrySet().iterator();
-//        while(iterator.hasNext()){
-//            Map.Entry<Long, Float> entry = iterator.next();
-//            Long ts = entry.getKey();
-//            TaskResult.Result.Value v = new TaskResult.Result.Value();
-//            v.setId(investGoodsId);
-//            v.setTimestamp(ts);
-//            v.setDrawdown(drawdowns.get(ts));
-//            values.add(v);
-//        }
-//        int changeRow = sqlSession.insert("backtest.recordValueHistory", values);
-//        logger.debug("recordValueHistory row: {}", changeRow);
-//    }
 
 
 
@@ -341,7 +275,7 @@ public class TaskService {
 ////        logger.debug("[ LIVE={} ] RUN {}", isLiveMode, task);
 ////        RunTaskResult result = null;
 ////        try {
-////            result = ecsUtils.runTask(task, environmentList);
+////            result = ecsUtils.run(task, environmentList);
 ////        } catch (Exception e){
 ////            logger.error("", e);
 ////            throw new OperationException("[FAIL] ecs task syncRun error");
@@ -395,26 +329,7 @@ public class TaskService {
 //        task.setExchangeKeyId(agent.getExchangeKeyId());
 //        return task;
 //    }
-//
-//
-//    public List<Task> getBackTestHistory(String strategyId) throws OperationException {
-//        try {
-//            return sqlSession.selectList("backtest.selectHistory", strategyId);
-//        } catch (Exception e){
-//            logger.error("", e);
-//            throw new OperationException("[FAIL] Select Test History");
-//        }
-//    }
-//
-//    public void deleteBackTestHistory(OldStrategy oldStrategy) throws OperationException {
-//        try {
-//            sqlSession.delete("backtest.deleteTestHistory", oldStrategy);
-//        } catch (Exception e){
-//            logger.error("", e);
-//            throw new OperationException("[FAIL] Select Test History");
-//        }
-//    }
-//
+
 
 
     private void isNotEmpty(String field, String label) throws ParameterException {

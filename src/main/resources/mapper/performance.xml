@@ -7,14 +7,18 @@
 
     <insert id="insertPerformanceSummary" parameterType="PerformanceSummary">
         INSERT INTO performance_summary
-        (id, coin, base, cash, equity, sum_return, sum_return_pct, mdd, pnl_rate, avg_profit, avg_lose, trades, win_count, lose_count)
-        VALUES( ${id}
+        ( invest_id, coin,        base,       cash,       init_cash,     equity,
+          returns,   returns_pct, mdd,        pnl_rate,   avg_profit,    avg_lose,
+          trades,    win_count,   lose_count, commission, coin_invested, base_invested
+        )
+        VALUES( ${investId}
               , ${coin}
               , ${base}
               , ${cash}
+              , ${initCash}
               , ${equity}
-              , ${sumReturn}
-              , ${sumReturnPct}
+              , ${returns}
+              , ${returns_pct}
               , ${mdd}
               , ${pnlRate}
               , ${avgProfit}
@@ -22,27 +26,31 @@
               , ${trades}
               , ${winCount}
               , ${loseCount}
+              , ${commission}
+              , ${coinInvested}
+              , ${baseInvested}
         )
     </insert>
 
     <delete id="deletePerformanceSummary" parameterType="Integer">
         DELETE FROM performance_summary
-         WHERE id = #{param1}
+         WHERE invest_id = #{param1}
     </delete>
 
     <delete id="deletePerformanceDaily" parameterType="Integer">
         DELETE FROM performance_daily
-        WHERE id = #{param1}
+         WHERE invest_id = #{param1}
     </delete>
 
     <select id="getPerformanceSummary" resultType="PerformanceSummary" parameterType="Integer">
-        SELECT a.id
+        SELECT a.invest_id
              , a.coin
              , a.base
              , a.cash
+             , a.init_cash
              , a.equity
-             , a.sum_return
-             , a.sum_return_pct
+             , a.returns
+             , a.returns_pct
              , a.mdd
              , a.pnl_rate
              , a.avg_profit
@@ -51,53 +59,32 @@
              , a.win_count
              , a.lose_count
              , a.commission
+             , a.coin_invested
+             , a.base_invested
+             , a.positions
+             , a.update_time
           FROM performance_summary a
-         WHERE a.id = #{param1}
+         WHERE a.invest_id = #{param1}
     </select>
 
     <select id="getPerformanceDailyList" resultType="PerformanceDaily" parameterType="Integer">
-        SELECT a.id
+        SELECT a.invest_id
              , a.date
              , a.market_price
              , a.cash
              , a.coin
              , a.base
              , a.equity
-             , a.daily_return
-             , a.daily_return_pct
+             , a.returns
+             , a.returns_pct
              , a.cum_return
              , a.cum_return_pct
-             , a.updated
+             , a.update_time
+             , a.hwm
+             , a.prev_equity
+             , a.prev_hwm
           FROM performance_daily a
-         WHERE a.id = #{param1}
+         WHERE a.invest_id = #{param1}
     </select>
-
-    <select id="retrievePerformanceDaily" resultType="PerformanceDaily" parameterType="Integer">
-        SELECT a.id
-             , a.updated
-             , a.completed
-          FROM performance_daily a
-         WHERE ( a.completed is null
-            OR a.updated > a.completed)
-         ORDER BY updated
-         LIMIT #{param1}
-    </select>
-
-    <!--SELECT a.id-->
-    <!--, a.date-->
-    <!--, a.market_price-->
-    <!--, a.cash-->
-    <!--, a.coin-->
-    <!--, a.base-->
-    <!--, a.equity-->
-    <!--, a.daily_return-->
-    <!--, a.daily_return_pct-->
-    <!--, a.cum_return-->
-    <!--, a.cum_return_pct-->
-    <!--, a.updated-->
-    <!--FROM performance_daily a-->
-    <!--WHERE ( a.completed is null-->
-    <!--OR a.updated > a.completed )-->
-
 
 </mapper>

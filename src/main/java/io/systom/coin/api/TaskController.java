@@ -26,13 +26,23 @@ public class TaskController extends AbstractController {
     @Autowired
     private TaskService taskService;
 
-    @PostMapping
-    public ResponseEntity<?> syncBackTest(@RequestAttribute String userId,
+    @PostMapping("/{sessionType}")
+    public ResponseEntity<?> syncBackTest(@PathVariable Task.SESSION_TYPES sessionType,
+                                          @RequestAttribute String userId,
                                           @RequestBody Task task) throws InterruptedException {
         try {
             task.setUserId(userId);
-            task.setSessionType(Task.SESSION_TYPES.backtest.name());
-            TaskResult taskResult = taskService.syncBackTest(task);
+            TaskResult taskResult = null;
+            task.setSessionType(sessionType.name());
+
+            if (Task.SESSION_TYPES.backtest.equals(sessionType)) {
+                taskResult = taskService.syncBackTest(task);
+            } else if (Task.SESSION_TYPES.paper.equals(sessionType)) {
+
+            } else if (Task.SESSION_TYPES.live.equals(sessionType)) {
+
+            }
+
             return success(taskResult);
         } catch (AbstractException e){
             logger.error("", e);

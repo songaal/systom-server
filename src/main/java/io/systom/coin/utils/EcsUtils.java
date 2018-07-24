@@ -36,20 +36,18 @@ public class EcsUtils {
                 .withCredentials(new ProfileCredentialsProvider(awsProfileName))
                 .build();
     }
-    public RunTaskResult runTask(Task task){
-        return runTask(task, null);
-    }
-    public RunTaskResult runTask(Task task, List<KeyValuePair> environmentList){
+
+
+    public RunTaskResult run(Task task, List<KeyValuePair> environmentList){
         RunTaskRequest runTaskRequest = new RunTaskRequest();
         TaskOverride taskOverride = new TaskOverride();
         ContainerOverride containerOverride = new ContainerOverride();
-//        containerOverride.withName(container)
-//                         .withCommand(task.getRunCommand());
+        containerOverride.withName(container)
+                         .withCommand("python");
         if(environmentList != null && environmentList.size() > 0){
             containerOverride.withEnvironment(environmentList);
         }
         taskOverride.withContainerOverrides(containerOverride);
-
         runTaskRequest.withTaskDefinition(taskDefinitionName + ":" + taskDefinitionVersion)
                 .withOverrides(taskOverride)
                 .withCluster(clusterId);
