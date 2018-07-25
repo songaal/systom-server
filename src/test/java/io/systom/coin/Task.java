@@ -2,7 +2,7 @@
 //
 //import com.google.gson.Gson;
 //import com.google.gson.GsonBuilder;
-//import io.systom.coin.model.TaskResult;
+//import io.systom.coin.model.TraderTaskResult;
 //import org.apache.ibatis.session.SqlSession;
 //import org.junit.Test;
 //import org.junit.runner.RunWith;
@@ -23,24 +23,24 @@
 // */
 //@RunWith(SpringJUnit4ClassRunner.class)
 //@SpringBootTest(classes = Application.class)
-//public class Task {
-//    private org.slf4j.Logger logger = LoggerFactory.getLogger(TaskResult.class);
+//public class TraderTask {
+//    private org.slf4j.Logger logger = LoggerFactory.getLogger(TraderTaskResult.class);
 //
 //    @Autowired
 //    private SqlSession sqlSession;
 //
 //
-//    public TaskResult getResultData() {
+//    public TraderTaskResult getResultData() {
 //        RestTemplate restTemplate = new RestTemplate();
 //        String response = restTemplate.getForObject("http://localhost:8080/result.json", String.class);
-//        return new Gson().fromJson(response, TaskResult.class);
+//        return new Gson().fromJson(response, TraderTaskResult.class);
 //
 //    }
 //
 //
 //    @Test
 //    public void saveBackTestResult() {
-//        TaskResult taskResult = getResultData();
+//        TraderTaskResult taskResult = getResultData();
 //
 //        logger.debug("=========== backtest result parse ===========");
 //        logger.debug("Request: {}", taskResult.getRequest());
@@ -52,13 +52,13 @@
 //        recordBackTestValueHistory(investGoodsId, taskResult.getResult().getEquity(), taskResult.getResult().getCumReturns(), taskResult.getResult().getDrawdowns());
 //    }
 //
-//    public void recordBackTestPerformance(int investGoodsId, TaskResult.Result result) {
+//    public void recordBackTestPerformance(int investGoodsId, TraderTaskResult.Result result) {
 //        result.setId(investGoodsId);
 //        int changeRow = sqlSession.insert("backtest.recordPerformance", result);
 //        logger.debug("recordPerformance row: {}", changeRow);
 //    }
 //
-//    public void recordBackTestTradeHistory(int investGoodsId, List<TaskResult.Result.Trade> trades) {
+//    public void recordBackTestTradeHistory(int investGoodsId, List<TraderTaskResult.Result.Trade> trades) {
 //        trades.forEach(trade -> {
 //            trade.setId(investGoodsId);
 //        });
@@ -68,12 +68,12 @@
 //
 //    public void recordBackTestValueHistory(int investGoodsId, Map<Long, Float> equities, Map<Long, Float> cumReturns, Map<Long, Float> drawdowns){
 //
-//        List<TaskResult.Result.Value> values = new ArrayList<>();
+//        List<TraderTaskResult.Result.Value> values = new ArrayList<>();
 //        Iterator<Map.Entry<Long, Float>> iterator = equities.entrySet().iterator();
 //        while (iterator.hasNext()) {
 //            Map.Entry<Long, Float> entry = iterator.next();
 //            Long ts = entry.getKey();
-//            TaskResult.Result.Value v = new TaskResult.Result.Value();
+//            TraderTaskResult.Result.Value v = new TraderTaskResult.Result.Value();
 //            v.setId(investGoodsId);
 //            v.setTimestamp(ts);
 //            v.setEquity(entry.getValue());
@@ -92,7 +92,7 @@
 //        while(iterator.hasNext()){
 //            Map.Entry<Long, Float> entry = iterator.next();
 //            Long ts = entry.getKey();
-//            TaskResult.Result.Value v = new TaskResult.Result.Value();
+//            TraderTaskResult.Result.Value v = new TraderTaskResult.Result.Value();
 //            v.setId(investGoodsId);
 //            v.setTimestamp(ts);
 //            v.setCumReturn(cumReturns.get(ts));
@@ -107,7 +107,7 @@
 //        while(iterator.hasNext()){
 //            Map.Entry<Long, Float> entry = iterator.next();
 //            Long ts = entry.getKey();
-//            TaskResult.Result.Value v = new TaskResult.Result.Value();
+//            TraderTaskResult.Result.Value v = new TraderTaskResult.Result.Value();
 //            v.setId(investGoodsId);
 //            v.setTimestamp(ts);
 //            v.setDrawdown(drawdowns.get(ts));
@@ -127,7 +127,7 @@
 //        RestTemplate restTemplate = new RestTemplate();
 //        String response = restTemplate.getForObject("http://localhost:8080/result.json", String.class);
 //        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-//        TaskResult taskResult = new Gson().fromJson(response, TaskResult.class);
+//        TraderTaskResult taskResult = new Gson().fromJson(response, TraderTaskResult.class);
 //        logger.info("trade history: {}", taskResult.getResult().getTradeHistory());
 //
 //

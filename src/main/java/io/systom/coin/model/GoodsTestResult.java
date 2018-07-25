@@ -10,7 +10,7 @@ public class GoodsTestResult {
     private Integer id;
     private float testReturnPct;
     private List<MonthlyReturn> testMonthlyReturnList;
-    private List<TaskResult.Result.Trade> tradeHistory;
+    private List<TraderTaskResult.Result.Trade> tradeHistory;
 
     public Integer getId() {
         return id;
@@ -36,11 +36,11 @@ public class GoodsTestResult {
         this.testMonthlyReturnList = testMonthlyReturnList;
     }
 
-    public List<TaskResult.Result.Trade> getTradeHistory() {
+    public List<TraderTaskResult.Result.Trade> getTradeHistory() {
         return tradeHistory;
     }
 
-    public void setTradeHistory(List<TaskResult.Result.Trade> tradeHistory) {
+    public void setTradeHistory(List<TraderTaskResult.Result.Trade> tradeHistory) {
         this.tradeHistory = tradeHistory;
     }
 }

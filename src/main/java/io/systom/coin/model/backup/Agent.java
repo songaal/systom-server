@@ -168,8 +168,8 @@
 //        this.ecsTaskId = ecsTaskId;
 //    }
 //
-//    public Task cloneTask() {
-//        Task task = new Task();
+//    public TraderTask cloneTask() {
+//        TraderTask task = new TraderTask();
 //        task.setId(this.id);
 //        task.setStrategyId(this.getStrategyId());
 ////        task.setBase(this.baseCurrency);

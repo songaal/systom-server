@@ -242,7 +242,7 @@ public class Task {
 
     @Override
     public String toString() {
-        return "Task{" +
+        return "TraderTask{" +
                 "id=" + id +
                 ", strategyId=" + strategyId +
                 ", userId='" + userId + '\'' +

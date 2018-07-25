@@ -6,11 +6,14 @@ aws:
   profileName: "gncloud"
   region: "ap-northeast-2"
   ecs:
-    clusterId: "coincloud"
+    clusterId: "systom"
     definition:
-      name: "tradebot"
-      version: "8"
-      container: "tradebot"
+      name: "systom"
+      version: "7"
+      container:
+        signal: "systom-signal"
+        executor: "systom-executor"
+
   cognito:
     userPoolId: "ap-northeast-2_8UlVuFFva"
     clientId: "4km83jbt1d6pg415q4ieqt41b0"
@@ -38,7 +41,5 @@ scheduler:
   isMonthCalculation: "false"
 
 
-config:
-  servicePricePct: 50
 
 

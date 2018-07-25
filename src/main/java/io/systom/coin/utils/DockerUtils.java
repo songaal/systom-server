@@ -11,6 +11,7 @@ import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.command.LogContainerResultCallback;
 import com.github.dockerjava.core.command.WaitContainerResultCallback;
 import com.github.dockerjava.jaxrs.JerseyDockerCmdExecFactory;
+import io.systom.coin.model.TraderTask;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -31,15 +32,14 @@ public class DockerUtils {
 
     @Value("${backtest.host}")
     private String dockerHost;
-
     @Value("${backtest.container.readTimeout}")
     private int readTimeout;
-
     @Value("${backtest.container.connectTimeout}")
     private int connTimeout;
-
     @Value("${backtest.image}")
     private String backTestImage;
+    @Value("${backtest.apiServerUrl}")
+    private String apiServerUrl;
 
     private DockerClientConfig config;
     private DockerCmdExecFactory factory;
@@ -59,22 +59,23 @@ public class DockerUtils {
                                   .build();
     }
 
-    public void syncRun(String taskId, List<String> env, List<String> cmd) throws InterruptedException {
+    public void syncRun(TraderTask traderTask) throws InterruptedException {
+        List<String> cmd = traderTask.getBackTestCmd();
+        cmd.add("api_server_url=" + apiServerUrl);
         DockerClient dockerClient = getClient();
         CreateContainerResponse container = dockerClient.createContainerCmd(backTestImage)
-                                                        .withEnv(env)
                                                         .withCmd(cmd)
                                                         .exec();
 
         String containerId = container.getId();
-        backtestLogger.info("[{}] Created ContainerId: {}", taskId, containerId);
+        backtestLogger.info("[{}] Created ContainerId: {}", traderTask.getId(), containerId);
 
         dockerClient.startContainerCmd(containerId).exec();
         WaitContainerResultCallback waitContainerResultCallback = new WaitContainerResultCallback();
         dockerClient.waitContainerCmd(containerId).exec(waitContainerResultCallback);
-        backtestLogger.info("[{}] Start Container", taskId);
+        backtestLogger.info("[{}] Start Container", traderTask.getId());
 
-        LogContainerTestCallback loggingCallback = new LogContainerTestCallback(taskId);
+        LogContainerTestCallback loggingCallback = new LogContainerTestCallback(traderTask.getId());
         dockerClient.logContainerCmd(containerId)
                 .withStdErr(true)
                 .withStdOut(true)
@@ -92,9 +93,9 @@ public class DockerUtils {
         }
 
         if (exitCode == 0) {
-            backtestLogger.info("[{}] BackTest Docker Run Finished!", taskId);
+            backtestLogger.info("[{}] BackTest Docker Run Finished!", traderTask.getId());
         } else {
-            backtestLogger.error("[" + taskId + "] Container ExitCode not zero.. return code: " + exitCode);
+            backtestLogger.error("[" + traderTask.getId() + "] Container ExitCode not zero.. return code: " + exitCode);
             throw new InterruptedException("BackTest Running Fail");
         }
     }

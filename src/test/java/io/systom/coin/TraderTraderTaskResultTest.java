@@ -2,8 +2,8 @@ package io.systom.coin;
 
 import com.google.gson.Gson;
 import io.systom.coin.exception.OperationException;
-import io.systom.coin.model.Task;
-import io.systom.coin.model.TaskResult;
+import io.systom.coin.model.TraderTask;
+import io.systom.coin.model.TraderTaskResult;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestTemplate;
@@ -18,42 +18,42 @@ import java.util.regex.Pattern;
  * create joonwoo 2018. 7. 18.
  * 
  */
-public class TaskResultTest {
+public class TraderTraderTaskResultTest {
 
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(TaskResultTest.class);
+    private static org.slf4j.Logger logger = LoggerFactory.getLogger(TraderTraderTaskResultTest.class);
 
-    private Task getTask() {
-        Task task = new Task();
-        task.setSessionType(Task.SESSION_TYPES.backtest.name());
-        task.setStrategyId(18);
-        task.setExchange("binance");
-        task.setCoinUnit("eth");
-        task.setBaseUnit("btc");
-        task.setCashUnit("usdt");
-        task.setStartDate("20180403");
-        task.setEndDate("20180530");
-        return task;
+    private TraderTask getTask() {
+        TraderTask traderTask = new TraderTask();
+//        traderTask.setSessionType(TraderTask.SESSION_TYPES.backtest.name());
+        traderTask.setStrategyId(18);
+        traderTask.setExchange("binance");
+        traderTask.setCoinUnit("eth");
+        traderTask.setBaseUnit("btc");
+        traderTask.setCashUnit("usdt");
+        traderTask.setStartDate("20180403");
+        traderTask.setEndDate("20180530");
+        return traderTask;
     }
 
-    private TaskResult testTaskResult(Task task) {
+    private TraderTaskResult testTaskResult(TraderTask traderTask) {
         RestTemplate restTemplate = new RestTemplate();
         String url = "http://localhost:8080/result.json";
         String json = restTemplate.getForObject(url, String.class);
-        return new Gson().fromJson(json, TaskResult.class);
+        return new Gson().fromJson(json, TraderTaskResult.class);
     }
 
     @Test
     public void createGoodsBackTest() throws ParseException {
-        Task task = getTask();
-        TaskResult taskResult = testTaskResult(task);
+        TraderTask traderTask = getTask();
+        TraderTaskResult traderTaskResult = testTaskResult(traderTask);
 
-        if (!"success".equalsIgnoreCase(taskResult.getStatus())) {
+        if (!"success".equalsIgnoreCase(traderTaskResult.getStatus())) {
             throw new OperationException("[Fail] BackTest");
         }
 //        "2018-01-01 12:33:23"
-        String startDate = taskResult.getRequest().getStart();
-        String endDate = taskResult.getRequest().getEnd();
-        Map<String, Float> cumReturns = taskResult.getResult().getCumReturns();
+        String startDate = traderTaskResult.getRequest().getStart();
+        String endDate = traderTaskResult.getRequest().getEnd();
+        Map<String, Float> cumReturns = traderTaskResult.getResult().getCumReturns();
         monthlyLastDateReturnPct(cumReturns);
 //        logger.debug("{}", monthlyLastDateReturnPctList);
 //        float avgTestReturnPct = 0f;
@@ -63,7 +63,7 @@ public class TaskResultTest {
 
 //        try {
 //            Map<String, Object> params = new HashMap<>();
-//            params.put("goodsId", task.getGoodsId());
+//            params.put("goodsId", traderTask.getGoodsId());
 //            params.put("testReturnPct", Float.parseFloat(String.format("%.2f", (avgTestReturnPct / monthlyLastDateReturnPctList.size()))));
 //            params.put("testMonthlyReturn", gson.toJson(monthlyLastDateReturnPctList));
 ////            int changeRow = sqlSession.update("goods.createGoodsBackTest", params);
@@ -72,15 +72,15 @@ public class TaskResultTest {
 ////                throw new OperationException("[FAIL] sql execute. changeRow: {}" + changeRow);
 ////            }
 //
-////            InvestGoods botInvestGoods = investGoodsService.findInvestGoodsByUser(task.getGoodsId(), BOT_USER_ID);
-////            tradeService.insertTradeHistory(botInvestGoods.getId(), taskResult.getResult().getTradeHistory());
+////            InvestGoods botInvestGoods = investGoodsService.findInvestGoodsByUser(traderTask.getGoodsId(), BOT_USER_ID);
+////            tradeService.insertTradeHistory(botInvestGoods.getId(), traderTaskResult.getResult().getTradeHistory());
 //
 //        } catch (Exception e) {
 //            logger.error("", e);
 //            throw new OperationException("[FAIL] sql execute");
 //        }
 
-//        return goodsService.getGoods(task.getGoodsId(), task.getAuthorId());
+//        return goodsService.getGoods(traderTask.getGoodsId(), traderTask.getAuthorId());
     }
 
     private Map<String, Float> monthlyLastDateReturnPct(Map<String, Float> cumReturnPct) throws ParseException {
@@ -161,7 +161,7 @@ public class TaskResultTest {
 //        }
 //
 //        String resultJson = new Gson().toJson(response);
-//        TaskResult taskResult = new Gson().fromJson(resultJson, TaskResult.class);
+//        TraderTaskResult taskResult = new Gson().fromJson(resultJson, TraderTaskResult.class);
 //        logger.debug("response: {}", taskResult);
 //        String start = taskResult.getRequest().getStart();
 //        String end = taskResult.getRequest().getEnd();

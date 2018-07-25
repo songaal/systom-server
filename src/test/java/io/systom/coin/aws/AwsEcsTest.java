@@ -9,9 +9,7 @@ import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /*
  * create joonwoo 2018. 3. 20.
@@ -20,17 +18,10 @@ import java.util.Map;
 public class AwsEcsTest {
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(AwsEcsTest.class);
     private String profileName = "gncloud";
-    private String taskExcutionRole = "ecsTaskExecutionRole";
-    private String clusterId = "coincloud";
-    private String image = "868448630378.dkr.ecr.ap-northeast-2.amazonaws.com/systom-signal";
-    private int cpu = 1;
-    private int softMemory = 500;
-    private int hardMemory = 0;
-    private String logRegion = "ap-northeast-2";
-    private String logGroup = "ecs-container";
-
-    String family = "test-systom-signal";
-    String name = "signal-container";
+    private String clusterId = "systom";
+    String family = "test-netcat";
+    String signalName = "signal";
+    String executorName = "executor";
 
     private AmazonECS client;
 
@@ -43,41 +34,51 @@ public class AwsEcsTest {
 
     @Test
     public void runTask(){
-        String reversion = "15";
+        String reversion = "4";
         String taskDefinition = family + ":" + reversion;
 
         RunTaskRequest runTaskRequest = new RunTaskRequest();
 
         TaskOverride taskOverride = new TaskOverride();
-        ContainerOverride containerOverride = new ContainerOverride();
+        ContainerOverride signalContainerOverride = new ContainerOverride();
+        ContainerOverride executorContainerOverride = new ContainerOverride();
 
-        containerOverride.withName(name)
-                .withCommand("python","launcher.py","session_type=backtest","file=sample2","exchange_id=binance","coin_unit=ADA","base_unit=BTC","task_id=123","cash_unit=USDT","start_date=20180401","end_date=20180430");
-        taskOverride.withContainerOverrides(containerOverride);
+        signalContainerOverride.withName(signalName)
+                .withCommand("ping","executor");
+
+        executorContainerOverride.withName(executorName)
+                .withCommand("nc","-lk","5000");
+
+        taskOverride.withContainerOverrides(signalContainerOverride, executorContainerOverride);
 
         runTaskRequest.withTaskDefinition(taskDefinition)
                 .withOverrides(taskOverride)
                 .withCluster(clusterId);
         RunTaskResult result = client.runTask(runTaskRequest);
 
-        ListContainerInstancesResult listContainerInstancesResult = client.listContainerInstances(new ListContainerInstancesRequest().withCluster(clusterId));
-        
-        logger.info("listContainerInstancesResult: {}", listContainerInstancesResult);
-        logger.info("result {}, {}", result, result.getTasks());
+        logger.info("result {}, {}", result, result.getTasks().get(0).getTaskArn());
 
-
-
+        result.getTasks().get(0).getTaskArn();
 
     }
 
+    @Test
+    public void listTest() {
+        ListTasksRequest listTasksRequest = new ListTasksRequest();
+        listTasksRequest.withCluster(clusterId);
 
-    protected Map<String, String> getLogOption(Integer goodsId) {
-        Map<String, String> logOption = new HashMap<>();
-        logOption.put("awslogs-region", logRegion);
-        logOption.put("awslogs-group", logGroup);
-        logOption.put("awslogs-stream-prefix", "" + goodsId);
-        return logOption;
+        client.listTasks(new ListTasksRequest().withCluster(clusterId));
+
+//        arn:aws:ecs:ap-northeast-2:868448630378:task/afce2307-94b4-4756-af36-4ca1b89b218f
+//        client.describeTasks(new DescribeTasksRequest().withTasks("arn:aws:ecs:ap-northeast-2:868448630378:task/afce2307-94b4-4756-af36-4ca1b89b218f").withCluster(clusterId))
+        ListTasksResult tasksResult= client.listTasks();
+        tasksResult.getTaskArns().forEach(s -> {
+            logger.info("arns: {}", s);
+        });
     }
+
+
+
 
 
 
@@ -119,7 +120,13 @@ public class AwsEcsTest {
 
 
 
-
+//    protected Map<String, String> getLogOption(Integer goodsId) {
+//        Map<String, String> logOption = new HashMap<>();
+//        logOption.put("awslogs-region", logRegion);
+//        logOption.put("awslogs-group", logGroup);
+//        logOption.put("awslogs-stream-prefix", "" + goodsId);
+//        return logOption;
+//    }
 
 
 

@@ -6,7 +6,7 @@
 //import io.systom.coin.exception.RequestException;
 //import io.systom.coin.model.Goods;
 //import io.systom.coin.model.StrategyDeployVersion;
-//import io.systom.coin.model.backup.Task;
+//import io.systom.coin.model.backup.TraderTask;
 //import io.systom.coin.service.StrategyDeployService;
 //import io.systom.coin.service.TaskService;
 //import io.systom.coin.utils.StringUtils;
@@ -84,13 +84,13 @@
 //            throw new OperationException("[FAIL] SQL Execute.");
 //        }
 //
-//        Task backTestTask = new Task();
+//        TraderTask backTestTask = new TraderTask();
 //        backTestTask.setStrategyId(strategyId);
 //        backTestTask.setExchange(exchange);
 //        backTestTask.setSymbol(symbol);
 //        backTestTask.setStartDate(startTime);
 //
-////        TaskResult backTestResult = taskService.syncBackTest(backTestTask);
+////        TraderTaskResult backTestResult = taskService.syncBackTest(backTestTask);
 //
 ////        TODO 에이전트 실행
 //

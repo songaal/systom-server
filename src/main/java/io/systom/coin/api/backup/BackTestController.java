@@ -4,7 +4,7 @@
 //import io.systom.coin.api.AbstractController;
 //import io.systom.coin.exception.AbstractException;
 //import io.systom.coin.exception.OperationException;
-//import io.systom.coin.model.Task;
+//import io.systom.coin.model.TraderTask;
 //import io.systom.coin.service.TaskService;
 //import org.slf4j.LoggerFactory;
 //import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@
 //
 //    @PostMapping("/backtest")
 //    public ResponseEntity<?> waitRunBackTestTask(@RequestAttribute String userId,
-//                                                 @RequestBody Task testTask) throws InterruptedException {
+//                                                 @RequestBody TraderTask testTask) throws InterruptedException {
 //        try {
 //            testTask.setUserId(userId);
 //            Map<String, Object> resultJson = taskService.syncBackTest(testTask);

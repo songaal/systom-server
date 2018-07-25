@@ -28,15 +28,13 @@ public class Goods {
     private String testEnd;
     private String authorId;
     private Date createTime;
-    private String signalEcsId;
-    private String executorEcsId;
-    private String executorEndpoint;
+    private String taskEcsId;
     private String testResult;
     private String userId;
     private float investCash;
 
     private Integer investId;
-    private List<TaskResult.Result.Trade> tradeHistory;
+    private List<TraderTaskResult.Result.Trade> tradeHistory;
     private PerformanceSummary performanceSummary;
     private List<PerformanceDaily> performanceDaily;
 
@@ -208,11 +206,11 @@ public class Goods {
         this.investId = investId;
     }
 
-    public List<TaskResult.Result.Trade> getTradeHistory() {
+    public List<TraderTaskResult.Result.Trade> getTradeHistory() {
         return tradeHistory;
     }
 
-    public void setTradeHistory(List<TaskResult.Result.Trade> tradeHistory) {
+    public void setTradeHistory(List<TraderTaskResult.Result.Trade> tradeHistory) {
         this.tradeHistory = tradeHistory;
     }
 
@@ -240,28 +238,12 @@ public class Goods {
         this.investCash = investCash;
     }
 
-    public String getSignalEcsId() {
-        return signalEcsId;
+    public String getTaskEcsId() {
+        return taskEcsId;
     }
 
-    public void setSignalEcsId(String signalEcsId) {
-        this.signalEcsId = signalEcsId;
-    }
-
-    public String getExecutorEcsId() {
-        return executorEcsId;
-    }
-
-    public void setExecutorEcsId(String executorEcsId) {
-        this.executorEcsId = executorEcsId;
-    }
-
-    public String getExecutorEndpoint() {
-        return executorEndpoint;
-    }
-
-    public void setExecutorEndpoint(String executorEndpoint) {
-        this.executorEndpoint = executorEndpoint;
+    public void setTaskEcsId(String taskEcsId) {
+        this.taskEcsId = taskEcsId;
     }
 
     public String getUserId() {
@@ -294,10 +276,9 @@ public class Goods {
                 ", testEnd='" + testEnd + '\'' +
                 ", authorId='" + authorId + '\'' +
                 ", createTime=" + createTime +
-                ", signalEcsId='" + signalEcsId + '\'' +
-                ", executorEcsId='" + executorEcsId + '\'' +
-                ", executorEndpoint='" + executorEndpoint + '\'' +
+                ", taskEcsId='" + taskEcsId + '\'' +
                 ", testResult='" + testResult + '\'' +
+                ", userId='" + userId + '\'' +
                 ", investCash=" + investCash +
                 ", investId=" + investId +
                 ", tradeHistory=" + tradeHistory +

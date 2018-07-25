@@ -7,7 +7,7 @@
 //import io.gncloud.coin.server.message.AgentRequestParams;
 //import io.gncloud.coin.server.model.Agent;
 //import io.gncloud.coin.server.model.Order;
-//import io.gncloud.coin.server.model.Task;
+//import io.gncloud.coin.server.model.TraderTask;
 //import io.gncloud.coin.server.service.AgentService;
 //import io.gncloud.coin.server.service.OrderService;
 //import io.gncloud.coin.server.service.TaskService;
@@ -94,7 +94,7 @@
 //
 //    @PostMapping("/{agentId}/actions")
 //    public ResponseEntity<?> runLiveAgentTask(@CookieValue(value = ACCESS_TOKEN) String accessToken, @PathVariable Integer agentId, @RequestAttribute String userId, @RequestBody AgentRequestParams agentRequestParams) throws ParameterException, OperationException {
-//        Task task = null;
+//        TraderTask task = null;
 //        try {
 //            if(AgentRequestParams.RUN_ACTION.equalsIgnoreCase(agentRequestParams.getAction())) {
 //                agentService.updateAgentMode(agentId, agentRequestParams.getMode());

@@ -50,10 +50,11 @@
              , a.test_result
              , a.author_id
              , b.invest_cash
+             , a.create_time
+             , a.task_ecs_id
             <if test="userId != null and userId != ''">
              , c.invest_id
             </if>
-             , a.create_time
           FROM goods a
           LEFT JOIN (SELECT aa.id
                            , aa.goods_id
@@ -95,6 +96,7 @@
              , a.author_id
              , a.test_result
              , a.create_time
+             , a.task_ecs_id
              , ifnull(b.invest_cash, 0) as invest_cash
              , c.invest_id
           FROM goods a
@@ -190,4 +192,9 @@
          WHERE id = ${goodsId}
     </update>
 
+    <update id="updateTaskEcsId" parameterType="Goods">
+        UPDATE goods
+           SET task_ecs_id = #{taskEcsId,jdbdType=VARCHAR}
+         WHERE id = ${id}
+    </update>
 </mapper>

@@ -8,23 +8,36 @@ import java.util.List;
  * 
  */
 
-public class Task {
+public class TraderTask {
 
-    public enum SESSION_TYPES {backtest, paper, live}
+    public enum SESSION_TYPE { backtest, paper, live }
+    public enum ACTIONS { start, stop }
 
-    private String id;
+    private String id;              // 임시 아이디 발급 (signal model download 용)
+    private String sessionType;
+    private String actions;
 
-    private Integer goodsId;
     private Integer strategyId;
     private Integer version;
-
     private String startDate;
     private String endDate;
     private String exchange;
     private String coinUnit;
     private String baseUnit;
     private String cashUnit;
-    private String sessionType;
+    private Integer initCash;
+
+//  ------ 라이브 전용 필드
+    private Integer goodsId;
+//  ------ 라이브 전용 필드
+
+    public String getActions() {
+        return actions;
+    }
+
+    public void setActions(String actions) {
+        this.actions = actions;
+    }
 
     public String getSessionType() {
         return sessionType;
@@ -124,10 +137,19 @@ public class Task {
         this.cashUnit = cashUnit;
     }
 
-    public List<String> getSignalRunCmd() {
+    public Integer getInitCash() {
+        return initCash;
+    }
+
+    public void setInitCash(Integer initCash) {
+        this.initCash = initCash;
+    }
+
+    public List<String> getBackTestCmd() {
         List<String> cmd = new ArrayList<>();
         cmd.add("python");
         cmd.add("launcher.py");
+        cmd.add("file=gen_signal");
         cmd.add("task_id=" + this.id);
         cmd.add("session_type=" + this.sessionType);
         cmd.add("start_date=" + startDate);
@@ -139,9 +161,27 @@ public class Task {
         return cmd;
     }
 
-    public List<String> getSignalRunEnv() {
-        List<String> env = new ArrayList<>();
-        return env;
+    public List<String> getLiveSignalCmd() {
+        List<String> cmd = new ArrayList<>();
+        cmd.add("python");
+        cmd.add("launcher.py");
+        cmd.add("task_id=" + this.id);
+        cmd.add("session_type=" + this.sessionType);
+        cmd.add("exchange_id=" + this.exchange);
+        cmd.add("start_date=" + this.startDate);
+        cmd.add("coin_unit=" + this.coinUnit);
+        cmd.add("base_unit=" + this.coinUnit);
+        cmd.add("cash_unit=" + this.coinUnit);
+        cmd.add("init_cash=" + this.initCash);
+        return cmd;
+    }
+
+    public List<String> getLiveExecutorCmd() {
+        List<String> cmd = new ArrayList<>();
+        cmd.add("python");
+        cmd.add("mock_executor.py");
+        cmd.add("goods_id=" + this.goodsId);
+        return cmd;
     }
 
 }

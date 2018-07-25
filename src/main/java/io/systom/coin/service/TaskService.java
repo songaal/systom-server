@@ -1,5 +1,7 @@
 package io.systom.coin.service;
 
+import com.amazonaws.services.ecs.model.Task;
+import com.amazonaws.util.json.Jackson;
 import com.google.gson.Gson;
 import io.systom.coin.exception.AuthenticationException;
 import io.systom.coin.exception.OperationException;
@@ -7,12 +9,12 @@ import io.systom.coin.exception.ParameterException;
 import io.systom.coin.exception.RequestException;
 import io.systom.coin.model.*;
 import io.systom.coin.utils.DockerUtils;
+import io.systom.coin.utils.EcsUtils;
 import io.systom.coin.utils.TaskFuture;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -29,13 +31,12 @@ public class TaskService {
     private static Logger logger = LoggerFactory.getLogger(TaskService.class);
     private static Logger backTestLogger = LoggerFactory.getLogger("backTestLogger");
 
-    @Value("${backtest.apiServerUrl}")
-    private String apiServerUrl;
-
     @Autowired
     private SqlSession sqlSession;
     @Autowired
     private DockerUtils dockerUtils;
+    @Autowired
+    private EcsUtils ecsUtils;
     @Autowired
     private IdentityService identityService;
     @Autowired
@@ -45,12 +46,10 @@ public class TaskService {
     @Autowired
     private InvestGoodsService investGoodsService;
 
-    private static Map<String, Task> waitTaskList = new ConcurrentHashMap<>();
+    private static Map<String, TraderTask> waitTaskList = new ConcurrentHashMap<>();
     private static ConcurrentMap<String, TaskFuture> backTestResult = new ConcurrentHashMap<>();
 
-    private final String RESULT_JSON = "resultJson";
-
-    public Task isWaitTask(String taskId) {
+    public TraderTask isWaitTask(String taskId) {
         if (taskId != null && waitTaskList.get(taskId) != null) {
             return waitTaskList.get(taskId);
         } else {
@@ -58,66 +57,62 @@ public class TaskService {
         }
     }
 
-    public TaskResult syncBackTest(Task task) throws TimeoutException, ParameterException, OperationException {
-        if (task.getUserId() == null || !identityService.isManager(task.getUserId())) {
+    public TraderTaskResult syncBackTest(TraderTask traderTask) throws TimeoutException, ParameterException, OperationException {
+        if (traderTask.getUserId() == null || !identityService.isManager(traderTask.getUserId())) {
             throw new AuthenticationException();
         }
-        isNotEmpty(task.getStrategyId(), "strategyId");
-        isNotEmpty(task.getExchange(), "exchange");
-        isNotEmpty(task.getCoinUnit(), "coinUnit");
-        isNotEmpty(task.getBaseUnit(), "baseUnit");
-        isNotEmpty(task.getCashUnit(), "cashUnit");
-        isNotEmpty(task.getStartDate(), "StartDate");
-        isNotEmpty(task.getEndDate(), "endDate");
+        isNotEmpty(traderTask.getStrategyId(), "strategyId");
+        isNotEmpty(traderTask.getExchange(), "exchange");
+        isNotEmpty(traderTask.getCoinUnit(), "coinUnit");
+        isNotEmpty(traderTask.getBaseUnit(), "baseUnit");
+        isNotEmpty(traderTask.getCashUnit(), "cashUnit");
+        isNotEmpty(traderTask.getStartDate(), "StartDate");
+        isNotEmpty(traderTask.getEndDate(), "endDate");
 
-        logger.debug("[ BACK TEST ] RUN {}", task);
+        logger.debug("[ BACK TEST ] RUN {}", traderTask);
 
-        task.setId(UUID.randomUUID().toString());
-        waitTaskList.put(task.getId(), task);
-        logger.info("Generator Task taskId: {}", task.getId());
-
-        List<String> envList = mergeTaskEnvRequire(task.getSignalRunEnv());
-        List<String> cmdList = mergeTaskCmdRequire(task.getSignalRunCmd());
+        traderTask.setId(UUID.randomUUID().toString());
+        waitTaskList.put(traderTask.getId(), traderTask);
+        logger.info("Generator TraderTask taskId: {}", traderTask.getId());
 
         try {
-
-            dockerUtils.syncRun(task.getId(), envList, cmdList);
+//            dockerUtils.syncRun(traderTask);
 
             RestTemplate restTemplate = new RestTemplate();
             String taskResultJson = restTemplate.getForObject("http://localhost:8080/result.json", String.class);
-            TaskResult taskResult = new Gson().fromJson(taskResultJson, TaskResult.class);
-            registerBackTestResult(task.getId(), taskResult);
+            TraderTaskResult traderTaskResult = new Gson().fromJson(taskResultJson, TraderTaskResult.class);
+            registerBackTestResult(traderTask.getId(), traderTaskResult);
 
         } catch (Throwable t) {
             logger.error("", t);
             throw new OperationException("[FAIL] Running BackTest.");
         }
-        TaskResult taskResult = null;
+        TraderTaskResult traderTaskResult = null;
         try {
-            TaskFuture<TaskResult> future = backTestResult.get(task.getId());
-            taskResult = future.take();
+            TaskFuture<TraderTaskResult> future = backTestResult.get(traderTask.getId());
+            traderTaskResult = future.take();
             if (future != null) {
-                backTestLogger.info("[{}] BackTest Task Result catch!", task.getId());
+                backTestLogger.info("[{}] BackTest TraderTask Result catch!", traderTask.getId());
             }
-            backTestLogger.info("[{}] BackTest Successful.", task.getId());
+            backTestLogger.info("[{}] BackTest Successful.", traderTask.getId());
         } catch (Exception e){
             logger.error("", e);
             throw new OperationException("[FAIL] Not Catch Performance");
         } finally {
-            waitTaskList.remove(task.getId());
+            waitTaskList.remove(traderTask.getId());
         }
-        return taskResult;
+        return traderTaskResult;
     }
 
 
     public String getTaskModel(String taskId) throws ParameterException, OperationException {
-        Task task = waitTaskList.get(taskId);
-        if (task == null) {
+        TraderTask traderTask = waitTaskList.get(taskId);
+        if (traderTask == null) {
             throw new RequestException("invalid taskId");
         }
         StrategyDeployVersion deployVersion = new StrategyDeployVersion();
-        deployVersion.setId(task.getStrategyId());
-        deployVersion.setVersion(task.getVersion());
+        deployVersion.setId(traderTask.getStrategyId());
+        deployVersion.setVersion(traderTask.getVersion());
         try {
             backTestLogger.info("[{}] Download Modal.", taskId);
             return sqlSession.selectOne("strategyDeploy.getStrategyModel", deployVersion);
@@ -127,41 +122,28 @@ public class TaskService {
         }
     }
 
-    public TaskResult registerBackTestResult(String taskId, TaskResult taskResult) {
+    public TraderTaskResult registerBackTestResult(String taskId, TraderTaskResult traderTaskResult) {
         if (isWaitTask(taskId) != null) {
-            TaskFuture<TaskResult> taskFuture = new TaskFuture();
-            taskFuture.offer(taskResult);
+            TaskFuture<TraderTaskResult> taskFuture = new TaskFuture();
+            taskFuture.offer(traderTaskResult);
             backTestResult.put(taskId, taskFuture);
-            backTestLogger.info("[{}] BackTest Result Saved. {}", taskId, taskResult);
-            return taskResult;
+            backTestLogger.info("[{}] BackTest Result Saved. {}", taskId, traderTaskResult);
+            return traderTaskResult;
         } else {
             return null;
         }
     }
 
-    protected List<String> mergeTaskEnvRequire(List<String> env){
-        List<String> tmpEnv = new ArrayList<>();
-        tmpEnv.addAll(env);
-        return tmpEnv;
-    }
-
-    protected List<String> mergeTaskCmdRequire(List<String> cmd){
-        List<String> tmpCmd = new ArrayList<>();
-        tmpCmd.addAll(cmd);
-        tmpCmd.add("api_server_url=" + apiServerUrl);
-        return tmpCmd;
-    }
-
-    public Goods createGoodsBackTest(Task task) throws TimeoutException, ParseException {
-        if (!identityService.isManager(task.getUserId())) {
+    public Goods createGoodsBackTest(TraderTask traderTask) throws TimeoutException, ParseException {
+        if (!identityService.isManager(traderTask.getUserId())) {
             throw new AuthenticationException();
         }
 
-        TaskResult taskResult = syncBackTest(task);
-        if (!"success".equalsIgnoreCase(taskResult.getStatus())) {
+        TraderTaskResult traderTaskResult = syncBackTest(traderTask);
+        if (!"success".equalsIgnoreCase(traderTaskResult.getStatus())) {
             throw new OperationException("[Fail] BackTest");
         }
-        Map<String, Float> cumReturns = taskResult.getResult().getCumReturns();
+        Map<String, Float> cumReturns = traderTaskResult.getResult().getCumReturns();
         List<MonthlyReturn> MonthlyReturnList = monthlyLastDateReturnPct(cumReturns);
         float sumMrp = 0;
         float avgMrp = 0;
@@ -175,13 +157,13 @@ public class TaskService {
 
         try {
             GoodsTestResult goodsTestResult = new GoodsTestResult();
-            goodsTestResult.setId(task.getGoodsId());
+            goodsTestResult.setId(traderTask.getGoodsId());
             goodsTestResult.setTestReturnPct(avgMrp);
             goodsTestResult.setTestMonthlyReturnList(MonthlyReturnList);
-            goodsTestResult.setTradeHistory(taskResult.getResult().getTradeHistory());
+            goodsTestResult.setTradeHistory(traderTaskResult.getResult().getTradeHistory());
             Map<String, Object> params = new HashMap<>();
-            params.put("goodsId", task.getGoodsId());
-            params.put("testResult", new Gson().toJson(goodsTestResult));
+            params.put("goodsId", traderTask.getGoodsId());
+            params.put("testResult", Jackson.toJsonPrettyString(goodsTestResult));
             int changeRow = sqlSession.update("goods.createGoodsBackTest", params);
             if (changeRow != 1) {
                 logger.error("[FAIL] sql execute. changeRow: {}", changeRow);
@@ -193,7 +175,7 @@ public class TaskService {
             throw new OperationException("[FAIL] sql execute");
         }
 
-        return goodsService.getGoods(task.getGoodsId(), task.getUserId());
+        return goodsService.getGoods(traderTask.getGoodsId(), traderTask.getUserId());
     }
 
     protected List<MonthlyReturn> monthlyLastDateReturnPct(Map<String, Float> cumReturnPct) throws ParseException {
@@ -233,104 +215,77 @@ public class TaskService {
         return monthlyReturn;
     }
 
+    public Task liveTaskRun(TraderTask traderTask) {
+        if (!identityService.isManager(traderTask.getUserId())) {
+            logger.info("접근권환 없는 사용자 요청. 사용자: {}", traderTask.getUserId());
+            throw new AuthenticationException();
+        }
+        Goods registerGoods = goodsService.getGoods(traderTask.getGoodsId());
+        if (traderTask.getGoodsId() == null || registerGoods == null) {
+            throw new ParameterException("goodsId");
+        }
+        if (registerGoods.getTaskEcsId() != null || waitTaskList.get(registerGoods.getId().toString()) != null) {
+            throw new OperationException("It is already in progress.");
+        }
+        String taskId = registerGoods.getId().toString();
+        traderTask.setId(taskId);
+        traderTask.setStrategyId(registerGoods.getStrategyId());
+        traderTask.setVersion(registerGoods.getVersion());
+        traderTask.setStartDate(registerGoods.getInvestStart());
+        traderTask.setExchange(registerGoods.getExchange());
+        traderTask.setCoinUnit(registerGoods.getCoinUnit());
+        traderTask.setBaseUnit(registerGoods.getBaseUnit());
+        traderTask.setCashUnit(registerGoods.getCashUnit());
+        waitTaskList.put(taskId, traderTask);
+        logger.info("live Task TraderTask task: {}", traderTask);
 
-    public void liveRun(Integer goodsId, String userId) {
-
-
-
-
+        Task resultTask = ecsUtils.syncRun(traderTask);
+        registerGoods.setTaskEcsId(resultTask.getTaskArn());
+        try {
+            int changeRow = sqlSession.update("goods.updateTaskEcsId", registerGoods);
+            if (changeRow != 1) {
+                logger.error("[FAIL] sql execute. changeRow: {}", changeRow);
+                throw new OperationException("[FAIL] sql execute. changeRow: {}" + changeRow);
+            }
+        } catch (Exception e) {
+            logger.error("[FAIL] sql execute.");
+            throw new OperationException("[FAIL] sql execute.");
+        } finally {
+            waitTaskList.remove(taskId);
+        }
+        return resultTask;
     }
 
+    public Task liveTaskStop(TraderTask traderTask) {
+        if (!identityService.isManager(traderTask.getUserId())) {
+            logger.info("접근권환 없는 사용자 요청. 사용자: {}", traderTask.getUserId());
+            throw new AuthenticationException();
+        }
+        Goods registerGoods = goodsService.getGoods(traderTask.getGoodsId());
+        if (traderTask.getGoodsId() == null || registerGoods == null) {
+            throw new ParameterException("goodsId");
+        }
+        if (registerGoods.getTaskEcsId() == null || waitTaskList.get(registerGoods.getId()) != null) {
+            throw new OperationException("It is already in progress.");
+        }
 
+        Task task = ecsUtils.stopTask(registerGoods.getTaskEcsId());
 
+        try {
+            registerGoods.setTaskEcsId(null);
+            int changeRow = sqlSession.update("goods.updateTaskEcsId", registerGoods);
+            if (changeRow != 1) {
+                logger.error("[FAIL] sql execute. changeRow: {}", changeRow);
+                throw new OperationException("[FAIL] sql execute. changeRow: {}" + changeRow);
+            }
+        } catch (Exception e) {
+            logger.error("[FAIL] sql execute.");
+            throw new OperationException("[FAIL] sql execute.");
+        }
+        logger.debug("[{}] ecs stop.", registerGoods.getId());
 
-
-
-
-
-
-
-
-
-//    public Task runAgentTask(String userId, String accessToken, Integer agentId, boolean isLiveMode) throws ParameterException, OperationException {
-////        TODO 에이전트 cctrader 변경
-//        throw new OperationException("개발예정");
-////
-////        Task task = getAgentTaskFromId(agentId);
-////
-////        ExchangeKey exchangeKey = exchangeService.selectExchangeKey(new ExchangeKey(task.getExchangeKeyId(), userId));
-////        RunBackTestRequest.ExchangeAuth exchangeAuth = null;
-////        String exchangeName = exchangeKey.getExchange();
-////
-////        List<KeyValuePair> environmentList = new ArrayList<>();
-////        if(isLiveMode) {
-////            environmentList.add(new KeyValuePair().withName(exchangeName + "_key").withValue(exchangeAuth.getKey()));
-////            environmentList.add(new KeyValuePair().withName(exchangeName + "_secret").withValue(exchangeAuth.getSecret()));
-////        }
-////        environmentList.add(new KeyValuePair().withName("exchangeList").withValue(exchangeName));
-////        environmentList.add(new KeyValuePair().withName("user_id").withValue(userId));
-////        environmentList.add(new KeyValuePair().withName("access_token").withValue(accessToken));
-////        environmentList.add(new KeyValuePair().withName("agent_id").withValue(String.valueOf(agentId)));
-////
-////        logger.debug("[ LIVE={} ] RUN {}", isLiveMode, task);
-////        RunTaskResult result = null;
-////        try {
-////            result = ecsUtils.run(task, environmentList);
-////        } catch (Exception e){
-////            logger.error("", e);
-////            throw new OperationException("[FAIL] ecs task syncRun error");
-////        }
-////
-////        String ecsTaskId = parseTaskId(result);
-////        task.setEcsTaskId(ecsTaskId);
-////        logger.info("starting ecs: {}", ecsTaskId);
-////        Agent agent = new Agent();
-////        agent.setId(task.getId());
-////        agent.setEcsTaskId(ecsTaskId);
-////        agent.setState(Agent.STATE_RUN);
-////        agentService.updateAgent(agent);
-////        return task;
-//    }
-//
-//
-//    public Task stopAgentTask(String userId, Integer agentId) throws ParameterException, OperationException {
-////        TODO 에이전트 정지
-//        throw new OperationException("개발예정");
-////        Agent agent = agentService.getAgent(agentId);
-////        Task task = new Task();
-////        task.setEcsTaskId(agent.getEcsTaskId());
-////        StopTaskResult stopTaskResult = null;
-////        try {
-////            stopTaskResult = ecsUtils.stopTask(task.getEcsTaskId(), "User stop request : " + userId + ", " + agentId);
-////        } catch (Exception e){
-////            logger.error("", e);
-////            throw new OperationException("[FAIL] ecs task syncRun error");
-////        }
-////        com.amazonaws.services.ecs.model.Task stopedTask = stopTaskResult.getTask();
-////        logger.debug("Stopped task : {}", stopedTask);
-////        agent.setState(Agent.STATE_STOP);
-////        agentService.updateAgent(agent);
-////        return task;
-//
-//    }
-//
-//
-//    private String parseTaskId(RunTaskResult result) {
-//        return result.getTasks().get(0).getTaskArn().split("/")[1];
-//    }
-//
-//    private Task getAgentTaskFromId(Integer agentId) throws ParameterException, OperationException {
-//
-//        //agent 테이블을 읽어서 Task에 채워준다.
-//        Agent agent = agentService.getAgent(agentId);
-//        ExchangeKey exchangeKey = exchangeService.selectExchangeKey(new ExchangeKey(agent.getExchangeKeyId(), agent.getAuthorId()));
-//        Task task = agent.cloneTask();
-//        task.setExchange(exchangeKey.getExchange());
-//        task.setExchangeKeyId(agent.getExchangeKeyId());
-//        return task;
-//    }
-
-
+        return task;
+    }
 
     private void isNotEmpty(String field, String label) throws ParameterException {
         if(field == null || "".equals(field)){
@@ -349,10 +304,10 @@ public class TaskService {
     }
 
     public void testTask(String task_id) {
-        Task task = new Task();
-        task.setId(task_id);
-        task.setUserId("joonwoo");
-        task.setStrategyId(18);
-        waitTaskList.put(task_id, task);
+        TraderTask traderTask = new TraderTask();
+        traderTask.setId(task_id);
+        traderTask.setUserId("joonwoo");
+        traderTask.setStrategyId(18);
+        waitTaskList.put(task_id, traderTask);
     }
 }

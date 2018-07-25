@@ -40,10 +40,10 @@ public class MonthCalculationScheduler {
     // 6시간
     @Scheduled(initialDelay = 5 * 1000 * 60, fixedDelay= 6 * 1000 * 60 * 60)
     public void monthCalculation() {
-//        if (!"true".equalsIgnoreCase(isMonthCalculation)) {
-//            logger.debug("MonthCalculation Disabled");
-//            return;
-//        }
+        if (!"true".equalsIgnoreCase(isMonthCalculation)) {
+            logger.debug("MonthCalculation Disabled");
+            return;
+        }
 
 //        TODO 환율 조회 후 월수익 계산
 

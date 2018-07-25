@@ -2,7 +2,7 @@ package io.systom.coin;
 
 import com.amazonaws.services.ecs.model.ClientException;
 import com.google.gson.Gson;
-import io.systom.coin.model.TaskResult;
+import io.systom.coin.model.TraderTaskResult;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -14,14 +14,14 @@ import java.util.Map;
  * create joonwoo 2018. 7. 20.
  * 
  */
-public class ParseTaskResultTest {
+public class ParseTraderTraderTaskResultTest {
 
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(ParseTaskResultTest.class);
+    private static org.slf4j.Logger logger = LoggerFactory.getLogger(ParseTraderTraderTaskResultTest.class);
 
     @Test
     public void parseTaskResult() {
         RestTemplate restTemplate = new RestTemplate();
-        TaskResult response = null;
+        TraderTaskResult response = null;
         Map<String, Object> responseMap = null;
         String responseStr = null;
         ResponseEntity<Map> responseEntity = null;
@@ -31,11 +31,11 @@ public class ParseTaskResultTest {
         } catch (ClientException re) {
             logger.error("",re);
         }
-        TaskResult taskResult = new Gson().fromJson(responseStr, TaskResult.class);
+        TraderTaskResult traderTaskResult = new Gson().fromJson(responseStr, TraderTaskResult.class);
 
-        logger.debug("taskResult: {}", taskResult);
+        logger.debug("traderTaskResult: {}", traderTaskResult);
 
 //        String resultJson = new Gson().toJson(response);
-//        TaskResult taskResult = new Gson().fromJson(resultJson, TaskResult.class);
+//        TraderTaskResult traderTaskResult = new Gson().fromJson(resultJson, TraderTaskResult.class);
     }
 }

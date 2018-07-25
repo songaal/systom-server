@@ -2,7 +2,7 @@
 //
 //import io.systom.coin.model.Goods;
 //import io.systom.coin.model.InvestGoods;
-//import io.systom.coin.model.TaskResult;
+//import io.systom.coin.model.TraderTaskResult;
 //import org.apache.ibatis.session.SqlSession;
 //import org.junit.Test;
 //import org.junit.runner.RunWith;
@@ -48,7 +48,7 @@
 //            List<InvestGoods> investGoodsList = sqlSession.selectList("goods.retrieveInvestGoodsList", search);
 //            int investGoodsSize = investGoodsList.size();
 //
-//            List<TaskResult.Result> performanceList = sqlSession.selectList("goods.retrievePerformance", search);
+//            List<TraderTaskResult.Result> performanceList = sqlSession.selectList("goods.retrievePerformance", search);
 //            int performanceSize = performanceList.size();
 //
 //            for (int i=0; i < investGoodsSize; i++) {
@@ -56,7 +56,7 @@
 //                Integer investId = investGoodsList.get(i).getId();
 //
 //                Goods tmpGoods = null;
-//                TaskResult.Result tmpPerformance = null;
+//                TraderTaskResult.Result tmpPerformance = null;
 //
 //                for(int j=0; j < registerGoodsSize; j++){
 //                    if(goodsId.equals(registerGoodsList.get(j).getId())){

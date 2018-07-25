@@ -1,10 +1,12 @@
 package io.systom.coin.api;
 
+import com.amazonaws.services.ecs.model.Task;
 import io.systom.coin.exception.AbstractException;
 import io.systom.coin.exception.AuthenticationException;
 import io.systom.coin.exception.OperationException;
+import io.systom.coin.exception.ParameterException;
 import io.systom.coin.model.Goods;
-import io.systom.coin.model.Task;
+import io.systom.coin.model.TraderTask;
 import io.systom.coin.service.GoodsService;
 import io.systom.coin.service.IdentityService;
 import io.systom.coin.service.TaskService;
@@ -14,7 +16,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 import static io.systom.coin.service.GoodsService.DATE_FORMAT;
 
@@ -213,16 +218,29 @@ public class GoodsController extends AbstractController{
     }
 
 
-    @PostMapping("/{id}/backTest")
+    @PostMapping("/{id}/actions")
     public ResponseEntity<?> createTestResult(@PathVariable Integer id,
                                               @RequestAttribute String userId,
-                                              @RequestBody Task task) {
+                                              @RequestBody TraderTask traderTask) {
         try {
-            task.setGoodsId(id);
-            task.setUserId(userId);
-            task.setSessionType(Task.SESSION_TYPES.backtest.name());
-            Goods registerGoods = taskService.createGoodsBackTest(task);
-            return success(registerGoods);
+            traderTask.setGoodsId(id);
+            traderTask.setUserId(userId);
+            if (TraderTask.SESSION_TYPE.backtest.name().equals(traderTask.getSessionType())) {
+                Goods registerGoods = taskService.createGoodsBackTest(traderTask);
+                return success(registerGoods);
+            } else if (TraderTask.SESSION_TYPE.live.name().equals(traderTask.getSessionType())) {
+                Task task = null;
+                if (TraderTask.ACTIONS.start.name().equals(traderTask.getActions())) {
+                    task = taskService.liveTaskRun(traderTask);
+                } else if (TraderTask.ACTIONS.stop.name().equals(traderTask.getActions())) {
+                    task = taskService.liveTaskStop(traderTask);
+                } else {
+                    throw new ParameterException("actions");
+                }
+                return success(task);
+            } else {
+                throw new ParameterException("SESSION_TYPE");
+            }
         } catch (AbstractException e) {
             logger.error("", e);
             return e.response();

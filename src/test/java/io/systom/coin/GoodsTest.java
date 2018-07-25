@@ -2,7 +2,7 @@ package io.systom.coin;
 
 import io.systom.coin.model.Goods;
 import io.systom.coin.model.InvestGoods;
-import io.systom.coin.model.Task;
+import io.systom.coin.model.TraderTask;
 import io.systom.coin.scheduler.MonthCalculationScheduler;
 import io.systom.coin.service.GoodsService;
 import io.systom.coin.service.InvestGoodsService;
@@ -72,17 +72,17 @@ public class GoodsTest {
         logger.info("상품 정보 공개[{}]{}" , investGoods.getId(), goodsService.updateGoodsShow(investGoods.getId(), "joonwoo"));
 
         try {
-            Task task = new Task();
-            task.setUserId("joonwoo");
-            task.setGoodsId(investGoods.getId());
-            task.setStrategyId(investGoods.getStrategyId());
-            task.setExchange(investGoods.getExchange());
-            task.setCoinUnit(investGoods.getCoinUnit());
-            task.setBaseUnit(investGoods.getBaseUnit());
-            task.setCashUnit(investGoods.getCashUnit());
-            task.setStartDate(investGoods.getCollectStart());
-            task.setEndDate(investGoods.getCollectEnd());
-            investGoods = taskService.createGoodsBackTest(task);
+            TraderTask traderTask = new TraderTask();
+            traderTask.setUserId("joonwoo");
+            traderTask.setGoodsId(investGoods.getId());
+            traderTask.setStrategyId(investGoods.getStrategyId());
+            traderTask.setExchange(investGoods.getExchange());
+            traderTask.setCoinUnit(investGoods.getCoinUnit());
+            traderTask.setBaseUnit(investGoods.getBaseUnit());
+            traderTask.setCashUnit(investGoods.getCashUnit());
+            traderTask.setStartDate(investGoods.getCollectStart());
+            traderTask.setEndDate(investGoods.getCollectEnd());
+            investGoods = taskService.createGoodsBackTest(traderTask);
 
             logger.info("백테스트 등록[{}]{}" , investGoods.getId(), investGoods);
         } catch (TimeoutException e) {
@@ -126,17 +126,17 @@ public class GoodsTest {
         logger.info("상품 정보 등록 {}" , goodsService.registerGoods(investGoods));
 
         try {
-            Task task = new Task();
-            task.setUserId("joonwoo");
-            task.setGoodsId(investGoods.getId());
-            task.setStrategyId(investGoods.getStrategyId());
-            task.setExchange(investGoods.getExchange());
-            task.setCoinUnit(investGoods.getCoinUnit());
-            task.setBaseUnit(investGoods.getBaseUnit());
-            task.setCashUnit(investGoods.getCashUnit());
-            task.setStartDate(investGoods.getCollectStart());
-            task.setEndDate(investGoods.getCollectEnd());
-            investGoods = taskService.createGoodsBackTest(task);
+            TraderTask traderTask = new TraderTask();
+            traderTask.setUserId("joonwoo");
+            traderTask.setGoodsId(investGoods.getId());
+            traderTask.setStrategyId(investGoods.getStrategyId());
+            traderTask.setExchange(investGoods.getExchange());
+            traderTask.setCoinUnit(investGoods.getCoinUnit());
+            traderTask.setBaseUnit(investGoods.getBaseUnit());
+            traderTask.setCashUnit(investGoods.getCashUnit());
+            traderTask.setStartDate(investGoods.getCollectStart());
+            traderTask.setEndDate(investGoods.getCollectEnd());
+            investGoods = taskService.createGoodsBackTest(traderTask);
 
             logger.info("백테스트 등록[{}]{}" , investGoods.getId(), investGoods);
         } catch (TimeoutException e) {

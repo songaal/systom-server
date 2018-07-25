@@ -10,7 +10,7 @@ import java.util.Map;
  * create joonwoo 2018. 6. 20.
  * 
  */
-public class TaskResult{
+public class TraderTaskResult {
 
     private String status;
     private String message;
@@ -620,7 +620,7 @@ public class TaskResult{
 
     @Override
     public String toString() {
-        return "TaskResult{" +
+        return "TraderTaskResult{" +
                 "status='" + status + '\'' +
                 ", message='" + message + '\'' +
                 ", time=" + time +

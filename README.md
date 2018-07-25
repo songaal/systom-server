@@ -63,7 +63,7 @@ ssh ec2-user@api.gncloud.io -i gncloud-io.pem
 	- #### 경로
 		- /tasks (POST)
 	- #### 파라미터 
-		- task
+		- traderTask
 		    - id
             - exchange
             - base
@@ -108,7 +108,7 @@ curl -X POST \
   -H 'content-type: application/json' \
   -H 'postman-token: 4ac09a3f-e265-5618-dfe4-fc8f5ac7c6c2' \
   -d '{
-	"task":{
+	"traderTask":{
 		"id":"a0b95b56-f015-4785-b950-917c12497afa",
 		"exchange":"poloniex",
 		"base":"btc",

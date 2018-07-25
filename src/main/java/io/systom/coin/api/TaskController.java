@@ -3,8 +3,8 @@ package io.systom.coin.api;
 import com.google.gson.Gson;
 import io.systom.coin.exception.AbstractException;
 import io.systom.coin.exception.OperationException;
-import io.systom.coin.model.Task;
-import io.systom.coin.model.TaskResult;
+import io.systom.coin.model.TraderTask;
+import io.systom.coin.model.TraderTaskResult;
 import io.systom.coin.service.TaskService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,24 +26,14 @@ public class TaskController extends AbstractController {
     @Autowired
     private TaskService taskService;
 
-    @PostMapping("/{sessionType}")
-    public ResponseEntity<?> syncBackTest(@PathVariable Task.SESSION_TYPES sessionType,
-                                          @RequestAttribute String userId,
-                                          @RequestBody Task task) throws InterruptedException {
+    @PostMapping
+    public ResponseEntity<?> taskRun(@RequestAttribute String userId,
+                                     @RequestBody TraderTask traderTask) throws InterruptedException {
         try {
-            task.setUserId(userId);
-            TaskResult taskResult = null;
-            task.setSessionType(sessionType.name());
-
-            if (Task.SESSION_TYPES.backtest.equals(sessionType)) {
-                taskResult = taskService.syncBackTest(task);
-            } else if (Task.SESSION_TYPES.paper.equals(sessionType)) {
-
-            } else if (Task.SESSION_TYPES.live.equals(sessionType)) {
-
-            }
-
-            return success(taskResult);
+            traderTask.setUserId(userId);
+            traderTask.setSessionType(TraderTask.SESSION_TYPE.backtest.name());
+            TraderTaskResult traderTaskResult = taskService.syncBackTest(traderTask);
+            return success(traderTaskResult);
         } catch (AbstractException e){
             logger.error("", e);
             return e.response();
@@ -71,71 +61,17 @@ public class TaskController extends AbstractController {
     public ResponseEntity<?> testTaskResult(@PathVariable String taskId,
                                             @RequestBody String taskResultJson) throws Exception {
         logger.debug("[BACK TEST RESULT] taskId: {}, response: {}", taskId, taskResultJson);
-        TaskResult taskResult = new Gson().fromJson(taskResultJson, TaskResult.class);
-        TaskResult saveResult = taskService.registerBackTestResult(taskId, taskResult);
+        TraderTaskResult traderTaskResult = new Gson().fromJson(taskResultJson, TraderTaskResult.class);
+        TraderTaskResult saveResult = taskService.registerBackTestResult(taskId, traderTaskResult);
         return success(saveResult);
     }
 
 
 
-    @PostMapping("testTask")
+    @PostMapping("/testTask")
     public ResponseEntity<?> testTask(@RequestBody Map<String, String> cmd) throws Exception {
         taskService.testTask(cmd.get("task_id"));
         return success();
     }
-
-
-
-//    @PostMapping
-//    public ResponseEntity<?> runBackTest(@CookieValue(ACCESS_TOKEN) String accessToken,
-//                                         @RequestAttribute String userId,
-//                                         @RequestBody Task task) throws TimeoutException, InterruptedException {
-//        try {
-//            String sessionType = task.getSessionType();
-//            if (Task.SESSION_TYPES.live.equals(sessionType) || Task.SESSION_TYPES.paper.equals(sessionType)) {
-////                TODO 라이브, 페이퍼 모드
-//
-//                return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-//            } else if (Task.SESSION_TYPES.backtest.equals(sessionType)) {
-//                task.setAuthorId(userId);
-//                task.setAccessToken(accessToken);
-//                Map<String, Object> resultJson = taskService.syncBackTest(task);
-//                return new ResponseEntity<>(resultJson, HttpStatus.OK);
-//            } else {
-//                String message = "Unknown session type";
-//                return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
-//            }
-//        } catch (AbstractException e){
-//            logger.error("", e);
-//            return e.response();
-//        } catch (Throwable t) {
-//            logger.error("", t);
-//            return new OperationException().response();
-//        }
-//    }
-
-//    @GetMapping("/{taskId}/model")
-//    public ResponseEntity<?> getStrategyModel(@RequestAttribute String userId,
-//                                              @PathVariable String taskId,
-//                                              @RequestParam(required = false) Integer version) {
-//        try {
-//            Strategy registerStrategy = taskService.getBackTestModel(taskId, userId, version);
-//            Map<String, String> response = new HashMap<>();
-//            response.put("code", registerStrategy.getCode());
-//            return new ResponseEntity<>(HttpStatus.OK);
-//        } catch (Throwable t) {
-//            logger.error("", t);
-//            return new OperationException().response();
-//        }
-//    }
-
-
-
-
-//    test api
-//    @GetMapping("/getBacktestResult")
-//    public ResponseEntity<?> getBackTestResult(){
-//        return success(taskService.getBackTestResult());
-//    }
 
 }

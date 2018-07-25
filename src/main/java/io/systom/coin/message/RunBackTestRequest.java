@@ -1,6 +1,6 @@
 //package io.gncloud.coin.server.message;
 //
-//import io.gncloud.coin.server.model.Task;
+//import io.gncloud.coin.server.model.TraderTask;
 //
 ///*
 // * create joonwoo 2018. 3. 25.
@@ -8,14 +8,14 @@
 // */
 //public class RunBackTestRequest {
 //
-//    private Task task;
+//    private TraderTask task;
 //    private ExchangeAuth exchangeAuth;
 //
-//    public Task getTask() {
+//    public TraderTask getTask() {
 //        return task;
 //    }
 //
-//    public void setTask(Task task) {
+//    public void setTask(TraderTask task) {
 //        this.task = task;
 //    }
 //
