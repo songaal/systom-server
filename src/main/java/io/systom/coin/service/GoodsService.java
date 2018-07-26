@@ -14,9 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static io.systom.coin.utils.DateUtils.formatDate;
@@ -55,9 +53,9 @@ public class GoodsService {
         }
 
         target.setExchange(target.getExchange().toLowerCase());
-        target.setCashUnit(target.getCashUnit().toLowerCase());
-        target.setBaseUnit(target.getBaseUnit().toLowerCase());
-        target.setCoinUnit(target.getCoinUnit().toLowerCase());
+        target.setCashUnit(target.getCashUnit().toUpperCase());
+        target.setBaseUnit(target.getBaseUnit().toUpperCase());
+        target.setCoinUnit(target.getCoinUnit().toUpperCase());
 
         GoodsTestResult testResult = new GoodsTestResult();
         List<MonthlyReturn> testMonthlyReturnList = generatorTestMonthlyReturns(target.getTestStart(), target.getTestEnd());
@@ -181,7 +179,6 @@ public class GoodsService {
     @Transactional
     public Goods updateGoods(Goods target) {
         Goods registerGoods = getGoods(target.getId());
-        int nowTime = Integer.parseInt(new SimpleDateFormat(DATE_FORMAT).format(new Date()));
         if (registerGoods == null) {
             throw new ParameterException("inValid GoodsId");
         } else if (!registerGoods.getAuthorId().equals(target.getAuthorId())) {
@@ -190,24 +187,10 @@ public class GoodsService {
             throw new ParameterException("Require");
         }
 
-//        if (!registerGoods.getTestStart().equals(target.getTestStart())
-//                ||!registerGoods.getTestEnd().equals(target.getTestEnd())
-//                ||registerGoods.getStrategyId().intValue() != target.getStrategyId()
-//                ||registerGoods.getVersion().intValue() != target.getVersion()
-//                ) {
-////            백테스트 시간이 변경되면 기존 백테스트 전체 삭제
-//            GoodsTestResult testResult = new GoodsTestResult();
-//            List<MonthlyReturn> testMonthlyReturnList = generatorTestMonthlyReturns(target.getTestStart(), target.getTestEnd());
-//            testResult.setTestMonthlyReturnList(testMonthlyReturnList);
-//            testResult.setTestReturnPct(0f);
-//            testResult.setTradeHistory(new ArrayList<>());
-//            target.setTestResult(new Gson().toJson(testResult));
-//        }
-
         target.setExchange(target.getExchange().toLowerCase());
-        target.setCashUnit(target.getCashUnit().toLowerCase());
-        target.setBaseUnit(target.getBaseUnit().toLowerCase());
-        target.setCoinUnit(target.getCoinUnit().toLowerCase());
+        target.setCashUnit(target.getCashUnit().toUpperCase());
+        target.setBaseUnit(target.getBaseUnit().toUpperCase());
+        target.setCoinUnit(target.getCoinUnit().toUpperCase());
 
         try {
             int changeRow = sqlSession.update("goods.updateGoods", target);

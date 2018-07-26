@@ -167,22 +167,56 @@
 
     <update id="updateGoods" parameterType="Goods">
         UPDATE goods
-           SET strategy_id         = ${strategyId}
-             , version             = ${version}
-             , exchange            = #{exchange}
-             , coin_unit           = #{coinUnit}
-             , base_unit           = #{baseUnit}
-             , name                = #{name}
-             , description         = #{description}
-             , cash                = ${cash}
-             , cash_unit           = #{cashUnit}
-             , collect_start       = ${collectStart}
-             , collect_end         = ${collectEnd}
-             , invest_start        = ${investStart}
-             , invest_end          = ${investEnd}
-             , test_start          = ${testStart}
-             , test_end            = ${testEnd}
-             , test_result         = #{testResult}
+           SET id = ${id}
+            <if test="strategyId != null and strategyId != ''">
+                , strategy_id         = ${strategyId}
+            </if>
+            <if test="version != null and version != ''">
+                , version             = ${version}
+            </if>
+            <if test="exchange != null and strategyId != ''">
+                , exchange            = #{exchange}
+            </if>
+            <if test="coinUnit != null and coinUnit != ''">
+                , coin_unit           = #{coinUnit}
+                , base_unit           = #{baseUnit}
+            </if>
+            <if test="name != null and name != ''">
+                , name                = #{name}
+            </if>
+            <if test="description != null and description != ''">
+                , description         = #{description}
+            </if>
+            <if test="cash != null and cash != ''">
+                , cash                = ${cash}
+            </if>
+            <if test="cashUnit != null and cashUnit != ''">
+                , cash_unit           = #{cashUnit}
+            </if>
+            <if test="collectStart != null and collectStart != ''">
+                , collect_start       = ${collectStart}
+            </if>
+            <if test="collectEnd != null and collectEnd != ''">
+                , collect_end         = ${collectEnd}
+            </if>
+            <if test="investStart != null and investStart != ''">
+                , invest_start        = ${investStart}
+            </if>
+            <if test="investEnd != null and investEnd != ''">
+                , invest_end          = ${investEnd}
+            </if>
+            <if test="cashUnit != null and cashUnit != ''">
+                , cash_unit           = #{cashUnit}
+            </if>
+            <if test="testStart != null and testStart != ''">
+                , test_start          = ${testStart}
+            </if>
+            <if test="testEnd != null and testEnd != ''">
+                , test_end            = ${testEnd}
+            </if>
+            <if test="testResult != null and testResult != ''">
+                , test_result         = #{testResult}
+            </if>
          WHERE id = ${id}
     </update>
 

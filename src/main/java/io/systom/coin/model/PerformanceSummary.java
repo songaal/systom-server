@@ -21,7 +21,7 @@ public class PerformanceSummary {
     private int winCount;
     private int loseCount;
     private Date createTime;
-    private float commission;
+    private String commission;
     private boolean coinInvested;
     private boolean baseInvested;
     private String positions;
@@ -131,11 +131,11 @@ public class PerformanceSummary {
         this.createTime = createTime;
     }
 
-    public float getCommission() {
+    public String getCommission() {
         return commission;
     }
 
-    public void setCommission(float commission) {
+    public void setCommission(String commission) {
         this.commission = commission;
     }
 

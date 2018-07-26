@@ -154,8 +154,11 @@ public class TaskService {
         for (int i=0; i < mRpSize; i++){
             sumMrp += MonthlyReturnList.get(i).getReturnPct();
         }
-        if (sumMrp > 0 && mRpSize > 0) {
+
+        try {
             avgMrp = sumMrp / mRpSize;
+        } catch (ArithmeticException e) {
+            // ignore
         }
 
         try {

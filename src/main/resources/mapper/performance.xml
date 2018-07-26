@@ -24,7 +24,7 @@
               , ${trades}
               , ${winCount}
               , ${loseCount}
-              , ${commission}
+              , #{commission,jdbcType=VARCHAR}
               , ${coinInvested}
               , ${baseInvested}
         )
