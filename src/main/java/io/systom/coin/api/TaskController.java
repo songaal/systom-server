@@ -31,7 +31,7 @@ public class TaskController extends AbstractController {
                                      @RequestBody TraderTask traderTask) throws InterruptedException {
         try {
             traderTask.setUserId(userId);
-            traderTask.setSessionType(TraderTask.SESSION_TYPE.backtest.name());
+            traderTask.setSessionType("backtest");
             TraderTaskResult traderTaskResult = taskService.syncBackTest(traderTask);
             return success(traderTaskResult);
         } catch (AbstractException e){

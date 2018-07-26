@@ -28,12 +28,14 @@ public class Goods {
     private String testEnd;
     private String authorId;
     private Date createTime;
-    private String taskEcsId;
     private String testResult;
     private String userId;
     private float investCash;
-
     private Integer investId;
+    private boolean isTaskRunning;
+    private String taskEcsId;
+    private TraderTask waitTask;
+
     private List<TraderTaskResult.Result.Trade> tradeHistory;
     private PerformanceSummary performanceSummary;
     private List<PerformanceDaily> performanceDaily;
@@ -252,6 +254,22 @@ public class Goods {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public TraderTask getWaitTask() {
+        return waitTask;
+    }
+
+    public void setWaitTask(TraderTask waitTask) {
+        this.waitTask = waitTask;
+    }
+
+    public boolean isTaskRunning() {
+        return isTaskRunning;
+    }
+
+    public void setTaskRunning(boolean taskRunning) {
+        isTaskRunning = taskRunning;
     }
 
     @Override

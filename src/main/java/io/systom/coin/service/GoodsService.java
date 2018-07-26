@@ -42,8 +42,6 @@ public class GoodsService {
     private ExchangeService exchangeService;
     @Autowired
     private InvestGoodsService investGoodsService;
-    @Autowired
-    private TradeService tradeService;
 
     public static final String DATE_FORMAT = "yyyyMMdd";
 
@@ -88,7 +86,7 @@ public class GoodsService {
     public Goods getGoods(Integer goodsId, String userId) {
         Goods searchGoods = new Goods();
         searchGoods.setId(goodsId);
-        searchGoods.setAuthorId(userId);
+        searchGoods.setUserId(userId);
         Goods registerGoods = null;
 
         try {
@@ -192,16 +190,19 @@ public class GoodsService {
             throw new ParameterException("Require");
         }
 
-        if (!registerGoods.getTestStart().equals(target.getTestStart())
-                ||!registerGoods.getTestEnd().equals(target.getTestEnd())) {
-//            백테스트 시간이 변경되면 기존 백테스트 전체 삭제
-            GoodsTestResult testResult = new GoodsTestResult();
-            List<MonthlyReturn> testMonthlyReturnList = generatorTestMonthlyReturns(target.getTestStart(), target.getTestEnd());
-            testResult.setTestMonthlyReturnList(testMonthlyReturnList);
-            testResult.setTestReturnPct(0f);
-            testResult.setTradeHistory(new ArrayList<>());
-            target.setTestResult(new Gson().toJson(testResult));
-        }
+//        if (!registerGoods.getTestStart().equals(target.getTestStart())
+//                ||!registerGoods.getTestEnd().equals(target.getTestEnd())
+//                ||registerGoods.getStrategyId().intValue() != target.getStrategyId()
+//                ||registerGoods.getVersion().intValue() != target.getVersion()
+//                ) {
+////            백테스트 시간이 변경되면 기존 백테스트 전체 삭제
+//            GoodsTestResult testResult = new GoodsTestResult();
+//            List<MonthlyReturn> testMonthlyReturnList = generatorTestMonthlyReturns(target.getTestStart(), target.getTestEnd());
+//            testResult.setTestMonthlyReturnList(testMonthlyReturnList);
+//            testResult.setTestReturnPct(0f);
+//            testResult.setTradeHistory(new ArrayList<>());
+//            target.setTestResult(new Gson().toJson(testResult));
+//        }
 
         target.setExchange(target.getExchange().toLowerCase());
         target.setCashUnit(target.getCashUnit().toLowerCase());
@@ -250,29 +251,30 @@ public class GoodsService {
         } else if (target.getCollectStart() == null || target.getCollectEnd() == null
                 || String.valueOf(target.getCollectStart()).length() != 8
                 || String.valueOf(target.getCollectEnd()).length() != 8
-                || Integer.parseInt(target.getCollectStart()) > Integer.parseInt(target.getCollectEnd())) {
+                || Integer.parseInt(target.getCollectStart()) >= Integer.parseInt(target.getCollectEnd())) {
 //            모집 시작일은 모집 종료일보다 클 수 없음.
             logger.debug("Invalid CollectDate");
             return false;
         } else if (target.getInvestStart() == null || target.getInvestEnd() == null
                 || String.valueOf(target.getInvestStart()).length() != 8
                 || String.valueOf(target.getInvestEnd()).length() != 8
-                || Integer.parseInt(target.getInvestStart()) > Integer.parseInt(target.getInvestEnd())) {
+                || Integer.parseInt(target.getInvestStart()) >= Integer.parseInt(target.getInvestEnd())) {
             logger.debug("Invalid investDate");
 //            투자 시작일은 모집 종료일보다 클 수 없음.
             return false;
         } else if (target.getTestStart() == null || target.getTestEnd() == null
                 || String.valueOf(target.getTestStart()).length() != 8
                 || String.valueOf(target.getTestEnd()).length() != 8
-                || Integer.parseInt(target.getTestStart()) > Integer.parseInt(target.getTestEnd())) {
+                || Integer.parseInt(target.getTestStart()) >= Integer.parseInt(target.getTestEnd())) {
             logger.debug("Invalid BackTestDate");
 //            백테스트 시작일은 모집 종료일보다 클 수 없음.
             return false;
-        } else if (Integer.parseInt(target.getCollectEnd()) > Integer.parseInt(target.getInvestStart())) {
-            logger.debug("Invalid CollectEnd >= InvestStart");
-//            모집 종료일은 투자 시작일보다 클 수 없음.
-            return false;
         }
+//        else if (Integer.parseInt(target.getCollectEnd()) >= Integer.parseInt(target.getInvestStart())) {
+//            logger.debug("Invalid CollectEnd >= InvestStart");
+////            모집 종료일은 투자 시작일보다 클 수 없음.
+//            return false;
+//        }
 
         try {
             StrategyDeployVersion deployVersion = new StrategyDeployVersion();
@@ -323,4 +325,14 @@ public class GoodsService {
         return testMonthlyReturnList;
     }
 
+    public Goods resetGoodsTestResult(Integer id) {
+        Goods registerGoods = getGoods(id);
+        GoodsTestResult testResult = new GoodsTestResult();
+        List<MonthlyReturn> testMonthlyReturnList = generatorTestMonthlyReturns(registerGoods.getTestStart(), registerGoods.getTestEnd());
+        testResult.setTestMonthlyReturnList(testMonthlyReturnList);
+        testResult.setTestReturnPct(0f);
+        testResult.setTradeHistory(new ArrayList<>());
+        registerGoods.setTestResult(new Gson().toJson(testResult));
+        return updateGoods(registerGoods);
+    }
 }

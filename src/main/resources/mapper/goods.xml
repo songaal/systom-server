@@ -194,7 +194,7 @@
 
     <update id="updateTaskEcsId" parameterType="Goods">
         UPDATE goods
-           SET task_ecs_id = #{taskEcsId,jdbdType=VARCHAR}
+           SET task_ecs_id = #{taskEcsId,jdbcType=VARCHAR}
          WHERE id = ${id}
     </update>
 </mapper>

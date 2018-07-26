@@ -2,7 +2,6 @@ package io.systom.coin.service;
 
 import com.amazonaws.services.ecs.model.Task;
 import com.amazonaws.util.json.Jackson;
-import com.google.gson.Gson;
 import io.systom.coin.exception.AuthenticationException;
 import io.systom.coin.exception.OperationException;
 import io.systom.coin.exception.ParameterException;
@@ -16,8 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
+import javax.annotation.PostConstruct;
 import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -46,8 +45,13 @@ public class TaskService {
     @Autowired
     private InvestGoodsService investGoodsService;
 
-    private static Map<String, TraderTask> waitTaskList = new ConcurrentHashMap<>();
+    private static Map<String, TraderTask> waitTaskList;
     private static ConcurrentMap<String, TaskFuture> backTestResult = new ConcurrentHashMap<>();
+
+    @PostConstruct
+    public void init() {
+        waitTaskList = new ConcurrentHashMap<>();
+    }
 
     public TraderTask isWaitTask(String taskId) {
         if (taskId != null && waitTaskList.get(taskId) != null) {
@@ -76,13 +80,11 @@ public class TaskService {
         logger.info("Generator TraderTask taskId: {}", traderTask.getId());
 
         try {
-//            dockerUtils.syncRun(traderTask);
-
-            RestTemplate restTemplate = new RestTemplate();
-            String taskResultJson = restTemplate.getForObject("http://localhost:8080/result.json", String.class);
-            TraderTaskResult traderTaskResult = new Gson().fromJson(taskResultJson, TraderTaskResult.class);
-            registerBackTestResult(traderTask.getId(), traderTaskResult);
-
+            dockerUtils.syncRun(traderTask);
+//            RestTemplate restTemplate = new RestTemplate();
+//            String taskResultJson = restTemplate.getForObject("http://localhost:8080/result.json", String.class);
+//            TraderTaskResult traderTaskResult = new Gson().fromJson(taskResultJson, TraderTaskResult.class);
+//            registerBackTestResult(traderTask.getId(), traderTaskResult);
         } catch (Throwable t) {
             logger.error("", t);
             throw new OperationException("[FAIL] Running BackTest.");
@@ -115,10 +117,13 @@ public class TaskService {
         deployVersion.setVersion(traderTask.getVersion());
         try {
             backTestLogger.info("[{}] Download Modal.", taskId);
-            return sqlSession.selectOne("strategyDeploy.getStrategyModel", deployVersion);
+            String model = sqlSession.selectOne("strategyDeploy.getStrategyModel", deployVersion);
+            return model;
         } catch (Exception e){
             logger.error("", e);
             throw new OperationException("[FAIL] sql execute");
+        } finally {
+            waitTaskList.remove(taskId);
         }
     }
 
@@ -224,8 +229,14 @@ public class TaskService {
         if (traderTask.getGoodsId() == null || registerGoods == null) {
             throw new ParameterException("goodsId");
         }
-        if (registerGoods.getTaskEcsId() != null || waitTaskList.get(registerGoods.getId().toString()) != null) {
+        if (waitTaskList.get(registerGoods.getId().toString()) != null) {
             throw new OperationException("It is already in progress.");
+        }
+        if (registerGoods.getTaskEcsId() != null) {
+            Task task = ecsUtils.getDescribeTasks(registerGoods.getTaskEcsId());
+            if ("RUNNING".equalsIgnoreCase(task.getLastStatus())) {
+                throw new OperationException("It is already in progress.");
+            }
         }
         String taskId = registerGoods.getId().toString();
         traderTask.setId(taskId);
@@ -248,10 +259,8 @@ public class TaskService {
                 throw new OperationException("[FAIL] sql execute. changeRow: {}" + changeRow);
             }
         } catch (Exception e) {
-            logger.error("[FAIL] sql execute.");
+            logger.error("[FAIL] sql execute.", e);
             throw new OperationException("[FAIL] sql execute.");
-        } finally {
-            waitTaskList.remove(taskId);
         }
         return resultTask;
     }
@@ -310,4 +319,5 @@ public class TaskService {
         traderTask.setStrategyId(18);
         waitTaskList.put(task_id, traderTask);
     }
+
 }

@@ -25,8 +25,8 @@ public class LiveTaskRunTest {
     @Test
     public void liveTaskRunTest() {
         TraderTask traderTask = new TraderTask();
-        traderTask.setActions(TraderTask.ACTIONS.start.name());
-        traderTask.setSessionType(TraderTask.SESSION_TYPE.live.name());
+        traderTask.setAction(TraderTask.ACTIONS.start.name());
+        traderTask.setSessionType("live");
         traderTask.setInitCash(10000);
         traderTask.setGoodsId(9);
         String taskId = UUID.randomUUID().toString();

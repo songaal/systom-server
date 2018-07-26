@@ -84,7 +84,7 @@ public class EcsUtils {
                 Task task = getDescribeTasks(taskArn);
                 String status = task.getLastStatus();
                 if ("RUNNING".equalsIgnoreCase(status)) {
-                    logger.info("ECS Task Running.", task);
+                    logger.info("ECS Task Running. {}", task);
                     break;
                 } else if("STOPPED".equalsIgnoreCase(status)) {
                     logger.info("ECS Task Running Error.", task);
@@ -109,18 +109,19 @@ public class EcsUtils {
         return result.getTasks().get(0);
     }
 
-    public com.amazonaws.services.ecs.model.Task getDescribeTasks(String taskId) {
-        if (client.describeTasks(new DescribeTasksRequest().withTasks(taskId).withCluster(clusterId)).getTasks().size() == 0) {
-            return null;
+    public Task getDescribeTasks(String taskEcsIds) {
+        if (client.describeTasks(new DescribeTasksRequest().withTasks(taskEcsIds).withCluster(clusterId)).getTasks().size() == 0) {
+            return new Task();
         } else {
-            return client.describeTasks(new DescribeTasksRequest().withTasks(taskId).withCluster(clusterId)).getTasks().get(0);
+            return client.describeTasks(new DescribeTasksRequest().withTasks(taskEcsIds).withCluster(clusterId)).getTasks().get(0);
         }
     }
-    public List<com.amazonaws.services.ecs.model.Task> getDescribeTasks(List<String> taskId) {
-        return client.describeTasks(new DescribeTasksRequest().withTasks(taskId).withCluster(clusterId)).getTasks();
+
+    public List<Task> getDescribeTasks(List<String> taskEcsIds) {
+        return client.describeTasks(new DescribeTasksRequest().withTasks(taskEcsIds).withCluster(clusterId)).getTasks();
     }
 
-    public List<String> getRunnableTaskList() {
+    public List<String> getRunningTaskList() {
         return client.listTasks(new ListTasksRequest().withCluster(clusterId)).getTaskArns();
     }
 
@@ -130,9 +131,7 @@ public class EcsUtils {
                 .withTask(taskEcsId)
                 .withCluster(clusterId);
         StopTaskResult stopTaskResult = client.stopTask(stopTaskRequest);
-
 //        stopTaskResult.getTask().getLastStatus();
-
         return stopTaskResult.getTask();
     }
 }

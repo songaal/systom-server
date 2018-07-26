@@ -10,6 +10,7 @@ import io.systom.coin.model.TraderTask;
 import io.systom.coin.service.GoodsService;
 import io.systom.coin.service.IdentityService;
 import io.systom.coin.service.TaskService;
+import io.systom.coin.utils.EcsUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -39,6 +40,8 @@ public class GoodsController extends AbstractController{
     private IdentityService identityService;
     @Autowired
     private TaskService taskService;
+    @Autowired
+    private EcsUtils ecsUtils;
 
     public enum GOODS_TYPE { wait, running, close }
 
@@ -72,7 +75,7 @@ public class GoodsController extends AbstractController{
                 if (typeList.contains(GOODS_TYPE.wait.name())) {
                     logger.debug("retrieveGoodsList wait");
                     searchGoods = new Goods();
-                    searchGoods.setAuthorId(userId);
+                    searchGoods.setUserId(userId);
                     searchGoods.setExchange(exchange);
                     searchGoods.setInvestStart(nowTime);
                     searchGoods.setDisplay(false);
@@ -81,7 +84,7 @@ public class GoodsController extends AbstractController{
                 if (typeList.contains(GOODS_TYPE.running.name())) {
                     logger.debug("retrieveGoodsList running");
                     searchGoods = new Goods();
-                    searchGoods.setAuthorId(userId);
+                    searchGoods.setUserId(userId);
                     searchGoods.setExchange(exchange);
                     searchGoods.setInvestStart(nowTime);
                     searchGoods.setInvestEnd(nowTime);
@@ -91,11 +94,27 @@ public class GoodsController extends AbstractController{
                 if (typeList.contains(GOODS_TYPE.close.name())) {
                     logger.debug("retrieveGoodsList close");
                     searchGoods = new Goods();
-                    searchGoods.setAuthorId(userId);
+                    searchGoods.setUserId(userId);
                     searchGoods.setExchange(exchange);
                     searchGoods.setInvestEnd(nowTime);
                     searchGoods.setDisplay(false);
                     registerGoodsList.addAll(goodsService.retrieveGoodsList(searchGoods));
+                }
+                int goodsSize = registerGoodsList.size();
+                List<String> runTaskList = ecsUtils.getRunningTaskList();
+                for (int i=0; i < goodsSize; i++) {
+                    Goods tmpGoods = registerGoodsList.get(i);
+                    String goodsTaskArn = tmpGoods.getTaskEcsId();
+                    if (goodsTaskArn != null) {
+                        int taskSize = runTaskList.size();
+                        for (int j=0; j < taskSize; j++) {
+                            String arn = runTaskList.get(j);
+                            if (goodsTaskArn.equals(arn)) {
+                                tmpGoods.setTaskRunning(true);
+                                break;
+                            }
+                        }
+                    }
                 }
             } else {
                 searchGoods = new Goods();
@@ -103,7 +122,7 @@ public class GoodsController extends AbstractController{
                 searchGoods.setCollectEnd(nowTime);
                 searchGoods.setDisplay(true);
                 searchGoods.setExchange(exchange);
-                searchGoods.setAuthorId(userId);
+                searchGoods.setUserId(userId);
                 registerGoodsList = goodsService.retrieveGoodsList(searchGoods);
             }
             return success(registerGoodsList);
@@ -128,6 +147,7 @@ public class GoodsController extends AbstractController{
                     && Integer.parseInt(registerGoods.getCollectEnd()) < nowTime) {
                 throw new AuthenticationException();
             }
+            registerGoods.setTaskRunning(isEcsTaskRunning(registerGoods.getTaskEcsId()));
             return success(registerGoods);
         } catch (AbstractException e) {
             logger.error("", e);
@@ -225,21 +245,27 @@ public class GoodsController extends AbstractController{
         try {
             traderTask.setGoodsId(id);
             traderTask.setUserId(userId);
-            if (TraderTask.SESSION_TYPE.backtest.name().equals(traderTask.getSessionType())) {
+            if (TraderTask.ACTIONS.backtest.name().equalsIgnoreCase(traderTask.getAction())) {
+                traderTask.setSessionType("backtest");
                 Goods registerGoods = taskService.createGoodsBackTest(traderTask);
+                registerGoods.setTaskRunning(isEcsTaskRunning(registerGoods.getTaskEcsId()));
                 return success(registerGoods);
-            } else if (TraderTask.SESSION_TYPE.live.name().equals(traderTask.getSessionType())) {
-                Task task = null;
-                if (TraderTask.ACTIONS.start.name().equals(traderTask.getActions())) {
-                    task = taskService.liveTaskRun(traderTask);
-                } else if (TraderTask.ACTIONS.stop.name().equals(traderTask.getActions())) {
-                    task = taskService.liveTaskStop(traderTask);
-                } else {
-                    throw new ParameterException("actions");
-                }
+            } else if (TraderTask.ACTIONS.start.name().equals(traderTask.getAction())) {
+                traderTask.setSessionType("live");
+                traderTask.setInitCash(10000);
+                Task task = taskService.liveTaskRun(traderTask);
                 return success(task);
+            } else if (TraderTask.ACTIONS.stop.name().equals(traderTask.getAction())) {
+                traderTask.setSessionType("live");
+                traderTask.setInitCash(10000);
+                Task task = taskService.liveTaskStop(traderTask);
+                return success(task);
+            } else if (TraderTask.ACTIONS.reset.name().equals(traderTask.getAction())) {
+                Goods registerGoods = goodsService.resetGoodsTestResult(id);
+                registerGoods.setTaskRunning(isEcsTaskRunning(registerGoods.getTaskEcsId()));
+                return success(registerGoods);
             } else {
-                throw new ParameterException("SESSION_TYPE");
+                throw new ParameterException("action");
             }
         } catch (AbstractException e) {
             logger.error("", e);
@@ -248,5 +274,14 @@ public class GoodsController extends AbstractController{
             logger.error("Throwable: ", t);
             return new OperationException().response();
         }
+    }
+
+    private boolean isEcsTaskRunning(String taskEcsId) {
+        if (taskEcsId == null) {
+            return false;
+        }
+
+        Task task = ecsUtils.getDescribeTasks(taskEcsId);
+        return "RUNNING".equalsIgnoreCase(task.getLastStatus());
     }
 }

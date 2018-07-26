@@ -10,12 +10,12 @@ import java.util.List;
 
 public class TraderTask {
 
-    public enum SESSION_TYPE { backtest, paper, live }
-    public enum ACTIONS { start, stop }
+//    public enum SESSION_TYPE { backtest, paper, live }
+    public enum ACTIONS { start, stop, backtest, reset }
 
     private String id;              // 임시 아이디 발급 (signal model download 용)
     private String sessionType;
-    private String actions;
+    private String action;
 
     private Integer strategyId;
     private Integer version;
@@ -31,12 +31,12 @@ public class TraderTask {
     private Integer goodsId;
 //  ------ 라이브 전용 필드
 
-    public String getActions() {
-        return actions;
+    public String getAction() {
+        return action;
     }
 
-    public void setActions(String actions) {
-        this.actions = actions;
+    public void setAction(String action) {
+        this.action = action;
     }
 
     public String getSessionType() {
@@ -149,7 +149,6 @@ public class TraderTask {
         List<String> cmd = new ArrayList<>();
         cmd.add("python");
         cmd.add("launcher.py");
-        cmd.add("file=gen_signal");
         cmd.add("task_id=" + this.id);
         cmd.add("session_type=" + this.sessionType);
         cmd.add("start_date=" + startDate);
@@ -170,8 +169,8 @@ public class TraderTask {
         cmd.add("exchange_id=" + this.exchange);
         cmd.add("start_date=" + this.startDate);
         cmd.add("coin_unit=" + this.coinUnit);
-        cmd.add("base_unit=" + this.coinUnit);
-        cmd.add("cash_unit=" + this.coinUnit);
+        cmd.add("base_unit=" + this.baseUnit);
+        cmd.add("cash_unit=" + this.cashUnit);
         cmd.add("init_cash=" + this.initCash);
         return cmd;
     }
