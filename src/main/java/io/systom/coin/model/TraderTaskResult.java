@@ -249,8 +249,7 @@ public class TraderTaskResult {
             @SerializedName("base_symbol")
             private String baseSymbol;
             private float equity;
-            @SerializedName("total_commission")
-            private String totalCommission;
+            private String commission;
             @SerializedName("coin_invested")
             private boolean coinInvested;
             @SerializedName("base_invested")
@@ -299,12 +298,12 @@ public class TraderTaskResult {
                 this.equity = equity;
             }
 
-            public String getTotalCommission() {
-                return totalCommission;
+            public String getCommission() {
+                return commission;
             }
 
-            public void setTotalCommission(String totalCommission) {
-                this.totalCommission = totalCommission;
+            public void setCommission(String commission) {
+                this.commission = commission;
             }
 
             public boolean isCoinInvested() {
@@ -547,6 +546,7 @@ public class TraderTaskResult {
             public void setReason(Reason reason) {
                 this.reason = reason;
             }
+
             public void setStrReason(String reason) {
                 this.reason = new Gson().fromJson(reason, Reason.class);
             }

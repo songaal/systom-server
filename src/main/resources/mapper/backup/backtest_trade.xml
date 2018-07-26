@@ -12,7 +12,7 @@
         VALUES ( ${id}
                 , ${totalEquity}
                 , ${totalEquityUsd}
-                , ${totalCommission}
+                , ${commission}
                 , ${basePrice}
                 , ${returnPct}
                 , ${maxReturnPct}

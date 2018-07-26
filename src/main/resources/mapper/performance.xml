@@ -16,7 +16,7 @@
               , ${initCash}
               , ${equity}
               , ${returns}
-              , ${returns_pct}
+              , ${returnsPct}
               , ${mdd}
               , ${pnlRate}
               , ${avgProfit}

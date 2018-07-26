@@ -12,7 +12,7 @@ public class PerformanceSummary {
     private float initCash;
     private float equity;
     private float returns;
-    private float returns_pct;
+    private float returnsPct;
     private float mdd;
     private float pnlRate;
     private float avgProfit;
@@ -59,12 +59,12 @@ public class PerformanceSummary {
         this.returns = returns;
     }
 
-    public float getReturns_pct() {
-        return returns_pct;
+    public float getReturnsPct() {
+        return returnsPct;
     }
 
-    public void setReturns_pct(float returns_pct) {
-        this.returns_pct = returns_pct;
+    public void setReturnsPct(float returnsPct) {
+        this.returnsPct = returnsPct;
     }
 
     public float getMdd() {

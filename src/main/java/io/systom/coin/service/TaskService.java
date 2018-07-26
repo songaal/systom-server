@@ -81,10 +81,6 @@ public class TaskService {
 
         try {
             dockerUtils.syncRun(traderTask);
-//            RestTemplate restTemplate = new RestTemplate();
-//            String taskResultJson = restTemplate.getForObject("http://localhost:8080/result.json", String.class);
-//            TraderTaskResult traderTaskResult = new Gson().fromJson(taskResultJson, TraderTaskResult.class);
-//            registerBackTestResult(traderTask.getId(), traderTaskResult);
         } catch (Throwable t) {
             logger.error("", t);
             throw new OperationException("[FAIL] Running BackTest.");
@@ -123,7 +119,9 @@ public class TaskService {
             logger.error("", e);
             throw new OperationException("[FAIL] sql execute");
         } finally {
-            waitTaskList.remove(taskId);
+            if("live".equals(traderTask.getSessionType())) {
+                waitTaskList.remove(taskId);
+            }
         }
     }
 
