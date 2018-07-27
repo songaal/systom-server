@@ -11,7 +11,7 @@ import java.util.List;
 public class TraderTask {
 
 //    public enum SESSION_TYPE { backtest, paper, live }
-    public enum ACTIONS { start, stop, backtest, reset }
+    public enum ACTIONS { start, stop, backtest, reset, hide, show, error }
 
     private String id;              // 임시 아이디 발급 (signal model download 용)
     private String sessionType;

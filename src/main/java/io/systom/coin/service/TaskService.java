@@ -81,6 +81,8 @@ public class TaskService {
 
         try {
             dockerUtils.syncRun(traderTask);
+            // 결과 저장에 약간의 시간딜레이를 준다.
+            Thread.sleep(500);
         } catch (Throwable t) {
             logger.error("", t);
             throw new OperationException("[FAIL] Running BackTest.");

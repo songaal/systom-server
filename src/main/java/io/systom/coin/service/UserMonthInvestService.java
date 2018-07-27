@@ -110,9 +110,12 @@ public class UserMonthInvestService {
             try {
                 float pct = 0;
                 float ret = 0;
+
                 if (userMonthlyInvest.getMonthEquity() != 0 && userMonthlyInvest.getInitCash() != 0) {
-                    pct = userMonthlyInvest.getInitCash() / userMonthlyInvest.getMonthEquity();
                     ret = userMonthlyInvest.getMonthEquity() - userMonthlyInvest.getInitCash();
+                    if (ret != 0) {
+                        pct = userMonthlyInvest.getInitCash() / userMonthlyInvest.getMonthEquity();
+                    }
                 }
                 userMonthlyInvest.setUserId(userList.get(i));
                 userMonthlyInvest.setMonthlyReturn(ret);

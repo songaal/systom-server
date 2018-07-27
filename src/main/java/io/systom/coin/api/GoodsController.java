@@ -239,7 +239,7 @@ public class GoodsController extends AbstractController{
 
 
     @PostMapping("/{id}/actions")
-    public ResponseEntity<?> createTestResult(@PathVariable Integer id,
+    public ResponseEntity<?> goodsActions(@PathVariable Integer id,
                                               @RequestAttribute String userId,
                                               @RequestBody TraderTask traderTask) {
         try {
@@ -284,4 +284,34 @@ public class GoodsController extends AbstractController{
         Task task = ecsUtils.getDescribeTasks(taskEcsId);
         return "RUNNING".equalsIgnoreCase(task.getLastStatus());
     }
+
+
+
+
+
+//    TODO 개발중
+    public ResponseEntity<?> tmpGoodsActions(@PathVariable Integer id,
+                                          @RequestAttribute String userId,
+                                          @RequestBody TraderTask traderTask) {
+        try {
+            traderTask.setGoodsId(id);
+            traderTask.setUserId(userId);
+            if (TraderTask.ACTIONS.show.name().equals(traderTask.getAction())) {
+                Goods registerGoods = goodsService.updateGoodsHide(id, userId);
+                return success(registerGoods);
+            } else if (TraderTask.ACTIONS.hide.name().equals(traderTask.getAction())) {
+                Goods registerGoods = goodsService.updateGoodsShow(id, userId);
+                return success(registerGoods);
+            } else {
+                throw new ParameterException("action");
+            }
+        } catch (AbstractException e) {
+            logger.error("", e);
+            return e.response();
+        } catch (Throwable t) {
+            logger.error("Throwable: ", t);
+            return new OperationException().response();
+        }
+    }
+
 }
