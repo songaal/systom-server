@@ -106,6 +106,9 @@ public class AuthInterceptor implements HandlerInterceptor {
     }
 
     String getCookieValue(HttpServletRequest request , String name) {
+        if (request.getCookies() == null) {
+            return null;
+        }
         for(Cookie cookie : request.getCookies()) {
 
             if(cookie.getName().equals(name)) {

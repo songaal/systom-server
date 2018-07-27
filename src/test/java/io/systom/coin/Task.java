@@ -78,7 +78,7 @@
 //            v.setTimestamp(ts);
 //            v.setEquity(entry.getValue());
 //            if (cumReturns.get(ts) != null) {
-//                v.setCumReturn(cumReturns.get(ts));
+//                v.setCumReturns(cumReturns.get(ts));
 //                cumReturns.remove(ts);
 //            }
 //            if (drawdowns.get(ts) != null) {
@@ -95,7 +95,7 @@
 //            TraderTaskResult.Result.Value v = new TraderTaskResult.Result.Value();
 //            v.setId(investGoodsId);
 //            v.setTimestamp(ts);
-//            v.setCumReturn(cumReturns.get(ts));
+//            v.setCumReturns(cumReturns.get(ts));
 //            if (drawdowns.get(ts) != null) {
 //                v.setDrawdown(drawdowns.get(ts));
 //                drawdowns.remove(ts);

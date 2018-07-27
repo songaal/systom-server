@@ -27,21 +27,18 @@
 
     <select id="getDailyInvest" parameterType="String" resultType="HashMap">
         <![CDATA[
-        SELECT IFNULL(SUM(a.cash), 0) as cash
-             , IFNULL(SUM(a.equity), 0) as equity
-          FROM performance_daily a
-         WHERE a.invest_id in (SELECT aa.id
-                                 FROM invest_goods aa
-                                WHERE aa.user_id = #{param1}
-                                  AND aa.goods_id in (SELECT bb.id
-                                                        FROM goods bb
-                                                       WHERE substring(bb.invest_start, 1, 6) >= date_format(now() , '%Y%m')
-                                                         AND substring(bb.invest_end, 1, 6) <= date_format(now() , '%Y%m')
-                                                     )
-                              )
+        SELECT SUM(aa.init_cash) as cash
+             , SUM(aa.equity) as equity
+             , date_format(now(), '%Y%m') as date
+          FROM performance_summary aa
+         WHERE aa.invest_id in ( SELECT bbb.id
+                                   FROM goods aaa
+                                   JOIN invest_goods bbb on aaa.id = bbb.goods_id
+                                  WHERE bbb.user_id = #{param1}
+                                    AND (cast(aaa.invest_start as decimal) <= cast(date_format(now(), '%Y%m%d') as decimal)
+                                     OR cast(aaa.invest_end as decimal) >= cast(date_format(now(), '%Y%m%d') as decimal)) )
         ]]>
     </select>
-
 
     <select id="retrieveUpdateTargetUserList" resultType="String">
         <![CDATA[

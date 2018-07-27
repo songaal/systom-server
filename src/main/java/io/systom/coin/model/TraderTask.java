@@ -175,10 +175,14 @@ public class TraderTask {
         return cmd;
     }
 
-    public List<String> getLiveExecutorCmd() {
+    public List<String> getLiveExecutorCmd(boolean isLive) {
         List<String> cmd = new ArrayList<>();
         cmd.add("python");
-        cmd.add("mock_executor.py");
+        if (isLive) {
+            cmd.add("live_executor.py");
+        } else {
+            cmd.add("mock_executor.py");
+        }
         cmd.add("goods_id=" + this.goodsId);
         return cmd;
     }

@@ -3,7 +3,6 @@ package io.systom.coin;
 import io.systom.coin.model.Goods;
 import io.systom.coin.model.InvestGoods;
 import io.systom.coin.model.TraderTask;
-import io.systom.coin.scheduler.MonthCalculationScheduler;
 import io.systom.coin.service.GoodsService;
 import io.systom.coin.service.InvestGoodsService;
 import io.systom.coin.service.TaskService;
@@ -166,9 +165,9 @@ public class GoodsTest {
 
         logger.info("투자한 상품 정보 조회[{}] {}" , investor.getUserId(), investGoodsService.getInvestGoodsDetail(investor.getId(), investor.getUserId()));
 
-        MonthCalculationScheduler monthCalculationScheduler = new MonthCalculationScheduler();
-        monthCalculationScheduler.setSqlSession(sqlSession);
-        monthCalculationScheduler.monthCalculation();
+//        MonthCalculationScheduler monthCalculationScheduler = new MonthCalculationScheduler();
+//        monthCalculationScheduler.setSqlSession(sqlSession);
+//        monthCalculationScheduler.monthCalculation();
 
 //        logger.info("투자 취소[{}] {}" , investor.getUserId(), investGoodsService.removeInvestor(investor.getId(), investor.getUserId()));
 

@@ -4,6 +4,7 @@ import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.ecs.AmazonECS;
 import com.amazonaws.services.ecs.AmazonECSClientBuilder;
 import com.amazonaws.services.ecs.model.*;
+import io.systom.coin.config.Env;
 import io.systom.coin.exception.OperationException;
 import io.systom.coin.model.TraderTask;
 import org.slf4j.LoggerFactory;
@@ -49,24 +50,24 @@ public class EcsUtils {
     public Task syncRun(TraderTask traderTask){
         logger.info("ECS TraderTask Start");
         String taskDefinition = taskDefinitionName + ":" + taskDefinitionVersion;
+        List<String> signalCmd = traderTask.getLiveSignalCmd();
+        signalCmd.add("api_server_url=" + apiServerUrl);
+        List<String> executorCmd = traderTask.getLiveExecutorCmd(Env.isLiveExecution());
 
         logger.info("clusterId: {}", clusterId);
         logger.info("taskDefinition: {}", taskDefinition);
-        logger.info("signal command: {}", traderTask.getLiveSignalCmd());
-        logger.info("executor command: {}", traderTask.getLiveExecutorCmd());
-
-        List<String> cmd = traderTask.getLiveSignalCmd();
-        cmd.add("api_server_url=" + apiServerUrl);
+        logger.info("signal command: {}", signalCmd);
+        logger.info("executor command: {}", executorCmd);
 
         RunTaskRequest runTaskRequest = new RunTaskRequest();
         TaskOverride taskOverride = new TaskOverride();
         ContainerOverride signalContainerOverride = new ContainerOverride();
         ContainerOverride executorContainerOverride = new ContainerOverride();
         signalContainerOverride.withName(signalName)
-                .withCommand(cmd);
+                .withCommand(signalCmd);
 
         executorContainerOverride.withName(executorName)
-                .withCommand(traderTask.getLiveExecutorCmd());
+                .withCommand(executorCmd);
 
         taskOverride.withContainerOverrides(signalContainerOverride, executorContainerOverride);
 

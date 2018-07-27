@@ -42,6 +42,8 @@ public class InvestGoodsService {
     private PerformanceService performanceService;
     @Autowired
     private TradeService tradeService;
+    @Autowired
+    private UserMonthInvestService userMonthInvestService;
 
     public InvestGoods registrationInvestor(InvestGoods investor) {
         Goods registerGoods = goodsService.getGoods(investor.getGoodsId());
@@ -87,6 +89,7 @@ public class InvestGoodsService {
         performanceSummary.setEquity(investor.getInvestCash());
         performanceService.insertPerformanceSummary(performanceSummary);
 
+        userMonthInvestService.updateMonthlyCalculation(investor.getUserId());
         return getInvestGoods(investor.getId());
     }
 
@@ -145,7 +148,7 @@ public class InvestGoodsService {
             logger.error("", e);
             throw new OperationException();
         }
-
+        userMonthInvestService.updateMonthlyCalculation(userId);
         return investGoods;
     }
 

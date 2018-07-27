@@ -51,7 +51,7 @@
         <foreach collection="list" item="item" separator=",">
             ( ${item.id}
             , ${item.timestamp}
-            , #{item.cumReturn}
+            , #{item.cumReturns}
             , #{item.drawdown}
             , #{item.equity}
             )

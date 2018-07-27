@@ -10,14 +10,14 @@ public class PerformanceDaily {
     private Integer investId;
     private String date;
     private float marketPrice;
-    private float cash;
-    private float coin;
-    private float base;
     private float equity;
     private float returns;
     private float returnsPct;
-    private float cumReturn;
+    private float cumReturns;
     private float cumReturnPct;
+    private float hwm;
+    private float prevEquity;
+    private float prevHwm;
     private Date updateTime;
 
     public Integer getInvestId() {
@@ -44,30 +44,6 @@ public class PerformanceDaily {
         this.marketPrice = marketPrice;
     }
 
-    public float getCash() {
-        return cash;
-    }
-
-    public void setCash(float cash) {
-        this.cash = cash;
-    }
-
-    public float getCoin() {
-        return coin;
-    }
-
-    public void setCoin(float coin) {
-        this.coin = coin;
-    }
-
-    public float getBase() {
-        return base;
-    }
-
-    public void setBase(float base) {
-        this.base = base;
-    }
-
     public float getEquity() {
         return equity;
     }
@@ -92,12 +68,12 @@ public class PerformanceDaily {
         this.returnsPct = returnsPct;
     }
 
-    public float getCumReturn() {
-        return cumReturn;
+    public float getCumReturns() {
+        return cumReturns;
     }
 
-    public void setCumReturn(float cumReturn) {
-        this.cumReturn = cumReturn;
+    public void setCumReturns(float cumReturns) {
+        this.cumReturns = cumReturns;
     }
 
     public float getCumReturnPct() {
@@ -116,20 +92,44 @@ public class PerformanceDaily {
         this.updateTime = updateTime;
     }
 
+    public float getHwm() {
+        return hwm;
+    }
+
+    public void setHwm(float hwm) {
+        this.hwm = hwm;
+    }
+
+    public float getPrevEquity() {
+        return prevEquity;
+    }
+
+    public void setPrevEquity(float prevEquity) {
+        this.prevEquity = prevEquity;
+    }
+
+    public float getPrevHwm() {
+        return prevHwm;
+    }
+
+    public void setPrevHwm(float prevHwm) {
+        this.prevHwm = prevHwm;
+    }
+
     @Override
     public String toString() {
         return "PerformanceDaily{" +
                 "investId=" + investId +
                 ", date='" + date + '\'' +
                 ", marketPrice=" + marketPrice +
-                ", cash=" + cash +
-                ", coin=" + coin +
-                ", base=" + base +
                 ", equity=" + equity +
                 ", returns=" + returns +
                 ", returnsPct=" + returnsPct +
-                ", cumReturn=" + cumReturn +
+                ", cumReturns=" + cumReturns +
                 ", cumReturnPct=" + cumReturnPct +
+                ", hwm=" + hwm +
+                ", prevEquity=" + prevEquity +
+                ", prevHwm=" + prevHwm +
                 ", updateTime=" + updateTime +
                 '}';
     }

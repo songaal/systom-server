@@ -67,12 +67,11 @@
         SELECT a.invest_id
              , a.date
              , a.market_price
-             , a.cash
              , a.equity
              , a.returns
              , a.returns_pct
-             , a.cum_return
-             , a.cum_return_pct
+             , a.cum_returns
+             , a.cum_returns_pct
              , a.update_time
              , a.hwm
              , a.prev_equity

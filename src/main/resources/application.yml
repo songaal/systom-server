@@ -37,8 +37,8 @@ backtest:
           readTimeout: 300000
           connectTimeout: 10000
 
-scheduler:
-  isMonthCalculation: "false"
+#scheduler:
+#  isMonthCalculation: "true"
 
 
 

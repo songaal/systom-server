@@ -96,4 +96,35 @@ public class UserMonthInvestService {
         }
         return dailyInvest;
     }
+
+    public void updateMonthlyCalculation(String userId) {
+        List<String> user = new ArrayList<>();
+        user.add(userId);
+        updateMonthlyCalculation(user);
+    }
+    public void updateMonthlyCalculation(List<String> userList) {
+        //        TODO 환율 조회 후 월수익 계산
+        int userSize = userList.size();
+        for(int i=0; i<userSize; i++) {
+            UserMonthlyInvest userMonthlyInvest = sqlSession.selectOne("userMonthlyInvest.getUserMonthlyInvest", userList.get(i));
+            try {
+                float pct = 0;
+                float ret = 0;
+                if (userMonthlyInvest.getMonthEquity() != 0 && userMonthlyInvest.getInitCash() != 0) {
+                    pct = userMonthlyInvest.getInitCash() / userMonthlyInvest.getMonthEquity();
+                    ret = userMonthlyInvest.getMonthEquity() - userMonthlyInvest.getInitCash();
+                }
+                userMonthlyInvest.setUserId(userList.get(i));
+                userMonthlyInvest.setMonthlyReturn(ret);
+                userMonthlyInvest.setMonthlyReturnPct(pct);
+                logger.debug("사용자 [{}] 월투자금: {}, 월수익률: {}, 월수익금: {}", userList.get(i),
+                        userMonthlyInvest.getInitCash(),
+                        userMonthlyInvest.getMonthlyReturnPct(),
+                        userMonthlyInvest.getMonthlyReturn());
+                sqlSession.insert("userMonthlyInvest.updateMonthlyInvest", userMonthlyInvest);
+            } catch (Exception e) {
+                logger.error("", e);
+            }
+        }
+    }
 }
