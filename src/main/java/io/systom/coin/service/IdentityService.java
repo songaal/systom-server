@@ -8,6 +8,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.gson.Gson;
 import io.systom.coin.api.IdentityController;
 import io.systom.coin.exception.AbstractException;
+import io.systom.coin.exception.ParameterException;
 import io.systom.coin.model.UserNotification;
 import io.systom.coin.utils.CognitoPubKeyStore;
 import io.systom.coin.utils.CredentialsCache;
@@ -34,9 +35,6 @@ public class IdentityService {
 
     private static Logger logger = LoggerFactory.getLogger(IdentityService.class);
 
-    //웹소켓
-//    private Map<String, WebSocketSessionInfoSet> subscriberMap;
-
     //토큰 캐시.
     private CredentialsCache tokenCache;
 
@@ -59,13 +57,7 @@ public class IdentityService {
         cognitoClient = AWSCognitoIdentityProviderClientBuilder.standard().build();
         tokenCache = new CredentialsCache(10000);
         cognitoPubKeyStore = new CognitoPubKeyStore(cognitoPoolId);
-//        subscriberMap = new ConcurrentHashMap<>();
     }
-//
-//    public Map<String, WebSocketSessionInfoSet> getSubscriberMap() {
-//        return subscriberMap;
-//    }
-
 
     /**
      * 회원가입
@@ -74,6 +66,9 @@ public class IdentityService {
      * */
     public AdminCreateUserResult signUp(String userId, String email) {
         logger.debug("SignUp userId >> {}, email >> {}", userId, email);
+        if (isSignUpEmail(email)) {
+            throw new ParameterException("email");
+        }
         AdminCreateUserRequest authRequest = new AdminCreateUserRequest()
                 .withUserPoolId(cognitoPoolId)
                 .withUsername(userId)
@@ -83,6 +78,24 @@ public class IdentityService {
         return authResponse;
     }
 
+    /**
+     * 이메일 확인 절차
+     * */
+    public boolean isSignUpEmail(String email) {
+        ListUsersResult listUsersResult = cognitoClient.listUsers(new ListUsersRequest().withUserPoolId(cognitoPoolId));
+        Iterator<UserType> userIterator = listUsersResult.getUsers().iterator();
+        while(userIterator.hasNext()){
+            UserType userType = userIterator.next();
+            Iterator<AttributeType> attributeTypeIterator = userType.getAttributes().iterator();
+            while(attributeTypeIterator.hasNext()) {
+                AttributeType attributeType = attributeTypeIterator.next();
+                if (attributeType.getName().equalsIgnoreCase(email.toUpperCase())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     /**
      * 로그인
