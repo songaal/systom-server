@@ -108,14 +108,13 @@ public class UserMonthInvestService {
         for(int i=0; i<userSize; i++) {
             UserMonthlyInvest userMonthlyInvest = sqlSession.selectOne("userMonthlyInvest.getUserMonthlyInvest", userList.get(i));
             try {
-                float pct = 0;
                 float ret = 0;
-
-                if (userMonthlyInvest.getMonthEquity() != 0 && userMonthlyInvest.getInitCash() != 0) {
+                float pct = 0;
+                try {
                     ret = userMonthlyInvest.getMonthEquity() - userMonthlyInvest.getInitCash();
-                    if (ret != 0) {
-                        pct = userMonthlyInvest.getInitCash() / userMonthlyInvest.getMonthEquity();
-                    }
+                    pct = ret / userMonthlyInvest.getInitCash() * 100;
+                } catch (Exception e){
+                    // ignore
                 }
                 userMonthlyInvest.setUserId(userList.get(i));
                 userMonthlyInvest.setMonthlyReturn(ret);

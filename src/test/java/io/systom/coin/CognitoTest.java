@@ -57,7 +57,7 @@ public class CognitoTest {
     public void signupTest() {
         AdminCreateUserRequest authRequest = new AdminCreateUserRequest()
                 .withUserPoolId("ap-northeast-2_8UlVuFFva")
-                .withUsername("test1")
+                .withUsername("testuser")
                 .withUserAttributes(new AttributeType().withName("email").withValue("jwkim@gncloud.kr"))
                 .withUserAttributes(new AttributeType().withName("email_verified").withValue("true"));
 

@@ -3,10 +3,10 @@ package io.systom.coin.api;
 import com.amazonaws.services.cognitoidp.model.*;
 import io.systom.coin.exception.AbstractException;
 import io.systom.coin.exception.OperationException;
+import io.systom.coin.exception.RequestException;
 import io.systom.coin.model.*;
 import io.systom.coin.service.ExchangeService;
 import io.systom.coin.service.IdentityService;
-import io.systom.coin.utils.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,7 +17,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 
 /**
@@ -29,9 +28,9 @@ public class IdentityController {
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(IdentityController.class);
 
-    public final static String ACCESS_TOKEN = "COINCLOUD-ACCESS-TOKEN";
-    public final static String REFRESH_TOKEN = "COINCLOUD-REFRESH-TOKEN";
-    public final static String ID_TOKEN = "COINCLOUD-ID-TOKEN";
+    public final static String ACCESS_TOKEN = "SYSTOM-ACCESS-TOKEN";
+    public final static String REFRESH_TOKEN = "SYSTOM-REFRESH-TOKEN";
+    public final static String ID_TOKEN = "SYSTOM-ID-TOKEN";
 
     @Autowired
     private IdentityService identityService;
@@ -128,9 +127,6 @@ public class IdentityController {
                 String destination = forgotPasswordResult.getCodeDeliveryDetails().getDestination();
                 return new ResponseEntity<>(destination, HttpStatus.OK);
             } else if (ForgotPassword.ACTIONS.reset.name().equalsIgnoreCase(forgotPassword.getAction())) {
-                String randomPw = StringUtils.randomAlphaString(10, 20);
-                randomPw += Math.abs(new Random().ints(1).toArray()[0]);
-                forgotPassword.setPassword(randomPw);
                 logger.debug("confirmForgotPassword: {}", forgotPassword);
                 identityService.confirmForgotPassword(forgotPassword);
                 return new ResponseEntity<>(HttpStatus.OK);
@@ -138,6 +134,8 @@ public class IdentityController {
                 logger.debug("not found action: {}", forgotPassword.getAction());
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
+        } catch (RequestException e){
+            return e.response();
         } catch (Exception e) {
             logger.error("", e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -154,6 +152,8 @@ public class IdentityController {
             changePassword.setAccessToken(accessToken);
             identityService.changePassword(changePassword);
             return new ResponseEntity<>(HttpStatus.OK);
+        } catch (RequestException e){
+            return e.response();
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

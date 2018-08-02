@@ -181,7 +181,7 @@ public class GoodsService {
         Goods registerGoods = getGoods(target.getId());
         if (registerGoods == null) {
             throw new ParameterException("inValid GoodsId");
-        } else if (!registerGoods.getAuthorId().equals(target.getAuthorId())) {
+        } else if (!identityService.isManager(target.getAuthorId())) {
             throw new AuthenticationException();
         } else if (!isGoodsValidation(target)) {
             throw new ParameterException("Require");

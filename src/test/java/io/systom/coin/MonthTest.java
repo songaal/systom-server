@@ -1,6 +1,7 @@
 package io.systom.coin;
 
 import io.systom.coin.model.UserMonthlyInvest;
+import io.systom.coin.service.UserMonthInvestService;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,6 +23,8 @@ public class MonthTest {
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(InsertTest.class);
     @Autowired
     private SqlSession sqlSession;
+    @Autowired
+    private UserMonthInvestService userMonthInvestService;
 
     @Test
     public void monthTest() {
@@ -36,4 +39,10 @@ public class MonthTest {
             sqlSession.insert("userMonthlyInvest.updateMonthlyInvest", userMonthlyInvest);
         }
     }
+
+    @Test
+    public void userMonthCalculationTest() {
+        userMonthInvestService.updateMonthlyCalculation("test1");
+    }
+
 }

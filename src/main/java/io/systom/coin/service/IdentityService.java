@@ -9,6 +9,7 @@ import com.google.gson.Gson;
 import io.systom.coin.api.IdentityController;
 import io.systom.coin.exception.AbstractException;
 import io.systom.coin.exception.ParameterException;
+import io.systom.coin.exception.RequestException;
 import io.systom.coin.model.ChangePassword;
 import io.systom.coin.model.ForgotPassword;
 import io.systom.coin.model.UserNotification;
@@ -50,7 +51,7 @@ public class IdentityService {
     @Autowired
     private SqlSession sqlSession;
 
-    private List<String> manager = Arrays.asList("joonwoo", "songaal");
+    private List<String> manager = Arrays.asList("joonwoo", "songaal", "joonwoo88");
 
     @PostConstruct
     public void init() {
@@ -291,6 +292,9 @@ public class IdentityService {
         try {
             forgotPasswordResult = cognitoClient.forgotPassword(forgotPasswordRequest);
             logger.info("{}", forgotPasswordResult);
+        } catch (LimitExceededException e){
+            logger.error("", e);
+            throw new RequestException("LimitExceeded");
         } catch (Exception e) {
             logger.error("", e);
             throw new ParameterException("userId");
@@ -307,6 +311,9 @@ public class IdentityService {
         ConfirmForgotPasswordResult confirmPasswordResult = null;
         try {
             confirmPasswordResult = cognitoClient.confirmForgotPassword(confirmPasswordRequest);
+        } catch (LimitExceededException e){
+            logger.error("LimitExceeded");
+            throw new RequestException("LimitExceeded");
         } catch (Exception e) {
             logger.error("", e);
             throw new ParameterException("require");
@@ -319,7 +326,17 @@ public class IdentityService {
         changePasswordRequest.withAccessToken(changePassword.getAccessToken())
                 .withPreviousPassword(changePassword.getNewPassword())
                 .withProposedPassword(changePassword.getOldPassword());
-        ChangePasswordResult changePasswordResult = cognitoClient.changePassword(changePasswordRequest);
+        ChangePasswordResult changePasswordResult = null;
+        try {
+            changePasswordResult = cognitoClient.changePassword(changePasswordRequest);
+        } catch (LimitExceededException e){
+            logger.error("LimitExceeded");
+            throw new RequestException("LimitExceeded");
+        } catch (Exception e) {
+            logger.error("", e);
+            throw new ParameterException("require");
+        }
+
         logger.info("{}", changePasswordResult);
         return changePasswordResult;
     }
