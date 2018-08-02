@@ -54,8 +54,21 @@ public class CognitoTest {
     }
 
     @Test
+    public void signupTest() {
+        AdminCreateUserRequest authRequest = new AdminCreateUserRequest()
+                .withUserPoolId("ap-northeast-2_8UlVuFFva")
+                .withUsername("test1")
+                .withUserAttributes(new AttributeType().withName("email").withValue("jwkim@gncloud.kr"))
+                .withUserAttributes(new AttributeType().withName("email_verified").withValue("true"));
+
+        AdminCreateUserResult authResponse = cognitoClient.adminCreateUser(authRequest);
+        logger.info("{}", authResponse);
+    }
+
+
+    @Test
     public void resetPasswordTest() {
-        String userId = "testuser";
+        String userId = "test1222";
 
         AnonymousAWSCredentials awsCreds = new AnonymousAWSCredentials();
         AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder
@@ -67,11 +80,14 @@ public class CognitoTest {
         ForgotPasswordRequest forgotPasswordRequest = new ForgotPasswordRequest();
         forgotPasswordRequest.setUsername(userId);
         forgotPasswordRequest.setClientId("4km83jbt1d6pg415q4ieqt41b0");
-        ForgotPasswordResult forgotPasswordResult = new ForgotPasswordResult();
+        ForgotPasswordResult forgotPasswordResult = null;
 
         try {
             forgotPasswordResult = cognitoIdentityProvider.forgotPassword(forgotPasswordRequest);
-            logger.info("{}", forgotPasswordResult);
+            String sendMail = forgotPasswordResult.getCodeDeliveryDetails().getDestination();
+            logger.info("{}, {}", sendMail, forgotPasswordResult);
+
+//            UpdatePassword(userId, "test1111", "028221");
         } catch (Exception e) {
             // handle exception here
             logger.error("", e);
@@ -80,7 +96,11 @@ public class CognitoTest {
         logger.info("result: {}", forgotPasswordResult.toString());
     }
 
-    String UpdatePassword(String username, String newpw, String code) {
+    @Test
+    public void UpdatePassword() {
+        String username = "test1";
+        String newpw = "test1111";
+        String code = "597101";
         AnonymousAWSCredentials awsCreds = new AnonymousAWSCredentials();
         AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder
                 .standard()
@@ -100,7 +120,19 @@ public class CognitoTest {
         } catch (Exception e) {
             // handle exception here
         }
-        return confirmPasswordResult.toString();
+        logger.info("{}", confirmPasswordResult.toString());
+    }
+
+
+    @Test
+    public void disableUser() {
+        String userId = "test1";
+
+        AdminDisableUserRequest adminDisableUserRequest = new AdminDisableUserRequest();
+        adminDisableUserRequest.withUsername(userId).withUserPoolId("ap-northeast-2_8UlVuFFva");
+
+        AdminDisableUserResult adminDisableUserResult = cognitoClient.adminDisableUser(adminDisableUserRequest);
+        logger.info("{}", adminDisableUserResult);
     }
 
 

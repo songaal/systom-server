@@ -3,11 +3,10 @@ package io.systom.coin.api;
 import com.amazonaws.services.cognitoidp.model.*;
 import io.systom.coin.exception.AbstractException;
 import io.systom.coin.exception.OperationException;
-import io.systom.coin.model.ExchangeKey;
-import io.systom.coin.model.Identity;
-import io.systom.coin.model.UserNotification;
+import io.systom.coin.model.*;
 import io.systom.coin.service.ExchangeService;
 import io.systom.coin.service.IdentityService;
+import io.systom.coin.utils.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 
 /**
@@ -116,6 +116,49 @@ public class IdentityController {
         payload.put("isManager", String.valueOf(identityService.isManager(userId)));
         return new ResponseEntity<>(payload, HttpStatus.OK);
     }
+
+    /**
+     * 비밀번호 분실 ( 메일확인 )
+     */
+    @RequestMapping(value = "/forgotPassword", method = RequestMethod.POST)
+    public ResponseEntity<?> forgotPassword(@RequestBody ForgotPassword forgotPassword) {
+        try {
+            if (ForgotPassword.ACTIONS.confirm.name().equalsIgnoreCase(forgotPassword.getAction())) {
+                ForgotPasswordResult forgotPasswordResult = identityService.forgotPassword(forgotPassword.getUserId());
+                String destination = forgotPasswordResult.getCodeDeliveryDetails().getDestination();
+                return new ResponseEntity<>(destination, HttpStatus.OK);
+            } else if (ForgotPassword.ACTIONS.reset.name().equalsIgnoreCase(forgotPassword.getAction())) {
+                String randomPw = StringUtils.randomAlphaString(10, 20);
+                randomPw += Math.abs(new Random().ints(1).toArray()[0]);
+                forgotPassword.setPassword(randomPw);
+                logger.debug("confirmForgotPassword: {}", forgotPassword);
+                identityService.confirmForgotPassword(forgotPassword);
+                return new ResponseEntity<>(HttpStatus.OK);
+            } else {
+                logger.debug("not found action: {}", forgotPassword.getAction());
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+        } catch (Exception e) {
+            logger.error("", e);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /**
+     * 비밀번호 변경
+     */
+    @RequestMapping(value = "/changePassword", method = RequestMethod.POST)
+    public ResponseEntity<?> changePassword(@CookieValue(ACCESS_TOKEN) String accessToken,
+                                            @RequestBody ChangePassword changePassword) {
+        try {
+            changePassword.setAccessToken(accessToken);
+            identityService.changePassword(changePassword);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
 
     /**
      * 거래소 키 조회

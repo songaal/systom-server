@@ -9,6 +9,8 @@ import com.google.gson.Gson;
 import io.systom.coin.api.IdentityController;
 import io.systom.coin.exception.AbstractException;
 import io.systom.coin.exception.ParameterException;
+import io.systom.coin.model.ChangePassword;
+import io.systom.coin.model.ForgotPassword;
 import io.systom.coin.model.UserNotification;
 import io.systom.coin.utils.CognitoPubKeyStore;
 import io.systom.coin.utils.CredentialsCache;
@@ -30,8 +32,6 @@ import java.util.*;
  */
 @Service
 public class IdentityService {
-//    private final String ACCESS_TOKEN = "X-COINCLOUD-ACCESS-TOKEN";
-//    private final String REFRESH_TOKEN = "X-COINCLOUD-REFRESH-TOKEN";
 
     private static Logger logger = LoggerFactory.getLogger(IdentityService.class);
 
@@ -72,7 +72,8 @@ public class IdentityService {
         AdminCreateUserRequest authRequest = new AdminCreateUserRequest()
                 .withUserPoolId(cognitoPoolId)
                 .withUsername(userId)
-                .withUserAttributes(new AttributeType().withName("email").withValue(email));
+                .withUserAttributes(new AttributeType().withName("email").withValue(email))
+                .withUserAttributes(new AttributeType().withName("email_verified").withValue("true"));
 
         AdminCreateUserResult authResponse = cognitoClient.adminCreateUser(authRequest);
         return authResponse;
@@ -280,5 +281,46 @@ public class IdentityService {
 
     public boolean isManager(String userId) {
         return manager.contains(userId.toLowerCase());
+    }
+
+    public ForgotPasswordResult forgotPassword (String userId) {
+        ForgotPasswordRequest forgotPasswordRequest = new ForgotPasswordRequest();
+        forgotPasswordRequest.setUsername(userId);
+        forgotPasswordRequest.setClientId(cognitoClientId);
+        ForgotPasswordResult forgotPasswordResult = null;
+        try {
+            forgotPasswordResult = cognitoClient.forgotPassword(forgotPasswordRequest);
+            logger.info("{}", forgotPasswordResult);
+        } catch (Exception e) {
+            logger.error("", e);
+            throw new ParameterException("userId");
+        }
+        return forgotPasswordResult;
+    }
+
+    public ConfirmForgotPasswordResult confirmForgotPassword(ForgotPassword forgotPassword) {
+        ConfirmForgotPasswordRequest confirmPasswordRequest = new ConfirmForgotPasswordRequest();
+        confirmPasswordRequest.setUsername(forgotPassword.getUserId());
+        confirmPasswordRequest.setPassword(forgotPassword.getPassword());
+        confirmPasswordRequest.setConfirmationCode(forgotPassword.getConfirmCode());
+        confirmPasswordRequest.setClientId(cognitoClientId);
+        ConfirmForgotPasswordResult confirmPasswordResult = null;
+        try {
+            confirmPasswordResult = cognitoClient.confirmForgotPassword(confirmPasswordRequest);
+        } catch (Exception e) {
+            logger.error("", e);
+            throw new ParameterException("require");
+        }
+        return confirmPasswordResult;
+    }
+
+    public ChangePasswordResult changePassword(ChangePassword changePassword) {
+        ChangePasswordRequest changePasswordRequest = new ChangePasswordRequest();
+        changePasswordRequest.withAccessToken(changePassword.getAccessToken())
+                .withPreviousPassword(changePassword.getNewPassword())
+                .withProposedPassword(changePassword.getOldPassword());
+        ChangePasswordResult changePasswordResult = cognitoClient.changePassword(changePasswordRequest);
+        logger.info("{}", changePasswordResult);
+        return changePasswordResult;
     }
 }
