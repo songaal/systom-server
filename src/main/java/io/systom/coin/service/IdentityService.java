@@ -324,8 +324,8 @@ public class IdentityService {
     public ChangePasswordResult changePassword(ChangePassword changePassword) {
         ChangePasswordRequest changePasswordRequest = new ChangePasswordRequest();
         changePasswordRequest.withAccessToken(changePassword.getAccessToken())
-                .withPreviousPassword(changePassword.getNewPassword())
-                .withProposedPassword(changePassword.getOldPassword());
+                .withPreviousPassword(changePassword.getOldPassword())
+                .withProposedPassword(changePassword.getNewPassword());
         ChangePasswordResult changePasswordResult = null;
         try {
             changePasswordResult = cognitoClient.changePassword(changePasswordRequest);
