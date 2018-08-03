@@ -108,7 +108,7 @@ public class InvestGoodsService {
         }
 
         Goods registerGoods = goodsService.getGoods(investGoods.getGoodsId(), userId);
-        List<TraderTaskResult.Result.Trade> tradeHistory = tradeService.getTradeHistory(investId);
+        List<TraderTaskResult.Result.Trade> tradeHistory = tradeService.getTradeHistory(24);
         registerGoods.setTradeHistory(tradeHistory);
         PerformanceSummary performanceSummary = performanceService.getPerformanceSummary(investId);
         InvestGoods registerInvestGoods = getInvestGoods(investId);

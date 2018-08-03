@@ -5,20 +5,6 @@
 
 <mapper namespace="tradeHistory">
 
-    <insert id="investTrade" parameterType="TaskResult$Result$Trade">
-        INSERT INTO trade_history
-        (id, trade_time, symbol, action, quantity, price, commission, reason)
-        VALUES ( ${id}
-               , #{tradeTime}
-               , #{symbol}
-               , #{action}
-               , #{quantity}
-               , ${price}
-               , ${commission}
-               , #{reason}
-        )
-    </insert>
-
     <select id="getTradeHistory" parameterType="Integer" resultType="TaskResult$Result$Trade">
         SELECT a.id
              , a.trade_time
@@ -29,28 +15,11 @@
              , a.commission
              , a.reason as str_reason
           FROM trade_history a
-          JOIN invest_goods b on a.id = b.id
-         WHERE b.id = #{id}
+         WHERE a.invest_id = #{id}
     </select>
-
-    <insert id="insertTradeHistory">
-        INSERT INTO trade_history (id, trade_time, symbol, action, quantity, price, commission, reason)
-        VALUES
-        <foreach collection="list" item="item" separator=",">
-            ( ${item.id}
-            , #{item.tradeTime}
-            , #{item.symbol}
-            , #{item.action}
-            , ${item.quantity}
-            , ${item.price}
-            , ${item.commission}
-            , #{item.reason}
-            )
-        </foreach>
-    </insert>
 
     <delete id="deleteTradeHistory" parameterType="Integer">
         DELETE from trade_history
-         WHERE id = #{param1}
+         WHERE invest_id = #{param1}
     </delete>
 </mapper>

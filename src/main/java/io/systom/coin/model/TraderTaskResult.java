@@ -540,7 +540,11 @@ public class TraderTaskResult {
             }
 
             public String getReason() {
-                return reason.toJson();
+                if (reason == null) {
+                    return new Gson().toJson(new Reason());
+                } else {
+                    return reason.toJson();
+                }
             }
 
             public void setReason(Reason reason) {
