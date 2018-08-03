@@ -13,6 +13,7 @@
              , a.quantity
              , a.price
              , a.commission
+             , a.commission_unit
              , a.pnl
              , a.pnl_rate
              , a.reason as str_reason

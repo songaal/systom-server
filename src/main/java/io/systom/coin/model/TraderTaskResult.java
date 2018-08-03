@@ -452,12 +452,22 @@ public class TraderTaskResult {
             private float quantity;
             private float price;
             private float commission;
+            @SerializedName("commission_unit")
+            private String commissionUnit;
             private Reason reason;
             private float pnl;
             @SerializedName("pnl_rate")
             private float pnlRate;
             @SerializedName("avg_price")
             private float avgPrice;
+
+            public String getCommissionUnit() {
+                return commissionUnit;
+            }
+
+            public void setCommissionUnit(String commissionUnit) {
+                this.commissionUnit = commissionUnit;
+            }
 
             public Integer getId() {
                 return id;
