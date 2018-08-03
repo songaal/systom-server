@@ -9,6 +9,7 @@ public class ForgotPassword {
 
     private String action;
     private String userId;
+    private String email;
     private String confirmCode;
     private String password;
 
@@ -18,6 +19,14 @@ public class ForgotPassword {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getConfirmCode() {
@@ -42,5 +51,16 @@ public class ForgotPassword {
 
     public void setAction(String action) {
         this.action = action;
+    }
+
+    @Override
+    public String toString() {
+        return "ForgotPassword{" +
+                "action='" + action + '\'' +
+                ", userId='" + userId + '\'' +
+                ", email='" + email + '\'' +
+                ", confirmCode='" + confirmCode + '\'' +
+                ", password='" + password + '\'' +
+                '}';
     }
 }

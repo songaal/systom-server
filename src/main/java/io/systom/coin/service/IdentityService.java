@@ -67,7 +67,7 @@ public class IdentityService {
      * */
     public AdminCreateUserResult signUp(String userId, String email) {
         logger.debug("SignUp userId >> {}, email >> {}", userId, email);
-        if (isSignUpEmail(email)) {
+        if (isSignUpEmail(email) == null) {
             throw new ParameterException("email");
         }
         AdminCreateUserRequest authRequest = new AdminCreateUserRequest()
@@ -83,7 +83,7 @@ public class IdentityService {
     /**
      * 이메일 확인 절차
      * */
-    public boolean isSignUpEmail(String email) {
+    public UserType isSignUpEmail(String email) {
         ListUsersResult listUsersResult = cognitoClient.listUsers(new ListUsersRequest().withUserPoolId(cognitoPoolId));
         Iterator<UserType> userIterator = listUsersResult.getUsers().iterator();
         while(userIterator.hasNext()){
@@ -91,12 +91,13 @@ public class IdentityService {
             Iterator<AttributeType> attributeTypeIterator = userType.getAttributes().iterator();
             while(attributeTypeIterator.hasNext()) {
                 AttributeType attributeType = attributeTypeIterator.next();
-                if (attributeType.getName().equalsIgnoreCase(email.toUpperCase())) {
-                    return true;
+                if (attributeType.getName().equalsIgnoreCase("email") &&
+                        attributeType.getValue().equalsIgnoreCase(email)) {
+                    return userType;
                 }
             }
         }
-        return false;
+        return null;
     }
 
     /**
@@ -284,9 +285,17 @@ public class IdentityService {
         return manager.contains(userId.toLowerCase());
     }
 
-    public ForgotPasswordResult forgotPassword (String userId) {
+    public ForgotPasswordResult forgotPassword (ForgotPassword forgotPassword) {
+        if (forgotPassword.getUserId() == null || forgotPassword.getEmail() == null) {
+            throw new ParameterException("require");
+        }
+        UserType userType = isSignUpEmail(forgotPassword.getEmail());
+        if (userType == null || !userType.getUsername().equals(forgotPassword.getUserId())) {
+            throw new ParameterException("NotFoundUser");
+        }
+
         ForgotPasswordRequest forgotPasswordRequest = new ForgotPasswordRequest();
-        forgotPasswordRequest.setUsername(userId);
+        forgotPasswordRequest.setUsername(forgotPassword.getUserId());
         forgotPasswordRequest.setClientId(cognitoClientId);
         ForgotPasswordResult forgotPasswordResult = null;
         try {

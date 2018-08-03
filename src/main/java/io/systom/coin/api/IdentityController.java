@@ -123,7 +123,7 @@ public class IdentityController {
     public ResponseEntity<?> forgotPassword(@RequestBody ForgotPassword forgotPassword) {
         try {
             if (ForgotPassword.ACTIONS.confirm.name().equalsIgnoreCase(forgotPassword.getAction())) {
-                ForgotPasswordResult forgotPasswordResult = identityService.forgotPassword(forgotPassword.getUserId());
+                ForgotPasswordResult forgotPasswordResult = identityService.forgotPassword(forgotPassword);
                 String destination = forgotPasswordResult.getCodeDeliveryDetails().getDestination();
                 return new ResponseEntity<>(destination, HttpStatus.OK);
             } else if (ForgotPassword.ACTIONS.reset.name().equalsIgnoreCase(forgotPassword.getAction())) {
