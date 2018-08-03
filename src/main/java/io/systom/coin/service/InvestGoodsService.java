@@ -1,6 +1,5 @@
 package io.systom.coin.service;
 
-import io.systom.coin.config.TradeConfig;
 import io.systom.coin.exception.AuthenticationException;
 import io.systom.coin.exception.OperationException;
 import io.systom.coin.exception.ParameterException;
@@ -32,8 +31,6 @@ public class InvestGoodsService {
     private StrategyDeployService strategyDeployService;
     @Autowired
     private IdentityService identityService;
-    @Autowired
-    private TradeConfig tradeConfig;
     @Autowired
     private ExchangeService exchangeService;
     @Autowired

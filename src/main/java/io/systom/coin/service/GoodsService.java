@@ -1,7 +1,6 @@
 package io.systom.coin.service;
 
 import com.google.gson.Gson;
-import io.systom.coin.config.TradeConfig;
 import io.systom.coin.exception.AuthenticationException;
 import io.systom.coin.exception.OperationException;
 import io.systom.coin.exception.ParameterException;
@@ -34,8 +33,6 @@ public class GoodsService {
     private StrategyDeployService strategyDeployService;
     @Autowired
     private IdentityService identityService;
-    @Autowired
-    private TradeConfig tradeConfig;
     @Autowired
     private ExchangeService exchangeService;
     @Autowired
@@ -211,10 +208,6 @@ public class GoodsService {
             return false;
         } else if (StringUtils.isEmpty(target.getAuthorId()) || StringUtils.isBlank(target.getAuthorId())) {
             logger.debug("Invalid AuthorId");
-            return false;
-        } else if (StringUtils.isEmpty(target.getExchange()) || StringUtils.isBlank(target.getExchange())
-                || !tradeConfig.getLiveExchange().contains(target.getExchange().toLowerCase())) {
-            logger.debug("Invalid exchange");
             return false;
         } else if (StringUtils.isEmpty(target.getCoinUnit()) || StringUtils.isBlank(target.getCoinUnit())) {
             logger.debug("Invalid coin");

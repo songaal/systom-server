@@ -12,13 +12,7 @@ import java.util.List;
 @Component
 public class TradeConfig {
 
-    private List<String> backTestExchange = Arrays.asList("binance");
-    private List<String> liveExchange = Arrays.asList("binance", "bithmb");
-
-    public List<String> getBackTestExchange() {
-        return backTestExchange;
-    }
-
+    private List<String> liveExchange = Arrays.asList("binance", "bithumb");
     public List<String> getLiveExchange() {
         return liveExchange;
     }
