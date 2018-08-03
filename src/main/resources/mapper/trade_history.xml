@@ -13,6 +13,8 @@
              , a.quantity
              , a.price
              , a.commission
+             , a.pnl
+             , a.pnl_rate
              , a.reason as str_reason
           FROM trade_history a
          WHERE a.invest_id = #{id}
