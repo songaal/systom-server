@@ -113,6 +113,9 @@ public class UserMonthInvestService {
                 try {
                     ret = userMonthlyInvest.getMonthEquity() - userMonthlyInvest.getInitCash();
                     pct = ret / userMonthlyInvest.getInitCash() * 100;
+                    if (Double.isNaN(pct)) {
+                        pct = 0;
+                    }
                 } catch (Exception e){
                     // ignore
                 }
