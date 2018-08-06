@@ -138,6 +138,8 @@ public class TraderTaskResult {
         private Map<String, Float> drawdowns;
         @SerializedName("cum_returns")
         private Map<String, Float> cumReturns;
+        @SerializedName("monthly_cum_returns")
+        private Map<String, Float> monthlyCumReturns;
         @SerializedName("max_drawdown_pct")
         private float maxDrawdownPct;
         @SerializedName("max_drawdown_duration")
@@ -205,6 +207,14 @@ public class TraderTaskResult {
 
         public void setMaxDrawdownDuration(float maxDrawdownDuration) {
             this.maxDrawdownDuration = maxDrawdownDuration;
+        }
+
+        public Map<String, Float> getMonthlyCumReturns() {
+            return monthlyCumReturns;
+        }
+
+        public void setMonthlyCumReturns(Map<String, Float> monthlyCumReturns) {
+            this.monthlyCumReturns = monthlyCumReturns;
         }
 
         public float getReturnsPct() {

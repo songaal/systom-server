@@ -31,29 +31,29 @@ public class TradeService {
         return tradeHistory;
     }
 
-    public int insertTradeHistory(Integer investId, List<TraderTaskResult.Result.Trade> tradeHistory) {
-        int changeRow = 0;
-        int size = tradeHistory.size();
-        for (int i=0; i < size; i++) {
-            tradeHistory.get(i).setId(investId);
-        }
-        try {
-            changeRow = sqlSession.insert("tradeHistory.insertTradeHistory", tradeHistory);
-        } catch (Exception e){
-            logger.error("", e);
-            throw new OperationException("[FAIL] SQL Execute.");
-        }
-        return changeRow;
-    }
-
-    public int deleteTradeHistory(Integer investId) {
-        int changeRow = 0;
-        try {
-            changeRow = sqlSession.delete("tradeHistory.deleteTradeHistory", investId);
-        } catch (Exception e){
-            logger.error("", e);
-            throw new OperationException("[FAIL] SQL Execute.");
-        }
-        return changeRow;
-    }
+//    public int insertTradeHistory(Integer investId, List<TraderTaskResult.Result.Trade> tradeHistory) {
+//        int changeRow = 0;
+//        int size = tradeHistory.size();
+//        for (int i=0; i < size; i++) {
+//            tradeHistory.get(i).setId(investId);
+//        }
+//        try {
+//            changeRow = sqlSession.insert("tradeHistory.insertTradeHistory", tradeHistory);
+//        } catch (Exception e){
+//            logger.error("", e);
+//            throw new OperationException("[FAIL] SQL Execute.");
+//        }
+//        return changeRow;
+//    }
+//
+//    public int deleteTradeHistory(Integer investId) {
+//        int changeRow = 0;
+//        try {
+//            changeRow = sqlSession.delete("tradeHistory.deleteTradeHistory", investId);
+//        } catch (Exception e){
+//            logger.error("", e);
+//            throw new OperationException("[FAIL] SQL Execute.");
+//        }
+//        return changeRow;
+//    }
 }

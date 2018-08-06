@@ -22,7 +22,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeoutException;
-import java.util.regex.Pattern;
 
 @Service
 public class TaskService {
@@ -148,25 +147,18 @@ public class TaskService {
         if (!"success".equalsIgnoreCase(traderTaskResult.getStatus())) {
             throw new OperationException("[Fail] BackTest");
         }
-        Map<String, Float> cumReturns = traderTaskResult.getResult().getCumReturns();
-        List<MonthlyReturn> MonthlyReturnList = monthlyLastDateReturnPct(cumReturns);
-        float sumMrp = 0;
-        float avgMrp = 0;
-        int mRpSize = MonthlyReturnList.size();
-        for (int i=0; i < mRpSize; i++){
-            sumMrp += MonthlyReturnList.get(i).getReturnPct();
+        List<MonthlyReturn> MonthlyReturnList = new ArrayList<>();
+        Map<String, Float> monthlyCumReturns = traderTaskResult.getResult().getMonthlyCumReturns();
+        Iterator<Map.Entry<String, Float>> iterator = monthlyCumReturns.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, Float> entry = iterator.next();
+            MonthlyReturnList.add(new MonthlyReturn(entry.getKey(), entry.getValue()));
         }
-
-        try {
-            avgMrp = sumMrp / mRpSize;
-        } catch (ArithmeticException e) {
-            // ignore
-        }
-
         try {
             GoodsTestResult goodsTestResult = new GoodsTestResult();
             goodsTestResult.setId(traderTask.getGoodsId());
-            goodsTestResult.setTestReturnPct(avgMrp);
+            goodsTestResult.setTestMaxReturnsPct((int)traderTaskResult.getResult().getMaxReturnsPct());
+            goodsTestResult.setTestMaxDrawDownPct((int)traderTaskResult.getResult().getMaxDrawdownPct());
             goodsTestResult.setTestMonthlyReturnList(MonthlyReturnList);
             goodsTestResult.setTradeHistory(traderTaskResult.getResult().getTradeHistory());
             Map<String, Object> params = new HashMap<>();
@@ -186,42 +178,6 @@ public class TaskService {
         return goodsService.getGoods(traderTask.getGoodsId(), traderTask.getUserId());
     }
 
-    protected List<MonthlyReturn> monthlyLastDateReturnPct(Map<String, Float> cumReturnPct) throws ParseException {
-        String tmpDate = null;
-
-        Map<String, Float> lastRp = new LinkedHashMap<>();
-        Iterator<Map.Entry<String, Float>> iterator = cumReturnPct.entrySet().iterator();
-
-        while(iterator.hasNext()) {
-            Map.Entry<String, Float> cumReturn = iterator.next();
-            String yyyymm = cumReturn.getKey();
-            if (!Pattern.matches("^[0-9]*$", yyyymm)) {
-                continue;
-            } else {
-                yyyymm = yyyymm.substring(0, 6);
-            }
-
-            float rp = cumReturn.getValue().floatValue();
-            lastRp.put(yyyymm, rp);
-            if (tmpDate == null || !tmpDate.equals(yyyymm)) {
-                tmpDate = yyyymm;
-            }
-        }
-        float diff = 0f;
-        List<MonthlyReturn> monthlyReturn = new ArrayList<>();
-        iterator = lastRp.entrySet().iterator();
-        while(iterator.hasNext()) {
-            Map.Entry<String, Float> lastCumReturn = iterator.next();
-            float tmpRp = lastCumReturn.getValue();
-            float rp = tmpRp - diff;
-            diff = tmpRp;
-            MonthlyReturn mr = new MonthlyReturn();
-            mr.setDate(lastCumReturn.getKey());
-            mr.setReturnPct(rp);
-            monthlyReturn.add(mr);
-        }
-        return monthlyReturn;
-    }
 
     public Task liveTaskRun(TraderTask traderTask) {
         if (!identityService.isManager(traderTask.getUserId())) {

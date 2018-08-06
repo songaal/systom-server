@@ -8,7 +8,8 @@ import java.util.List;
  */
 public class GoodsTestResult {
     private Integer id;
-    private float testReturnPct;
+    private float testMaxReturnsPct;
+    private float testMaxDrawDownPct;
     private List<MonthlyReturn> testMonthlyReturnList;
     private List<TraderTaskResult.Result.Trade> tradeHistory;
 
@@ -20,12 +21,20 @@ public class GoodsTestResult {
         this.id = id;
     }
 
-    public float getTestReturnPct() {
-        return testReturnPct;
+    public float getTestMaxReturnsPct() {
+        return testMaxReturnsPct;
     }
 
-    public void setTestReturnPct(float testReturnPct) {
-        this.testReturnPct = testReturnPct;
+    public void setTestMaxReturnsPct(float testMaxReturnsPct) {
+        this.testMaxReturnsPct = testMaxReturnsPct;
+    }
+
+    public float getTestMaxDrawDownPct() {
+        return testMaxDrawDownPct;
+    }
+
+    public void setTestMaxDrawDownPct(float testMaxDrawDownPct) {
+        this.testMaxDrawDownPct = testMaxDrawDownPct;
     }
 
     public List<MonthlyReturn> getTestMonthlyReturnList() {

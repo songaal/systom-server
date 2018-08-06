@@ -57,7 +57,8 @@ public class GoodsService {
         GoodsTestResult testResult = new GoodsTestResult();
         List<MonthlyReturn> testMonthlyReturnList = generatorTestMonthlyReturns(target.getTestStart(), target.getTestEnd());
         testResult.setTestMonthlyReturnList(testMonthlyReturnList);
-        testResult.setTestReturnPct(0f);
+        testResult.setTestMaxDrawDownPct(0f);
+        testResult.setTestMaxReturnsPct(0f);
         testResult.setTradeHistory(new ArrayList<>());
 
         target.setTestResult(new Gson().toJson(testResult));
@@ -306,7 +307,8 @@ public class GoodsService {
         GoodsTestResult testResult = new GoodsTestResult();
         List<MonthlyReturn> testMonthlyReturnList = generatorTestMonthlyReturns(registerGoods.getTestStart(), registerGoods.getTestEnd());
         testResult.setTestMonthlyReturnList(testMonthlyReturnList);
-        testResult.setTestReturnPct(0f);
+        testResult.setTestMaxDrawDownPct(0f);
+        testResult.setTestMaxReturnsPct(0f);
         testResult.setTradeHistory(new ArrayList<>());
         registerGoods.setTestResult(new Gson().toJson(testResult));
         return updateGoods(registerGoods);
