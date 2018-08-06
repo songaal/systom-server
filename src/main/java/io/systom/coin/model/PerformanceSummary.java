@@ -10,16 +10,11 @@ public class PerformanceSummary {
     private Integer investId;
     private float cash;
     private float initCash;
+    private float maxReturnsPct;
     private float equity;
     private float returns;
     private float returnsPct;
     private float mdd;
-    private float pnlRate;
-    private float avgProfit;
-    private float avgLose;
-    private int trades;
-    private int winCount;
-    private int loseCount;
     private Date createTime;
     private String commission;
     private boolean coinInvested;
@@ -41,6 +36,22 @@ public class PerformanceSummary {
 
     public void setCash(float cash) {
         this.cash = cash;
+    }
+
+    public float getInitCash() {
+        return initCash;
+    }
+
+    public void setInitCash(float initCash) {
+        this.initCash = initCash;
+    }
+
+    public float getMaxReturnsPct() {
+        return maxReturnsPct;
+    }
+
+    public void setMaxReturnsPct(float maxReturnsPct) {
+        this.maxReturnsPct = maxReturnsPct;
     }
 
     public float getEquity() {
@@ -73,54 +84,6 @@ public class PerformanceSummary {
 
     public void setMdd(float mdd) {
         this.mdd = mdd;
-    }
-
-    public float getPnlRate() {
-        return pnlRate;
-    }
-
-    public void setPnlRate(float pnlRate) {
-        this.pnlRate = pnlRate;
-    }
-
-    public float getAvgProfit() {
-        return avgProfit;
-    }
-
-    public void setAvgProfit(float avgProfit) {
-        this.avgProfit = avgProfit;
-    }
-
-    public float getAvgLose() {
-        return avgLose;
-    }
-
-    public void setAvgLose(float avgLose) {
-        this.avgLose = avgLose;
-    }
-
-    public int getTrades() {
-        return trades;
-    }
-
-    public void setTrades(int trades) {
-        this.trades = trades;
-    }
-
-    public int getWinCount() {
-        return winCount;
-    }
-
-    public void setWinCount(int winCount) {
-        this.winCount = winCount;
-    }
-
-    public int getLoseCount() {
-        return loseCount;
-    }
-
-    public void setLoseCount(int loseCount) {
-        this.loseCount = loseCount;
     }
 
     public Date getCreateTime() {
@@ -171,11 +134,23 @@ public class PerformanceSummary {
         this.updateTime = updateTime;
     }
 
-    public float getInitCash() {
-        return initCash;
-    }
-
-    public void setInitCash(float initCash) {
-        this.initCash = initCash;
+    @Override
+    public String toString() {
+        return "PerformanceSummary{" +
+                "investId=" + investId +
+                ", cash=" + cash +
+                ", initCash=" + initCash +
+                ", maxReturnsPct=" + maxReturnsPct +
+                ", equity=" + equity +
+                ", returns=" + returns +
+                ", returnsPct=" + returnsPct +
+                ", mdd=" + mdd +
+                ", createTime=" + createTime +
+                ", commission='" + commission + '\'' +
+                ", coinInvested=" + coinInvested +
+                ", baseInvested=" + baseInvested +
+                ", positions='" + positions + '\'' +
+                ", updateTime=" + updateTime +
+                '}';
     }
 }

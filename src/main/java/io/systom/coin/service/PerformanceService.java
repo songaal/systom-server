@@ -3,6 +3,7 @@ package io.systom.coin.service;
 import io.systom.coin.exception.OperationException;
 import io.systom.coin.model.PerformanceDaily;
 import io.systom.coin.model.PerformanceSummary;
+import io.systom.coin.model.TradeStat;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,18 @@ public class PerformanceService {
         }
     }
 
+    public void insertTradeStat(Integer investId) {
+        try {
+            int changeRow = sqlSession.insert("performance.insertTradeStat", investId);
+            if (changeRow != 1) {
+                throw new OperationException("[FAIL] SQL Execute. change row: " + changeRow);
+            }
+        } catch (Exception e){
+            logger.error("", e);
+            throw new OperationException("[FAIL] SQL Execute.");
+        }
+    }
+
     public void deletePerformanceSummary(Integer investId) {
         try {
             int changeRow = sqlSession.delete("performance.deletePerformanceSummary", investId);
@@ -45,9 +58,9 @@ public class PerformanceService {
         }
     }
 
-    public void deletePerformanceDaily(Integer investId) {
+    public void deleteTradeStat(Integer investId) {
         try {
-            int changeRow = sqlSession.delete("performance.deletePerformanceDaily", investId);
+            int changeRow = sqlSession.delete("performance.deleteTradeStat", investId);
             if (changeRow != 1) {
                 throw new OperationException("[FAIL] SQL Execute. change row: " + changeRow);
             }
@@ -60,6 +73,15 @@ public class PerformanceService {
     public PerformanceSummary getPerformanceSummary(Integer investId) {
         try {
             return sqlSession.selectOne("performance.getPerformanceSummary", investId);
+        } catch (Exception e){
+            logger.error("", e);
+            throw new OperationException("[FAIL] SQL Execute.");
+        }
+    }
+
+    public TradeStat getTradeStat(Integer investId) {
+        try {
+            return sqlSession.selectOne("performance.getTradeStat", investId);
         } catch (Exception e){
             logger.error("", e);
             throw new OperationException("[FAIL] SQL Execute.");

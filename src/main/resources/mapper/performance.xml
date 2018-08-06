@@ -7,32 +7,37 @@
 
     <insert id="insertPerformanceSummary" parameterType="PerformanceSummary">
         INSERT INTO performance_summary
-        ( invest_id, cash,       init_cash,     equity,
-          returns,   returns_pct, mdd,        pnl_rate,   avg_profit,    avg_lose,
-          trades,    win_count,   lose_count, commission, coin_invested, base_invested
-        )
+        (invest_id, cash, max_returns_pct, init_cash,  equity, returns,   returns_pct, mdd, commission, coin_invested, base_invested)
         VALUES( ${investId}
               , ${cash}
+              , ${maxReturnsPct}
               , ${initCash}
               , ${equity}
               , ${returns}
               , ${returnsPct}
               , ${mdd}
-              , ${pnlRate}
-              , ${avgProfit}
-              , ${avgLose}
-              , ${trades}
-              , ${winCount}
-              , ${loseCount}
               , #{commission,jdbcType=VARCHAR}
               , ${coinInvested}
               , ${baseInvested}
         )
     </insert>
 
+    <insert id="insertTradeStat" parameterType="Integer">
+        INSERT INTO trade_stat
+        (invest_id, update_time)
+        VALUES ( #{param1}
+               , now()
+        )
+    </insert>
+
     <delete id="deletePerformanceSummary" parameterType="Integer">
         DELETE FROM performance_summary
          WHERE invest_id = #{param1}
+    </delete>
+
+    <delete id="deleteTradeStat" parameterType="Integer">
+        DELETE FROM trade_stat
+        WHERE invest_id = #{param1}
     </delete>
 
     <delete id="deletePerformanceDaily" parameterType="Integer">
@@ -48,18 +53,29 @@
              , a.returns
              , a.returns_pct
              , a.mdd
-             , a.pnl_rate
-             , a.avg_profit
-             , a.avg_lose
-             , a.trades
-             , a.win_count
-             , a.lose_count
+             , a.max_returns_pct
              , a.commission
              , a.coin_invested
              , a.base_invested
              , a.positions
              , a.update_time
           FROM performance_summary a
+         WHERE a.invest_id = #{param1}
+    </select>
+
+    <select id="getTradeStat" resultType="TradeStat" parameterType="Integer">
+        SELECT a.invest_id
+             , a.trade_count
+             , a.win_count
+             , a.lose_count
+             , a.win_rate
+             , a.profit_rate_sum
+             , a.profit_rate_avg
+             , a.loss_rate_sum
+             , a.loss_rate_avg
+             , a.pnl_rate
+             , a.update_time
+          FROM trade_stat a
          WHERE a.invest_id = #{param1}
     </select>
 

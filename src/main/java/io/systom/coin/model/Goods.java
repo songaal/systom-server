@@ -39,6 +39,7 @@ public class Goods {
     private List<TraderTaskResult.Result.Trade> tradeHistory;
     private PerformanceSummary performanceSummary;
     private List<PerformanceDaily> performanceDaily;
+    private TradeStat tradeStat;
 
     public Integer getId() {
         return id;
@@ -272,6 +273,14 @@ public class Goods {
         isTaskRunning = taskRunning;
     }
 
+    public TradeStat getTradeStat() {
+        return tradeStat;
+    }
+
+    public void setTradeStat(TradeStat tradeStat) {
+        this.tradeStat = tradeStat;
+    }
+
     @Override
     public String toString() {
         return "Goods{" +
@@ -294,14 +303,17 @@ public class Goods {
                 ", testEnd='" + testEnd + '\'' +
                 ", authorId='" + authorId + '\'' +
                 ", createTime=" + createTime +
-                ", taskEcsId='" + taskEcsId + '\'' +
                 ", testResult='" + testResult + '\'' +
                 ", userId='" + userId + '\'' +
                 ", investCash=" + investCash +
                 ", investId=" + investId +
+                ", isTaskRunning=" + isTaskRunning +
+                ", taskEcsId='" + taskEcsId + '\'' +
+                ", waitTask=" + waitTask +
                 ", tradeHistory=" + tradeHistory +
                 ", performanceSummary=" + performanceSummary +
                 ", performanceDaily=" + performanceDaily +
+                ", tradeStat=" + tradeStat +
                 '}';
     }
 }

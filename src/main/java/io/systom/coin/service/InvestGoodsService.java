@@ -85,7 +85,7 @@ public class InvestGoodsService {
         performanceSummary.setInitCash(investor.getInvestCash());
         performanceSummary.setEquity(investor.getInvestCash());
         performanceService.insertPerformanceSummary(performanceSummary);
-
+        performanceService.insertTradeStat(investor.getId());
         userMonthInvestService.updateMonthlyCalculation(investor.getUserId());
         return getInvestGoods(investor.getId());
     }
@@ -116,6 +116,7 @@ public class InvestGoodsService {
         registerGoods.setPerformanceSummary(performanceSummary);
         List<PerformanceDaily> performanceDailyList = performanceService.getPerformanceDailyList(investId);
         registerGoods.setPerformanceDaily(performanceDailyList);
+        registerGoods.setTradeStat(performanceService.getTradeStat(investId));
         return registerGoods;
     }
 
@@ -135,7 +136,7 @@ public class InvestGoodsService {
         }
 
         performanceService.deletePerformanceSummary(investId);
-
+        performanceService.deleteTradeStat(investId);
         try {
             int changeRow = sqlSession.delete("investGoods.deleteInvestGoods", investGoods.getId());
             if (changeRow != 1) {
