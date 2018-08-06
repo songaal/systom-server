@@ -67,7 +67,7 @@ public class IdentityService {
      * */
     public AdminCreateUserResult signUp(String userId, String email) {
         logger.debug("SignUp userId >> {}, email >> {}", userId, email);
-        if (isSignUpEmail(email) == null) {
+        if (isSignUpEmail(email) != null) {
             throw new ParameterException("email");
         }
         AdminCreateUserRequest authRequest = new AdminCreateUserRequest()
