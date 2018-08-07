@@ -228,21 +228,21 @@ public class GoodsService {
         } else if (target.getCollectStart() == null || target.getCollectEnd() == null
                 || String.valueOf(target.getCollectStart()).length() != 8
                 || String.valueOf(target.getCollectEnd()).length() != 8
-                || Integer.parseInt(target.getCollectStart()) >= Integer.parseInt(target.getCollectEnd())) {
+                || Integer.parseInt(target.getCollectStart()) > Integer.parseInt(target.getCollectEnd())) {
 //            모집 시작일은 모집 종료일보다 클 수 없음.
             logger.debug("Invalid CollectDate");
             return false;
         } else if (target.getInvestStart() == null || target.getInvestEnd() == null
                 || String.valueOf(target.getInvestStart()).length() != 8
                 || String.valueOf(target.getInvestEnd()).length() != 8
-                || Integer.parseInt(target.getInvestStart()) >= Integer.parseInt(target.getInvestEnd())) {
+                || Integer.parseInt(target.getInvestStart()) > Integer.parseInt(target.getInvestEnd())) {
             logger.debug("Invalid investDate");
 //            투자 시작일은 모집 종료일보다 클 수 없음.
             return false;
         } else if (target.getTestStart() == null || target.getTestEnd() == null
                 || String.valueOf(target.getTestStart()).length() != 8
                 || String.valueOf(target.getTestEnd()).length() != 8
-                || Integer.parseInt(target.getTestStart()) >= Integer.parseInt(target.getTestEnd())) {
+                || Integer.parseInt(target.getTestStart()) > Integer.parseInt(target.getTestEnd())) {
             logger.debug("Invalid BackTestDate");
 //            백테스트 시작일은 모집 종료일보다 클 수 없음.
             return false;
