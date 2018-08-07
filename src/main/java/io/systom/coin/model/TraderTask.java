@@ -148,7 +148,8 @@ public class TraderTask {
     public List<String> getBackTestCmd() {
         List<String> cmd = new ArrayList<>();
         cmd.add("python");
-        cmd.add("launcher.py");
+        cmd.add("-m");
+        cmd.add("cctrader.launcher");
         cmd.add("task_id=" + this.id);
         cmd.add("session_type=" + this.sessionType);
         cmd.add("start_date=" + startDate);
@@ -163,7 +164,8 @@ public class TraderTask {
     public List<String> getLiveSignalCmd() {
         List<String> cmd = new ArrayList<>();
         cmd.add("python");
-        cmd.add("launcher.py");
+        cmd.add("-m");
+        cmd.add("cctrader.launcher");
         cmd.add("task_id=" + this.id);
         cmd.add("session_type=" + this.sessionType);
         cmd.add("exchange_id=" + this.exchange);
@@ -178,10 +180,11 @@ public class TraderTask {
     public List<String> getLiveExecutorCmd(boolean isLive) {
         List<String> cmd = new ArrayList<>();
         cmd.add("python");
+        cmd.add("-m");
         if (isLive) {
-            cmd.add("live_executor.py");
+            cmd.add("cctrader.live_executor");
         } else {
-            cmd.add("mock_executor.py");
+            cmd.add("cctrader.mock_executor");
         }
         cmd.add("goods_id=" + this.goodsId);
         return cmd;

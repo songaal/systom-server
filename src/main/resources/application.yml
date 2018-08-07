@@ -40,6 +40,8 @@ backtest:
 scheduler:
   isMonthCalculation: "false"
 
-
+goods:
+  startTime: 12
+  endTime: 11
 
 

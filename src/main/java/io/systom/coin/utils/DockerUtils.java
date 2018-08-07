@@ -65,6 +65,7 @@ public class DockerUtils {
         DockerClient dockerClient = getClient();
         CreateContainerResponse container = dockerClient.createContainerCmd(backTestImage)
                                                         .withCmd(cmd)
+                                                        .withEnv("LOGLEVEL=INFO")
                                                         .exec();
 
         String containerId = container.getId();
