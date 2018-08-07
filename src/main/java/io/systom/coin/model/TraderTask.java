@@ -156,8 +156,12 @@ public class TraderTask {
         cmd.add("end_date=" + endDate);
         cmd.add("exchange_id=" + exchange);
         cmd.add("coin_unit=" + coinUnit);
-        cmd.add("base_unit=" + baseUnit);
-        cmd.add("cash_unit=" + cashUnit);
+        if (cashUnit.equalsIgnoreCase(baseUnit)) {
+            cmd.add("cash_unit=" + cashUnit);
+        } else {
+            cmd.add("base_unit=" + baseUnit);
+            cmd.add("cash_unit=" + cashUnit);
+        }
         return cmd;
     }
 
@@ -171,8 +175,12 @@ public class TraderTask {
         cmd.add("exchange_id=" + this.exchange);
         cmd.add("start_date=" + this.startDate);
         cmd.add("coin_unit=" + this.coinUnit);
-        cmd.add("base_unit=" + this.baseUnit);
-        cmd.add("cash_unit=" + this.cashUnit);
+        if (cashUnit.equalsIgnoreCase(baseUnit)) {
+            cmd.add("cash_unit=" + cashUnit);
+        } else {
+            cmd.add("base_unit=" + baseUnit);
+            cmd.add("cash_unit=" + cashUnit);
+        }
         cmd.add("init_cash=" + this.initCash);
         return cmd;
     }
