@@ -21,6 +21,7 @@
         <typeAlias alias="TradeStat" type="io.systom.coin.model.TradeStat"/>
         <typeAlias alias="UserMonthlyInvest" type="io.systom.coin.model.UserMonthlyInvest"/>
         <typeAlias alias="GoodsTestResult" type="io.systom.coin.model.GoodsTestResult"/>
+        <typeAlias alias="Invoice" type="io.systom.coin.model.Invoice"/>
     </typeAliases>
 
 </configuration>

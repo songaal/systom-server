@@ -13,7 +13,6 @@ aws:
       container:
         signal: "systom-signal"
         executor: "systom-executor"
-
   cognito:
     userPoolId: "ap-northeast-2_8UlVuFFva"
     clientId: "4km83jbt1d6pg415q4ieqt41b0"
