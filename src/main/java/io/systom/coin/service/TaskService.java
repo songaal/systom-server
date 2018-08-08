@@ -150,15 +150,25 @@ public class TaskService {
         List<MonthlyReturn> MonthlyReturnList = new ArrayList<>();
         Map<String, Float> monthlyCumReturns = traderTaskResult.getResult().getMonthlyCumReturns();
         Iterator<Map.Entry<String, Float>> iterator = monthlyCumReturns.entrySet().iterator();
+        float max = 0;
+        float min = 0;
         while (iterator.hasNext()) {
             Map.Entry<String, Float> entry = iterator.next();
             MonthlyReturnList.add(new MonthlyReturn(entry.getKey(), entry.getValue()));
+            if (entry.getValue().floatValue() > max) {
+                max = entry.getValue();
+            }
+            if (entry.getValue().floatValue() < min) {
+                min = entry.getValue();
+            }
         }
         try {
             GoodsTestResult goodsTestResult = new GoodsTestResult();
             goodsTestResult.setId(traderTask.getGoodsId());
-            goodsTestResult.setTestMaxReturnsPct((int) traderTaskResult.getResult().getMaxReturnsPct());
-            goodsTestResult.setTestMaxDrawDownPct((int) traderTaskResult.getResult().getMaxDrawdownPct());
+//            goodsTestResult.setTestMaxReturnsPct((int) traderTaskResult.getResult().getMaxReturnsPct());
+//            goodsTestResult.setTestMaxDrawDownPct((int) traderTaskResult.getResult().getMaxDrawdownPct());
+            goodsTestResult.setTestMaxMonthlyPct(Float.parseFloat(String.format("%.1", max)));
+            goodsTestResult.setTestMinMonthlyPct(Float.parseFloat(String.format("%.1", min)));
             goodsTestResult.setTestMonthlyReturnList(MonthlyReturnList);
             goodsTestResult.setTradeHistory(traderTaskResult.getResult().getTradeHistory());
             Map<String, Object> params = new HashMap<>();

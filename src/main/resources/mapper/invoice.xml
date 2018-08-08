@@ -17,7 +17,7 @@
              , c.init_cash
              , c.equity
              , c.returns
-             , if (c.returns > 0, c.returns / 49, 0) as payment_price
+             , if (c.returns > 0, round(c.returns / 49, 2), 0) as payment_price
              , if (c.returns <= 0, 'OK', null) as status
           FROM goods a
           JOIN invest_goods b on a.id = b.goods_id
@@ -43,7 +43,7 @@
         </foreach>
     </select>
 
-    <insert id="createInvoice" parameterType="Invoice">
+    <insert id="createInvoice" parameterType="Invoice" keyProperty="id" useGeneratedKeys="true">
         INSERT INTO invoice (invest_id, init_cash, returns, payment_price, status, payment_price)
         VALUES
         <foreach collection="list" item="item" separator=",">
@@ -83,18 +83,24 @@
     </update>
 
     <select id="retrieveInvoice" parameterType="String" resultType="Invoice">
-        SELECT a.create_time
+        SELECT a.id
+             , a.create_time
              , a.invest_id
              , a.status
              , a.init_cash
              , a.payment_time
              , a.payment_price
+             , a.returns
+             , b.user_id
              , c.name
              , c.id as goods_id
+             , c.cash_unit
           FROM invoice a
           JOIN invest_goods b on a.invest_id = b.id
           JOIN goods c on b.goods_id = c.id
-         WHERE b.user_id = #{param1}
+         WHERE b.is_paper = false
+           AND b.user_id = #{param1}
+         ORDER BY a.create_time DESC
     </select>
 
 </mapper>

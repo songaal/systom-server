@@ -9,13 +9,24 @@ import java.util.Date;
 public class Invoice {
     private Integer id;
     private Integer goodsId;
+    private String name;
     private Integer investId;
+    private String userId;
     private Float initCash;
+    private String cashUnit;
     private Float returns;
     private Float paymentPrice;
     private String status;
     private Date paymentTime;
     private Date createTime;
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 
     public Integer getId() {
         return id;
@@ -85,8 +96,24 @@ public class Invoice {
         return createTime;
     }
 
+    public String getCashUnit() {
+        return cashUnit;
+    }
+
+    public void setCashUnit(String cashUnit) {
+        this.cashUnit = cashUnit;
+    }
+
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
@@ -94,8 +121,10 @@ public class Invoice {
         return "Invoice{" +
                 "id=" + id +
                 ", goodsId=" + goodsId +
+                ", name='" + name + '\'' +
                 ", investId=" + investId +
                 ", initCash=" + initCash +
+                ", cashUnit=" + cashUnit +
                 ", returns=" + returns +
                 ", paymentPrice=" + paymentPrice +
                 ", status='" + status + '\'' +
