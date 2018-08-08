@@ -23,7 +23,7 @@
           JOIN invest_goods b on a.id = b.goods_id
           JOIN performance_summary c on b.id = c.invest_id
          WHERE b.is_paper = false
-           AND date_format(concat(a.invest_end, '14', '00','00'), '%Y%m%d%H%I%S') > date_format(now(), '%Y%m%d%H%I%S')
+           AND date_format(concat(a.invest_end, '5', '00','00'), '%Y%m%d%H%I%S') > date_format(now(), '%Y%m%d%H%I%S')
          ]]>
     </select>
 
@@ -44,14 +44,18 @@
     </select>
 
     <insert id="createInvoice" parameterType="Invoice">
-        INSERT INTO invoice (invest_id, init_cash, returns, payment_price, status)
+        INSERT INTO invoice (invest_id, init_cash, returns, payment_price, status, payment_price)
         VALUES
         <foreach collection="list" item="item" separator=",">
             ( ${item.investId}
             , ${item.initCash}
             , ${item.returns}
             , ${item.paymentPrice}
-            , #{item.status,jdbcType=VARCHAR} )
+            , #{item.status,jdbcType=VARCHAR}
+            <if test="item.status != null and item.status != ''">
+            , now()
+            </if>
+            )
         </foreach>
     </insert>
 
@@ -77,5 +81,20 @@
            AND status is null
          ]]>
     </update>
+
+    <select id="retrieveInvoice" parameterType="String" resultType="Invoice">
+        SELECT a.create_time
+             , a.invest_id
+             , a.status
+             , a.init_cash
+             , a.payment_time
+             , a.payment_price
+             , c.name
+             , c.id as goods_id
+          FROM invoice a
+          JOIN invest_goods b on a.invest_id = b.id
+          JOIN goods c on b.goods_id = c.id
+         WHERE b.user_id = #{param1}
+    </select>
 
 </mapper>
