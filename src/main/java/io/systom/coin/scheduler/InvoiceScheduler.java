@@ -33,7 +33,7 @@ public class InvoiceScheduler {
             logger.debug("isInvoiceCreate Disabled");
             return;
         }
-        
+
         logger.debug("==== 인보이스 발급 스케쥴러 시작 ====");
         List<Invoice> investors = sqlSession.selectList("invoice.retrieveInvoiceTarget");
         if (investors == null) {
