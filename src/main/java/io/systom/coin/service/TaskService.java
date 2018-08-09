@@ -165,8 +165,11 @@ public class TaskService {
         try {
             GoodsTestResult goodsTestResult = new GoodsTestResult();
             goodsTestResult.setId(traderTask.getGoodsId());
-            goodsTestResult.setTestMaxMonthlyPct((float) Math.floor(max * 10) / 10);
-            goodsTestResult.setTestMinMonthlyPct((float) Math.floor(min * 10) / 10);
+//            goodsTestResult.setTestMaxMonthlyPct((float) Math.floor(max * 10) / 10);
+//            goodsTestResult.setTestMinMonthlyPct((float) Math.floor(min * 10) / 10);
+            goodsTestResult.setTestMaxMonthlyPct(Float.parseFloat(String.format("%.1f", max)));
+            goodsTestResult.setTestMinMonthlyPct(Float.parseFloat(String.format("%.1f", min)));
+
             goodsTestResult.setTestMonthlyReturnList(MonthlyReturnList);
             goodsTestResult.setTradeHistory(traderTaskResult.getResult().getTradeHistory());
             Map<String, Object> params = new HashMap<>();

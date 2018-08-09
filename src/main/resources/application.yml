@@ -24,9 +24,6 @@ spring:
     username: "gncloud"
     password: "gnc=1151"
     driver-class-name: "com.mysql.cj.jdbc.Driver"
-#  http:
-#    converters:
-#      preferred-json-mapper: "gson"
 
 backtest:
     host: "tcp://52.78.216.101:2376"
@@ -40,8 +37,6 @@ scheduler:
   isMonthCalculation: "false"
   isInvoiceCreate: "false"
 
-goods:
-  startTime: 12
-  endTime: 11
 
-
+timezone:
+  timeDifference: "0900"

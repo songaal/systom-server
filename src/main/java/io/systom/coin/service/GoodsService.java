@@ -39,6 +39,7 @@ public class GoodsService {
     private InvestGoodsService investGoodsService;
 
     public static final String DATE_FORMAT = "yyyyMMdd";
+    public static final String TIME_FORMAT = "HHmmss";
 
     @Transactional
     public Goods registerGoods(Goods target){
@@ -57,14 +58,11 @@ public class GoodsService {
         GoodsTestResult testResult = new GoodsTestResult();
         List<MonthlyReturn> testMonthlyReturnList = generatorTestMonthlyReturns(target.getTestStart(), target.getTestEnd());
         testResult.setTestMonthlyReturnList(testMonthlyReturnList);
-//        testResult.setTestMaxDrawDownPct(0f);
-//        testResult.setTestMaxReturnsPct(0f);
         testResult.setTestMaxMonthlyPct(0);
         testResult.setTestMinMonthlyPct(0);
         testResult.setTradeHistory(new ArrayList<>());
 
         target.setTestResult(new Gson().toJson(testResult));
-
         try {
             int changeRow = sqlSession.insert("goods.registerGoods", target);
             if (changeRow != 1) {
