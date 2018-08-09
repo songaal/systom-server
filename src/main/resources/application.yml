@@ -38,6 +38,7 @@ backtest:
 
 scheduler:
   isMonthCalculation: "false"
+  isInvoiceCreate: "false"
 
 goods:
   startTime: 12

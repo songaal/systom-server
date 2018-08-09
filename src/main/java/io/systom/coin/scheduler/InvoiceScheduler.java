@@ -4,6 +4,7 @@ import io.systom.coin.model.Invoice;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,10 +21,19 @@ public class InvoiceScheduler {
 
     @Autowired
     private SqlSession sqlSession;
+
+    @Value("${scheduler.isInvoiceCreate}")
+    private String isInvoiceCreate;
+
 // kst 14h, utc 5h
     @Scheduled(cron = "0 0 5 * * *")
     @Transactional
     public void task() {
+        if (!"true".equalsIgnoreCase(isInvoiceCreate)) {
+            logger.debug("isInvoiceCreate Disabled");
+            return;
+        }
+        
         logger.debug("==== 인보이스 발급 스케쥴러 시작 ====");
         List<Invoice> investors = sqlSession.selectList("invoice.retrieveInvoiceTarget");
         if (investors == null) {
