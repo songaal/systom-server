@@ -9,7 +9,7 @@ aws:
     clusterId: "systom"
     definition:
       name: "systom"
-      version: "7"
+      version: "8"
       container:
         signal: "systom-signal"
         executor: "systom-executor"
@@ -30,7 +30,7 @@ spring:
 
 backtest:
     host: "tcp://52.78.216.101:2376"
-    image: "868448630378.dkr.ecr.ap-northeast-2.amazonaws.com/systom-signal"
+    image: "868448630378.dkr.ecr.ap-northeast-2.amazonaws.com/cctrader"
     apiServerUrl: "http://13.125.73.226:9000"
     container:
           readTimeout: 300000

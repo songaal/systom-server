@@ -28,46 +28,25 @@ public class InvoiceTest {
     @Test
     public void calculationInvoiceTest() {
 
-        //        대상 조회
-        List<Invoice> investors = sqlSession.selectList("invoice.retrieveInvoiceTarget");
 
-        //        중복,차액발생
-        List<Invoice> invoiceList = sqlSession.selectList("invoice.findInvoiceByInvestId", investors);
-        if (invoiceList != null) {
-            int investorSize = investors.size();
-            int invoiceSize = invoiceList.size();
-            for (int i=0; i < invoiceSize; i++) {
-                Invoice invoice = invoiceList.get(i);
-                for (int j=0; j < investorSize; j++) {
-                    Invoice tmp = investors.get(j);
-                    if (invoice.getInvestId().compareTo(tmp.getInvestId()) == 0) {
-                        float diff = tmp.getPaymentPrice() - invoice.getPaymentPrice();
-                        if (diff == 0) {
-                            investors.remove(j);
-                            break;
-                        }
-                        if (invoice.getStatus() != null && "OK".equalsIgnoreCase(invoice.getStatus())) {
-//                          TODO  차액이 발생, 결재완료되있는 상태
-                            logger.info("=======================");
-                            logger.info("인보이스 결재완료. 차액 발생. 투자금: {}, 수익금: {}, 발급된 인보이스 합계: {}"
-                                    , tmp.getInitCash(), tmp.getReturns(), invoice.getPaymentPrice());
-                            logger.info("=======================");
-                        } else {
-                            // 결재 전 인보이스 재발행
-                            sqlSession.delete("invoice.deleteInvoice", tmp);
-                        }
-                        break;
-                    }
-                }
-            }
+        logger.debug("==== 인보이스 발급 스케쥴러 시작 ====");
+        List<Invoice> investors = sqlSession.selectList("invoice.retrieveInvoiceTarget");
+        if (investors == null) {
+            logger.debug("인보이스 발급 대상 없음.");
+            return;
         }
+
 
         if (investors.size() > 0) {
             int cnt = sqlSession.insert("invoice.createInvoice", investors);
-            logger.debug("cnt: {}", cnt);
+            logger.debug("발급 인보이스 수: {}", cnt);
         }
 
-        sqlSession.update("invoice.updateDelayStatus");
+
+        int cnt = sqlSession.update("invoice.updateDelayStatus");
+        logger.debug("연체 인보이스 수: {} ", cnt);
+
+        logger.debug("==== 인보이스 발급 스케쥴러 종료 ====");
     }
 
 }

@@ -23,7 +23,7 @@
           JOIN invest_goods b on a.id = b.goods_id
           JOIN performance_summary c on b.id = c.invest_id
          WHERE b.is_paper = false
-           AND date_format(concat(a.invest_end, '5', '00','00'), '%Y%m%d%H%I%S') > date_format(now(), '%Y%m%d%H%I%S')
+           AND date_format(concat(a.invest_end, '05', '00','00'), '%Y%m%d%H%I%S') > date_format(now(), '%Y%m%d%H%I%S')
          ]]>
     </select>
 
@@ -44,7 +44,7 @@
     </select>
 
     <insert id="createInvoice" parameterType="Invoice" keyProperty="id" useGeneratedKeys="true">
-        INSERT INTO invoice (invest_id, init_cash, returns, payment_price, status, payment_price)
+        INSERT INTO invoice (invest_id, init_cash, returns, payment_price, status, payment_time)
         VALUES
         <foreach collection="list" item="item" separator=",">
             ( ${item.investId}
@@ -52,9 +52,14 @@
             , ${item.returns}
             , ${item.paymentPrice}
             , #{item.status,jdbcType=VARCHAR}
-            <if test="item.status != null and item.status != ''">
-            , now()
-            </if>
+            <choose>
+                <when test="item.status != null and item.status != ''">
+                    , now()
+                </when>
+                <otherwise>
+                    , null
+                </otherwise>
+            </choose>
             )
         </foreach>
     </insert>
