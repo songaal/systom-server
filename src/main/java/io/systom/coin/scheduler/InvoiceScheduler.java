@@ -26,7 +26,7 @@ public class InvoiceScheduler {
     private String isInvoiceCreate;
 
 // kst 14h, utc 5h
-    @Scheduled(cron = "0 0 5 * * *")
+    @Scheduled(cron = "0 0 14 * * *")
     @Transactional
     public void task() {
         if (!"true".equalsIgnoreCase(isInvoiceCreate)) {

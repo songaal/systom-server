@@ -5,7 +5,15 @@ public class Identity {
     private String password;
     private String email;
     private String session;
-    private boolean isSeller;
+    private String ref;
+
+    public String getRef() {
+        return ref;
+    }
+
+    public void setRef(String ref) {
+        this.ref = ref;
+    }
 
     public String getUserId() {
         return userId;
@@ -39,13 +47,6 @@ public class Identity {
         this.session = session;
     }
 
-    public boolean isSeller() {
-        return isSeller;
-    }
-
-    public void setSeller(boolean seller) {
-        isSeller = seller;
-    }
 
     @Override
     public String toString() {

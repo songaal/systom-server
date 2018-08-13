@@ -20,7 +20,7 @@ aws:
 
 spring:
   datasource:
-    url: "jdbc:mysql://gncloudinstance.cygcygiwvnc8.ap-northeast-2.rds.amazonaws.com:3306/systom?useUnicode=true&characterEncoding=utf8"
+    url: "jdbc:mysql://gncloudinstance.cygcygiwvnc8.ap-northeast-2.rds.amazonaws.com:3306/systom?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Seoul"
     username: "gncloud"
     password: "gnc=1151"
     driver-class-name: "com.mysql.cj.jdbc.Driver"
@@ -38,5 +38,5 @@ scheduler:
   isInvoiceCreate: "false"
 
 
-timezone:
-  timeDifference: "0900"
+dateConfig:
+  timeZone: "Asia/Seoul"

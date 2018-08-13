@@ -23,7 +23,6 @@ import java.util.Date;
 import java.util.List;
 
 import static io.systom.coin.service.GoodsService.DATE_FORMAT;
-import static io.systom.coin.service.GoodsService.TIME_FORMAT;
 
 /*
  * create joonwoo 2018. 7. 3.
@@ -68,7 +67,7 @@ public class GoodsController extends AbstractController{
                                                @RequestParam(required = false) String type) {
         try {
             List<Goods> registerGoodsList = new ArrayList<>();
-            String nowTime = new SimpleDateFormat(DATE_FORMAT + TIME_FORMAT).format(new Date());
+            String nowTime = new SimpleDateFormat(DATE_FORMAT).format(new Date());
             Goods searchGoods = null;
             if (type != null && identityService.isManager(userId)) {
                 List<String> typeList = Arrays.asList(type.split(","));

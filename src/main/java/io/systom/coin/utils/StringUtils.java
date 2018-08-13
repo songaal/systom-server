@@ -319,4 +319,29 @@ public class StringUtils {
             throw new IllegalArgumentException("not a hex digit: " + c);
         }
     }
+
+    //genAsciiCode 에 국한됨
+    static char[] myChars;
+    static {
+        myChars = new char[62];
+        for (int i = 0; i < 62; i++) {
+            int j = 0;
+            if (i < 10) {
+                j = i + 48;
+            } else if (i > 9 && i <= 35) {
+                j = i + 55;
+            } else {
+                j = i + 61;
+            }
+            myChars[i] = (char) j;
+        }
+    }
+    public static String genAsciiCode(int len) {
+        Random myRand = new Random();
+        StringBuilder key = new StringBuilder(len);
+        for (int i = 0; i < len; i++) {
+            key.append(myChars[myRand.nextInt(62)]);
+        }
+        return key.toString();
+    }
 }

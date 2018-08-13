@@ -146,4 +146,22 @@ public class CognitoTest {
         logger.info("{}", changePasswordResult);
     }
 
+
+    @Test
+    public void addAttrTest () {
+        ListUsersRequest listUsersRequest = new ListUsersRequest();
+        listUsersRequest.withUserPoolId("ap-northeast-2_8UlVuFFva");
+        ListUsersResult listUsersResult = cognitoClient.listUsers(listUsersRequest);
+        Iterator<UserType> userIterator = listUsersResult.getUsers().iterator();
+        while(userIterator.hasNext()){
+            UserType userType = userIterator.next();
+            logger.info("{}", userType.getAttributes());
+            userType.getAttributes().add(new AttributeType().withName("maxInvitation").withValue("5"));
+            AdminUpdateUserAttributesRequest userAttributesRequest = new AdminUpdateUserAttributesRequest();
+            userAttributesRequest.withUserPoolId("ap-northeast-2_8UlVuFFva")
+                    .withUsername(userType.getUsername())
+                    .withUserAttributes(userType.getAttributes());
+            cognitoClient.adminUpdateUserAttributes(userAttributesRequest);
+        }
+    }
 }

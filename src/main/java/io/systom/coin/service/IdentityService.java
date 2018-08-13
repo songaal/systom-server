@@ -74,7 +74,8 @@ public class IdentityService {
                 .withUserPoolId(cognitoPoolId)
                 .withUsername(userId)
                 .withUserAttributes(new AttributeType().withName("email").withValue(email))
-                .withUserAttributes(new AttributeType().withName("email_verified").withValue("true"));
+                .withUserAttributes(new AttributeType().withName("email_verified").withValue("true"))
+                .withUserAttributes(new AttributeType().withName("custom:maxInvitation").withValue("5"));
 
         AdminCreateUserResult authResponse = cognitoClient.adminCreateUser(authRequest);
         return authResponse;

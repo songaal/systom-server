@@ -261,9 +261,10 @@ public class GoodsService {
             deployVersion = strategyDeployService.getDeployVersion(deployVersion);
             if (deployVersion == null){
                 return false;
-            } else if (!deployVersion.getUserId().equals(target.getAuthorId())) {
-                throw new AuthenticationException();
             }
+//            else if (!deployVersion.getUserId().equals(target.getAuthorId())) {
+//                throw new AuthenticationException();
+//            }
 
         } catch (OperationException e) {
             logger.error("", e);

@@ -37,6 +37,7 @@ public class AuthInterceptor implements HandlerInterceptor {
     // 토큰 확인 안하는 URL
     private List<String> exceptUrl = Arrays.asList( "/auth/login", "/auth/signUp", "/ping", "/error", "/auth/changeTempPassword", "/auth/forgotPassword");
 
+
     /**
      * api 요청시 권환 확인
      *
@@ -57,6 +58,10 @@ public class AuthInterceptor implements HandlerInterceptor {
                 if (taskService.isWaitTask(pathVariables.get("taskId")) != null) {
                     return true;
                 }
+            }
+
+            if ("/invitations".equalsIgnoreCase(url) && request.getParameter("ref") != null) {
+                return true;
             }
 
             if (exceptUrl.contains(url)) {

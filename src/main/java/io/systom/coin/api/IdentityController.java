@@ -7,6 +7,7 @@ import io.systom.coin.exception.RequestException;
 import io.systom.coin.model.*;
 import io.systom.coin.service.ExchangeService;
 import io.systom.coin.service.IdentityService;
+import io.systom.coin.service.InvitationService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,14 +37,20 @@ public class IdentityController {
     private IdentityService identityService;
     @Autowired
     private ExchangeService exchangeService;
-
+    @Autowired
+    private InvitationService invitationService;
     /**
      * 회원가입
      * */
     @RequestMapping(value = "/signUp", method = RequestMethod.POST)
     public ResponseEntity<?> signUp(@RequestBody Identity identity) throws OperationException {
+        Invitation invitation = invitationService.findInvitationByRefCode(identity.getRef());
+        if (invitation == null || !invitation.getStatus()) {
+            new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         AdminCreateUserResult result = identityService.signUp(identity.getUserId(), identity.getEmail());
         UserType user = result.getUser();
+        invitationService.updateRefUser(identity.getUserId(), identity.getRef());
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
     /**

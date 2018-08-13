@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="invitation">
+
+    <insert id="createInvitation" parameterType="Invitation" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO invitation (user_id, ref_code)
+        VALUES ( #{userId}
+               , #{refCode}
+        )
+    </insert>
+
+    <update id="updateRefUser" parameterType="Invitation">
+        UPDATE invitation
+           SET ref_user_id = #{refUserId}
+             , status = false
+         WHERE ref_code = #{refCode}
+    </update>
+
+    <select id="findInvitationByRefCode" parameterType="String" resultType="Invitation">
+        SELECT id
+             , user_id
+             , ref_code
+             , ref_user_id
+             , status
+             , create_time
+          FROM invitation
+         WHERE ref_code = #{param1}
+           AND status = true
+    </select>
+
+    <select id="selectInvitationList" parameterType="String" resultType="Invitation">
+        SELECT id
+             , user_id
+             , ref_code
+             , ref_user_id
+             , status
+             , create_time
+          FROM invitation
+         WHERE user_id = #{param1}
+    </select>
+
+</mapper>

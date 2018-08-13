@@ -4,10 +4,14 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="test">
-
-
+    <!--select convert_tz(create_time, '+00:00',  user_tz) from test-->
+    <select id="selectTest" resultType="HashMap">
+        select create_time from test where kkk=37
+    </select>
     <insert id="insertTest">
-        insert into test values ('${timeDifference}')
+        insert into test(create_time, timstamp) values (#{timeStamp}, #{timeStamp})
     </insert>
-
+    <select id="selectNow" resultType="HashMap">
+        select now() as now
+    </select>
 </mapper>
