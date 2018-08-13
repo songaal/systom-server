@@ -33,7 +33,7 @@ public class LiveTaskRunTest {
         traderTask.setId(taskId);
 
         traderTask.setUserId("joonwoo");
-        taskService.testTask(taskId);
+//        taskService.testTask(taskId);
 
         com.amazonaws.services.ecs.model.Task resultTask = taskService.liveTaskRun(traderTask);
         logger.info("결과: {}", resultTask);

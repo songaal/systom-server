@@ -11,8 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-
 /*
  * create joonwoo 2018. 6. 20.
  *
@@ -64,14 +62,6 @@ public class TaskController extends AbstractController {
         TraderTaskResult traderTaskResult = new Gson().fromJson(taskResultJson, TraderTaskResult.class);
         TraderTaskResult saveResult = taskService.registerBackTestResult(taskId, traderTaskResult);
         return success(saveResult);
-    }
-
-
-
-    @PostMapping("/testTask")
-    public ResponseEntity<?> testTask(@RequestBody Map<String, String> cmd) throws Exception {
-        taskService.testTask(cmd.get("task_id"));
-        return success();
     }
 
 }

@@ -282,12 +282,4 @@ public class TaskService {
         }
     }
 
-    public void testTask(String task_id) {
-        TraderTask traderTask = new TraderTask();
-        traderTask.setId(task_id);
-        traderTask.setUserId("joonwoo");
-        traderTask.setStrategyId(18);
-        waitTaskList.put(task_id, traderTask);
-    }
-
 }

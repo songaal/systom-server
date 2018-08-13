@@ -60,7 +60,6 @@ public class InvitationController extends AbstractController{
                 return success();
             }
         } catch (AbstractException e) {
-            logger.error("", e);
             return e.response();
         } catch (Throwable t) {
             logger.error("", t);
