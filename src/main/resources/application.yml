@@ -38,5 +38,14 @@ scheduler:
   isInvoiceCreate: "false"
 
 
-dateConfig:
-  timeZone: "Asia/Seoul"
+invest:
+  start:
+    hour: "12"
+    minute: "30"
+    second: "00"
+  end:
+    hour: "12"
+    minute: "30"
+    second: "00"
+
+

@@ -118,26 +118,18 @@
         </if>
         <choose>
             <when test="collectStart != null and collectStart != '' and collectEnd != null and collectEnd != ''">
-            <![CDATA[
-                AND a.collect_start <= ${collectStart}
-                AND a.collect_end >= ${collectEnd}
-            ]]>
+                AND concat(a.collect_start, <include refid="common.investStartTime" />) <![CDATA[ <= ]]> ${collectStart}
+                AND concat(a.collect_end,   <include refid="common.investEndTime" />)   <![CDATA[ >= ]]> ${collectEnd}
             </when>
             <when test="investStart != null and investStart != '' and investEnd != null and investEnd != ''">
-            <![CDATA[
-                AND a.invest_start <= ${investStart}
-                AND a.invest_end >= ${investEnd}
-            ]]>
+                AND concat(a.invest_start, <include refid="common.investStartTime" />) <![CDATA[ <= ]]> ${investStart}
+                AND concat(a.invest_end,   <include refid="common.investEndTime" />)   <![CDATA[ >= ]]> ${investEnd}
             </when>
             <when test="investStart != null and investStart != ''">
-            <![CDATA[
-                AND a.invest_start > ${investStart}
-            ]]>
+                AND concat(a.invest_start, <include refid="common.investStartTime" />) <![CDATA[ > ]]> ${investStart}
             </when>
             <when test="investEnd != null and investEnd != ''">
-            <![CDATA[
-                AND a.invest_end < ${investEnd}
-            ]]>
+                AND concat(a.invest_end,   <include refid="common.investStartTime" />) <![CDATA[ < ]]> ${investEnd}
             </when>
             <otherwise>
                 1 = 2

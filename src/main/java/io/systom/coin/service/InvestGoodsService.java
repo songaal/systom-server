@@ -8,6 +8,7 @@ import io.systom.coin.model.*;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
@@ -15,6 +16,7 @@ import java.util.Date;
 import java.util.List;
 
 import static io.systom.coin.service.GoodsService.DATE_FORMAT;
+import static io.systom.coin.service.GoodsService.TIME_FORMAT;
 
 /*
  * create joonwoo 2018. 7. 3.
@@ -42,14 +44,26 @@ public class InvestGoodsService {
     @Autowired
     private UserMonthInvestService userMonthInvestService;
 
+    @Value("${invest.start.hour}")
+    private String startHour;
+    @Value("${invest.start.minute}")
+    private String startMinute;
+    @Value("${invest.start.second}")
+    private String startSecond;
+    @Value("${invest.end.hour}")
+    private String endHour;
+    @Value("${invest.end.minute}")
+    private String endMinute;
+    @Value("${invest.end.second}")
+    private String endSecond;
+
     public InvestGoods registrationInvestor(InvestGoods investor) {
         Goods registerGoods = goodsService.getGoods(investor.getGoodsId());
-
-        long nowTs = Integer.parseInt(new SimpleDateFormat(DATE_FORMAT).format(new Date()));
+        long nowTs = Integer.parseInt(new SimpleDateFormat(DATE_FORMAT + TIME_FORMAT).format(new Date()));
         if (registerGoods == null || !registerGoods.getDisplay()) {
             throw new RequestException("invalid goods");
-        } else if (Integer.parseInt(registerGoods.getCollectStart()) > nowTs
-                ||Integer.parseInt(registerGoods.getCollectEnd()) < nowTs) {
+        } else if (Integer.parseInt(String.format("%s%s%s%s", registerGoods.getCollectStart(), startHour, startMinute, startSecond)) > nowTs
+                ||Integer.parseInt(String.format("%s%s%s%s", registerGoods.getCollectEnd(), endHour, endMinute, endSecond)) < nowTs) {
             throw new RequestException("not collect invest goods");
         } else if(investor.getInvestCash() == null
                 || investor.getInvestCash().floatValue() <= 0) {
@@ -128,14 +142,14 @@ public class InvestGoodsService {
             throw new AuthenticationException();
         }
 
-        Goods registerGoods = goodsService.getGoods(investGoods.getGoodsId());
-        int nowTime = Integer.parseInt(new SimpleDateFormat(DATE_FORMAT).format(new Date()));
-        if (Integer.parseInt(registerGoods.getCollectStart()) > nowTime
-                || Integer.parseInt(registerGoods.getCollectEnd()) < nowTime) {
-            throw new RequestException("not collect invest goods");
-        }
+//        Goods registerGoods = goodsService.getGoods(investGoods.getGoodsId());
+//        int nowTime = Integer.parseInt(new SimpleDateFormat(DATE_FORMAT).format(new Date()));
+//        if (Integer.parseInt(registerGoods.getCollectStart()) > nowTime
+//                || Integer.parseInt(registerGoods.getCollectEnd()) < nowTime) {
+//            throw new RequestException("not collect invest goods");
+//        }
 
-        performanceService.deletePerformanceSummary(investId);
+//        performanceService.deletePerformanceSummary(investId);
         performanceService.deleteTradeStat(investId);
         try {
             int changeRow = sqlSession.delete("investGoods.deleteInvestGoods", investGoods.getId());

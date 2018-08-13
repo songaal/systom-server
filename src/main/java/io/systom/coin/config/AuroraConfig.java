@@ -4,6 +4,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -19,8 +20,18 @@ import java.util.Properties;
 @Configuration
 public class AuroraConfig {
 
-//    @Value("${dateConfig.timeZone}")
-//    private String timeZone;
+    @Value("${invest.start.hour}")
+    private String startHour;
+    @Value("${invest.start.minute}")
+    private String startMinute;
+    @Value("${invest.start.second}")
+    private String startSecond;
+    @Value("${invest.end.hour}")
+    private String endHour;
+    @Value("${invest.end.minute}")
+    private String endMinute;
+    @Value("${invest.end.second}")
+    private String endSecond;
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(AuroraConfig.class);
 
@@ -36,7 +47,12 @@ public class AuroraConfig {
         sqlSessionFactoryBean.setMapperLocations(new PathMatchingResourcePatternResolver().getResources("classpath:/mapper/*.xml"));
         sqlSessionFactoryBean.setConfigLocation(new PathMatchingResourcePatternResolver().getResources("classpath:/mybatis-config.xml")[0]);
         Properties properties = new Properties();
-//        properties.put("timeZone", timeZone);
+        properties.put("investStartHour", startHour);
+        properties.put("investStartMinute", startMinute);
+        properties.put("investStartSecond", startSecond);
+        properties.put("investEndHour", endHour);
+        properties.put("investEndMinute", endMinute);
+        properties.put("investEndSecond", endSecond);
         sqlSessionFactoryBean.setConfigurationProperties(properties);
         return sqlSessionFactoryBean.getObject();
     }
