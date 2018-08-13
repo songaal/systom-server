@@ -59,13 +59,13 @@ public class InvestGoodsService {
 
     public InvestGoods registrationInvestor(InvestGoods investor) {
         Goods registerGoods = goodsService.getGoods(investor.getGoodsId());
-        long nowTs = Integer.parseInt(new SimpleDateFormat(DATE_FORMAT + TIME_FORMAT).format(new Date()));
+        long nowTs = Long.parseLong(new SimpleDateFormat(DATE_FORMAT + TIME_FORMAT).format(new Date()));
         if (registerGoods == null || !registerGoods.getDisplay()) {
             throw new RequestException("invalid goods");
-        } else if (Integer.parseInt(String.format("%s%s%s%s", registerGoods.getCollectStart(), startHour, startMinute, startSecond)) > nowTs
-                ||Integer.parseInt(String.format("%s%s%s%s", registerGoods.getCollectEnd(), endHour, endMinute, endSecond)) < nowTs) {
+        } else if (Long.parseLong(String.format("%s%s%s%s", registerGoods.getCollectStart(), startHour, startMinute, startSecond)) > nowTs
+                || Long.parseLong(String.format("%s%s%s%s", registerGoods.getCollectEnd(), endHour, endMinute, endSecond)) < nowTs) {
             throw new RequestException("not collect invest goods");
-        } else if(investor.getInvestCash() == null
+        } else if (investor.getInvestCash() == null
                 || investor.getInvestCash().floatValue() <= 0) {
             throw new ParameterException("invest amount");
         }
