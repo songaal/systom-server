@@ -36,8 +36,8 @@ backtest:
 scheduler:
   isMonthCalculation: "false"
   isInvoiceCreate: "false"
-  isLiveTaskObserve: "false"
-  isNotification: "true"
+  isLiveTaskObserve: "true"
+  isNotification: "false"
 
 invest:
   start:

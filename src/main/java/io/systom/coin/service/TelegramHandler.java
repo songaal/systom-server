@@ -51,12 +51,29 @@ public class TelegramHandler {
             Telegram telegram = iterator.next();
             telegram.setOrigin(origin);
             telegram.setMessage(message);
-            telegram.setTimestamp(new Date().getTime());
+            send(telegram);
+        }
+    }
+
+    public void adminSend(String origin, String message) {
+        List<Telegram> telegramList = sqlSession.selectList("notification.retrieveTelegram", identityService.getManager());
+        if (telegramList == null) {
+            logger.debug("전달 대상이 없습니다.");
+            return;
+        }
+        Iterator<Telegram> iterator = telegramList.iterator();
+        while(iterator.hasNext()) {
+            Telegram telegram = iterator.next();
+            telegram.setOrigin(origin);
+            telegram.setMessage(message);
             send(telegram);
         }
     }
 
     public String send(Telegram telegram) {
+        if (telegram.getTimestamp() == 0) {
+            telegram.setTimestamp(new Date().getTime());
+        }
         try {
             RestTemplate restTemplate = new RestTemplate();
             return restTemplate.postForObject(telegramUrl, telegram, String.class);

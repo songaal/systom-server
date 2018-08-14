@@ -189,12 +189,17 @@ public class TaskService {
         return goodsService.getGoods(traderTask.getGoodsId(), traderTask.getUserId());
     }
 
-
     public Task liveTaskRun(TraderTask traderTask) {
-        if (!identityService.isManager(traderTask.getUserId())) {
-            logger.info("접근권환 없는 사용자 요청. 사용자: {}", traderTask.getUserId());
-            throw new AuthenticationException();
+        return liveTaskRun(traderTask, false);
+    }
+    public Task liveTaskRun(TraderTask traderTask, boolean force) {
+        if (!force) {
+            if (!identityService.isManager(traderTask.getUserId())) {
+                logger.info("접근권환 없는 사용자 요청. 사용자: {}", traderTask.getUserId());
+                throw new AuthenticationException();
+            }
         }
+
         Goods registerGoods = goodsService.getGoods(traderTask.getGoodsId());
         if (traderTask.getGoodsId() == null || registerGoods == null) {
             throw new ParameterException("goodsId");

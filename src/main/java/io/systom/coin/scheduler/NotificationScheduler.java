@@ -39,7 +39,7 @@ public class NotificationScheduler {
 
     private Map<String, Object> taskStatus = new HashMap<>();
 
-    @Scheduled(cron = "* 14 * * * *")
+    @Scheduled(cron = "0 0 13 * * *")
     public void task() {
         if(!"true".equalsIgnoreCase(isNotification)) {
             logger.debug("Notification Disabled");

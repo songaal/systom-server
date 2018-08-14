@@ -50,8 +50,8 @@ public class IdentityService {
 
     @Autowired
     private SqlSession sqlSession;
-
-    private List<String> manager = Arrays.asList("joonwoo", "songaal");
+//    songaal
+    private List<String> manager = Arrays.asList("joonwoo", "joonwoo88");
 
     @PostConstruct
     public void init() {

@@ -2,7 +2,6 @@ package io.systom.coin.api;
 
 import com.amazonaws.services.ecs.model.Task;
 import io.systom.coin.exception.AbstractException;
-import io.systom.coin.exception.AuthenticationException;
 import io.systom.coin.exception.OperationException;
 import io.systom.coin.exception.ParameterException;
 import io.systom.coin.model.Goods;
@@ -141,13 +140,12 @@ public class GoodsController extends AbstractController{
                                       @PathVariable Integer id) {
         try {
             Goods registerGoods = goodsService.getGoods(id, userId);
-            int nowTime = Integer.parseInt(new SimpleDateFormat(DATE_FORMAT).format(new Date()));
-
-            if (!identityService.isManager(userId)
-                    && Integer.parseInt(registerGoods.getCollectStart()) > nowTime
-                    && Integer.parseInt(registerGoods.getCollectEnd()) < nowTime) {
-                throw new AuthenticationException();
-            }
+//            int nowTime = Integer.parseInt(new SimpleDateFormat(DATE_FORMAT).format(new Date()));
+//            if (!identityService.isManager(userId)
+//                    && Integer.parseInt(registerGoods.getCollectStart()) > nowTime
+//                    && Integer.parseInt(registerGoods.getCollectEnd()) < nowTime) {
+//                throw new AuthenticationException();
+//            }
             registerGoods.setTaskRunning(isEcsTaskRunning(registerGoods.getTaskEcsId()));
             return success(registerGoods);
         } catch (AbstractException e) {
