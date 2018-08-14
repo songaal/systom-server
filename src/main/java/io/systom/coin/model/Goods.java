@@ -35,6 +35,7 @@ public class Goods {
     private boolean isTaskRunning;
     private String taskEcsId;
     private TraderTask waitTask;
+    private String status;
 
     private List<TraderTaskResult.Result.Trade> tradeHistory;
     private PerformanceSummary performanceSummary;
@@ -281,6 +282,14 @@ public class Goods {
         this.tradeStat = tradeStat;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     @Override
     public String toString() {
         return "Goods{" +
@@ -310,6 +319,7 @@ public class Goods {
                 ", isTaskRunning=" + isTaskRunning +
                 ", taskEcsId='" + taskEcsId + '\'' +
                 ", waitTask=" + waitTask +
+                ", status='" + status + '\'' +
                 ", tradeHistory=" + tradeHistory +
                 ", performanceSummary=" + performanceSummary +
                 ", performanceDaily=" + performanceDaily +

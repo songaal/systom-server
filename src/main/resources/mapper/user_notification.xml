@@ -23,4 +23,18 @@
           FROM user_notification
          WHERE user_id = #{param1}
     </select>
+
+    <select id="retrieveTelegram" resultType="Telegram">
+        SELECT user_id
+             , service_name
+             , service_user as user
+             , title
+             , create_time
+             , notify
+          FROM user_notification
+         WHERE user_id in
+        <foreach collection="list" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </select>
 </mapper>

@@ -25,6 +25,7 @@
         <typeAlias alias="GoodsTestResult" type="io.systom.coin.model.GoodsTestResult"/>
         <typeAlias alias="Invoice" type="io.systom.coin.model.Invoice"/>
         <typeAlias alias="Invitation" type="io.systom.coin.model.Invitation"/>
+        <typeAlias alias="Telegram" type="io.systom.coin.model.Telegram"/>
     </typeAliases>
 
 </configuration>

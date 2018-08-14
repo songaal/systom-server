@@ -14,7 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static io.systom.coin.utils.DateUtils.formatDate;
 
@@ -313,5 +315,16 @@ public class GoodsService {
         testResult.setTradeHistory(new ArrayList<>());
         registerGoods.setTestResult(new Gson().toJson(testResult));
         return updateGoods(registerGoods);
+    }
+
+    public List<String> selectInvestUserId(Integer id) {
+        return sqlSession.selectList("goods.selectInvestUserId", id);
+    }
+
+    public List<Goods> selectGoodsIdList(String column, String val) {
+        Map<String, String> param = new HashMap<>();
+        param.put("column", column);
+        param.put("val", val);
+        return sqlSession.selectList("goods.selectGoodsIdList", param);
     }
 }

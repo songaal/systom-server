@@ -9,7 +9,7 @@ aws:
     clusterId: "systom"
     definition:
       name: "systom"
-      version: "8"
+      version: "9"
       container:
         signal: "systom-signal"
         executor: "systom-executor"
@@ -28,7 +28,7 @@ spring:
 backtest:
     host: "tcp://52.78.216.101:2376"
     image: "868448630378.dkr.ecr.ap-northeast-2.amazonaws.com/cctrader"
-    apiServerUrl: "http://13.125.73.226:9000"
+    apiServerUrl: "http://13.125.73.226:20000"
     container:
           readTimeout: 300000
           connectTimeout: 10000
@@ -36,7 +36,8 @@ backtest:
 scheduler:
   isMonthCalculation: "false"
   isInvoiceCreate: "false"
-
+  isLiveTaskObserve: "false"
+  isNotification: "true"
 
 invest:
   start:
@@ -48,4 +49,5 @@ invest:
     minute: "30"
     second: "00"
 
-
+notifications:
+  telegramUrl: "https://bacl02xrl3.execute-api.ap-northeast-2.amazonaws.com/v1/message"

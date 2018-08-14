@@ -12,5 +12,4 @@
         concat('${investEndHour}', '${investEndMinute}', '${investEndSecond}')
     </sql>
 
-
 </mapper>

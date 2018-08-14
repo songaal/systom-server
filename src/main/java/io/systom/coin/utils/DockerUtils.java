@@ -41,6 +41,19 @@ public class DockerUtils {
     @Value("${backtest.apiServerUrl}")
     private String apiServerUrl;
 
+    @Value("${invest.start.hour}")
+    private String startHour;
+    @Value("${invest.start.minute}")
+    private String startMinute;
+    @Value("${invest.start.second}")
+    private String startSecond;
+    @Value("${invest.end.hour}")
+    private String endHour;
+    @Value("${invest.end.minute}")
+    private String endMinute;
+    @Value("${invest.end.second}")
+    private String endSecond;
+
     private DockerClientConfig config;
     private DockerCmdExecFactory factory;
 
@@ -60,8 +73,11 @@ public class DockerUtils {
     }
 
     public void syncRun(TraderTask traderTask) throws InterruptedException {
-        List<String> cmd = traderTask.getBackTestCmd();
+        String startTime = String.format("%s:%s:%s", startHour, startMinute, startSecond);
+        String endTime = String.format("%s:%s:%s", endHour, endMinute, endSecond);
+        List<String> cmd = traderTask.getBackTestCmd(startTime, endTime);
         cmd.add("api_server_url=" + apiServerUrl);
+
         DockerClient dockerClient = getClient();
         CreateContainerResponse container = dockerClient.createContainerCmd(backTestImage)
                                                         .withCmd(cmd)

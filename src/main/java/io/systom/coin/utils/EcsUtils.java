@@ -38,6 +38,13 @@ public class EcsUtils {
     @Value("${backtest.apiServerUrl}")
     private String apiServerUrl;
 
+    @Value("${invest.start.hour}")
+    private String startHour;
+    @Value("${invest.start.minute}")
+    private String startMinute;
+    @Value("${invest.start.second}")
+    private String startSecond;
+
     private AmazonECS client;
 
     @PostConstruct
@@ -50,7 +57,8 @@ public class EcsUtils {
     public Task syncRun(TraderTask traderTask){
         logger.info("ECS TraderTask Start");
         String taskDefinition = taskDefinitionName + ":" + taskDefinitionVersion;
-        List<String> signalCmd = traderTask.getLiveSignalCmd();
+        String startTime = String.format("%s:%s:%s", startHour, startMinute, startSecond);
+        List<String> signalCmd = traderTask.getLiveSignalCmd(startTime);
         signalCmd.add("api_server_url=" + apiServerUrl);
         List<String> executorCmd = traderTask.getLiveExecutorCmd(Env.isLiveExecution());
 

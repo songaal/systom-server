@@ -350,4 +350,8 @@ public class IdentityService {
         logger.info("{}", changePasswordResult);
         return changePasswordResult;
     }
+
+    public List<String> getManager() {
+        return manager;
+    }
 }

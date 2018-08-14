@@ -146,22 +146,28 @@ public class TraderTask {
     }
 
     public List<String> getBackTestCmd() {
+        return getBackTestCmd(null, null);
+    }
+    public List<String> getBackTestCmd(String startTime, String endTime) {
         List<String> cmd = new ArrayList<>();
         cmd.add("python");
         cmd.add("-m");
         cmd.add("cctrader.launcher");
         cmd.add("task_id=" + this.id);
         cmd.add("session_type=" + this.sessionType);
-        cmd.add("start_date=" + startDate);
-        cmd.add("end_date=" + endDate);
         cmd.add("exchange_id=" + exchange);
         cmd.add("coin_unit=" + coinUnit);
         cmd.add("base_unit=" + baseUnit);
         cmd.add("cash_unit=" + cashUnit);
+        cmd.add("start_date=" + startDate + (startTime == null ? "" : " " + startTime));
+        cmd.add("end_date=" + endDate + (endTime == null ? "" : endTime));
         return cmd;
     }
 
     public List<String> getLiveSignalCmd() {
+        return getLiveSignalCmd(null);
+    }
+    public List<String> getLiveSignalCmd(String startTime) {
         List<String> cmd = new ArrayList<>();
         cmd.add("python");
         cmd.add("-m");
@@ -169,11 +175,11 @@ public class TraderTask {
         cmd.add("task_id=" + this.id);
         cmd.add("session_type=" + this.sessionType);
         cmd.add("exchange_id=" + this.exchange);
-        cmd.add("start_date=" + this.startDate);
         cmd.add("coin_unit=" + this.coinUnit);
         cmd.add("base_unit=" + baseUnit);
         cmd.add("cash_unit=" + cashUnit);
         cmd.add("init_cash=" + this.initCash);
+        cmd.add("start_date=" + startDate + (startTime == null ? "" : " " + startTime));
         return cmd;
     }
 

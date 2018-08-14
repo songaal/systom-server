@@ -52,6 +52,13 @@
              , b.invest_cash
              , a.create_time
              , a.task_ecs_id
+             , if (concat(a.invest_start, <include refid="common.investStartTime"/>) <![CDATA[<=]]> date_format(now(), '%Y%m%d%H%i%s')
+              and concat(a.invest_end, <include refid="common.investEndTime"/>) <![CDATA[>=]]> date_format(now(), '%Y%m%d%H%i%s')
+                , 'RUNNING'
+                , if (concat(a.invest_end, <include refid="common.investEndTime"/>) <![CDATA[<]]> date_format(now(), '%Y%m%d%H%i%s')
+                   , 'CLOSE'
+                   , 'WAIT')
+             ) as status
             <if test="userId != null and userId != ''">
              , c.invest_id
             </if>
@@ -99,6 +106,13 @@
              , a.task_ecs_id
              , ifnull(b.invest_cash, 0) as invest_cash
              , c.invest_id
+             , if (concat(a.invest_start, <include refid="common.investStartTime"/>) <![CDATA[<=]]> date_format(now(), '%Y%m%d%H%i%s')
+              and concat(a.invest_end, <include refid="common.investEndTime"/>) <![CDATA[>=]]> date_format(now(), '%Y%m%d%H%i%s')
+                , 'RUNNING'
+                , if (concat(a.invest_end, <include refid="common.investEndTime"/>) <![CDATA[<]]> date_format(now(), '%Y%m%d%H%i%s')
+                   , 'CLOSE'
+                   , 'WAIT')
+             ) as status
           FROM goods a
           LEFT JOIN (SELECT aa.goods_id
 						  , sum(aa.invest_cash) as invest_cash
@@ -223,4 +237,39 @@
            SET task_ecs_id = #{taskEcsId,jdbcType=VARCHAR}
          WHERE id = ${id}
     </update>
+
+    <select id="selectInvestUserId" resultType="String" parameterType="Integer">
+        SELECT b.user_id
+          FROM goods a
+          JOIN invest_goods b on a.id = b.goods_id
+         WHERE a.id = #{param1}
+    </select>
+
+    <select id="selectGoodsIdList" resultType="Goods" parameterType="HashMap">
+        SELECT id
+             , strategy_id
+             , version
+             , exchange
+             , coin_unit
+             , base_unit
+             , description
+             , is_display
+             , create_time
+             , collect_start
+             , collect_end
+             , invest_start
+             , invest_end
+             , test_start
+             , test_end
+             , cash
+             , cash_unit
+             , name
+             , author_id
+             , test_result
+             , create_time
+             , task_ecs_id
+          FROM goods
+         WHERE 1=1
+           AND ${column} in (#{val})
+    </select>
 </mapper>
