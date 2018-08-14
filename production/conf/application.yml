@@ -32,6 +32,8 @@ scheduler:
   isMonthCalculation: "false"
   isInvoiceCreate: "false"
   isLiveTaskObserve: "false"
+  isLiveTaskObserve: "true"
+  isNotification: "false"
 
 invest:
   start:
@@ -42,3 +44,6 @@ invest:
     hour: "12"
     minute: "30"
     second: "00"
+
+notifications:
+  telegramUrl: "https://bacl02xrl3.execute-api.ap-northeast-2.amazonaws.com/v1/message"

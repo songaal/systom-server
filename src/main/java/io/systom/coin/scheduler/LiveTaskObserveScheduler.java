@@ -53,13 +53,15 @@ public class LiveTaskObserveScheduler {
     private Map<Integer, Integer> taskRetry = new HashMap<>();
     private Integer maxRetry = 3;
 
-    @Scheduled(cron = "0 45 12 * * *")
+    @Scheduled(cron = "0 0 1 * * *")
     public void task () {
         if (!"true".equalsIgnoreCase(isLiveTaskObserve)) {
             logger.debug("LiveTaskObserve Disabled");
             return;
         }
+        logger.debug("========== 작업상태 확인 시작 ==========");
         String nowTime = new SimpleDateFormat(DATE_FORMAT + TIME_FORMAT).format(new Date());
+        logger.debug("시간: {}", nowTime);
         Goods searchGoods = new Goods();
         searchGoods.setInvestStart(nowTime);
         searchGoods.setInvestEnd(nowTime);
@@ -76,6 +78,7 @@ public class LiveTaskObserveScheduler {
         if (goodsList == null || goodsList.size() == 0) {
             return;
         }
+        logger.debug("상품 중지 수: {}", goodsList.size());
         int goodsSize = goodsList.size();
         List<String> runTaskList = ecsUtils.getRunningTaskList();
 
@@ -91,6 +94,7 @@ public class LiveTaskObserveScheduler {
                 // 투자 진행 기간 중 ECS ARN 없을 시
                 String message = String.format(startMessage, tmpGoods.getName());
                 telegramHandler.adminSend(origin, message);
+                logger.debug("상품 작업시작: {}", tmpGoods);
                 taskService.liveTaskRun(traderTask, true);
                 continue;
             }
@@ -111,14 +115,17 @@ public class LiveTaskObserveScheduler {
                     // 재시도 횟수가 없을 경우
                     String message = String.format(stopMessage, tmpGoods.getName(), retry.intValue());
                     telegramHandler.adminSend(origin, message);
+                    logger.debug("재시도 만료. {}", tmpGoods);
                     continue;
                 }
                 // 재시도 횟수가 남은 상태
                 String message = String.format(retryMessage, tmpGoods.getName(), retry.intValue(), maxRetry.intValue());
                 telegramHandler.adminSend(origin, message);
+                logger.debug("상품 작업시작: {}", tmpGoods);
                 taskService.liveTaskRun(traderTask, true);
             }
         }
+        logger.debug("========== 작업상태 확인 종료 ==========");
     }
 
 
