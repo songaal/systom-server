@@ -30,7 +30,6 @@ backtest:
     image: "868448630378.dkr.ecr.ap-northeast-2.amazonaws.com/cctrader"
     apiServerUrl: "http://13.125.73.226:20000"
     timezone: "Asia/Seoul"
-    logLevel: "INFO"
     container:
           readTimeout: 300000
           connectTimeout: 10000

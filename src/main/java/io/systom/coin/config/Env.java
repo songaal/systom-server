@@ -7,6 +7,6 @@ package io.systom.coin.config;
 public class Env {
 
     public static boolean isLiveExecution() {
-        return "true".equalsIgnoreCase(System.getenv("isLiveExecution"));
+        return "true".equalsIgnoreCase(System.getProperty("isLiveExecution"));
     }
 }

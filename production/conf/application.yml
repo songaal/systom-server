@@ -24,6 +24,7 @@ backtest:
     host: "tcp://52.78.216.101:2376"
     image: "868448630378.dkr.ecr.ap-northeast-2.amazonaws.com/systom-signal"
     apiServerUrl: "https://api.systom.io"
+    timezone: "Asia/Seoul"
     container:
           readTimeout: 300000
           connectTimeout: 10000
