@@ -75,13 +75,16 @@ public class DockerUtils {
     public void syncRun(TraderTask traderTask) throws InterruptedException {
         String startTime = String.format("%s:%s:%s", startHour, startMinute, startSecond);
         String endTime = String.format("%s:%s:%s", endHour, endMinute, endSecond);
+
         List<String> cmd = traderTask.getBackTestCmd(startTime, endTime);
         cmd.add("api_server_url=" + apiServerUrl);
+
+        List<String> env = traderTask.getBackTestEnv();
 
         DockerClient dockerClient = getClient();
         CreateContainerResponse container = dockerClient.createContainerCmd(backTestImage)
                                                         .withCmd(cmd)
-                                                        .withEnv("LOGLEVEL=INFO")
+                                                        .withEnv(env)
                                                         .exec();
 
         String containerId = container.getId();

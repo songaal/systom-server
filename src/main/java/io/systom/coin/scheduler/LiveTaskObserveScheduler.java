@@ -43,15 +43,16 @@ public class LiveTaskObserveScheduler {
 
     @Value("${scheduler.isLiveTaskObserve}")
     private String isLiveTaskObserve;
+    @Value("${task.maxRetry}")
+    private Integer maxRetry = 3;
 
-    private String startMessage = "%s 상품을 작업 시작합니다.";
-    private String retryMessage = "%s 상품을 작업 재시작합니다. 재시도: %d/%d";
-    private String stopMessage = "%s 상품이 작업 종료상태입니다. 재시도 횟수: %d";
+    private String startMessage = "%s 상품 작업을 시작합니다.";
+    private String retryMessage = "%s 상품 작업을 재시작합니다. 재시도: %d/%d";
+    private String stopMessage = "%s 상품 작업이 종료상태입니다. 재시도 횟수: %d";
     private String origin = "SYSTOM";
 
     // GoodsId, Retry
     private Map<Integer, Integer> taskRetry = new HashMap<>();
-    private Integer maxRetry = 3;
 
     @Scheduled(cron = "0 0 1 * * *")
     public void task () {

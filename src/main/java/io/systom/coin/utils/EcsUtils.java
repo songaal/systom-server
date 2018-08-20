@@ -62,6 +62,9 @@ public class EcsUtils {
         signalCmd.add("api_server_url=" + apiServerUrl);
         List<String> executorCmd = traderTask.getLiveExecutorCmd(Env.isLiveExecution());
 
+        List<KeyValuePair> signalEnv = traderTask.getLiveSignalEnv();
+        List<KeyValuePair> executorEnv = traderTask.getLiveExecutorEnv();
+
         logger.info("clusterId: {}", clusterId);
         logger.info("taskDefinition: {}", taskDefinition);
         logger.info("signal command: {}", signalCmd);
@@ -71,10 +74,13 @@ public class EcsUtils {
         TaskOverride taskOverride = new TaskOverride();
         ContainerOverride signalContainerOverride = new ContainerOverride();
         ContainerOverride executorContainerOverride = new ContainerOverride();
+        // signal run..
         signalContainerOverride.withName(signalName)
+                .withEnvironment(signalEnv)
                 .withCommand(signalCmd);
-
+        // executor run..
         executorContainerOverride.withName(executorName)
+                .withEnvironment(executorEnv)
                 .withCommand(executorCmd);
 
         taskOverride.withContainerOverrides(signalContainerOverride, executorContainerOverride);
@@ -135,6 +141,7 @@ public class EcsUtils {
     }
 
     public Task stopTask(String taskEcsId){
+        logger.debug("[{}] task stop..", taskEcsId);
         StopTaskRequest stopTaskRequest = new StopTaskRequest();
         stopTaskRequest.withReason(awsReason)
                 .withTask(taskEcsId)

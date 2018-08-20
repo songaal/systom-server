@@ -8,6 +8,7 @@ import io.systom.coin.model.TraderTaskResult;
 import io.systom.coin.service.TaskService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,12 +25,18 @@ public class TaskController extends AbstractController {
     @Autowired
     private TaskService taskService;
 
+    @Value("${backtest.timezone}")
+    private String timezone;
+
     @PostMapping
     public ResponseEntity<?> taskRun(@RequestAttribute String userId,
                                      @RequestBody TraderTask traderTask) throws InterruptedException {
         try {
             traderTask.setUserId(userId);
             traderTask.setSessionType("backtest");
+            if (traderTask.getTimezone() == null || "".equals(traderTask)) {
+                traderTask.setTimezone(timezone);
+            }
             TraderTaskResult traderTaskResult = taskService.syncBackTest(traderTask);
             return success(traderTaskResult);
         } catch (AbstractException e){

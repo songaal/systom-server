@@ -47,3 +47,6 @@ invest:
 
 notifications:
   telegramUrl: "https://bacl02xrl3.execute-api.ap-northeast-2.amazonaws.com/v1/message"
+
+task:
+  maxRetry: 3

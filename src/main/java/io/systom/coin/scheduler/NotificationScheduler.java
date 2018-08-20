@@ -11,9 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /*
  * create joonwoo 2018. 8. 14.
@@ -36,8 +34,6 @@ public class NotificationScheduler {
     private String endCollectMessage = "%s 상품 모집이 종료되었습니다.";
     private String startInvestMessage = "%s 상품 투자가 시작되었습니다.";
     private String endInvestMessage = "%s 상품 투자가 종료되었습니다.";
-
-    private Map<String, Object> taskStatus = new HashMap<>();
 
     @Scheduled(cron = "0 0 13 * * *")
     public void task() {

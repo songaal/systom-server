@@ -36,6 +36,7 @@ public class Goods {
     private String taskEcsId;
     private TraderTask waitTask;
     private String status;
+    private String timezone;
 
     private List<TraderTaskResult.Result.Trade> tradeHistory;
     private PerformanceSummary performanceSummary;
@@ -290,6 +291,14 @@ public class Goods {
         this.status = status;
     }
 
+    public String getTimezone() {
+        return timezone;
+    }
+
+    public void setTimezone(String timezone) {
+        this.timezone = timezone;
+    }
+
     @Override
     public String toString() {
         return "Goods{" +
@@ -324,6 +333,7 @@ public class Goods {
                 ", performanceSummary=" + performanceSummary +
                 ", performanceDaily=" + performanceDaily +
                 ", tradeStat=" + tradeStat +
+                ", timezone=" + timezone +
                 '}';
     }
 }

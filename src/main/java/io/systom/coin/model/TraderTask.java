@@ -1,5 +1,7 @@
 package io.systom.coin.model;
 
+import com.amazonaws.services.ecs.model.KeyValuePair;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +28,8 @@ public class TraderTask {
     private String baseUnit;
     private String cashUnit;
     private Integer initCash;
+    private String timezone;
+
 
 //  ------ 라이브 전용 필드
     private Integer goodsId;
@@ -145,6 +149,14 @@ public class TraderTask {
         this.initCash = initCash;
     }
 
+    public String getTimezone() {
+        return timezone;
+    }
+
+    public void setTimezone(String timezone) {
+        this.timezone = timezone;
+    }
+
     public List<String> getBackTestCmd() {
         return getBackTestCmd(null, null);
     }
@@ -160,9 +172,16 @@ public class TraderTask {
         cmd.add("base_unit=" + baseUnit);
         cmd.add("cash_unit=" + cashUnit);
         cmd.add("start_date=" + startDate + (startTime == null ? "" : " " + startTime));
-        cmd.add("end_date=" + endDate + (endTime == null ? "" : endTime));
+        cmd.add("end_date=" + endDate + (endTime == null ? "" : " " + endTime));
         return cmd;
     }
+    public List<String> getBackTestEnv() {
+        List<String> env = new ArrayList<>();
+        env.add("TZ=" + this.timezone);
+        env.add("LOGLEVEL=INFO");
+        return env;
+    }
+
 
     public List<String> getLiveSignalCmd() {
         return getLiveSignalCmd(null);
@@ -182,6 +201,13 @@ public class TraderTask {
         cmd.add("start_date=" + startDate + (startTime == null ? "" : " " + startTime));
         return cmd;
     }
+    public List<KeyValuePair> getLiveSignalEnv() {
+        List<KeyValuePair> env = new ArrayList<>();
+        env.add(new KeyValuePair().withName("LOGLEVEL").withValue("INFO"));
+        env.add(new KeyValuePair().withName("TZ").withValue(this.timezone));
+        return env;
+    }
+
 
     public List<String> getLiveExecutorCmd(boolean isLive) {
         List<String> cmd = new ArrayList<>();
@@ -195,5 +221,12 @@ public class TraderTask {
         cmd.add("goods_id=" + this.goodsId);
         return cmd;
     }
+    public List<KeyValuePair> getLiveExecutorEnv() {
+        List<KeyValuePair> env = new ArrayList<>();
+        env.add(new KeyValuePair().withName("LOGLEVEL").withValue("INFO"));
+        env.add(new KeyValuePair().withName("TZ").withValue(this.timezone));
+        return env;
+    }
+
 
 }

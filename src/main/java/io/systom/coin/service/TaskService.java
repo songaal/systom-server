@@ -222,6 +222,7 @@ public class TaskService {
         traderTask.setCoinUnit(registerGoods.getCoinUnit());
         traderTask.setBaseUnit(registerGoods.getBaseUnit());
         traderTask.setCashUnit(registerGoods.getCashUnit());
+        traderTask.setTimezone(registerGoods.getTimezone());
         waitTaskList.put(taskId, traderTask);
         logger.info("live Task TraderTask task: {}", traderTask);
 

@@ -29,6 +29,8 @@ backtest:
     host: "tcp://52.78.216.101:2376"
     image: "868448630378.dkr.ecr.ap-northeast-2.amazonaws.com/cctrader"
     apiServerUrl: "http://13.125.73.226:20000"
+    timezone: "Asia/Seoul"
+    logLevel: "INFO"
     container:
           readTimeout: 300000
           connectTimeout: 10000
@@ -51,3 +53,6 @@ invest:
 
 notifications:
   telegramUrl: "https://bacl02xrl3.execute-api.ap-northeast-2.amazonaws.com/v1/message"
+
+task:
+  maxRetry: 3
