@@ -14,7 +14,7 @@ public class PerformanceDaily {
     private float returns;
     private float returnsPct;
     private float cumReturns;
-    private float cumReturnPct;
+    private float cumReturnsPct;
     private float hwm;
     private float prevEquity;
     private float prevHwm;
@@ -76,12 +76,12 @@ public class PerformanceDaily {
         this.cumReturns = cumReturns;
     }
 
-    public float getCumReturnPct() {
-        return cumReturnPct;
+    public float getCumReturnsPct() {
+        return cumReturnsPct;
     }
 
-    public void setCumReturnPct(float cumReturnPct) {
-        this.cumReturnPct = cumReturnPct;
+    public void setCumReturnsPct(float cumReturnsPct) {
+        this.cumReturnsPct = cumReturnsPct;
     }
 
     public Date getUpdateTime() {
@@ -126,7 +126,7 @@ public class PerformanceDaily {
                 ", returns=" + returns +
                 ", returnsPct=" + returnsPct +
                 ", cumReturns=" + cumReturns +
-                ", cumReturnPct=" + cumReturnPct +
+                ", cumReturnsPct=" + cumReturnsPct +
                 ", hwm=" + hwm +
                 ", prevEquity=" + prevEquity +
                 ", prevHwm=" + prevHwm +
