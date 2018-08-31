@@ -41,13 +41,14 @@ scheduler:
   isNotification: "false"
 
 invest:
+  timezone: "Asia/Seoul"
   start:
     hour: "12"
     minute: "30"
     second: "00"
   end:
-    hour: "12"
-    minute: "30"
+    hour: "13"
+    minute: "00"
     second: "00"
 
 notifications:

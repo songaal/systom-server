@@ -53,7 +53,7 @@
     <update id="updateStrategy" parameterType="Strategy">
         UPDATE strategy
            SET code = #{code}
-             , update_time = now()
+             , update_time = convert_tz(now(), @@session.time_zone, '${standardOffset}')
          WHERE id = #{id}
            and user_id = #{userId}
     </update>

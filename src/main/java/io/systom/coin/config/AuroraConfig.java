@@ -11,6 +11,8 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 import javax.sql.DataSource;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Properties;
 
 /*
@@ -19,6 +21,9 @@ import java.util.Properties;
  */
 @Configuration
 public class AuroraConfig {
+
+    @Value("${invest.timezone}")
+    private String timezone;
 
     @Value("${invest.start.hour}")
     private String startHour;
@@ -47,6 +52,8 @@ public class AuroraConfig {
         sqlSessionFactoryBean.setMapperLocations(new PathMatchingResourcePatternResolver().getResources("classpath:/mapper/*.xml"));
         sqlSessionFactoryBean.setConfigLocation(new PathMatchingResourcePatternResolver().getResources("classpath:/mybatis-config.xml")[0]);
         Properties properties = new Properties();
+        String standardOffset = ZoneId.of(timezone).getRules().getStandardOffset(Instant.now()).getId();
+        properties.put("standardOffset", standardOffset);
         properties.put("investStartHour", startHour);
         properties.put("investStartMinute", startMinute);
         properties.put("investStartSecond", startSecond);

@@ -23,7 +23,7 @@
           JOIN invest_goods b on a.id = b.goods_id
           JOIN performance_summary c on b.id = c.invest_id
          WHERE b.is_paper = false
-           AND date_format(concat(a.invest_end, '05', '00','00'), '%Y%m%d%H%I%S') > date_format(now(), '%Y%m%d%H%I%S')
+           AND date_format(concat(a.invest_end, '05', '00','00'), '%Y%m%d%H%I%S') > date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m%d%H%I%S')
          ]]>
     </select>
 
@@ -54,7 +54,7 @@
             , #{item.status,jdbcType=VARCHAR}
             <choose>
                 <when test="item.status != null and item.status != ''">
-                    , now()
+                    , convert_tz(now(), @@session.time_zone, '${standardOffset}')
                 </when>
                 <otherwise>
                     , null
@@ -82,7 +82,7 @@
         <![CDATA[
         UPDATE invoice
            SET status = 'DELAY'
-         WHERE date_format(create_time, '%Y%m%d%H') < date_format(now(), '%Y%m%d%H')
+         WHERE date_format(create_time, '%Y%m%d%H') < date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m%d%H')
            AND status is null
          ]]>
     </update>

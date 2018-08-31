@@ -80,10 +80,10 @@
              , a.name
              , a.test_result
              , a.create_time
-             , if (concat(a.invest_start, <include refid="common.investStartTime"/>) <![CDATA[<=]]> date_format(now(), '%Y%m%d%H%i%s')
-              and concat(a.invest_end, <include refid="common.investEndTime"/>) <![CDATA[>=]]> date_format(now(), '%Y%m%d%H%i%s')
+             , if (concat(a.invest_start, <include refid="common.investStartTime"/>) <![CDATA[<=]]> date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m%d%H%i%s')
+              and concat(a.invest_end, <include refid="common.investEndTime"/>) <![CDATA[>=]]> date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m%d%H%i%s')
                 , 'RUNNING'
-                , if (concat(a.invest_end, <include refid="common.investEndTime"/>) <![CDATA[<]]> date_format(now(), '%Y%m%d%H%i%s')
+                , if (concat(a.invest_end, <include refid="common.investEndTime"/>) <![CDATA[<]]> date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m%d%H%i%s')
                 , 'CLOSE'
                 , 'WAIT')
              ) as status

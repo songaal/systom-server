@@ -38,7 +38,7 @@
         #{name},
         aes_encrypt(#{apiKey}, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{userId})),
         aes_encrypt(#{secretKey}, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{userId})),
-        now()
+        convert_tz(now(), @@session.time_zone, '${standardOffset}')
         )
     </insert>
 

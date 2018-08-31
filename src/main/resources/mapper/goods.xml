@@ -53,10 +53,10 @@
              , a.create_time
              , a.task_ecs_id
              , a.timezone
-             , if (concat(a.invest_start, <include refid="common.investStartTime"/>) <![CDATA[<=]]> date_format(now(), '%Y%m%d%H%i%s')
-              and concat(a.invest_end, <include refid="common.investEndTime"/>) <![CDATA[>=]]> date_format(now(), '%Y%m%d%H%i%s')
+             , if (concat(a.invest_start, <include refid="common.investStartTime"/>) <![CDATA[<=]]> date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m%d%H%i%s')
+              and concat(a.invest_end, <include refid="common.investEndTime"/>) <![CDATA[>=]]> date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m%d%H%i%s')
                 , 'RUNNING'
-                , if (concat(a.invest_end, <include refid="common.investEndTime"/>) <![CDATA[<]]> date_format(now(), '%Y%m%d%H%i%s')
+                , if (concat(a.invest_end, <include refid="common.investEndTime"/>) <![CDATA[<]]> date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m%d%H%i%s')
                    , 'CLOSE'
                    , 'WAIT')
              ) as status
@@ -107,10 +107,10 @@
              , a.task_ecs_id
              , ifnull(b.invest_cash, 0) as invest_cash
              , c.invest_id
-             , if (concat(a.invest_start, <include refid="common.investStartTime"/>) <![CDATA[<=]]> date_format(now(), '%Y%m%d%H%i%s')
-              and concat(a.invest_end, <include refid="common.investEndTime"/>) <![CDATA[>=]]> date_format(now(), '%Y%m%d%H%i%s')
+             , if (concat(a.invest_start, <include refid="common.investStartTime"/>) <![CDATA[<=]]> date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m%d%H%i%s')
+              and concat(a.invest_end, <include refid="common.investEndTime"/>) <![CDATA[>=]]> date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m%d%H%i%s')
                 , 'RUNNING'
-                , if (concat(a.invest_end, <include refid="common.investEndTime"/>) <![CDATA[<]]> date_format(now(), '%Y%m%d%H%i%s')
+                , if (concat(a.invest_end, <include refid="common.investEndTime"/>) <![CDATA[<]]> date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m%d%H%i%s')
                    , 'CLOSE'
                    , 'WAIT')
              ) as status
