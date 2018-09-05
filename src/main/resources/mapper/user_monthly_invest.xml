@@ -36,7 +36,7 @@
                                    JOIN invest_goods bbb on aaa.id = bbb.goods_id
                                   WHERE bbb.user_id = #{param1}
                                     AND (cast(aaa.invest_start as decimal) <= cast(date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m%d') as decimal)
-                                     OR cast(aaa.invest_end as decimal) >= cast(date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m%d') as decimal)) )
+                                    AND cast(aaa.invest_end as decimal) >= cast(date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m%d') as decimal)) )
         ]]>
     </select>
 
@@ -46,7 +46,7 @@
           FROM goods aa
           JOIN invest_goods bb on aa.id = bb.goods_id
          WHERE (cast(substring(aa.collect_start, 1, 6) as decimal) <= cast(date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m') as decimal)
-            OR cast(substring(aa.invest_end, 1, 6) as decimal) >= cast(date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m') as decimal) )
+           AND cast(substring(aa.invest_end, 1, 6) as decimal) >= cast(date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m') as decimal) )
          GROUP BY bb.user_id
         ]]>
     </select>
@@ -62,7 +62,7 @@
                                    JOIN invest_goods bbb on aaa.id = bbb.goods_id
                                   WHERE bbb.user_id = #{param1}
                                     AND (cast(substring(aaa.invest_start, 1, 6) as decimal) <= cast(date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m') as decimal)
-                                     OR cast(substring(aaa.invest_end, 1, 6) as decimal) >= cast(date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m') as decimal)) )
+                                    AND cast(substring(aaa.invest_end, 1, 6) as decimal) >= cast(date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m') as decimal)) )
         ]]>
     </select>
 
