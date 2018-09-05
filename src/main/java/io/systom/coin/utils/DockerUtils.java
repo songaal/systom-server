@@ -54,6 +54,11 @@ public class DockerUtils {
     @Value("${invest.end.second}")
     private String endSecond;
 
+    @Value("${backtest.initCashKrw}")
+    private int initCashKrw;
+    @Value("${backtest.initCashUsdt}")
+    private int initCashUsdt;
+
     private DockerClientConfig config;
     private DockerCmdExecFactory factory;
 
@@ -77,6 +82,13 @@ public class DockerUtils {
         String endTime = String.format("%s:%s:%s", endHour, endMinute, endSecond);
 
         List<String> cmd = traderTask.getBackTestCmd(startTime, endTime);
+        int initCash = 10000;
+        if ("KRW".equals(traderTask.getCashUnit().toUpperCase())) {
+            initCash = initCashKrw;
+        } else if ("USDT".equals(traderTask.getCashUnit().toUpperCase())){
+            initCash = initCashUsdt;
+        }
+        cmd.add("init_cash=" + initCash);
         cmd.add("api_server_url=" + apiServerUrl);
 
         List<String> env = traderTask.getBackTestEnv();

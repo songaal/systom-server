@@ -33,6 +33,8 @@ backtest:
     container:
           readTimeout: 300000
           connectTimeout: 10000
+    initCashKrw: 100000000
+    initCashUsdt: 10000
 
 scheduler:
   isMonthCalculation: "false"
