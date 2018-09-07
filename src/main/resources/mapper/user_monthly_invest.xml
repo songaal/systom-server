@@ -5,6 +5,13 @@
 
 <mapper namespace="userMonthlyInvest">
 
+    <!--SELECT SUBSTRING_INDEX(-->
+    <!--SUBSTRING_INDEX(-->
+    <!--SUBSTRING_INDEX('{"KRW":0.7768829,"USDT":0.98141235}', '"USDT":' , -1)-->
+    <!--, ',' ,1)-->
+    <!--, '}', 1)-->
+
+
     <select id="retrieveUserMonthInvestList" resultType="UserMonthlyInvest">
         SELECT a.user_id
              , a.date
@@ -53,10 +60,13 @@
 
     <select id="getUserMonthlyInvest" parameterType="String" resultType="UserMonthlyInvest">
         <![CDATA[
-        SELECT SUM(aa.init_cash) as init_cash
-             , SUM(aa.equity) as month_equity
+        SELECT aa.init_cash
+             , aa.equity
+             , cc.cash_unit
              , date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m') as date
           FROM performance_summary aa
+          JOIN invest_goods bb on aa.invest_id = bb.id
+          JOIN goods cc on bb.goods_id = cc.id
          WHERE aa.invest_id in ( SELECT bbb.id
                                    FROM goods aaa
                                    JOIN invest_goods bbb on aaa.id = bbb.goods_id

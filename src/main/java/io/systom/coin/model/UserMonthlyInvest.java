@@ -10,21 +10,12 @@ public class UserMonthlyInvest {
 
     private String userId;
     private String date;
-    private float initCash;
-    private float monthlyReturn;
+    private String cashUnit;
+    private String initCash;
+    private String monthlyReturn;
     private float monthlyReturnPct;
     private Date updated;
-
-    private float sumCash;
-    private float monthEquity;
-
-    public float getMonthEquity() {
-        return monthEquity;
-    }
-
-    public void setMonthEquity(float monthEquity) {
-        this.monthEquity = monthEquity;
-    }
+    private String equity;
 
     public String getUserId() {
         return userId;
@@ -42,19 +33,27 @@ public class UserMonthlyInvest {
         this.date = date;
     }
 
-    public float getInitCash() {
+    public String getCashUnit() {
+        return cashUnit;
+    }
+
+    public void setCashUnit(String cashUnit) {
+        this.cashUnit = cashUnit;
+    }
+
+    public String getInitCash() {
         return initCash;
     }
 
-    public void setInitCash(float initCash) {
+    public void setInitCash(String initCash) {
         this.initCash = initCash;
     }
 
-    public float getMonthlyReturn() {
+    public String getMonthlyReturn() {
         return monthlyReturn;
     }
 
-    public void setMonthlyReturn(float monthlyReturn) {
+    public void setMonthlyReturn(String monthlyReturn) {
         this.monthlyReturn = monthlyReturn;
     }
 
@@ -74,12 +73,12 @@ public class UserMonthlyInvest {
         this.updated = updated;
     }
 
-    public float getSumCash() {
-        return sumCash;
+    public String getEquity() {
+        return equity;
     }
 
-    public void setSumCash(float sumCash) {
-        this.sumCash = sumCash;
+    public void setEquity(String equity) {
+        this.equity = equity;
     }
 
     @Override
@@ -87,11 +86,12 @@ public class UserMonthlyInvest {
         return "UserMonthlyInvest{" +
                 "userId='" + userId + '\'' +
                 ", date='" + date + '\'' +
-                ", initCash=" + initCash +
-                ", monthlyReturn=" + monthlyReturn +
+                ", cashUnit='" + cashUnit + '\'' +
+                ", initCash='" + initCash + '\'' +
+                ", monthlyReturn='" + monthlyReturn + '\'' +
                 ", monthlyReturnPct=" + monthlyReturnPct +
                 ", updated=" + updated +
-                ", sumCash=" + sumCash +
+                ", equity='" + equity + '\'' +
                 '}';
     }
 }
