@@ -69,10 +69,11 @@
            JOIN invest_goods b on a.invest_id = b.id
            JOIN goods c on b.goods_id = c.id
 		  WHERE b.user_id = #{param1}
+		    AND (cast(c.invest_start as decimal) <= cast(date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m%d') as decimal)
+            AND cast(c.invest_end as decimal) >= cast(date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m%d') as decimal))
         ]]>
     </select>
-    <!--AND (cast(c.invest_start as decimal) <= cast(date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m%d') as decimal)-->
-    <!--AND cast(c.invest_end as decimal) >= cast(date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m%d') as decimal))-->
+
     <select id="retrieveUpdateTargetUserList" resultType="String">
         <![CDATA[
         SELECT bb.user_id
