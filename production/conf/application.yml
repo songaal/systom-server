@@ -33,11 +33,11 @@ backtest:
 
 
 scheduler:
-  isMonthCalculation: "false"
-  isInvoiceCreate: "false"
-  isLiveTaskObserve: "false"
+  isMonthCalculation: "true"
+  isInvoiceCreate: "true"
   isLiveTaskObserve: "true"
-  isNotification: "false"
+  isNotification: "true"
+  isCurrencyRateUpdate: "true"
 
 invest:
   start:
