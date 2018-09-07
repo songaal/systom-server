@@ -1,15 +1,15 @@
 package io.systom.coin.service;
 
 import com.google.gson.Gson;
-import com.jayway.jsonpath.JsonPath;
 import io.systom.coin.exception.OperationException;
+import io.systom.coin.model.DailyInvestState;
 import io.systom.coin.model.MonthlyPerformanceSummary;
 import io.systom.coin.model.UserMonthlyInvest;
+import io.systom.coin.utils.CurrencyUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -21,8 +21,6 @@ import java.util.*;
 @Service
 public class UserMonthInvestService {
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(UserMonthInvestService.class);
-
-    private final String currencyRateUrl = "https://query1.finance.yahoo.com/v8/finance/chart/%s=X?region=US&lang=en-US&includePrePost=false&interval=1h&range=1d&corsDomain=finance.yahoo.com&.tsrc=finance";
 
     @Autowired
     private SqlSession sqlSession;
@@ -42,7 +40,6 @@ public class UserMonthInvestService {
         boolean isChangeYear = false;
         List<UserMonthlyInvest> monthlyInvestList = new ArrayList<>();
         int tmpMonthCursor = tmpMonthInvest.size();
-        float sumCash = 0;
         for (int y = lastYear; y >= lastYear - 1; y--) {
             if (isChangeYear) {
                 lastMonth = 12;
@@ -51,9 +48,6 @@ public class UserMonthInvestService {
                 boolean isAppended = false;
                 if (tmpMonthInvest != null) {
                     for (int i = tmpMonthCursor; i > 0; i--){
-                        if (i == tmpMonthInvest.size()) {
-//                            sumCash = tmpMonthInvest.get(i - 1).getSumCash();
-                        }
                         lastDate = String.valueOf(y) + (m < 10 ? "0" + m : m);
                         if(tmpMonthInvest.get(i - 1).getDate().equals(lastDate)) {
                             monthlyInvestList.add(tmpMonthInvest.get(i - 1));
@@ -66,11 +60,10 @@ public class UserMonthInvestService {
                 if (!isAppended) {
                     UserMonthlyInvest tmp = new UserMonthlyInvest();
                     tmp.setDate(String.valueOf(y) + String.valueOf(m < 10 ? "0" + m : m));
-//                    tmp.setMonthlyReturn(0);
-//                    tmp.setMonthlyReturnPct(0);
-//                    tmp.setInitCash(0);
-//                    tmp.setUserId(userId);
-//                    tmp.setSumCash(sumCash);
+                    tmp.setInitCash("{\"KRW\":0,\"USDT\":0,}");
+                    tmp.setMonthlyReturn("{\"KRW\":0,\"USDT\":0,}");
+                    tmp.setMonthlyReturnPct(0);
+                    tmp.setUserId(userId);
                     monthlyInvestList.add(tmp);
                 }
                 if (monthlyInvestList.size() == 6) {
@@ -88,19 +81,44 @@ public class UserMonthInvestService {
     }
 
     public Map<String, Object> getDailyInvest(String userId) {
-        Map<String, Object> dailyInvest = null;
+        List<DailyInvestState> DailyInvestStateList = null;
+        Map<String, Object> investState = new HashMap<>();
         try {
-            dailyInvest = sqlSession.selectOne("userMonthlyInvest.getDailyInvest", userId);
+            DailyInvestStateList = sqlSession.selectList("userMonthlyInvest.getDailyInvest", userId);
         } catch (Exception e){
             logger.error("", e);
             throw new OperationException("[FAIL] SQL Execute.");
         }
-        if (dailyInvest == null) {
-            dailyInvest = new HashMap<>();
-            dailyInvest.put("cash", 0f);
-            dailyInvest.put("equity", 0f);
+
+        Iterator<DailyInvestState> investStateIterator = DailyInvestStateList.iterator();
+        float usdtInitCash = 0;
+        float krwInitCash = 0;
+        float usdtEquity = 0;
+        float krwEquity = 0;
+
+        while(investStateIterator.hasNext()) {
+            DailyInvestState tmp = investStateIterator.next();
+            if("USDT".equalsIgnoreCase(tmp.getCashUnit())) {
+                usdtInitCash += tmp.getInitCash();
+                usdtEquity   += tmp.getEquity();
+            } else if ("KRW".equalsIgnoreCase(tmp.getCashUnit())) {
+                krwInitCash += tmp.getInitCash();
+                krwEquity   += tmp.getEquity();
+            }
         }
-        return dailyInvest;
+
+        Gson gson = new Gson();
+        Map<String, Float> initCash = new HashMap<>();
+        initCash.put("USDT", usdtInitCash + (krwInitCash / CurrencyUtils.getCurrencyRate("KRW")));
+        initCash.put("KRW", krwInitCash + (usdtInitCash * CurrencyUtils.getCurrencyRate("KRW")));
+        investState.put("initCash", gson.toJson(initCash));
+
+        Map<String, Float> equity = new HashMap<>();
+        equity.put("USDT", usdtEquity + (krwEquity / CurrencyUtils.getCurrencyRate("KRW")));
+        equity.put("KRW", krwEquity + (usdtEquity * CurrencyUtils.getCurrencyRate("KRW")));
+        investState.put("equity", gson.toJson(equity));
+
+        return investState;
     }
 
     public void updateMonthlyCalculation(String userId) {
@@ -109,7 +127,7 @@ public class UserMonthInvestService {
         updateMonthlyCalculation(user);
     }
     public void updateMonthlyCalculation(List<String> userList) {
-        float currencyRate = getCurrencyRate("KRW");
+        float currencyRate = CurrencyUtils.getCurrencyRate("KRW");
 
         int userSize = userList.size();
         for(int i=0; i<userSize; i++) {
@@ -205,10 +223,4 @@ public class UserMonthInvestService {
         return pct;
     }
 
-    protected float getCurrencyRate(String currency) {
-        String url = String.format(currencyRateUrl, currency);
-        RestTemplate restTemplate = new RestTemplate();
-        String result = restTemplate.getForObject(url, String.class);
-        return Float.parseFloat(JsonPath.read(result, "$.chart.result[0].meta.previousClose").toString());
-    }
 }

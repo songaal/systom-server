@@ -26,6 +26,8 @@
         <typeAlias alias="Invoice" type="io.systom.coin.model.Invoice"/>
         <typeAlias alias="Invitation" type="io.systom.coin.model.Invitation"/>
         <typeAlias alias="Telegram" type="io.systom.coin.model.Telegram"/>
+        <typeAlias alias="MonthlyPerformanceSummary" type="io.systom.coin.model.MonthlyPerformanceSummary"/>
+        <typeAlias alias="DailyInvestState" type="io.systom.coin.model.DailyInvestState"/>
     </typeAliases>
 
 </configuration>

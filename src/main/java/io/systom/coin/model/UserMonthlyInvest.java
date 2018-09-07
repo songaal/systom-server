@@ -17,6 +17,12 @@ public class UserMonthlyInvest {
     private Date updated;
     private String equity;
 
+    private float sumUsdtInitCash;
+    private float sumKrwInitCash;
+
+    private float sumUsdtReturn;
+    private float sumKrwReturn;
+
     public String getUserId() {
         return userId;
     }

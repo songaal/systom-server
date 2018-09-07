@@ -5,48 +5,74 @@
 
 <mapper namespace="userMonthlyInvest">
 
-    <!--SELECT SUBSTRING_INDEX(-->
-    <!--SUBSTRING_INDEX(-->
-    <!--SUBSTRING_INDEX('{"KRW":0.7768829,"USDT":0.98141235}', '"USDT":' , -1)-->
-    <!--, ',' ,1)-->
-    <!--, '}', 1)-->
-
-
     <select id="retrieveUserMonthInvestList" resultType="UserMonthlyInvest">
+        <![CDATA[
         SELECT a.user_id
              , a.date
              , a.init_cash
              , a.monthly_return
              , a.monthly_return_pct
              , a.update_time
-             , b.sum_cash
+
+             , (SELECT SUM( SUBSTRING_INDEX(
+                            SUBSTRING_INDEX(
+                            SUBSTRING_INDEX(b.init_cash, '"USDT":', -1)
+                                                       , ',', 1)
+                                                       , '}', 1))
+                  FROM user_monthly_invest b
+                 WHERE b.date <= a.date
+                   AND b.user_id = #{param1}
+             ) as sum_usdt_init_cash
+
+             , (SELECT SUM( SUBSTRING_INDEX(
+                            SUBSTRING_INDEX(
+                            SUBSTRING_INDEX(b.init_cash, '"KRW":', -1)
+                                                       , ',', 1)
+                                                       , '}', 1))
+                  FROM user_monthly_invest b
+                 WHERE b.date <= a.date
+                   AND b.user_id = #{param1}
+             ) as sum_krw_init_cash
+
+             , (SELECT SUM( SUBSTRING_INDEX(
+                            SUBSTRING_INDEX(
+                            SUBSTRING_INDEX(b.monthly_return, '"USDT":', -1)
+                                                            , ',', 1)
+                                                            , '}', 1))
+                  FROM user_monthly_invest b
+                 WHERE b.date <= a.date
+                   AND b.user_id = #{param1}
+             ) as sum_usdt_return
+
+             , (SELECT SUM( SUBSTRING_INDEX(
+                            SUBSTRING_INDEX(
+                            SUBSTRING_INDEX(b.monthly_return, '"KRW":', -1)
+                                                            , ',', 1)
+                                                            , '}', 1))
+                  FROM user_monthly_invest b
+                 WHERE b.date <= a.date
+                   AND b.user_id = #{param1}
+             ) as sum_krw_return
           FROM user_monthly_invest a
-          JOIN (SELECT aa.user_id
-                     , SUM(aa.init_cash) as sum_cash
-                  FROM user_monthly_invest aa
-                 WHERE aa.user_id = #{param1}
-                 GROUP BY aa.user_id
-             ) b on a.user_id = b.user_id
          WHERE a.user_id = #{param1}
          ORDER BY a.date asc
          LIMIT 6
-    </select>
-
-    <select id="getDailyInvest" parameterType="String" resultType="HashMap">
-        <![CDATA[
-        SELECT SUM(aa.init_cash) as cash
-             , SUM(aa.equity) as equity
-             , date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m') as date
-          FROM performance_summary aa
-         WHERE aa.invest_id in ( SELECT bbb.id
-                                   FROM goods aaa
-                                   JOIN invest_goods bbb on aaa.id = bbb.goods_id
-                                  WHERE bbb.user_id = #{param1}
-                                    AND (cast(aaa.invest_start as decimal) <= cast(date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m%d') as decimal)
-                                    AND cast(aaa.invest_end as decimal) >= cast(date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m%d') as decimal)) )
         ]]>
     </select>
 
+    <select id="getDailyInvest" parameterType="String" resultType="DailyInvestState">
+        <![CDATA[
+         SELECT a.init_cash
+              , a.equity
+              , c.cash_unit
+           FROM performance_summary a
+           JOIN invest_goods b on a.invest_id = b.id
+           JOIN goods c on b.goods_id = c.id
+		  WHERE b.user_id = #{param1}
+        ]]>
+    </select>
+    <!--AND (cast(c.invest_start as decimal) <= cast(date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m%d') as decimal)-->
+    <!--AND cast(c.invest_end as decimal) >= cast(date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m%d') as decimal))-->
     <select id="retrieveUpdateTargetUserList" resultType="String">
         <![CDATA[
         SELECT bb.user_id
@@ -58,7 +84,7 @@
         ]]>
     </select>
 
-    <select id="getUserMonthlyInvest" parameterType="String" resultType="UserMonthlyInvest">
+    <select id="getUserMonthlyInvest" parameterType="String" resultType="MonthlyPerformanceSummary">
         <![CDATA[
         SELECT aa.init_cash
              , aa.equity
@@ -72,7 +98,8 @@
                                    JOIN invest_goods bbb on aaa.id = bbb.goods_id
                                   WHERE bbb.user_id = #{param1}
                                     AND (cast(substring(aaa.invest_start, 1, 6) as decimal) <= cast(date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m') as decimal)
-                                    AND cast(substring(aaa.invest_end, 1, 6) as decimal) >= cast(date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m') as decimal)) )
+                                    AND cast(substring(aaa.invest_end, 1, 6) as decimal) >= cast(date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m') as decimal))
+             )
         ]]>
     </select>
 
@@ -80,13 +107,13 @@
         INSERT INTO user_monthly_invest (user_id, date, init_cash, monthly_return, monthly_return_pct)
         VALUES ( #{userId}
                , #{date}
-               , ${initCash}
-               , ${monthlyReturn}
+               , #{initCash}
+               , #{monthlyReturn}
                , ${monthlyReturnPct}
         )
         ON DUPLICATE KEY
-        UPDATE init_cash = ${initCash}
-             , monthly_return = ${monthlyReturn}
+        UPDATE init_cash = #{initCash}
+             , monthly_return = #{monthlyReturn}
              , monthly_return_pct = ${monthlyReturnPct}
              , update_time = convert_tz(now(), @@session.time_zone, '${standardOffset}')
     </update>

@@ -41,6 +41,7 @@ scheduler:
   isInvoiceCreate: "false"
   isLiveTaskObserve: "true"
   isNotification: "false"
+  isCurrencyRateUpdate: "false"
 
 invest:
   timezone: "Asia/Seoul"
