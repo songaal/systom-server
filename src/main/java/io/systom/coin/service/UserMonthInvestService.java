@@ -60,10 +60,11 @@ public class UserMonthInvestService {
                 if (!isAppended) {
                     UserMonthlyInvest tmp = new UserMonthlyInvest();
                     tmp.setDate(String.valueOf(y) + String.valueOf(m < 10 ? "0" + m : m));
-                    tmp.setInitCash("{\"KRW\":0,\"USDT\":0,}");
-                    tmp.setMonthlyReturn("{\"KRW\":0,\"USDT\":0,}");
+                    tmp.setInitCash("{\"KRW\":0,\"USDT\":0}");
+                    tmp.setMonthlyReturn("{\"KRW\":0,\"USDT\":0}");
                     tmp.setMonthlyReturnPct(0);
                     tmp.setUserId(userId);
+
                     monthlyInvestList.add(tmp);
                 }
                 if (monthlyInvestList.size() == 6) {
@@ -139,13 +140,10 @@ public class UserMonthInvestService {
             float usdtEquity = 0;
             int krwInitCash = 0;
             int krwEquity = 0;
-            String monthly = null;
+            String monthly = new SimpleDateFormat("yyyyMM").format(new Date());
 //          1.  cash_unit별로 투자금액, 수익금액을 합한다.
             while(iterator.hasNext()) {
                 MonthlyPerformanceSummary summary = iterator.next();
-                if (monthly == null) {
-                    monthly = summary.getDate();
-                }
                 String currencyKey = summary.getCashUnit();
                 if ("USDT".equalsIgnoreCase(currencyKey)) {
                     usdtInitCash += summary.getInitCash();

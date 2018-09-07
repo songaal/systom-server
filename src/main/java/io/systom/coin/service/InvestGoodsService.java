@@ -148,7 +148,10 @@ public class InvestGoodsService {
 //                || Integer.parseInt(registerGoods.getCollectEnd()) < nowTime) {
 //            throw new RequestException("not collect invest goods");
 //        }
-
+        PerformanceSummary performanceSummary = performanceService.getPerformanceSummary(investId);
+        if (performanceSummary.getCommission() == null) {
+            performanceService.deletePerformanceSummary(investId);
+        }
 //        performanceService.deletePerformanceSummary(investId);
         performanceService.deleteTradeStat(investId);
         try {

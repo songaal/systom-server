@@ -8,6 +8,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import javax.annotation.PostConstruct;
+
 /*
  * create joonwoo 2018. 9. 7.
  * 
@@ -21,12 +23,17 @@ public class CurrencyRateScheduler extends CurrencyUtils {
     @Value("${scheduler.isCurrencyRateUpdate}")
     private String isCurrencyRateUpdate;
 
-    public CurrencyRateScheduler() {
+    @PostConstruct
+    public void init() {
         if (!"true".equalsIgnoreCase(isCurrencyRateUpdate)) {
+            logger.debug("개발 모드 환율 적용");
             super.setCurrencyRate("KRW", 1100.0f);
             return;
+        } else {
+            logger.debug("라이브 환율 적용");
+            task();
         }
-        task();
+
     }
 
     @Scheduled(cron = "0 0 12 * * *")
@@ -35,7 +42,6 @@ public class CurrencyRateScheduler extends CurrencyUtils {
             logger.debug("isCurrencyRateUpdate Disabled");
             return;
         }
-
         String currency = "KRW";
         String url = String.format(currencyRateUrl, currency);
         RestTemplate restTemplate = new RestTemplate();

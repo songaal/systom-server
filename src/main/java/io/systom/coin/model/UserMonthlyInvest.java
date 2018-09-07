@@ -87,6 +87,38 @@ public class UserMonthlyInvest {
         this.equity = equity;
     }
 
+    public float getSumUsdtInitCash() {
+        return sumUsdtInitCash;
+    }
+
+    public void setSumUsdtInitCash(float sumUsdtInitCash) {
+        this.sumUsdtInitCash = sumUsdtInitCash;
+    }
+
+    public float getSumKrwInitCash() {
+        return sumKrwInitCash;
+    }
+
+    public void setSumKrwInitCash(float sumKrwInitCash) {
+        this.sumKrwInitCash = sumKrwInitCash;
+    }
+
+    public float getSumUsdtReturn() {
+        return sumUsdtReturn;
+    }
+
+    public void setSumUsdtReturn(float sumUsdtReturn) {
+        this.sumUsdtReturn = sumUsdtReturn;
+    }
+
+    public float getSumKrwReturn() {
+        return sumKrwReturn;
+    }
+
+    public void setSumKrwReturn(float sumKrwReturn) {
+        this.sumKrwReturn = sumKrwReturn;
+    }
+
     @Override
     public String toString() {
         return "UserMonthlyInvest{" +
