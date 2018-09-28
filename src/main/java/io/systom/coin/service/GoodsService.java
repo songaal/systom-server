@@ -158,7 +158,7 @@ public class GoodsService {
         }
 
         List<InvestGoods> registerInvestGoodsList = investGoodsService.findInvestGoodsByUserList(id);
-        if (registerInvestGoodsList == null || registerInvestGoodsList.size() > 1) {
+        if (registerInvestGoodsList == null || registerInvestGoodsList.size() >= 1) {
             throw new RequestException("not empty");
         }
 
