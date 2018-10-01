@@ -45,10 +45,10 @@ public class GoodsTest {
         investGoods.setBaseUnit("btc");
         investGoods.setCashUnit("usdt");
         investGoods.setCash(5000f);
-        investGoods.setCollectStart("20180701");
-        investGoods.setCollectEnd("20180801");
-        investGoods.setInvestStart("20180802");
-        investGoods.setInvestEnd("20180903");
+//        investGoods.setCollectStart("20180701");
+//        investGoods.setCollectEnd("20180801");
+//        investGoods.setInvestStart("20180802");
+//        investGoods.setInvestEnd("20180903");
         investGoods.setTestStart("20180401");
         investGoods.setTestEnd("20180601");
         investGoods.setAuthorId("joonwoo");
@@ -60,8 +60,8 @@ public class GoodsTest {
 
         Goods filter = new Goods();
         filter.setDisplay(false);
-        filter.setCollectStart("20180720");
-        filter.setCollectEnd("20180720");
+//        filter.setCollectStart("20180720");
+//        filter.setCollectEnd("20180720");
         filter.setAuthorId("testuser");
         filter.setExchange("binance");
         logger.info("상품 목록 조회 {}" , goodsService.retrieveGoodsList(filter));
@@ -79,8 +79,8 @@ public class GoodsTest {
             traderTask.setCoinUnit(investGoods.getCoinUnit());
             traderTask.setBaseUnit(investGoods.getBaseUnit());
             traderTask.setCashUnit(investGoods.getCashUnit());
-            traderTask.setStartDate(investGoods.getCollectStart());
-            traderTask.setEndDate(investGoods.getCollectEnd());
+//            traderTask.setStartDate(investGoods.getCollectStart());
+//            traderTask.setEndDate(investGoods.getCollectEnd());
             investGoods = taskService.createGoodsBackTest(traderTask);
 
             logger.info("백테스트 등록[{}]{}" , investGoods.getId(), investGoods);
@@ -93,7 +93,7 @@ public class GoodsTest {
         logger.info("상품 정보 숨김[{}]{}" , investGoods.getId(), goodsService.updateGoodsHide(investGoods.getId(), "joonwoo"));
 
         investGoods.setName("update test name");
-        investGoods.setCollectStart("20180702");
+//        investGoods.setCollectStart("20180702");
         investGoods.setDescription("update goods description");
 
         logger.info("상품 정보 수정[{}]{}" , investGoods.getId(), goodsService.updateGoods(investGoods));
@@ -111,10 +111,10 @@ public class GoodsTest {
         investGoods.setBaseUnit("btc");
         investGoods.setCashUnit("usdt");
         investGoods.setCash(5000f);
-        investGoods.setCollectStart("20180701");
-        investGoods.setCollectEnd("20180801");
-        investGoods.setInvestStart("20180802");
-        investGoods.setInvestEnd("20180903");
+//        investGoods.setCollectStart("20180701");
+//        investGoods.setCollectEnd("20180801");
+//        investGoods.setInvestStart("20180802");
+//        investGoods.setInvestEnd("20180903");
         investGoods.setTestStart("20180401");
         investGoods.setTestEnd("20180601");
         investGoods.setAuthorId("joonwoo");
@@ -133,8 +133,8 @@ public class GoodsTest {
             traderTask.setCoinUnit(investGoods.getCoinUnit());
             traderTask.setBaseUnit(investGoods.getBaseUnit());
             traderTask.setCashUnit(investGoods.getCashUnit());
-            traderTask.setStartDate(investGoods.getCollectStart());
-            traderTask.setEndDate(investGoods.getCollectEnd());
+//            traderTask.setStartDate(investGoods.getCollectStart());
+//            traderTask.setEndDate(investGoods.getCollectEnd());
             investGoods = taskService.createGoodsBackTest(traderTask);
 
             logger.info("백테스트 등록[{}]{}" , investGoods.getId(), investGoods);
@@ -148,8 +148,8 @@ public class GoodsTest {
 
         Goods filter = new Goods();
         filter.setDisplay(false);
-        filter.setCollectStart("20180720");
-        filter.setCollectEnd("20180720");
+//        filter.setCollectStart("20180720");
+//        filter.setCollectEnd("20180720");
         filter.setAuthorId("testuser");
         filter.setExchange("binance");
         logger.info("상품 목록 조회 {}" , goodsService.retrieveGoodsList(filter));

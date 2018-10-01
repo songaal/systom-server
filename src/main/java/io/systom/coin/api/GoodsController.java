@@ -44,6 +44,7 @@ public class GoodsController extends AbstractController{
     private EcsUtils ecsUtils;
 
     public enum GOODS_TYPE { wait, running, close }
+    // 진행, 종료
 
     @PostMapping
     public ResponseEntity<?> registerGoods(@RequestAttribute String userId,
@@ -71,13 +72,11 @@ public class GoodsController extends AbstractController{
             Goods searchGoods = null;
             if (type != null && identityService.isManager(userId)) {
                 List<String> typeList = Arrays.asList(type.split(","));
-
                 if (typeList.contains(GOODS_TYPE.wait.name())) {
                     logger.debug("retrieveGoodsList wait");
                     searchGoods = new Goods();
                     searchGoods.setUserId(userId);
                     searchGoods.setExchange(exchange);
-                    searchGoods.setInvestStart(nowTime);
                     searchGoods.setDisplay(false);
                     registerGoodsList.addAll(goodsService.retrieveGoodsList(searchGoods));
                 }
@@ -86,8 +85,6 @@ public class GoodsController extends AbstractController{
                     searchGoods = new Goods();
                     searchGoods.setUserId(userId);
                     searchGoods.setExchange(exchange);
-                    searchGoods.setInvestStart(nowTime);
-                    searchGoods.setInvestEnd(nowTime);
                     searchGoods.setDisplay(false);
                     registerGoodsList.addAll(goodsService.retrieveGoodsList(searchGoods));
                 }
@@ -96,7 +93,6 @@ public class GoodsController extends AbstractController{
                     searchGoods = new Goods();
                     searchGoods.setUserId(userId);
                     searchGoods.setExchange(exchange);
-                    searchGoods.setInvestEnd(nowTime);
                     searchGoods.setDisplay(false);
                     registerGoodsList.addAll(goodsService.retrieveGoodsList(searchGoods));
                 }
@@ -118,8 +114,6 @@ public class GoodsController extends AbstractController{
                 }
             } else {
                 searchGoods = new Goods();
-                searchGoods.setCollectStart(nowTime);
-                searchGoods.setCollectEnd(nowTime);
                 searchGoods.setDisplay(true);
                 searchGoods.setExchange(exchange);
                 searchGoods.setUserId(userId);

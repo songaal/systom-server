@@ -20,10 +20,6 @@ public class Goods {
     private Float cash;
     private String cashUnit;
     private Boolean isDisplay;
-    private String collectStart;
-    private String collectEnd;
-    private String investStart;
-    private String investEnd;
     private String testStart;
     private String testEnd;
     private String authorId;
@@ -129,38 +125,6 @@ public class Goods {
 
     public void setDisplay(Boolean display) {
         isDisplay = display;
-    }
-
-    public String getCollectStart() {
-        return collectStart;
-    }
-
-    public void setCollectStart(String collectStart) {
-        this.collectStart = collectStart;
-    }
-
-    public String getCollectEnd() {
-        return collectEnd;
-    }
-
-    public void setCollectEnd(String collectEnd) {
-        this.collectEnd = collectEnd;
-    }
-
-    public String getInvestStart() {
-        return investStart;
-    }
-
-    public void setInvestStart(String investStart) {
-        this.investStart = investStart;
-    }
-
-    public String getInvestEnd() {
-        return investEnd;
-    }
-
-    public void setInvestEnd(String investEnd) {
-        this.investEnd = investEnd;
     }
 
     public String getTestStart() {
@@ -313,10 +277,6 @@ public class Goods {
                 ", cash=" + cash +
                 ", cashUnit='" + cashUnit + '\'' +
                 ", isDisplay=" + isDisplay +
-                ", collectStart='" + collectStart + '\'' +
-                ", collectEnd='" + collectEnd + '\'' +
-                ", investStart='" + investStart + '\'' +
-                ", investEnd='" + investEnd + '\'' +
                 ", testStart='" + testStart + '\'' +
                 ", testEnd='" + testEnd + '\'' +
                 ", authorId='" + authorId + '\'' +

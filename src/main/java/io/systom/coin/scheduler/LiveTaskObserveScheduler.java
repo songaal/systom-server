@@ -64,8 +64,6 @@ public class LiveTaskObserveScheduler {
         String nowTime = new SimpleDateFormat(DATE_FORMAT + TIME_FORMAT).format(new Date());
         logger.debug("시간: {}", nowTime);
         Goods searchGoods = new Goods();
-        searchGoods.setInvestStart(nowTime);
-        searchGoods.setInvestEnd(nowTime);
         searchGoods.setDisplay(true);
         List<Goods> goodsList = new ArrayList<>();
         int exchangeSize = tradeConfig.getLiveExchange().size();

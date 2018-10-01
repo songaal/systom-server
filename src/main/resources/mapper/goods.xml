@@ -7,7 +7,7 @@
 
     <insert id="registerGoods" parameterType="Goods" keyProperty="id" keyColumn="id" useGeneratedKeys="true">
         INSERT INTO goods (strategy_id, version, exchange, coin_unit, base_unit, cash_unit, cash
-                          , collect_start, collect_end, invest_start, invest_end, test_start, test_end
+                          , test_start, test_end
                           , name, description, author_id, test_result)
         VALUES (${strategyId},
                 ${version},
@@ -16,10 +16,6 @@
                 #{baseUnit},
                 #{cashUnit},
                 ${cash},
-                ${collectStart},
-                ${collectEnd},
-                ${investStart},
-                ${investEnd},
                 ${testStart},
                 ${testEnd},
                 #{name},
@@ -41,36 +37,17 @@
              , a.cash
              , a.cash_unit
              , a.is_display
-             , a.collect_start
-             , a.collect_end
-             , a.invest_start
-             , a.invest_end
              , a.test_start
              , a.test_end
              , a.test_result
              , a.author_id
-             , b.invest_cash
              , a.create_time
              , a.task_ecs_id
              , a.timezone
-             , if (concat(a.invest_start, <include refid="common.investStartTime"/>) <![CDATA[<=]]> date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m%d%H%i%s')
-              and concat(a.invest_end, <include refid="common.investEndTime"/>) <![CDATA[>=]]> date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m%d%H%i%s')
-                , 'RUNNING'
-                , if (concat(a.invest_end, <include refid="common.investEndTime"/>) <![CDATA[<]]> date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m%d%H%i%s')
-                   , 'CLOSE'
-                   , 'WAIT')
-             ) as status
             <if test="userId != null and userId != ''">
              , c.invest_id
             </if>
           FROM goods a
-          LEFT JOIN (SELECT aa.id
-                           , aa.goods_id
-                           , sum(aa.invest_cash) as invest_cash
-                        FROM invest_goods aa
-                       WHERE aa.goods_id = ${id}
-                       GROUP BY aa.goods_id
-             ) b ON a.id = b.goods_id
           <if test="userId != null and userId != ''">
           LEFT JOIN (SELECT bb.goods_id
                           , bb.id as invest_id
@@ -92,10 +69,6 @@
              , a.description
              , a.is_display
              , a.create_time
-             , a.collect_start
-             , a.collect_end
-             , a.invest_start
-             , a.invest_end
              , a.test_start
              , a.test_end
              , a.cash
@@ -105,21 +78,8 @@
              , a.test_result
              , a.create_time
              , a.task_ecs_id
-             , ifnull(b.invest_cash, 0) as invest_cash
              , c.invest_id
-             , if (concat(a.invest_start, <include refid="common.investStartTime"/>) <![CDATA[<=]]> date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m%d%H%i%s')
-              and concat(a.invest_end, <include refid="common.investEndTime"/>) <![CDATA[>=]]> date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m%d%H%i%s')
-                , 'RUNNING'
-                , if (concat(a.invest_end, <include refid="common.investEndTime"/>) <![CDATA[<]]> date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m%d%H%i%s')
-                   , 'CLOSE'
-                   , 'WAIT')
-             ) as status
           FROM goods a
-          LEFT JOIN (SELECT aa.goods_id
-						  , sum(aa.invest_cash) as invest_cash
-				       FROM invest_goods aa
-					  GROUP BY aa.goods_id
-             ) b on a.id = b.goods_id
           LEFT JOIN (SELECT bb.goods_id
 						  , bb.id as invest_id
 				       FROM invest_goods bb
@@ -131,25 +91,6 @@
         <if test="isDisplay != null and isDisplay != ''">
            AND a.is_display = ${isDisplay}
         </if>
-        <choose>
-            <when test="collectStart != null and collectStart != '' and collectEnd != null and collectEnd != ''">
-                AND concat(a.collect_start, <include refid="common.investStartTime" />) <![CDATA[ <= ]]> ${collectStart}
-                AND concat(a.collect_end,   <include refid="common.investEndTime" />)   <![CDATA[ >= ]]> ${collectEnd}
-            </when>
-            <when test="investStart != null and investStart != '' and investEnd != null and investEnd != ''">
-                AND concat(a.invest_start, <include refid="common.investStartTime" />) <![CDATA[ <= ]]> ${investStart}
-                AND concat(a.invest_end,   <include refid="common.investEndTime" />)   <![CDATA[ >= ]]> ${investEnd}
-            </when>
-            <when test="investStart != null and investStart != ''">
-                AND concat(a.invest_start, <include refid="common.investStartTime" />) <![CDATA[ > ]]> ${investStart}
-            </when>
-            <when test="investEnd != null and investEnd != ''">
-                AND concat(a.invest_end,   <include refid="common.investStartTime" />) <![CDATA[ < ]]> ${investEnd}
-            </when>
-            <otherwise>
-                1 = 2
-            </otherwise>
-        </choose>
         <![CDATA[
          ORDER BY id DESC
         ]]>
@@ -200,18 +141,6 @@
             <if test="cashUnit != null and cashUnit != ''">
                 , cash_unit           = #{cashUnit}
             </if>
-            <if test="collectStart != null and collectStart != ''">
-                , collect_start       = ${collectStart}
-            </if>
-            <if test="collectEnd != null and collectEnd != ''">
-                , collect_end         = ${collectEnd}
-            </if>
-            <if test="investStart != null and investStart != ''">
-                , invest_start        = ${investStart}
-            </if>
-            <if test="investEnd != null and investEnd != ''">
-                , invest_end          = ${investEnd}
-            </if>
             <if test="cashUnit != null and cashUnit != ''">
                 , cash_unit           = #{cashUnit}
             </if>
@@ -256,10 +185,6 @@
              , description
              , is_display
              , create_time
-             , collect_start
-             , collect_end
-             , invest_start
-             , invest_end
              , test_start
              , test_end
              , cash

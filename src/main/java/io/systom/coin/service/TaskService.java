@@ -217,7 +217,6 @@ public class TaskService {
         traderTask.setId(taskId);
         traderTask.setStrategyId(registerGoods.getStrategyId());
         traderTask.setVersion(registerGoods.getVersion());
-        traderTask.setStartDate(registerGoods.getInvestStart());
         traderTask.setExchange(registerGoods.getExchange());
         traderTask.setCoinUnit(registerGoods.getCoinUnit());
         traderTask.setBaseUnit(registerGoods.getBaseUnit());

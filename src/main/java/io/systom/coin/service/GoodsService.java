@@ -227,20 +227,6 @@ public class GoodsService {
         } else if (StringUtils.isEmpty(target.getCashUnit()) || StringUtils.isBlank(target.getCashUnit())) {
             logger.debug("Invalid currency");
             return false;
-        } else if (target.getCollectStart() == null || target.getCollectEnd() == null
-                || String.valueOf(target.getCollectStart()).length() != 8
-                || String.valueOf(target.getCollectEnd()).length() != 8
-                || Integer.parseInt(target.getCollectStart()) > Integer.parseInt(target.getCollectEnd())) {
-//            모집 시작일은 모집 종료일보다 클 수 없음.
-            logger.debug("Invalid CollectDate");
-            return false;
-        } else if (target.getInvestStart() == null || target.getInvestEnd() == null
-                || String.valueOf(target.getInvestStart()).length() != 8
-                || String.valueOf(target.getInvestEnd()).length() != 8
-                || Integer.parseInt(target.getInvestStart()) > Integer.parseInt(target.getInvestEnd())) {
-            logger.debug("Invalid investDate");
-//            투자 시작일은 모집 종료일보다 클 수 없음.
-            return false;
         } else if (target.getTestStart() == null || target.getTestEnd() == null
                 || String.valueOf(target.getTestStart()).length() != 8
                 || String.valueOf(target.getTestEnd()).length() != 8
@@ -249,11 +235,6 @@ public class GoodsService {
 //            백테스트 시작일은 모집 종료일보다 클 수 없음.
             return false;
         }
-//        else if (Integer.parseInt(target.getCollectEnd()) >= Integer.parseInt(target.getInvestStart())) {
-//            logger.debug("Invalid CollectEnd >= InvestStart");
-////            모집 종료일은 투자 시작일보다 클 수 없음.
-//            return false;
-//        }
 
         try {
             StrategyDeployVersion deployVersion = new StrategyDeployVersion();
@@ -264,10 +245,6 @@ public class GoodsService {
             if (deployVersion == null){
                 return false;
             }
-//            else if (!deployVersion.getUserId().equals(target.getAuthorId())) {
-//                throw new AuthenticationException();
-//            }
-
         } catch (OperationException e) {
             logger.error("", e);
             return false;

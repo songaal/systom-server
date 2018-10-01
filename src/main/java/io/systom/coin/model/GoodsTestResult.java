@@ -8,8 +8,6 @@ import java.util.List;
  */
 public class GoodsTestResult {
     private Integer id;
-//    private float testMaxReturnsPct;
-//    private float testMaxDrawDownPct;
     private float testMaxMonthlyPct;
     private float testMinMonthlyPct;
     private List<MonthlyReturn> testMonthlyReturnList;
