@@ -40,8 +40,8 @@ public class GoodsService {
     @Autowired
     private InvestGoodsService investGoodsService;
 
-    public static final String DATE_FORMAT = "yyyyMMdd";
-    public static final String TIME_FORMAT = "HHmmss";
+//    public static final String DATE_FORMAT = "yyyyMMdd";
+//    public static final String TIME_FORMAT = "HHmmss";
 
     @Transactional
     public Goods registerGoods(Goods target){

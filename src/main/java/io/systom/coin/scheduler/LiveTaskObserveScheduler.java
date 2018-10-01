@@ -14,11 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
-
-import static io.systom.coin.service.GoodsService.DATE_FORMAT;
-import static io.systom.coin.service.GoodsService.TIME_FORMAT;
 
 /*
  * create joonwoo 2018. 8. 14.
@@ -61,8 +57,7 @@ public class LiveTaskObserveScheduler {
             return;
         }
         logger.debug("========== 작업상태 확인 시작 ==========");
-        String nowTime = new SimpleDateFormat(DATE_FORMAT + TIME_FORMAT).format(new Date());
-        logger.debug("시간: {}", nowTime);
+        logger.debug("시간: {}", new Date());
         Goods searchGoods = new Goods();
         searchGoods.setDisplay(true);
         List<Goods> goodsList = new ArrayList<>();

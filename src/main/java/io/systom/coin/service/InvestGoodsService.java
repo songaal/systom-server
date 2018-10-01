@@ -11,12 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-
-import static io.systom.coin.service.GoodsService.DATE_FORMAT;
-import static io.systom.coin.service.GoodsService.TIME_FORMAT;
 
 /*
  * create joonwoo 2018. 7. 3.
@@ -59,15 +54,9 @@ public class InvestGoodsService {
 
     public InvestGoods registrationInvestor(InvestGoods investor) {
         Goods registerGoods = goodsService.getGoods(investor.getGoodsId());
-        long nowTs = Long.parseLong(new SimpleDateFormat(DATE_FORMAT + TIME_FORMAT).format(new Date()));
         if (registerGoods == null || !registerGoods.getDisplay()) {
             throw new RequestException("invalid goods");
         }
-//        2018.10.01 joonwoo 투자시 상품 모집날짜 유효성 검사 무시.
-//        else if (Long.parseLong(String.format("%s%s%s%s", registerGoods.getCollectStart(), startHour, startMinute, startSecond)) > nowTs
-//                || Long.parseLong(String.format("%s%s%s%s", registerGoods.getCollectEnd(), endHour, endMinute, endSecond)) < nowTs) {
-//            throw new RequestException("not collect invest goods");
-//        }
         else if (investor.getInvestCash() == null
                 || investor.getInvestCash().floatValue() <= 0) {
             throw new ParameterException("invest amount");
@@ -145,17 +134,11 @@ public class InvestGoodsService {
             throw new AuthenticationException();
         }
 
-//        Goods registerGoods = goodsService.getGoods(investGoods.getGoodsId());
-//        int nowTime = Integer.parseInt(new SimpleDateFormat(DATE_FORMAT).format(new Date()));
-//        if (Integer.parseInt(registerGoods.getCollectStart()) > nowTime
-//                || Integer.parseInt(registerGoods.getCollectEnd()) < nowTime) {
-//            throw new RequestException("not collect invest goods");
-//        }
         PerformanceSummary performanceSummary = performanceService.getPerformanceSummary(investId);
         if (performanceSummary.getCommission() == null) {
             performanceService.deletePerformanceSummary(investId);
         }
-//        performanceService.deletePerformanceSummary(investId);
+
         performanceService.deleteTradeStat(investId);
         try {
             int changeRow = sqlSession.delete("investGoods.deleteInvestGoods", investGoods.getId());

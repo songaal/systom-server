@@ -44,10 +44,18 @@
              , a.create_time
              , a.task_ecs_id
              , a.timezone
+             , ifnull(b.invest_cash, 0) as invest_cash
             <if test="userId != null and userId != ''">
              , c.invest_id
             </if>
           FROM goods a
+          LEFT JOIN (SELECT aa.id
+                          , aa.goods_id
+                          , sum(aa.invest_cash) as invest_cash
+                       FROM invest_goods aa
+                      WHERE aa.goods_id = ${id}
+                      GROUP BY aa.goods_id
+             ) b ON a.id = b.goods_id
           <if test="userId != null and userId != ''">
           LEFT JOIN (SELECT bb.goods_id
                           , bb.id as invest_id
@@ -78,8 +86,14 @@
              , a.test_result
              , a.create_time
              , a.task_ecs_id
+             , ifnull(b.invest_cash, 0) as invest_cash
              , c.invest_id
           FROM goods a
+          LEFT JOIN (SELECT aa.goods_id
+                          , sum(aa.invest_cash) as invest_cash
+                       FROM invest_goods aa
+                      GROUP BY aa.goods_id
+             ) b on a.id = b.goods_id
           LEFT JOIN (SELECT bb.goods_id
 						  , bb.id as invest_id
 				       FROM invest_goods bb
@@ -88,7 +102,7 @@
 		     ) c on a.id = c.goods_id
          WHERE 1=1
            AND a.exchange = #{exchange}
-        <if test="isDisplay != null and isDisplay != ''">
+        <if test="isDisplay != null">
            AND a.is_display = ${isDisplay}
         </if>
         <![CDATA[

@@ -15,14 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
-
-import static io.systom.coin.service.GoodsService.DATE_FORMAT;
-import static io.systom.coin.service.GoodsService.TIME_FORMAT;
 
 /*
  * create joonwoo 2018. 7. 3.
@@ -43,7 +38,7 @@ public class GoodsController extends AbstractController{
     @Autowired
     private EcsUtils ecsUtils;
 
-    public enum GOODS_TYPE { wait, running, close }
+    public enum GOODS_TYPE { open, close, all }
     // 진행, 종료
 
     @PostMapping
@@ -68,24 +63,15 @@ public class GoodsController extends AbstractController{
                                                @RequestParam(required = false) String type) {
         try {
             List<Goods> registerGoodsList = new ArrayList<>();
-            String nowTime = new SimpleDateFormat(DATE_FORMAT + TIME_FORMAT).format(new Date());
             Goods searchGoods = null;
             if (type != null && identityService.isManager(userId)) {
                 List<String> typeList = Arrays.asList(type.split(","));
-                if (typeList.contains(GOODS_TYPE.wait.name())) {
-                    logger.debug("retrieveGoodsList wait");
+                if (typeList.contains(GOODS_TYPE.open.name())) {
+                    logger.debug("retrieveGoodsList open");
                     searchGoods = new Goods();
                     searchGoods.setUserId(userId);
                     searchGoods.setExchange(exchange);
-                    searchGoods.setDisplay(false);
-                    registerGoodsList.addAll(goodsService.retrieveGoodsList(searchGoods));
-                }
-                if (typeList.contains(GOODS_TYPE.running.name())) {
-                    logger.debug("retrieveGoodsList running");
-                    searchGoods = new Goods();
-                    searchGoods.setUserId(userId);
-                    searchGoods.setExchange(exchange);
-                    searchGoods.setDisplay(false);
+                    searchGoods.setDisplay(true);
                     registerGoodsList.addAll(goodsService.retrieveGoodsList(searchGoods));
                 }
                 if (typeList.contains(GOODS_TYPE.close.name())) {
@@ -94,6 +80,13 @@ public class GoodsController extends AbstractController{
                     searchGoods.setUserId(userId);
                     searchGoods.setExchange(exchange);
                     searchGoods.setDisplay(false);
+                    registerGoodsList.addAll(goodsService.retrieveGoodsList(searchGoods));
+                }
+                if (typeList.contains(GOODS_TYPE.all.name())) {
+                    logger.debug("retrieveGoodsList all");
+                    searchGoods = new Goods();
+                    searchGoods.setUserId(userId);
+                    searchGoods.setExchange(exchange);
                     registerGoodsList.addAll(goodsService.retrieveGoodsList(searchGoods));
                 }
                 int goodsSize = registerGoodsList.size();
@@ -134,12 +127,6 @@ public class GoodsController extends AbstractController{
                                       @PathVariable Integer id) {
         try {
             Goods registerGoods = goodsService.getGoods(id, userId);
-//            int nowTime = Integer.parseInt(new SimpleDateFormat(DATE_FORMAT).format(new Date()));
-//            if (!identityService.isManager(userId)
-//                    && Integer.parseInt(registerGoods.getCollectStart()) > nowTime
-//                    && Integer.parseInt(registerGoods.getCollectEnd()) < nowTime) {
-//                throw new AuthenticationException();
-//            }
             registerGoods.setTaskRunning(isEcsTaskRunning(registerGoods.getTaskEcsId()));
             return success(registerGoods);
         } catch (AbstractException e) {
