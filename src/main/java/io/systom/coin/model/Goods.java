@@ -38,6 +38,7 @@ public class Goods {
     private PerformanceSummary performanceSummary;
     private List<PerformanceDaily> performanceDaily;
     private TradeStat tradeStat;
+    private Date investTime;
 
     public Integer getId() {
         return id;
@@ -261,6 +262,14 @@ public class Goods {
 
     public void setTimezone(String timezone) {
         this.timezone = timezone;
+    }
+
+    public Date getInvestTime() {
+        return investTime;
+    }
+
+    public void setInvestTime(Date investTime) {
+        this.investTime = investTime;
     }
 
     @Override

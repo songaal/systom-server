@@ -119,6 +119,7 @@ public class InvestGoodsService {
         PerformanceSummary performanceSummary = performanceService.getPerformanceSummary(investId);
         InvestGoods registerInvestGoods = getInvestGoods(investId);
         registerGoods.setInvestCash(registerInvestGoods.getInvestCash());
+        registerGoods.setInvestTime(investGoods.getCreateTime());
         registerGoods.setPerformanceSummary(performanceSummary);
         List<PerformanceDaily> performanceDailyList = performanceService.getPerformanceDailyList(investId);
         registerGoods.setPerformanceDaily(performanceDailyList);
