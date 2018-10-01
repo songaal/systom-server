@@ -57,8 +57,10 @@ public class EcsUtils {
     public Task syncRun(TraderTask traderTask){
         logger.info("ECS TraderTask Start");
         String taskDefinition = taskDefinitionName + ":" + taskDefinitionVersion;
-        String startTime = String.format("%s:%s:%s", startHour, startMinute, startSecond);
-        List<String> signalCmd = traderTask.getLiveSignalCmd(startTime);
+//        날짜만 전달.
+//        String startTime = String.format("%s:%s:%s", startHour, startMinute, startSecond);
+//        List<String> signalCmd = traderTask.getLiveSignalCmd(startTime);
+        List<String> signalCmd = traderTask.getLiveSignalCmd();
         signalCmd.add("api_server_url=" + apiServerUrl);
         List<String> executorCmd = traderTask.getLiveExecutorCmd(Env.isLiveExecution());
 

@@ -46,13 +46,13 @@ scheduler:
 invest:
   timezone: "Asia/Seoul"
   start:
-    hour: "12"
-    minute: "30"
-    second: "00"
-  end:
-    hour: "13"
+    hour: "00"
     minute: "00"
     second: "00"
+  end:
+    hour: "23"
+    minute: "59"
+    second: "59"
 
 notifications:
   telegramUrl: "https://bacl02xrl3.execute-api.ap-northeast-2.amazonaws.com/v1/message"

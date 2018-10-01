@@ -78,10 +78,12 @@ public class DockerUtils {
     }
 
     public void syncRun(TraderTask traderTask) throws InterruptedException {
-        String startTime = String.format("%s:%s:%s", startHour, startMinute, startSecond);
-        String endTime = String.format("%s:%s:%s", endHour, endMinute, endSecond);
+//        시작, 종료 날짜만 전달.
+//        String startTime = String.format("%s:%s:%s", startHour, startMinute, startSecond);
+//        String endTime = String.format("%s:%s:%s", endHour, endMinute, endSecond);
 
-        List<String> cmd = traderTask.getBackTestCmd(startTime, endTime);
+//        List<String> cmd = traderTask.getBackTestCmd(startTime, endTime);
+        List<String> cmd = traderTask.getBackTestCmd();
         int initCash = 10000;
         if ("KRW".equals(traderTask.getCashUnit().toUpperCase())) {
             initCash = initCashKrw;

@@ -62,10 +62,13 @@ public class InvestGoodsService {
         long nowTs = Long.parseLong(new SimpleDateFormat(DATE_FORMAT + TIME_FORMAT).format(new Date()));
         if (registerGoods == null || !registerGoods.getDisplay()) {
             throw new RequestException("invalid goods");
-        } else if (Long.parseLong(String.format("%s%s%s%s", registerGoods.getCollectStart(), startHour, startMinute, startSecond)) > nowTs
-                || Long.parseLong(String.format("%s%s%s%s", registerGoods.getCollectEnd(), endHour, endMinute, endSecond)) < nowTs) {
-            throw new RequestException("not collect invest goods");
-        } else if (investor.getInvestCash() == null
+        }
+//        2018.10.01 joonwoo 투자시 상품 모집날짜 유효성 검사 무시.
+//        else if (Long.parseLong(String.format("%s%s%s%s", registerGoods.getCollectStart(), startHour, startMinute, startSecond)) > nowTs
+//                || Long.parseLong(String.format("%s%s%s%s", registerGoods.getCollectEnd(), endHour, endMinute, endSecond)) < nowTs) {
+//            throw new RequestException("not collect invest goods");
+//        }
+        else if (investor.getInvestCash() == null
                 || investor.getInvestCash().floatValue() <= 0) {
             throw new ParameterException("invest amount");
         }

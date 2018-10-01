@@ -171,8 +171,10 @@ public class TraderTask {
         cmd.add("coin_unit=" + coinUnit);
         cmd.add("base_unit=" + baseUnit);
         cmd.add("cash_unit=" + cashUnit);
-        cmd.add("start_date=" + startDate + (startTime == null ? "" : " " + startTime));
-        cmd.add("end_date=" + endDate + (endTime == null ? "" : " " + endTime));
+        cmd.add("start_date=" + startDate);
+        cmd.add("end_date=" + endDate);
+//        cmd.add("start_date=" + startDate + (startTime == null ? "" : " " + startTime));
+//        cmd.add("end_date=" + endDate + (endTime == null ? "" : " " + endTime));
         return cmd;
     }
     public List<String> getBackTestEnv() {
@@ -198,7 +200,8 @@ public class TraderTask {
         cmd.add("base_unit=" + baseUnit);
         cmd.add("cash_unit=" + cashUnit);
         cmd.add("init_cash=" + this.initCash);
-        cmd.add("start_date=" + startDate + (startTime == null ? "" : " " + startTime));
+        cmd.add("start_date=" + startDate);
+//        cmd.add("start_date=" + startDate + (startTime == null ? "" : " " + startTime));
         return cmd;
     }
     public List<KeyValuePair> getLiveSignalEnv() {
