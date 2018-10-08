@@ -43,9 +43,6 @@ public class InvestGoodsController extends AbstractController{
     @GetMapping
     public ResponseEntity<?> retrieveInvestGoods(@RequestAttribute String userId) {
         try {
-//            Map<String, Object> response = new HashMap<>();
-//            response.put("registerInvestGoodsList", investGoodsService.retrieveInvestGoods(userId));
-//            response.put("nowDate", new SimpleDateFormat("yyyyMMdd").format(new Date()));
             List<Goods> goodsList = investGoodsService.retrieveInvestGoods(userId);
             return success(goodsList);
         } catch (AbstractException e) {
@@ -73,7 +70,26 @@ public class InvestGoodsController extends AbstractController{
         }
     }
 
+    @GetMapping("/{investId}/action")
+    public ResponseEntity<?> investAction(@PathVariable Integer investId,
+                                          @RequestParam("action") String action) {
+        try {
+            if ("CLOSE_INVEST".equalsIgnoreCase(action)) {
 
+
+
+            }
+
+
+            return success();
+        } catch (AbstractException e) {
+            logger.error("", e);
+            return e.response();
+        } catch (Throwable t) {
+            logger.error("Throwable: ", t);
+            return new OperationException().response();
+        }
+    }
 
     @DeleteMapping("/{investId}")
     public ResponseEntity<?> removeInvestor(@PathVariable Integer investId,

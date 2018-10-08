@@ -13,6 +13,9 @@ public class InvestGoods {
     private Float investCash;
     private Integer exchangeKeyId;
     private Date createTime;
+    private boolean isPaper;
+    private boolean isFinished;
+    private Date endTime;
 
     public InvestGoods() {}
 
@@ -71,6 +74,30 @@ public class InvestGoods {
         this.createTime = createTime;
     }
 
+    public boolean isPaper() {
+        return isPaper;
+    }
+
+    public void setPaper(boolean paper) {
+        isPaper = paper;
+    }
+
+    public boolean isFinished() {
+        return isFinished;
+    }
+
+    public void setFinished(boolean finished) {
+        isFinished = finished;
+    }
+
+    public Date getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
+    }
+
     @Override
     public String toString() {
         return "InvestGoods{" +
@@ -80,6 +107,9 @@ public class InvestGoods {
                 ", investCash=" + investCash +
                 ", exchangeKeyId=" + exchangeKeyId +
                 ", createTime=" + createTime +
+                ", isPaper=" + isPaper +
+                ", isFinished=" + isFinished +
+                ", endTime=" + endTime +
                 '}';
     }
 }

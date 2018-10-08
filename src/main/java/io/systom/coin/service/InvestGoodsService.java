@@ -114,6 +114,9 @@ public class InvestGoodsService {
         }
 
         Goods registerGoods = goodsService.getGoods(investGoods.getGoodsId(), userId);
+        registerGoods.setPaper(investGoods.isPaper());
+        registerGoods.setEndTime(investGoods.getEndTime());
+        registerGoods.setFinished(investGoods.isFinished());
         List<TraderTaskResult.Result.Trade> tradeHistory = tradeService.getTradeHistory(investId);
         registerGoods.setTradeHistory(tradeHistory);
         PerformanceSummary performanceSummary = performanceService.getPerformanceSummary(investId);
@@ -135,14 +138,14 @@ public class InvestGoodsService {
             throw new AuthenticationException();
         }
 
-        PerformanceSummary performanceSummary = performanceService.getPerformanceSummary(investId);
-        if (performanceSummary.getCommission() == null) {
-            performanceService.deletePerformanceSummary(investId);
-        }
+//        PerformanceSummary performanceSummary = performanceService.getPerformanceSummary(investId);
+//        if (performanceSummary.getCommission() == null) {
+//            performanceService.deletePerformanceSummary(investId);
+//        }
 
-        performanceService.deleteTradeStat(investId);
+//        performanceService.deleteTradeStat(investId);
         try {
-            int changeRow = sqlSession.delete("investGoods.deleteInvestGoods", investGoods.getId());
+            int changeRow = sqlSession.update("investGoods.deleteInvestGoods", investGoods.getId());
             if (changeRow != 1) {
                 throw new OperationException("[FAIL] SQL Execute. change row: " + changeRow);
             }

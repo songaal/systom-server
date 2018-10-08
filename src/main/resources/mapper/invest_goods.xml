@@ -26,15 +26,20 @@
              , a.exchange_key_id
              , a.invest_cash
              , a.create_time
+             , a.is_paper
+             , a.is_finished
+             , a.end_time
           FROM invest_goods a
          WHERE 1=1
            AND a.id = #{param1}
     </select>
 
-    <delete id="deleteInvestGoods" parameterType="Integer">
-        DELETE FROM invest_goods
+    <update id="deleteInvestGoods" parameterType="Integer">
+        UPDATE invest_goods
+           SET is_finished = true
+             , end_time = now()
          WHERE id = #{id}
-    </delete>
+    </update>
 
     <select id="findInvestGoodsByUserList" parameterType="InvestGoods" resultType="InvestGoods">
         SELECT a.id
@@ -78,6 +83,9 @@
              , a.create_time
              , b.id as invest_id
              , b.create_time as invest_time
+             , b.is_finished
+             , b.is_paper
+             , b.end_time
           FROM goods a
           JOIN invest_goods b on a.id = b.goods_id
          WHERE b.user_id = #{param1}

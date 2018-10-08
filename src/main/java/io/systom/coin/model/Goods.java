@@ -40,6 +40,10 @@ public class Goods {
     private TradeStat tradeStat;
     private Date investTime;
 
+    private boolean isPaper;
+    private boolean isFinished;
+    private Date endTime;
+
     public Integer getId() {
         return id;
     }
@@ -272,6 +276,30 @@ public class Goods {
         this.investTime = investTime;
     }
 
+    public boolean isPaper() {
+        return isPaper;
+    }
+
+    public void setPaper(boolean paper) {
+        isPaper = paper;
+    }
+
+    public boolean isFinished() {
+        return isFinished;
+    }
+
+    public void setFinished(boolean finished) {
+        isFinished = finished;
+    }
+
+    public Date getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
+    }
+
     @Override
     public String toString() {
         return "Goods{" +
@@ -298,11 +326,15 @@ public class Goods {
                 ", taskEcsId='" + taskEcsId + '\'' +
                 ", waitTask=" + waitTask +
                 ", status='" + status + '\'' +
+                ", timezone='" + timezone + '\'' +
                 ", tradeHistory=" + tradeHistory +
                 ", performanceSummary=" + performanceSummary +
                 ", performanceDaily=" + performanceDaily +
                 ", tradeStat=" + tradeStat +
-                ", timezone=" + timezone +
+                ", investTime=" + investTime +
+                ", isPaper=" + isPaper +
+                ", isFinished=" + isFinished +
+                ", endTime=" + endTime +
                 '}';
     }
 }
