@@ -77,6 +77,7 @@
              , a.test_result
              , a.create_time
              , b.id as invest_id
+             , b.create_time as invest_time
           FROM goods a
           JOIN invest_goods b on a.id = b.goods_id
          WHERE b.user_id = #{param1}
