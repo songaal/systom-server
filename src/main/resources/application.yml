@@ -45,6 +45,8 @@ scheduler:
 
 invest:
   timezone: "Asia/Seoul"
+  initCommission: 40
+  maxFriendsSaleCount: 5
   start:
     hour: "00"
     minute: "00"
@@ -59,3 +61,6 @@ notifications:
 
 task:
   maxRetry: 3
+
+friends:
+  maxSize: 5

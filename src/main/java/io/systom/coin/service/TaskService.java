@@ -213,6 +213,8 @@ public class TaskService {
                 throw new OperationException("It is already in progress.");
             }
         }
+//        TODO 동기화 문제 발생...
+//        TODO 동기화 블록 {1. DB ECS ID 조회, 2. ECS 실행, 3. DB 입력}
         String taskId = registerGoods.getId().toString();
         traderTask.setId(taskId);
         traderTask.setStrategyId(registerGoods.getStrategyId());
@@ -222,20 +224,27 @@ public class TaskService {
         traderTask.setBaseUnit(registerGoods.getBaseUnit());
         traderTask.setCashUnit(registerGoods.getCashUnit());
         traderTask.setTimezone(registerGoods.getTimezone());
-        waitTaskList.put(taskId, traderTask);
-        logger.info("live Task TraderTask task: {}", traderTask);
-
-        Task resultTask = ecsUtils.syncRun(traderTask);
-        registerGoods.setTaskEcsId(resultTask.getTaskArn());
+        Task resultTask;
         try {
+            waitTaskList.put(taskId, traderTask);
+            logger.info("live Task TraderTask task: {}", traderTask);
+
+            resultTask = ecsUtils.syncRun(traderTask);
+            registerGoods.setTaskEcsId(resultTask.getTaskArn());
+
             int changeRow = sqlSession.update("goods.updateTaskEcsId", registerGoods);
             if (changeRow != 1) {
                 logger.error("[FAIL] sql execute. changeRow: {}", changeRow);
                 throw new OperationException("[FAIL] sql execute. changeRow: {}" + changeRow);
             }
+        } catch (OperationException e) {
+            logger.error("[FAIL] OperationException.", e);
+            throw new OperationException("[FAIL] ECS Start Error.");
         } catch (Exception e) {
             logger.error("[FAIL] sql execute.", e);
             throw new OperationException("[FAIL] sql execute.");
+        } finally {
+            waitTaskList.remove(traderTask.getId());
         }
         return resultTask;
     }
@@ -252,11 +261,9 @@ public class TaskService {
         if (registerGoods.getTaskEcsId() == null || waitTaskList.get(registerGoods.getId()) != null) {
             throw new OperationException("It is already in progress.");
         }
-
         Task task = ecsUtils.stopTask(registerGoods.getTaskEcsId());
-
+        registerGoods.setTaskEcsId(null);
         try {
-            registerGoods.setTaskEcsId(null);
             int changeRow = sqlSession.update("goods.updateTaskEcsId", registerGoods);
             if (changeRow != 1) {
                 logger.error("[FAIL] sql execute. changeRow: {}", changeRow);

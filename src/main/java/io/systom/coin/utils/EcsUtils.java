@@ -95,6 +95,12 @@ public class EcsUtils {
         try {
             long st = System.nanoTime();
             result = client.runTask(runTaskRequest);
+            if (result.getFailures().size() > 0) {
+                result.getFailures().forEach(failure -> {
+                    logger.error("[ECS ERROR] ** arn:{}, reason: {}", failure.getArn(), failure.getReason());
+                });
+                throw new OperationException(result.getFailures().get(0).toString());
+            }
             taskArn = result.getTasks().get(0).getTaskArn();
             logger.debug("ECS TASK ID: {},  ARN: {}", traderTask.getId(), taskArn);
             while (true) {
@@ -119,8 +125,12 @@ public class EcsUtils {
                 }
             }
         } catch (Exception e) {
-            stopTask(taskArn);
             logger.error("[fail] goodsId: {}", traderTask.getGoodsId(), e);
+            try {
+                stopTask(taskArn);
+            } catch(Throwable t) {
+                logger.error(t.getMessage());
+            }
             throw new OperationException(e.getMessage());
         }
         return result.getTasks().get(0);
@@ -143,6 +153,9 @@ public class EcsUtils {
     }
 
     public Task stopTask(String taskEcsId){
+        if (taskEcsId == null) {
+            return null;
+        }
         logger.debug("[{}] task stop..", taskEcsId);
         StopTaskRequest stopTaskRequest = new StopTaskRequest();
         stopTaskRequest.withReason(awsReason)

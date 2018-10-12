@@ -54,6 +54,7 @@
                           , sum(aa.invest_cash) as invest_cash
                        FROM invest_goods aa
                       WHERE aa.goods_id = ${id}
+                        AND aa.is_finished = false
                       GROUP BY aa.goods_id
              ) b ON a.id = b.goods_id
           <if test="userId != null and userId != ''">
@@ -61,6 +62,7 @@
                           , bb.id as invest_id
                        FROM invest_goods bb
                       WHERE bb.user_id = #{userId}
+                        AND bb.is_finished = false
                       GROUP BY bb.goods_id
              ) c on a.id = c.goods_id
           </if>
@@ -92,12 +94,14 @@
           LEFT JOIN (SELECT aa.goods_id
                           , sum(aa.invest_cash) as invest_cash
                        FROM invest_goods aa
+                      WHERE aa.is_finished = false
                       GROUP BY aa.goods_id
              ) b on a.id = b.goods_id
           LEFT JOIN (SELECT bb.goods_id
 						  , bb.id as invest_id
 				       FROM invest_goods bb
                       WHERE bb.user_id = #{userId}
+                        AND bb.is_finished = false
 				     GROUP BY bb.goods_id
 		     ) c on a.id = c.goods_id
          WHERE 1=1
@@ -187,6 +191,7 @@
           FROM goods a
           JOIN invest_goods b on a.id = b.goods_id
          WHERE a.id = #{param1}
+           AND a.is_finished = false
     </select>
 
     <select id="selectGoodsIdList" resultType="Goods" parameterType="HashMap">
@@ -212,4 +217,10 @@
          WHERE 1=1
            AND ${column} in (#{val})
     </select>
+
+    <update id="updateChangeUsers" parameterType="HashMap">
+        UPDATE goods a
+           SET a.change_users = a.change_users + ${count}
+         WHERE a.id = ${goodsId}
+    </update>
 </mapper>

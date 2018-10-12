@@ -11,11 +11,13 @@
     </resultMap>
 
     <insert id="registrationInvestor" parameterType="InvestGoods" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO invest_goods (goods_id, user_id, exchange_key_id, invest_cash)
+        INSERT INTO invest_goods (goods_id, user_id, exchange_key_id, invest_cash, is_paper, is_finished)
         VALUES (${goodsId},
                 #{userId},
                 ${exchangeKeyId},
-                ${investCash}
+                ${investCash},
+                ${isPaper},
+                false
         )
     </insert>
 
@@ -47,9 +49,13 @@
              , a.user_id
              , a.exchange_key_id
              , invest_cash
+             , a.is_finished
+             , a.end_time
+             , a.is_paper
           FROM invest_goods a
          WHERE 1=1
            AND a.goods_id = ${goodsId}
+           AND a.is_finished = ${finished}
     </select>
 
     <select id="findInvestGoodsByUser" parameterType="InvestGoods" resultType="InvestGoods">
@@ -57,11 +63,15 @@
              , a.goods_id
              , a.user_id
              , a.exchange_key_id
-             , invest_cash
+             , a.invest_cash
+             , a.is_finished
+             , a.end_time
+             , a.is_paper
           FROM invest_goods a
          WHERE 1=1
            AND a.goods_id = ${goodsId}
            AND a.user_id = #{userId}
+           AND a.is_finished = ${finished}
     </select>
 
     <select id="retrieveInvestGoods" parameterType="String" resultMap="GoodsMap">

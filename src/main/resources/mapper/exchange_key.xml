@@ -11,6 +11,7 @@
              , exchange
              , name
              , aes_decrypt(api_key, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{userId})) as api_key
+             , aes_decrypt(secret_key, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{userId})) as secret_key
              , create_time
           from exchange_key
          where user_id = #{userId}

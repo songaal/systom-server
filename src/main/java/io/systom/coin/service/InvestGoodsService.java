@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 /*
@@ -38,6 +39,8 @@ public class InvestGoodsService {
     private TradeService tradeService;
     @Autowired
     private UserMonthInvestService userMonthInvestService;
+    @Autowired
+    private InvitationService invitationService;
 
     @Value("${invest.start.hour}")
     private String startHour;
@@ -51,6 +54,12 @@ public class InvestGoodsService {
     private String endMinute;
     @Value("${invest.end.second}")
     private String endSecond;
+    @Value("${invest.initCommission}")
+    private float initCommission;
+    @Value("${invest.maxFriendsSaleCount}")
+    private int maxFriendsSaleCount;
+
+
 
     public InvestGoods registrationInvestor(InvestGoods investor) {
         Goods registerGoods = goodsService.getGoods(investor.getGoodsId());
@@ -61,15 +70,19 @@ public class InvestGoodsService {
                 || investor.getInvestCash().floatValue() <= 0) {
             throw new ParameterException("invest amount");
         }
-        ExchangeKey exchangeKey = new ExchangeKey();
-        exchangeKey.setId(investor.getExchangeKeyId());
-        exchangeKey.setUserId(investor.getUserId());
-        exchangeKey = exchangeService.selectExchangeKey(exchangeKey);
-        if (exchangeKey == null
-                || !registerGoods.getExchange().toLowerCase().equals(exchangeKey.getExchange().toLowerCase())) {
-            throw new RequestException("invalid exchange key");
+        if (!investor.isPaper()) {
+            ExchangeKey exchangeKey = new ExchangeKey();
+            exchangeKey.setId(investor.getExchangeKeyId());
+            exchangeKey.setUserId(investor.getUserId());
+            exchangeKey = exchangeService.selectExchangeKey(exchangeKey);
+            if (exchangeKey == null
+                    || !registerGoods.getExchange().toLowerCase().equals(exchangeKey.getExchange().toLowerCase())) {
+                throw new RequestException("invalid exchange key");
+            }
+        } else {
+            investor.setExchangeKeyId(-1);
         }
-
+        investor.setFinished(false);
         InvestGoods investGoods = findInvestGoodsByUser(investor.getGoodsId(), investor.getUserId());
         if (investGoods != null) {
             throw new RequestException("goods that are already investing");
@@ -77,6 +90,10 @@ public class InvestGoodsService {
 
         try {
             int changeRow = sqlSession.insert("investGoods.registrationInvestor", investor);
+            if (changeRow != 1) {
+                throw new OperationException("[FAIL] SQL Execute. change row: " + changeRow);
+            }
+            changeRow = goodsService.updateChangeUsers(investor.getGoodsId(), 1);
             if (changeRow != 1) {
                 throw new OperationException("[FAIL] SQL Execute. change row: " + changeRow);
             }
@@ -137,15 +154,12 @@ public class InvestGoodsService {
         } else if (!investGoods.getUserId().equals(userId)) {
             throw new AuthenticationException();
         }
-
-//        PerformanceSummary performanceSummary = performanceService.getPerformanceSummary(investId);
-//        if (performanceSummary.getCommission() == null) {
-//            performanceService.deletePerformanceSummary(investId);
-//        }
-
-//        performanceService.deleteTradeStat(investId);
         try {
             int changeRow = sqlSession.update("investGoods.deleteInvestGoods", investGoods.getId());
+            if (changeRow != 1) {
+                throw new OperationException("[FAIL] SQL Execute. change row: " + changeRow);
+            }
+            changeRow = goodsService.updateChangeUsers(investGoods.getGoodsId(), -1);
             if (changeRow != 1) {
                 throw new OperationException("[FAIL] SQL Execute. change row: " + changeRow);
             }
@@ -187,5 +201,36 @@ public class InvestGoodsService {
             logger.error("", e);
             throw new OperationException("[FAIL] SQL Execute.");
         }
+    }
+
+    public InvestGoodsCommission calculateCommission(Integer investId) {
+        InvestGoodsCommission investGoodsCommission = new InvestGoodsCommission();
+        investGoodsCommission.setId(investId);
+        InvestGoods investGoodsInfo = getInvestGoods(investId);
+        Goods registerGoods = goodsService.getGoods(investGoodsInfo.getGoodsId());
+        PerformanceSummary perf = performanceService.getPerformanceSummary(investId);
+        investGoodsCommission.setGoodsId(investGoodsInfo.getGoodsId());
+        investGoodsCommission.setUserId(investGoodsInfo.getUserId());
+        investGoodsCommission.setCreateTime(investGoodsInfo.getCreateTime());
+        investGoodsCommission.setEndTime(new Date());
+        investGoodsCommission.setInitCash(investGoodsInfo.getInvestCash());
+        investGoodsCommission.setEntity(perf.getEquity());
+        investGoodsCommission.setReturns(perf.getReturns());
+        investGoodsCommission.setReturnPct(perf.getReturnsPct());
+        investGoodsCommission.setCommission(0);
+        investGoodsCommission.setCashUnit(registerGoods.getCashUnit());
+        investGoodsCommission.setCommUnit(registerGoods.getCashUnit());
+//        1. 수익 0이상 처음 40%에서 친구초대시 한명당 1% 할인 최대 5%
+        if (perf.getEquity() > perf.getInitCash()) {
+            int friendsSize = invitationService.getFriendsCount(investGoodsInfo.getUserId());
+            if (friendsSize >= maxFriendsSaleCount) {
+                friendsSize = maxFriendsSaleCount;
+            }
+            float commissionPct = initCommission -= friendsSize;
+            investGoodsCommission.setCommission(perf.getReturns() / commissionPct);
+        }
+        investGoodsCommission.setTotalReturns(perf.getReturns() - investGoodsCommission.getCommission());
+        logger.info("투자 종료 수수료 계산: {}", investGoodsCommission);
+        return investGoodsCommission;
     }
 }

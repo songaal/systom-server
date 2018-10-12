@@ -4,6 +4,7 @@ import io.systom.coin.exception.AbstractException;
 import io.systom.coin.exception.OperationException;
 import io.systom.coin.model.Goods;
 import io.systom.coin.model.InvestGoods;
+import io.systom.coin.model.InvestGoodsCommission;
 import io.systom.coin.service.InvestGoodsService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,17 +71,18 @@ public class InvestGoodsController extends AbstractController{
         }
     }
 
-    @GetMapping("/{investId}/action")
+    @GetMapping("/{investId}/actions")
     public ResponseEntity<?> investAction(@PathVariable Integer investId,
-                                          @RequestParam("action") String action) {
+                                          @RequestAttribute String userId,
+                                          @RequestParam String action) {
         try {
-            if ("CLOSE_INVEST".equalsIgnoreCase(action)) {
-
-
-
+            if ("CLOSE_CALCULATION".equalsIgnoreCase(action)) {
+                InvestGoodsCommission commission = investGoodsService.calculateCommission(investId);
+                return success(commission);
+            } else if ("CLOSE_INVEST".equalsIgnoreCase(action)) {
+                investGoodsService.removeInvestor(investId, userId);
+                return success();
             }
-
-
             return success();
         } catch (AbstractException e) {
             logger.error("", e);

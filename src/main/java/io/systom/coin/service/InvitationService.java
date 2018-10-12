@@ -8,6 +8,7 @@ import io.systom.coin.utils.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -23,7 +24,9 @@ public class InvitationService {
 
     @Autowired
     private SqlSession sqlSession;
-    private int defaultMaxInvitationSize = 5;
+
+    @Value("${friends.maxSize}")
+    private int defaultMaxInvitationSize;
 
     public Integer getUserMaxInvitationSize(String userId) {
         return defaultMaxInvitationSize;
@@ -106,6 +109,18 @@ public class InvitationService {
         }
         return refCode;
     }
+
+    public int getFriendsCount(String userId) {
+        List<Invitation> friends = selectInvitationList(userId);
+        int friendsCount = 0;
+        for (int i=0; i < friends.size(); i++) {
+            if (!friends.get(i).getStatus()) {
+                friendsCount++;
+            }
+        }
+        return friendsCount;
+    }
+
 
 
 }
