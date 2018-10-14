@@ -218,9 +218,9 @@
            AND ${column} in (#{val})
     </select>
 
-    <update id="updateChangeUsers" parameterType="HashMap">
+    <update id="updateChangeUsers" parameterType="Integer">
         UPDATE goods a
-           SET a.change_users = a.change_users + ${count}
-         WHERE a.id = ${goodsId}
+           SET a.change_users = true
+         WHERE a.id = #{param1}
     </update>
 </mapper>

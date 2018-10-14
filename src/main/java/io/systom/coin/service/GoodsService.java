@@ -305,10 +305,7 @@ public class GoodsService {
         return sqlSession.selectList("goods.selectGoodsIdList", param);
     }
 
-    public int updateChangeUsers(int goodsId, int count) {
-        Map<String, Object> param = new HashMap<>();
-        param.put("count", count);
-        param.put("goodsId", goodsId);
-        return sqlSession.update("goods.updateChangeUsers", param);
+    public int updateChangeUsers(int goodsId) {
+        return sqlSession.update("goods.updateChangeUsers", goodsId);
     }
 }

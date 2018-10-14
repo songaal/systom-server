@@ -93,7 +93,7 @@ public class InvestGoodsService {
             if (changeRow != 1) {
                 throw new OperationException("[FAIL] SQL Execute. change row: " + changeRow);
             }
-            changeRow = goodsService.updateChangeUsers(investor.getGoodsId(), 1);
+            changeRow = goodsService.updateChangeUsers(investor.getGoodsId());
             if (changeRow != 1) {
                 throw new OperationException("[FAIL] SQL Execute. change row: " + changeRow);
             }
@@ -159,7 +159,7 @@ public class InvestGoodsService {
             if (changeRow != 1) {
                 throw new OperationException("[FAIL] SQL Execute. change row: " + changeRow);
             }
-            changeRow = goodsService.updateChangeUsers(investGoods.getGoodsId(), -1);
+            changeRow = goodsService.updateChangeUsers(investGoods.getGoodsId());
             if (changeRow != 1) {
                 throw new OperationException("[FAIL] SQL Execute. change row: " + changeRow);
             }

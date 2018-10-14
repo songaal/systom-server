@@ -118,4 +118,59 @@
              , monthly_return_pct = ${monthlyReturnPct}
              , update_time = convert_tz(now(), @@session.time_zone, '${standardOffset}')
     </update>
+
+
+    <select id="getUserMonthInvest" resultType="UserMonthlyInvest" parameterType="UserMonthlyInvest">
+        <![CDATA[
+        SELECT a.user_id
+             , a.date
+             , a.init_cash
+             , a.monthly_return
+             , a.monthly_return_pct
+             , a.update_time
+
+             , (SELECT SUM( SUBSTRING_INDEX(
+                            SUBSTRING_INDEX(
+                            SUBSTRING_INDEX(b.init_cash, '"USDT":', -1)
+                                                       , ',', 1)
+                                                       , '}', 1))
+                  FROM user_monthly_invest b
+                 WHERE b.date <= a.date
+                   AND b.user_id = #{param1}
+             ) as sum_usdt_init_cash
+
+             , (SELECT SUM( SUBSTRING_INDEX(
+                            SUBSTRING_INDEX(
+                            SUBSTRING_INDEX(b.init_cash, '"KRW":', -1)
+                                                       , ',', 1)
+                                                       , '}', 1))
+                  FROM user_monthly_invest b
+                 WHERE b.date <= a.date
+                   AND b.user_id = #{param1}
+             ) as sum_krw_init_cash
+
+             , (SELECT SUM( SUBSTRING_INDEX(
+                            SUBSTRING_INDEX(
+                            SUBSTRING_INDEX(b.monthly_return, '"USDT":', -1)
+                                                            , ',', 1)
+                                                            , '}', 1))
+                  FROM user_monthly_invest b
+                 WHERE b.date <= a.date
+                   AND b.user_id = #{param1}
+             ) as sum_usdt_return
+
+             , (SELECT SUM( SUBSTRING_INDEX(
+                            SUBSTRING_INDEX(
+                            SUBSTRING_INDEX(b.monthly_return, '"KRW":', -1)
+                                                            , ',', 1)
+                                                            , '}', 1))
+                  FROM user_monthly_invest b
+                 WHERE b.date <= a.date
+                   AND b.user_id = #{param1}
+             ) as sum_krw_return
+          FROM user_monthly_invest a
+         WHERE a.user_id = #{userId}
+           AND a.date = #{date}
+        ]]>
+    </select>
 </mapper>
