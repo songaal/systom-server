@@ -141,7 +141,7 @@ public class UserMonthInvestService {
             int krwInitCash = 0;
             int krwEquity = 0;
             String monthly = new SimpleDateFormat("yyyyMM").format(new Date());
-//          1.  cash_unit별로 투자금액, 수익금액을 합한다.
+//          1.1  cash_unit별로 투자금액, 수익금액을 합한다.
             while(iterator.hasNext()) {
                 MonthlyPerformanceSummary summary = iterator.next();
                 String currencyKey = summary.getCashUnit();
@@ -152,6 +152,23 @@ public class UserMonthInvestService {
                     krwInitCash += summary.getInitCash();
                     krwEquity += summary.getEquity();
                 }
+            }
+
+//          1.2 전월 수익정보 있을경우 제외
+            Calendar prevDate = Calendar.getInstance();
+            prevDate.add(Calendar.MONTH, -1);
+            UserMonthlyInvest prevMonthlyInvest = new UserMonthlyInvest();
+            prevMonthlyInvest.setDate(new SimpleDateFormat("yyyyMM").format(prevDate.getTime()));
+            prevMonthlyInvest.setUserId(userList.get(i));
+            prevMonthlyInvest = sqlSession.selectOne("userMonthlyInvest.getUserMonthInvest", prevMonthlyInvest);
+            if (prevMonthlyInvest != null) {
+                Map<String, Double> prevMonthInitCash = new Gson().fromJson(prevMonthlyInvest.getInitCash(), Map.class);
+                usdtInitCash = usdtInitCash - prevMonthInitCash.get("USDT").floatValue();
+                krwInitCash = krwInitCash - prevMonthInitCash.get("KRW").intValue();
+
+                Map<String, Double> prevMonthReturn = new Gson().fromJson(prevMonthlyInvest.getMonthlyReturn(), Map.class);
+                usdtEquity = usdtEquity - prevMonthReturn.get("USDT").floatValue();
+                krwEquity = krwEquity - prevMonthReturn.get("KRW").intValue();
             }
 
 //          2. 환율 적용.
@@ -165,6 +182,7 @@ public class UserMonthInvestService {
             totalKrwInitCash += usdtInitCash * currencyRate;
             float totalKrwEquity = krwEquity;
             totalKrwEquity += usdtEquity * currencyRate;
+
 
             float usdtPct = calculateReturnPct(totalUsdtInitCash, totalUsdtEquity);
             float krwPct = calculateReturnPct(totalKrwInitCash, totalKrwEquity);
@@ -201,6 +219,7 @@ public class UserMonthInvestService {
                         userMonthlyInvest.getEquity(),
                         userMonthlyInvest.getMonthlyReturnPct(),
                         userMonthlyInvest.getMonthlyReturn());
+
                 sqlSession.insert("userMonthlyInvest.updateMonthlyInvest", userMonthlyInvest);
             } catch (Exception e) {
                 logger.error("", e);
@@ -209,7 +228,7 @@ public class UserMonthInvestService {
     }
 
     protected float calculateReturnPct(float initCash, float equity) {
-        float pct = 0;
+        float pct;
         try {
             pct = (equity - initCash) / initCash * 100;
             if (Double.isNaN(pct)) {
@@ -217,6 +236,8 @@ public class UserMonthInvestService {
             }
         } catch (Exception e){
             // ignore
+            logger.warn("[월 계산 수식 에러] initCash:{}, equity: {}", initCash, equity);
+            pct = 0;
         }
         return pct;
     }

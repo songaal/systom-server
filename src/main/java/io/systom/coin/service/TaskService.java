@@ -243,9 +243,8 @@ public class TaskService {
         } catch (Exception e) {
             logger.error("[FAIL] sql execute.", e);
             throw new OperationException("[FAIL] sql execute.");
-        } finally {
-            waitTaskList.remove(traderTask.getId());
         }
+//        모델 조회후 대기 테스크 제거함..
         return resultTask;
     }
 

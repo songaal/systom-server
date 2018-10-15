@@ -21,8 +21,10 @@ public class StrategyDeployService {
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(StrategyDeployService.class);
 
-    @Autowired private SqlSession sqlSession;
-    @Autowired private StrategyService strategyService;
+    @Autowired
+    private SqlSession sqlSession;
+    @Autowired
+    private StrategyService strategyService;
 
     public List<StrategyDeployVersion> createDeployVersion(StrategyDeployVersion target) throws AuthenticationException, ParameterException, OperationException {
         if (target.getId() == null || target.getUserId() == null) {

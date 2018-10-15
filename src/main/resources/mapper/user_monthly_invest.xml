@@ -94,13 +94,9 @@
           FROM performance_summary aa
           JOIN invest_goods bb on aa.invest_id = bb.id
           JOIN goods cc on bb.goods_id = cc.id
-         WHERE aa.invest_id in ( SELECT bbb.id
-                                   FROM goods aaa
-                                   JOIN invest_goods bbb on aaa.id = bbb.goods_id
-                                  WHERE bbb.user_id = #{param1}
-                                    AND (cast(substring(aaa.collect_start, 1, 6) as decimal) <= cast(date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m') as decimal)
-                                    AND cast(substring(aaa.invest_end, 1, 6) as decimal) >= cast(date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m') as decimal))
-             )
+         WHERE cast(date_format(bb.create_time, '%Y%m') as decimal) <= cast(date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m') as decimal)
+           AND cast(date_format(bb.end_time, '%Y%m') as decimal) >= cast(date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m') as decimal)
+           AND bb.is_paper = false
         ]]>
     </select>
 
@@ -126,48 +122,6 @@
              , a.date
              , a.init_cash
              , a.monthly_return
-             , a.monthly_return_pct
-             , a.update_time
-
-             , (SELECT SUM( SUBSTRING_INDEX(
-                            SUBSTRING_INDEX(
-                            SUBSTRING_INDEX(b.init_cash, '"USDT":', -1)
-                                                       , ',', 1)
-                                                       , '}', 1))
-                  FROM user_monthly_invest b
-                 WHERE b.date <= a.date
-                   AND b.user_id = #{param1}
-             ) as sum_usdt_init_cash
-
-             , (SELECT SUM( SUBSTRING_INDEX(
-                            SUBSTRING_INDEX(
-                            SUBSTRING_INDEX(b.init_cash, '"KRW":', -1)
-                                                       , ',', 1)
-                                                       , '}', 1))
-                  FROM user_monthly_invest b
-                 WHERE b.date <= a.date
-                   AND b.user_id = #{param1}
-             ) as sum_krw_init_cash
-
-             , (SELECT SUM( SUBSTRING_INDEX(
-                            SUBSTRING_INDEX(
-                            SUBSTRING_INDEX(b.monthly_return, '"USDT":', -1)
-                                                            , ',', 1)
-                                                            , '}', 1))
-                  FROM user_monthly_invest b
-                 WHERE b.date <= a.date
-                   AND b.user_id = #{param1}
-             ) as sum_usdt_return
-
-             , (SELECT SUM( SUBSTRING_INDEX(
-                            SUBSTRING_INDEX(
-                            SUBSTRING_INDEX(b.monthly_return, '"KRW":', -1)
-                                                            , ',', 1)
-                                                            , '}', 1))
-                  FROM user_monthly_invest b
-                 WHERE b.date <= a.date
-                   AND b.user_id = #{param1}
-             ) as sum_krw_return
           FROM user_monthly_invest a
          WHERE a.user_id = #{userId}
            AND a.date = #{date}
