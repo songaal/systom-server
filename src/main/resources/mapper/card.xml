@@ -31,13 +31,13 @@
         SELECT id
              , user_id
              , right(aes_decrypt(card_no, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{param1})), 4) as card_no
-             , right(aes_decrypt(owner, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{param1})), 4) as owner
+             , aes_decrypt(owner, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{param1})) as owner
              , month
              , year
-             , right(aes_decrypt(birth_date, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{param1})), 4) as birth_date
+             , aes_decrypt(birth_date, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{param1})) as birth_date
              , name
-             , right(aes_decrypt(address, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{param1})), 4) as address
-             , right(aes_decrypt(phone, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{param1})), 4) as phone
+             , aes_decrypt(address, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{param1})) as address
+             , aes_decrypt(phone, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{param1})) as phone
              , is_default
              , type
           FROM card
@@ -48,13 +48,13 @@
         SELECT id
              , user_id
              , right(aes_decrypt(card_no, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{param1})), 4) as card_no
-             , right(aes_decrypt(owner, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{param1})), 4) as owner
+             , aes_decrypt(owner, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{param1})) as owner
              , month
              , year
-             , right(aes_decrypt(birth_date, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{param1})), 4) as birth_date
+             , aes_decrypt(birth_date, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{param1})) as birth_date
              , name
-             , right(aes_decrypt(address, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{param1})), 4) as address
-             , right(aes_decrypt(phone, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{param1})), 4) as phone
+             , aes_decrypt(address, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{param1})) as address
+             , aes_decrypt(phone, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{param1})) as phone
              , is_default
              , type
           FROM card
