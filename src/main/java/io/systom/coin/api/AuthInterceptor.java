@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 
 /**
@@ -35,7 +36,7 @@ public class AuthInterceptor implements HandlerInterceptor {
     //ip 내부망은 true  , 그외 false
 
     // 토큰 확인 안하는 URL
-    private List<String> exceptUrl = Arrays.asList( "/auth/login", "/auth/signUp", "/ping", "/error", "/auth/changeTempPassword", "/auth/forgotPassword");
+    private List<String> exceptUrl = Arrays.asList( "/auth/login", "/auth/signUp", "/ping", "/error", "/auth/changeTempPassword", "/auth/forgotPassword", "/v1/goods");
 
 
     /**
@@ -58,6 +59,12 @@ public class AuthInterceptor implements HandlerInterceptor {
                 if (taskService.isWaitTask(pathVariables.get("taskId")) != null) {
                     return true;
                 }
+
+                if (Pattern.matches("/v1/goods/\\d+", url)) {
+//                    상품 조회는 아무나..
+                    request.setAttribute("userId", identityService.getGestUserId());
+                    return true;
+                }
             }
 
             if ("/invitations".equalsIgnoreCase(url) && request.getParameter("ref") != null) {
@@ -65,6 +72,7 @@ public class AuthInterceptor implements HandlerInterceptor {
             }
 
             if (exceptUrl.contains(url)) {
+                request.setAttribute("userId", identityService.getGestUserId());
                 return true;
             }
 

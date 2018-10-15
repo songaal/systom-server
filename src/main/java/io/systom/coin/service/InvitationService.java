@@ -121,6 +121,4 @@ public class InvitationService {
         return friendsCount;
     }
 
-
-
 }

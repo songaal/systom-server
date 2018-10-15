@@ -44,6 +44,9 @@ public class IdentityController {
      * */
     @RequestMapping(value = "/signUp", method = RequestMethod.POST)
     public ResponseEntity<?> signUp(@RequestBody Identity identity) throws OperationException {
+        if (identityService.getGestUserId().equalsIgnoreCase(identity.getUserId())) {
+            new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         Invitation invitation = invitationService.findInvitationByRefCode(identity.getRef());
         if (invitation == null || !invitation.getStatus()) {
             new ResponseEntity<>(HttpStatus.BAD_REQUEST);

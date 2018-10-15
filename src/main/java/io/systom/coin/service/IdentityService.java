@@ -53,6 +53,8 @@ public class IdentityService {
 
     private List<String> manager = Arrays.asList("joonwoo", "songaal");
 
+    private final String gestUserId = "guest";
+
     @PostConstruct
     public void init() {
         cognitoClient = AWSCognitoIdentityProviderClientBuilder.standard().build();
@@ -353,5 +355,9 @@ public class IdentityService {
 
     public List<String> getManager() {
         return manager;
+    }
+
+    public String getGestUserId() {
+        return gestUserId;
     }
 }
