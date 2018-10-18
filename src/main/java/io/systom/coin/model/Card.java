@@ -14,6 +14,7 @@ public class Card {
     private String phone;
     private boolean isDefault;
     private String type;
+    private String password2; //비밀번호 앞2자리.
 
     public String getType() {
         return type;
@@ -109,6 +110,14 @@ public class Card {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getPassword2() {
+        return password2;
+    }
+
+    public void setPassword2(String password2) {
+        this.password2 = password2;
     }
 
     @Override
