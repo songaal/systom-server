@@ -123,6 +123,8 @@ public class IdentityController {
         Map<String, String> payload = identityService.parsePayload(idToken);
         payload.putAll(identityService.parsePayload(accessToken));
         payload.put("isManager", String.valueOf(identityService.isManager(userId)));
+//        TODO 친구 조회..
+//        payload.put("friends", );
         return new ResponseEntity<>(payload, HttpStatus.OK);
     }
 
