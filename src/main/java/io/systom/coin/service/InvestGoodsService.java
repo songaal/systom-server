@@ -209,6 +209,7 @@ public class InvestGoodsService {
         InvestGoods investGoodsInfo = getInvestGoods(investId);
         Goods registerGoods = goodsService.getGoods(investGoodsInfo.getGoodsId());
         PerformanceSummary perf = performanceService.getPerformanceSummary(investId);
+        investGoodsCommission.setPaper(investGoodsInfo.isPaper());
         investGoodsCommission.setGoodsId(investGoodsInfo.getGoodsId());
         investGoodsCommission.setUserId(investGoodsInfo.getUserId());
         investGoodsCommission.setCreateTime(investGoodsInfo.getCreateTime());

@@ -51,6 +51,16 @@ public class AuthInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         try {
+
+            String accessToken = getCookieValue(request, IdentityController.ACCESS_TOKEN);
+            if (accessToken != null) {
+                Map<String, String> payload = identityService.parsePayload(accessToken);
+                String userId = payload.get("username");
+                request.setAttribute("userId", userId);
+            } else {
+                request.setAttribute("userId", identityService.getGestUserId());
+            }
+
             String url = request.getRequestURI();
 
             Object urlTemplateVariables = request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
@@ -62,7 +72,6 @@ public class AuthInterceptor implements HandlerInterceptor {
 
                 if (Pattern.matches("/v1/goods/\\d+", url)) {
 //                    상품 조회는 아무나..
-                    request.setAttribute("userId", identityService.getGestUserId());
                     return true;
                 }
             }
@@ -72,11 +81,10 @@ public class AuthInterceptor implements HandlerInterceptor {
             }
 
             if (exceptUrl.contains(url)) {
-                request.setAttribute("userId", identityService.getGestUserId());
                 return true;
             }
 
-            String accessToken = getCookieValue(request, IdentityController.ACCESS_TOKEN);
+//            accessToken = getCookieValue(request, IdentityController.ACCESS_TOKEN);
             if (accessToken == null) {
                 logger.debug("expired accessToken");
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
@@ -95,10 +103,6 @@ public class AuthInterceptor implements HandlerInterceptor {
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
                 return false;
             }
-
-            Map<String, String> payload = identityService.parsePayload(accessToken);
-            String userId = payload.get("username");
-            request.setAttribute("userId", userId);
 
             return true;
         } catch (Exception e) {

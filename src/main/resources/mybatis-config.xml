@@ -29,6 +29,7 @@
         <typeAlias alias="MonthlyPerformanceSummary" type="io.systom.coin.model.MonthlyPerformanceSummary"/>
         <typeAlias alias="DailyInvestState" type="io.systom.coin.model.DailyInvestState"/>
         <typeAlias alias="Card" type="io.systom.coin.model.Card"/>
+        <typeAlias alias="UserAttribute" type="io.systom.coin.model.UserAttribute"/>
     </typeAliases>
 
 </configuration>
