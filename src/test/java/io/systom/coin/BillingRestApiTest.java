@@ -14,6 +14,7 @@ import java.util.*;
 public class BillingRestApiTest {
 
     private String accessToken;
+    private int expiredAt;
 
     @Before
     public void init() {
@@ -38,8 +39,10 @@ public class BillingRestApiTest {
             System.out.println("인증성공!");
             Map response = (Map) body.get("response");
             accessToken = (String) response.get("access_token");
+            expiredAt = Integer.parseInt((String) response.get("expired_at"));
             System.out.println("Status : " + responseEntity.getStatusCode());
             System.out.println("accessToken : " + accessToken);
+            System.out.println("expiredAt : " + expiredAt);
         } else {
             System.out.println("인증에러!");
         }
@@ -92,7 +95,7 @@ public class BillingRestApiTest {
     public void testPay() {
 
         String customerUid = "swsong_3497"; //카드등록시 설정한 UID
-        String merchantUid = "systom-20181018-0002"; //날짜와 순번으로 조합해서 만든다.
+        String merchantUid = "systom-20181018-00021"; //날짜와 순번으로 조합해서 만든다.
         String amount = "100";
         String description = "유료플랜 1000";
 
