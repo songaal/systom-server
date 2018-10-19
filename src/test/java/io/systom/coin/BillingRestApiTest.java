@@ -39,7 +39,7 @@ public class BillingRestApiTest {
             System.out.println("인증성공!");
             Map response = (Map) body.get("response");
             accessToken = (String) response.get("access_token");
-            expiredAt = Integer.parseInt((String) response.get("expired_at"));
+            expiredAt = (int) response.get("expired_at");
             System.out.println("Status : " + responseEntity.getStatusCode());
             System.out.println("accessToken : " + accessToken);
             System.out.println("expiredAt : " + expiredAt);
@@ -95,7 +95,7 @@ public class BillingRestApiTest {
     public void testPay() {
 
         String customerUid = "swsong_3497"; //카드등록시 설정한 UID
-        String merchantUid = "systom-20181018-00021"; //날짜와 순번으로 조합해서 만든다.
+        String merchantUid = "systom-" + System.nanoTime(); //날짜와 순번으로 조합해서 만든다.
         String amount = "100";
         String description = "유료플랜 1000";
 
@@ -131,7 +131,7 @@ public class BillingRestApiTest {
     public void testScheduleNextPay() {
 
         String customerUid = "swsong_3497"; //카드등록시 설정한 UID
-        String merchantUid = "systom_20181118_576799"; //날짜와 순번으로 조합해서 만든다.
+        String merchantUid = "systom-" + System.nanoTime(); //날짜와 순번으로 조합해서 만든다.
         Calendar cal = Calendar.getInstance();
         cal.set(2018, 11-1, 18, 9, 30);
         System.out.println(cal);
@@ -172,7 +172,7 @@ public class BillingRestApiTest {
 
     @Test
     public void testCheckResult() {
-        String impUid = "imps_329940018614"; //결제 완료시 마다 만들어지는 ID
+        String impUid = "imps_370951057727"; //결제 완료시 마다 만들어지는 ID
         String url = "https://api.iamport.kr/payments/" + impUid;
         RestTemplate restTemplate = new RestTemplateBuilder().build();
         HttpHeaders headers = new HttpHeaders();
@@ -181,6 +181,21 @@ public class BillingRestApiTest {
         HashMap<String, Object> params= new HashMap<>();
         HttpEntity entity = new HttpEntity(null, headers);
         ResponseEntity<Map> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
+        System.out.println(responseEntity);
+        // 결과 json을 결과 DB에 넣고 필요한 정보는 파싱해서 쓴다.
+    }
+
+    @Test
+    public void testCancel() {
+        String impUid = "imps_370951057727"; //결제 완료시 마다 만들어지는 ID
+        String url = "https://api.iamport.kr/payments/cancel";
+        RestTemplate restTemplate = new RestTemplateBuilder().build();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", accessToken);
+        HashMap<String, Object> params= new HashMap<>();
+        params.put("imp_uid", impUid);
+        HttpEntity entity = new HttpEntity(params, headers);
+        ResponseEntity<Map> responseEntity = restTemplate.exchange(url, HttpMethod.POST, entity, Map.class);
         System.out.println(responseEntity);
         // 결과 json을 결과 DB에 넣고 필요한 정보는 파싱해서 쓴다.
     }

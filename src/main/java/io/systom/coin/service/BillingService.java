@@ -52,7 +52,7 @@ public class BillingService {
             logger.debug("인증성공!");
             Map response = (Map) body.get("response");
             accessToken = (String) response.get("access_token");
-            expiredAt = Integer.parseInt((String) response.get("expired_at"));
+            expiredAt = (int) response.get("expired_at");
             logger.debug("Status[{}] accessToken[{}] expiredAt[{}]", responseEntity.getStatusCode(), accessToken, expiredAt);
             return accessToken;
         } else {
@@ -62,6 +62,7 @@ public class BillingService {
     }
 
     /**
+     * 사용자 신용카드 정보 및 키를 저장한다.
      * @param card 신용카드정보
      */
     public Map registerCard(Card card) {
@@ -106,18 +107,25 @@ public class BillingService {
      * - 카드삭제시
      * - 회원탈퇴시
      */
-    public void unregisterCard() {
+    public Map unregisterCard(String customerUid) {
 
-
-
-
-
-
-
+        String url = "https://api.iamport.kr/subscribe/customers/" + customerUid;
+        RestTemplate restTemplate = new RestTemplateBuilder().build();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", getToken());
+        HttpEntity entity = new HttpEntity(null, headers);
+        ResponseEntity<Map> responseEntity = restTemplate.exchange(url, HttpMethod.DELETE, entity, Map.class);
+        logger.debug("responseEntity >> {}", responseEntity);
+        Map body = responseEntity.getBody();
+        int code = (int) body.get("code");
+        String message = (String) body.get("message");
+        if (code == 0) {
+            logger.debug("카드삭제 성공!");
+        } else {
+            logger.debug("카드삭제 실패!");
+        }
+        return body;
     }
-
-
-
 
     /**
      * @param customerUid 카드등록시 설정한 UID
@@ -125,7 +133,7 @@ public class BillingService {
      * @param amount      금액.KRW
      * @param description 상품명
      */
-    public Map makePay(String customerUid, String merchantUid, String amount, String description) {
+    public Map makePayment(String customerUid, String merchantUid, String amount, String description) {
         String url = "https://api.iamport.kr/subscribe/payments/again";
         RestTemplate restTemplate = new RestTemplateBuilder().build();
         HttpHeaders headers = new HttpHeaders();
@@ -152,7 +160,55 @@ public class BillingService {
         return body;
     }
 
-    public Map scheduleNextPay(String customerUid, String merchantUid, String amount, String description, Calendar scheduleCal) {
+
+    /**
+     * 결제취소
+     * @param impUid 결제아이디
+     * @return
+     */
+    public Map cancelPayment(String impUid) {
+        String url = "https://api.iamport.kr/payments/cancel";
+        RestTemplate restTemplate = new RestTemplateBuilder().build();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", getToken());
+        MultiValueMap<String, String> params= new LinkedMultiValueMap<>();
+        params.add("imp_uid", impUid);
+        HttpEntity entity = new HttpEntity(params, headers);
+        ResponseEntity<Map> responseEntity = restTemplate.exchange(url, HttpMethod.POST, entity, Map.class);
+        logger.debug("responseEntity >> {}", responseEntity);
+        Map body = responseEntity.getBody();
+        int code = (int) body.get("code");
+        String message = (String) body.get("message");
+        Map response = (Map) body.get("response");
+        String status = (String) response.get("status");
+        if (code == 0 && status.equals("paid")) {
+            logger.debug("취소성공!");
+        } else {
+            logger.debug("취소실패!");
+        }
+
+        return body;
+    }
+
+    /**
+     * 결제시 impUid 가 생성되며, 이 UID 로 다시 조회할수 있다.
+     * 예약결제의 경우 iamport 가 호출하는 callback에 impUid가 전달된다.
+     * @param impUid 결제 완료시 마다 만들어지는 ID
+     */
+    public Map getPayment(String impUid) {
+        String url = "https://api.iamport.kr/payments/" + impUid;
+        RestTemplate restTemplate = new RestTemplateBuilder().build();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", getToken());
+        HttpEntity entity = new HttpEntity(null, headers);
+        ResponseEntity<Map> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
+        logger.debug("responseEntity >> {}", responseEntity);
+        Map body = responseEntity.getBody();
+        // 결과 json을 결과 DB에 넣고 필요한 정보는 파싱해서 쓴다.
+        return body;
+    }
+
+    public Map schedulePayment(String customerUid, String merchantUid, String amount, String description, Calendar scheduleCal) {
 
         logger.debug("scheduleCal >> {}", scheduleCal.getTime());
         String scheduleAt = String.valueOf(scheduleCal.getTimeInMillis() / 1000);
@@ -190,34 +246,30 @@ public class BillingService {
         return body;
     }
 
-    public void cancelSchedule() {
-        //TODO
-
-
-
-
-
-
-
-
-
-
-    }
-
     /**
-     * iamport 에서 callback 호출해주는 rest api 로 들어오게 된다.
-     * 결제시 impUid 가 생성되며, 이를 통해
-     * @param impUid 결제 완료시 마다 만들어지는 ID
+     * 카드와 관련된 모든 스케줄을 취소한다.
+     * @param customerUid 취소할 사용자카드 UID
      */
-    public void checkPaymentResult(String impUid) {
-        String url = "https://api.iamport.kr/payments/" + impUid;
+    public Map cancelScheduledPayment(String customerUid) {
+        String url = "https://api.iamport.kr/subscribe/payments/unschedule";
         RestTemplate restTemplate = new RestTemplateBuilder().build();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", getToken());
-        HttpEntity entity = new HttpEntity(null, headers);
-        ResponseEntity<Map> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
+        HashMap<String, Object> params= new HashMap<>();
+        params.put("customer_uid", customerUid);
+        HttpEntity entity = new HttpEntity(params, headers);
+        ResponseEntity<Map> responseEntity = restTemplate.exchange(url, HttpMethod.POST, entity, Map.class);
         logger.debug("responseEntity >> {}", responseEntity);
-        // 결과 json을 결과 DB에 넣고 필요한 정보는 파싱해서 쓴다.
+        Map body = responseEntity.getBody();
+        int code = (int) body.get("code");
+        String message = (String) body.get("message");
+        if (code == 0) {
+            logger.debug("결제스케줄 성공!");
+        } else {
+            logger.debug("결제스케줄 실패!");
+        }
+
+        return body;
     }
 
 }
