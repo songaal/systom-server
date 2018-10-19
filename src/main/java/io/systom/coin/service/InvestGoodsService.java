@@ -226,16 +226,18 @@ public class InvestGoodsService {
         investGoodsCommission.setCommission(0);
         investGoodsCommission.setCashUnit(registerGoods.getCashUnit());
         investGoodsCommission.setCommUnit(registerGoods.getCashUnit());
+        investGoodsCommission.setCommissionPct(initCommission);
+        investGoodsCommission.setCommission(0f);
 //        1. 수익 0이상 처음 40%에서 친구초대시 한명당 1% 할인 최대 5%
         if (perf.getEquity() > perf.getInitCash()) {
-            int friendsSize = invitationService.getFriendsCount(investGoodsInfo.getUserId());
-            if (friendsSize >= maxFriendsSaleCount) {
-                friendsSize = maxFriendsSaleCount;
-            }
-            float commissionPct = initCommission -= friendsSize;
-            investGoodsCommission.setCommission(perf.getReturns() / commissionPct);
+            int friendCount = invitationService.getFriendsCount(investGoodsInfo.getUserId());
+            float discount  = friendCount > maxFriendsSaleCount ? 5 : friendCount;
+            float commissionRate = ((initCommission - discount) / 100);
+            float paymentPrice = (perf.getEquity() - perf.getInitCash()) * commissionRate;
+            investGoodsCommission.setCommissionPct(commissionRate * 100);
+            investGoodsCommission.setCommission(paymentPrice);
         }
-        investGoodsCommission.setTotalReturns(perf.getReturns() - investGoodsCommission.getCommission());
+        investGoodsCommission.setTotalReturns((perf.getEquity() - perf.getInitCash()) - investGoodsCommission.getCommission());
         logger.info("투자 종료 수수료 계산: {}", investGoodsCommission);
         return investGoodsCommission;
     }
