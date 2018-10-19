@@ -29,7 +29,7 @@ public class BillingService {
 
     public String getToken() {
         int now = (int) (System.currentTimeMillis() / 1000);
-        if(expiredAt > now + 60) { //60초를 더해서 1분정도 남았을때에도 키를 다시받아온다.
+        if(expiredAt > now + 60) { //60초를 더해서 1분정도 남았을때에도 키를 다시받아오도록 한다.
             //아직 파기전이라면.
             return accessToken;
         }
@@ -62,9 +62,9 @@ public class BillingService {
     }
 
     /**
-     * @param card
+     * @param card 신용카드정보
      */
-    public void issueBilling(Card card) {
+    public Map registerCard(Card card) {
         /* 카드정보 */
         /*-------------------------------*/
         String cardNumber = card.getCardNo(); //카드번호
@@ -98,11 +98,17 @@ public class BillingService {
         } else {
             logger.debug("카드등록 실패!");
         }
+        return body;
     }
 
+    /*
+     * 아이엠포트의 카드등록정보를 지우며, 아래 케이스에 사용한다.
+     * - 카드삭제시
+     * - 회원탈퇴시
+     */
+    public void unregisterCard() {
 
-    public void deleteBilling() {
-        //TODO 아이엠포트의 빌링키 지우기.
+
 
 
 
@@ -119,7 +125,7 @@ public class BillingService {
      * @param amount      금액.KRW
      * @param description 상품명
      */
-    public void makePay(String customerUid, String merchantUid, String amount, String description) {
+    public Map makePay(String customerUid, String merchantUid, String amount, String description) {
         String url = "https://api.iamport.kr/subscribe/payments/again";
         RestTemplate restTemplate = new RestTemplateBuilder().build();
         HttpHeaders headers = new HttpHeaders();
@@ -142,9 +148,11 @@ public class BillingService {
         } else {
             logger.debug("결제실패!");
         }
+
+        return body;
     }
 
-    public void scheduleNextPay(String customerUid, String merchantUid, String amount, String description, Calendar scheduleCal) {
+    public Map scheduleNextPay(String customerUid, String merchantUid, String amount, String description, Calendar scheduleCal) {
 
         logger.debug("scheduleCal >> {}", scheduleCal.getTime());
         String scheduleAt = String.valueOf(scheduleCal.getTimeInMillis() / 1000);
@@ -178,6 +186,8 @@ public class BillingService {
         } else {
             logger.debug("결제스케줄 실패!");
         }
+
+        return body;
     }
 
     public void cancelSchedule() {
@@ -195,6 +205,8 @@ public class BillingService {
     }
 
     /**
+     * iamport 에서 callback 호출해주는 rest api 로 들어오게 된다.
+     * 결제시 impUid 가 생성되며, 이를 통해
      * @param impUid 결제 완료시 마다 만들어지는 ID
      */
     public void checkPaymentResult(String impUid) {
