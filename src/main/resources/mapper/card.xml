@@ -12,16 +12,13 @@
     </select>
 
     <insert id="registerCard" parameterType="Card" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO card (user_id, card_no, owner, month, year, birth_date, name, address, phone, is_default, type)
+        INSERT INTO card (user_id, card_no, owner, month, year, birth_date, is_default, type)
          VALUE (#{userId},
-                aes_encrypt(#{cardNo}, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{userId})),
+                #{cardNo},
                 aes_encrypt(#{owner}, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{userId})),
                 #{month},
                 #{year},
-                aes_encrypt(#{birthDate}, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{userId})),
-                #{name},
-                aes_encrypt(#{address}, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{userId})),
-                aes_encrypt(#{phone}, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{userId})),
+                aes_encrypt(#{birthDate}, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{userId}))
                 #{isDefault},
                 #{type}
         )
@@ -30,14 +27,11 @@
     <select id="retrieveCardList" resultType="Card" parameterType="String">
         SELECT id
              , user_id
-             , right(aes_decrypt(card_no, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{param1})), 4) as card_no
+             , card_no
              , aes_decrypt(owner, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{param1})) as owner
              , month
              , year
              , aes_decrypt(birth_date, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{param1})) as birth_date
-             , name
-             , aes_decrypt(address, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{param1})) as address
-             , aes_decrypt(phone, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{param1})) as phone
              , is_default
              , type
           FROM card
@@ -47,14 +41,11 @@
     <select id="getCard" resultType="Card" parameterType="HashMap">
         SELECT id
              , user_id
-             , right(aes_decrypt(card_no, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{param1})), 4) as card_no
+             , card_no
              , aes_decrypt(owner, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{param1})) as owner
              , month
              , year
              , aes_decrypt(birth_date, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{param1})) as birth_date
-             , name
-             , aes_decrypt(address, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{param1})) as address
-             , aes_decrypt(phone, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{param1})) as phone
              , is_default
              , type
           FROM card
