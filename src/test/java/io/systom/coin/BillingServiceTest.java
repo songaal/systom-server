@@ -82,9 +82,9 @@ public class BillingServiceTest {
         merchantUid = "systom-" + System.nanoTime();
         result = service.schedulePayment(customerUid, merchantUid, amount, description, nextDateTime);
         logger.debug("schedulePayment >> {}", result);
-        logger.debug(">> 결제될때까지 40초간 대기합니다.");
+        logger.debug(">> 결제될때까지 1분간 대기합니다.");
         try {
-            Thread.sleep(40* 1000);
+            Thread.sleep(60 * 1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
