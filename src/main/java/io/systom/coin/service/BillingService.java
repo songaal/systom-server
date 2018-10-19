@@ -11,6 +11,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
@@ -23,9 +24,9 @@ public class BillingService {
     private String accessToken;
     private int expiredAt;
 
-
+    @Value("${billing.impKey}")
     private String impKey;
-
+    @Value("${billing.impSecret}")
     private String impSecret;
 
 
@@ -110,7 +111,6 @@ public class BillingService {
         }
         Map body = responseEntity.getBody();
         int code = (int) body.get("code");
-        String message = (String) body.get("message");
         if (code == 0) {
             logger.debug("카드등록 성공!");
         } else {
@@ -295,7 +295,6 @@ public class BillingService {
         }
         Map body = responseEntity.getBody();
         int code = (int) body.get("code");
-        String message = (String) body.get("message");
         if (code == 0) {
             logger.debug("결제스케줄 성공!");
         } else {
@@ -326,7 +325,6 @@ public class BillingService {
         }
         Map body = responseEntity.getBody();
         int code = (int) body.get("code");
-        String message = (String) body.get("message");
         if (code == 0) {
             logger.debug("스케줄취소 성공!");
         } else {

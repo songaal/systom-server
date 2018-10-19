@@ -8,7 +8,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Map;
 
 public class BillingServiceTest {
@@ -24,7 +26,7 @@ public class BillingServiceTest {
 
     @Test
     public void testReset() throws BillingException {
-        String customerUid = "swsong_3497";
+        String customerUid = "joonwoo_1157";
         Map result = service.unregisterCard(customerUid);
         logger.debug("unregistercard >> {}", result);
     }
@@ -35,12 +37,12 @@ public class BillingServiceTest {
         logger.debug("Token[{}]", token);
         logger.debug("-----1. 카드등록------------------------------");
         Card card = new Card();
-        card.setUserId("swsong");
-        card.setCardNo("5389200013543497");
-        card.setYear("2021");
-        card.setMonth("05");
-        card.setPassword2("58");
-        card.setBirthDate("781231");
+        card.setUserId("joonwoo88");
+        card.setCardNo("5272892205281157");
+        card.setYear("2023");
+        card.setMonth("01");
+        card.setPassword2("12");
+        card.setBirthDate("880905");
 
         Map result = service.registerCard(card);
         Map response = (Map) result.get("response");

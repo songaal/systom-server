@@ -12,7 +12,7 @@
     </select>
 
     <insert id="registerCard" parameterType="Card" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO card (user_id, card_no, owner, month, year, birth_date, is_default, type)
+        INSERT INTO card (user_id, card_no, owner, month, year, birth_date, is_default, type, customer_uid)
          VALUE (#{userId},
                 #{cardNo},
                 aes_encrypt(#{owner}, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{userId})),
@@ -20,7 +20,8 @@
                 #{year},
                 aes_encrypt(#{birthDate}, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{userId})),
                 #{isDefault},
-                #{type}
+                #{type},
+                #{customerUid}
         )
     </insert>
 
@@ -52,6 +53,12 @@
          WHERE id = #{id}
     </select>
 
+    <update id="updateCustomerUid" parameterType="Card">
+        UPDATE card
+        SET customer_uid = #{customerUid}
+        WHERE id = #{id}
+    </update>
+
     <update id="updateDefaultReset" parameterType="Card">
         UPDATE card
            SET is_default = false
@@ -69,4 +76,19 @@
         DELETE FROM card
          WHERE id = #{param1}
     </delete>
+
+    <select id="getUserDefaultCard" parameterType="String" resultType="Card">
+        SELECT id
+             , user_id
+             , card_no
+             , aes_decrypt(owner, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{param1})) as owner
+             , month
+             , year
+             , aes_decrypt(birth_date, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{param1})) as birth_date
+             , type
+             , customer_uid
+          FROM card
+         WHERE user_id = #{param1}
+           AND is_default = true
+    </select>
 </mapper>

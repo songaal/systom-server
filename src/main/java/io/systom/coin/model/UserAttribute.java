@@ -11,6 +11,7 @@ public class UserAttribute {
     private Date dueDate;
     private String usdtWallet;
     private String endDate;
+    private String customerUid;
 
     public String getUserId() {
         return userId;
@@ -66,6 +67,14 @@ public class UserAttribute {
 
     public void setEndDate(String endDate) {
         this.endDate = endDate;
+    }
+
+    public String getCustomerUid() {
+        return customerUid;
+    }
+
+    public void setCustomerUid(String customerUid) {
+        this.customerUid = customerUid;
     }
 
     @Override

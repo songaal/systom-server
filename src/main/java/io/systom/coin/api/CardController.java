@@ -92,18 +92,13 @@ public class CardController extends AbstractController{
      * - 대시보드에서 환불되었을 때
      *
      * Webhook이 호출되면 설정한 콜백 url에 대해 다음과 같은 POST요청을 생성합니다.
-     * @param userId
      * @param payload
      * @return
      */
-    @PostMapping
-    public ResponseEntity<?> onIamportWebhook(@RequestAttribute String userId,
-                                              Map<String, Object> payload) {
+    @PostMapping("/iamport-callback/schedule")
+    public ResponseEntity<?> onIamportWebhook(Map<String, Object> payload) {
         try {
             String impUid = (String) payload.get("imp_uid");
-
-            //todo 일단 impUid 가 디비에
-
             Map paymentInfo = billingService.getPayment(impUid);
             /*
             * << PaymentInfo 예시 >>
@@ -138,6 +133,10 @@ public class CardController extends AbstractController{
                 String cancel_reason = (String) response.get("cancel_reason");
                 if (status.equals("paid")) {
                     //TODO  merchant_uid 로 db를 조회해서 결제완료로 업데이트 해준다.
+
+
+
+                    ///1달후에 또 걸기.
                 } else {
 
                 }

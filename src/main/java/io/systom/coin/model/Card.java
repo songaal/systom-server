@@ -12,6 +12,8 @@ public class Card {
     private boolean isDefault;
     private String type;
     private String password2; //비밀번호 앞2자리.
+    private String CustomerUid;
+
 
     public String getType() {
         return type;
@@ -92,6 +94,14 @@ public class Card {
 
     public void setPassword2(String password2) {
         this.password2 = password2;
+    }
+
+    public String getCustomerUid() {
+        return CustomerUid;
+    }
+
+    public void setCustomerUid(String customerUid) {
+        CustomerUid = customerUid;
     }
 
     @Override

@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/v1/paidPlan")
+@RequestMapping("/v1/paidMemberShip")
 public class UserAttributeController extends AbstractController{
     private static Logger logger = LoggerFactory.getLogger(UserAttributeController.class);
 

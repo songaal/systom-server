@@ -11,18 +11,20 @@
              , a.payment_day
              , a.due_date
              , date_add(str_to_date(concat(date_format(now(), '%Y%m') + 1, a.payment_day), '%Y%m%d'), interval +1 month) as end_date
+             , customer_uid
           FROM user_attribute a
          WHERE a.user_id = #{param1}
     </select>
 
     <insert id="insertPaidPlan" parameterType="UserAttribute">
-        INSERT INTO user_attribute (user_id, is_paid_user, is_canceled, payment_day, create_time)
+        INSERT INTO user_attribute (user_id, is_paid_user, is_canceled, payment_day, create_time, customer_uid)
         VALUES (
             #{userId},
             ${isPaidUser},
             ${isCanceled},
             date_format(now(), '%d'),
-            now()
+            now(),
+            #{customerUid}
         )
     </insert>
 
@@ -41,6 +43,12 @@
             , payment_day = #{paymentDay}
         </if>
              , update_time = now()
+         WHERE user_id = #{userId}
+    </update>
+
+    <update id="updateCustomerUid" parameterType="UserAttribute">
+        UPDATE user_attribute
+           SET customer_uid = #{customerUid}
          WHERE user_id = #{userId}
     </update>
 

@@ -1,6 +1,7 @@
 package io.systom.coin.service;
 
 import io.systom.coin.exception.AuthenticationException;
+import io.systom.coin.exception.BillingException;
 import io.systom.coin.exception.OperationException;
 import io.systom.coin.exception.ParameterException;
 import io.systom.coin.model.Card;
@@ -23,26 +24,24 @@ public class CardService {
 
     @Autowired
     private SqlSession sqlSession;
+    @Autowired
+    private BillingService billingService;
 
     public int getCardCount(String userId) {
         return sqlSession.selectOne("card.getCardCount", userId);
     }
 
+    @Transactional
     public Card registerCard(Card card) {
-
         isValid(card);
-//       TODO 아임포트 카드 등록
-
-//        처음 만들땐 기본카드로 설정
-        if (getCardCount(card.getUserId()) == 0) {
-            card.setDefault(true);
-        }
-
+        String cardNo = card.getCardNo();
         try {
-
-//        db 저장은 카드 마지막 4자리
-            card.setCardNo(card.getCardNo().substring(12));
-
+//          처음 만들땐 기본카드로 설정
+            if (getCardCount(card.getUserId()) == 0) {
+                card.setDefault(true);
+            }
+//          db 저장은 카드 마지막 4자리
+            card.setCardNo(cardNo.substring(12));
             int changeRow = sqlSession.insert("card.registerCard", card);
             if (changeRow != 1) {
                 throw new OperationException("[FAIL] SQL Execute. change row: " + changeRow);
@@ -50,6 +49,21 @@ public class CardService {
         } catch (Exception e){
             logger.error("", e);
             throw new OperationException("[FAIL] SQL Execute.");
+        }
+
+        try {
+            card.setCardNo(cardNo);
+            Map result = billingService.registerCard(card);
+            Map response = (Map) result.get("response");
+            String customerUid = (String) response.get("customer_uid");
+            card.setCustomerUid(customerUid);
+            int changeRow = sqlSession.insert("card.updateCustomerUid", card);
+            if (changeRow != 1) {
+                throw new OperationException("[FAIL] SQL Execute. change row: " + changeRow);
+            }
+        } catch (BillingException e) {
+            logger.error("", e);
+            throw new OperationException(e.getMessage());
         }
 
         return card;
