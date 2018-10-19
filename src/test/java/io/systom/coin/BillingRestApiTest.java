@@ -133,7 +133,8 @@ public class BillingRestApiTest {
         String customerUid = "swsong_3497"; //카드등록시 설정한 UID
         String merchantUid = "systom-" + System.nanoTime(); //날짜와 순번으로 조합해서 만든다.
         Calendar cal = Calendar.getInstance();
-        cal.set(2018, 11-1, 18, 9, 30);
+        cal.add(Calendar.MINUTE, 1); // 1분뒤 예약.
+//        cal.set(2018, 11-1, 18, 9, 30);
         System.out.println(cal);
         String scheduleAt = String.valueOf(cal.getTimeInMillis() / 1000);
         String amount = "100";
@@ -161,6 +162,7 @@ public class BillingRestApiTest {
         ResponseEntity<Map> responseEntity = restTemplate.exchange(url, HttpMethod.POST, entity, Map.class);
         System.out.println(responseEntity);
         Map body = responseEntity.getBody();
+        System.out.println("body >> " + body);
         int code = (int) body.get("code");
         String message = (String) body.get("message");
         if (code == 0) {

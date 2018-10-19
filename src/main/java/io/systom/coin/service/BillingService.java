@@ -1,6 +1,7 @@
 package io.systom.coin.service;
 
 import com.google.gson.Gson;
+import io.systom.coin.exception.BillingException;
 import io.systom.coin.model.Card;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +28,15 @@ public class BillingService {
 
     private String impSecret;
 
-    public String getToken() {
+
+    public BillingService() { }
+
+    public BillingService(String impKey, String impSecret) {
+        this.impKey = impKey;
+        this.impSecret = impSecret;
+    }
+
+    public String getToken() throws BillingException {
         int now = (int) (System.currentTimeMillis() / 1000);
         if(expiredAt > now + 60) { //60초를 더해서 1분정도 남았을때에도 키를 다시받아오도록 한다.
             //아직 파기전이라면.
@@ -46,9 +55,13 @@ public class BillingService {
         HttpEntity entity = new HttpEntity(params, headers);
         ResponseEntity<Map> responseEntity = restTemplate.exchange(url, HttpMethod.POST, entity, Map.class);
         boolean isSuccess = responseEntity.getStatusCode().is2xxSuccessful();
+        if(!isSuccess) {
+            throw new BillingException(responseEntity.getStatusCode().getReasonPhrase());
+        }
+
         Map body = responseEntity.getBody();
         int code = (int) body.get("code");
-        if(isSuccess && code == 0) {
+        if(code == 0) {
             logger.debug("인증성공!");
             Map response = (Map) body.get("response");
             accessToken = (String) response.get("access_token");
@@ -57,15 +70,15 @@ public class BillingService {
             return accessToken;
         } else {
             logger.error("인증에러!");
+            throw new BillingException((String) body.get("message"));
         }
-        return null;
     }
 
     /**
      * 사용자 신용카드 정보 및 키를 저장한다.
      * @param card 신용카드정보
      */
-    public Map registerCard(Card card) {
+    public Map registerCard(Card card) throws BillingException {
         /* 카드정보 */
         /*-------------------------------*/
         String cardNumber = card.getCardNo(); //카드번호
@@ -91,6 +104,10 @@ public class BillingService {
         HttpEntity entity = new HttpEntity(params, headers);
         ResponseEntity<Map> responseEntity = restTemplate.exchange(url, HttpMethod.POST, entity, Map.class);
         logger.debug("responseEntity >> {}", responseEntity);
+        boolean isSuccess = responseEntity.getStatusCode().is2xxSuccessful();
+        if(!isSuccess) {
+            throw new BillingException(responseEntity.getStatusCode().getReasonPhrase());
+        }
         Map body = responseEntity.getBody();
         int code = (int) body.get("code");
         String message = (String) body.get("message");
@@ -98,6 +115,7 @@ public class BillingService {
             logger.debug("카드등록 성공!");
         } else {
             logger.debug("카드등록 실패!");
+            throw new BillingException((String) body.get("message"));
         }
         return body;
     }
@@ -107,7 +125,7 @@ public class BillingService {
      * - 카드삭제시
      * - 회원탈퇴시
      */
-    public Map unregisterCard(String customerUid) {
+    public Map unregisterCard(String customerUid) throws BillingException {
 
         String url = "https://api.iamport.kr/subscribe/customers/" + customerUid;
         RestTemplate restTemplate = new RestTemplateBuilder().build();
@@ -116,6 +134,10 @@ public class BillingService {
         HttpEntity entity = new HttpEntity(null, headers);
         ResponseEntity<Map> responseEntity = restTemplate.exchange(url, HttpMethod.DELETE, entity, Map.class);
         logger.debug("responseEntity >> {}", responseEntity);
+        boolean isSuccess = responseEntity.getStatusCode().is2xxSuccessful();
+        if(!isSuccess) {
+            throw new BillingException(responseEntity.getStatusCode().getReasonPhrase());
+        }
         Map body = responseEntity.getBody();
         int code = (int) body.get("code");
         String message = (String) body.get("message");
@@ -123,6 +145,7 @@ public class BillingService {
             logger.debug("카드삭제 성공!");
         } else {
             logger.debug("카드삭제 실패!");
+            throw new BillingException((String) body.get("message"));
         }
         return body;
     }
@@ -133,7 +156,7 @@ public class BillingService {
      * @param amount      금액.KRW
      * @param description 상품명
      */
-    public Map makePayment(String customerUid, String merchantUid, String amount, String description) {
+    public Map makePayment(String customerUid, String merchantUid, String amount, String description) throws BillingException {
         String url = "https://api.iamport.kr/subscribe/payments/again";
         RestTemplate restTemplate = new RestTemplateBuilder().build();
         HttpHeaders headers = new HttpHeaders();
@@ -146,15 +169,22 @@ public class BillingService {
         HttpEntity entity = new HttpEntity(params, headers);
         ResponseEntity<Map> responseEntity = restTemplate.exchange(url, HttpMethod.POST, entity, Map.class);
         logger.debug("responseEntity >> {}", responseEntity);
+        boolean isSuccess = responseEntity.getStatusCode().is2xxSuccessful();
+        if(!isSuccess) {
+            throw new BillingException(responseEntity.getStatusCode().getReasonPhrase());
+        }
         Map body = responseEntity.getBody();
         int code = (int) body.get("code");
-        String message = (String) body.get("message");
-        Map response = (Map) body.get("response");
-        String status = (String) response.get("status");
-        if (code == 0 && status.equals("paid")) {
-            logger.debug("결제성공!");
+        if (code == 0) {
+            Map response = (Map) body.get("response");
+            String status = (String) response.get("status");
+            if(status.equals("paid")) {
+                logger.debug("결제성공!");
+            } else {
+                logger.debug("결제실패!");
+            }
         } else {
-            logger.debug("결제실패!");
+            throw new BillingException((String) body.get("message"));
         }
 
         return body;
@@ -166,7 +196,7 @@ public class BillingService {
      * @param impUid 결제아이디
      * @return
      */
-    public Map cancelPayment(String impUid) {
+    public Map cancelPayment(String impUid) throws BillingException {
         String url = "https://api.iamport.kr/payments/cancel";
         RestTemplate restTemplate = new RestTemplateBuilder().build();
         HttpHeaders headers = new HttpHeaders();
@@ -176,15 +206,20 @@ public class BillingService {
         HttpEntity entity = new HttpEntity(params, headers);
         ResponseEntity<Map> responseEntity = restTemplate.exchange(url, HttpMethod.POST, entity, Map.class);
         logger.debug("responseEntity >> {}", responseEntity);
+        boolean isSuccess = responseEntity.getStatusCode().is2xxSuccessful();
+        if(!isSuccess) {
+            throw new BillingException(responseEntity.getStatusCode().getReasonPhrase());
+        }
         Map body = responseEntity.getBody();
         int code = (int) body.get("code");
         String message = (String) body.get("message");
         Map response = (Map) body.get("response");
         String status = (String) response.get("status");
-        if (code == 0 && status.equals("paid")) {
+        if (code == 0) {
             logger.debug("취소성공!");
         } else {
             logger.debug("취소실패!");
+            throw new BillingException((String) body.get("message"));
         }
 
         return body;
@@ -195,7 +230,7 @@ public class BillingService {
      * 예약결제의 경우 iamport 가 호출하는 callback에 impUid가 전달된다.
      * @param impUid 결제 완료시 마다 만들어지는 ID
      */
-    public Map getPayment(String impUid) {
+    public Map getPayment(String impUid) throws BillingException {
         String url = "https://api.iamport.kr/payments/" + impUid;
         RestTemplate restTemplate = new RestTemplateBuilder().build();
         HttpHeaders headers = new HttpHeaders();
@@ -203,15 +238,35 @@ public class BillingService {
         HttpEntity entity = new HttpEntity(null, headers);
         ResponseEntity<Map> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
         logger.debug("responseEntity >> {}", responseEntity);
+        boolean isSuccess = responseEntity.getStatusCode().is2xxSuccessful();
+        if(!isSuccess) {
+            throw new BillingException(responseEntity.getStatusCode().getReasonPhrase());
+        }
         Map body = responseEntity.getBody();
-        // 결과 json을 결과 DB에 넣고 필요한 정보는 파싱해서 쓴다.
+        int code = (int) body.get("code");
+        if (code == 0) {
+            logger.debug("조회 성공!");
+        } else {
+            logger.debug("조회 실패!");
+            throw new BillingException((String) body.get("message"));
+        }
+
         return body;
     }
 
-    public Map schedulePayment(String customerUid, String merchantUid, String amount, String description, Calendar scheduleCal) {
+    /**
+     * 결제 스케줄을 만든다. 일회성 스케줄이며,
+     * @param customerUid 카드 식별자.
+     * @param merchantUid 각 결제 식별자.
+     * @param amount 금액
+     * @param description 결제내용
+     * @param nextDateTime 다음번 결제할 시각 (미래)
+     * @return
+     */
+    public Map schedulePayment(String customerUid, String merchantUid, String amount, String description, Calendar nextDateTime) throws BillingException {
 
-        logger.debug("scheduleCal >> {}", scheduleCal.getTime());
-        String scheduleAt = String.valueOf(scheduleCal.getTimeInMillis() / 1000);
+        logger.debug("scheduleCal >> {}", nextDateTime.getTime());
+        String scheduleAt = String.valueOf(nextDateTime.getTimeInMillis() / 1000);
 
         String url = "https://api.iamport.kr/subscribe/payments/schedule";
         RestTemplate restTemplate = new RestTemplateBuilder().build();
@@ -234,6 +289,10 @@ public class BillingService {
         HttpEntity entity = new HttpEntity(json, headers);
         ResponseEntity<Map> responseEntity = restTemplate.exchange(url, HttpMethod.POST, entity, Map.class);
         logger.debug("responseEntity >> {}", responseEntity);
+        boolean isSuccess = responseEntity.getStatusCode().is2xxSuccessful();
+        if(!isSuccess) {
+            throw new BillingException(responseEntity.getStatusCode().getReasonPhrase());
+        }
         Map body = responseEntity.getBody();
         int code = (int) body.get("code");
         String message = (String) body.get("message");
@@ -241,6 +300,7 @@ public class BillingService {
             logger.debug("결제스케줄 성공!");
         } else {
             logger.debug("결제스케줄 실패!");
+            throw new BillingException((String) body.get("message"));
         }
 
         return body;
@@ -250,7 +310,7 @@ public class BillingService {
      * 카드와 관련된 모든 스케줄을 취소한다.
      * @param customerUid 취소할 사용자카드 UID
      */
-    public Map cancelScheduledPayment(String customerUid) {
+    public Map cancelScheduledPayment(String customerUid) throws BillingException {
         String url = "https://api.iamport.kr/subscribe/payments/unschedule";
         RestTemplate restTemplate = new RestTemplateBuilder().build();
         HttpHeaders headers = new HttpHeaders();
@@ -260,13 +320,18 @@ public class BillingService {
         HttpEntity entity = new HttpEntity(params, headers);
         ResponseEntity<Map> responseEntity = restTemplate.exchange(url, HttpMethod.POST, entity, Map.class);
         logger.debug("responseEntity >> {}", responseEntity);
+        boolean isSuccess = responseEntity.getStatusCode().is2xxSuccessful();
+        if(!isSuccess) {
+            throw new BillingException(responseEntity.getStatusCode().getReasonPhrase());
+        }
         Map body = responseEntity.getBody();
         int code = (int) body.get("code");
         String message = (String) body.get("message");
         if (code == 0) {
-            logger.debug("결제스케줄 성공!");
+            logger.debug("스케줄취소 성공!");
         } else {
-            logger.debug("결제스케줄 실패!");
+            logger.debug("스케줄취소 실패!");
+            throw new BillingException((String) body.get("message"));
         }
 
         return body;
