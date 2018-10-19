@@ -74,21 +74,21 @@ public class CardService {
     }
 
     public Card deleteCard(Integer id, String userId) {
-        Card card = getCard(id, userId);
-        if (card == null) {
-            return null;
-        }
-        if(!card.getUserId().equals(userId)) {
+        Card searchCard = getCard(id, userId);
+        if (searchCard == null) {
             throw new AuthenticationException();
         }
 
         try {
-            sqlSession.delete("card.deleteCard", id);
+            int changeRow = sqlSession.delete("card.deleteCard", id);
+            if (changeRow != 1) {
+                throw new OperationException("[FAIL] SQL Execute. change row: " + changeRow);
+            }
         } catch (Exception e){
             logger.error("", e);
             throw new OperationException("[FAIL] SQL Execute.");
         }
-        return card;
+        return getCard(id, userId);
     }
 
     @Transactional
@@ -96,15 +96,14 @@ public class CardService {
         if (card == null) {
             throw new ParameterException("Card Id");
         }
-        if (!card.getUserId().equals(card.getUserId())) {
+        Card searchCard = getCard(card.getId(), card.getUserId());
+        if (searchCard == null) {
             throw new AuthenticationException();
         }
         try {
-            int changeRow = sqlSession.update("card.updateDefaultReset", card);
-            if (changeRow != 1) {
-                throw new OperationException("[FAIL] SQL Execute. change row: " + changeRow);
-            }
-            changeRow = sqlSession.update("card.updateDefault", card);
+//            기존 기본 상태 초기화
+            sqlSession.update("card.updateDefaultReset", card);
+            int changeRow = sqlSession.update("card.updateDefault", card);
             if (changeRow != 1) {
                 throw new OperationException("[FAIL] SQL Execute. change row: " + changeRow);
             }

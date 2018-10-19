@@ -21,16 +21,13 @@ spring:
     driver-class-name: "com.mysql.cj.jdbc.Driver"
 
 backtest:
-    host: "tcp://52.78.216.101:2376"
-    image: "868448630378.dkr.ecr.ap-northeast-2.amazonaws.com/systom-signal"
-    apiServerUrl: "https://api.systom.io"
-    timezone: "Asia/Seoul"
-    container:
-          readTimeout: 300000
-          connectTimeout: 10000
-    initCashKrw: 100000000
-    initCashUsdt: 10000
-
+  host: "tcp://52.78.216.101:2376"
+  image: "868448630378.dkr.ecr.ap-northeast-2.amazonaws.com/cctrader"
+  apiServerUrl: "https://api.systom.io"
+  timezone: "Asia/Seoul"
+  container:
+    readTimeout: 300000
+    connectTimeout: 10000
 
 scheduler:
   isMonthCalculation: "true"
@@ -40,17 +37,25 @@ scheduler:
   isCurrencyRateUpdate: "true"
 
 invest:
+  timezone: "Asia/Seoul"
+  initCommission: 40
+  maxFriendsSaleCount: 5
   start:
-    hour: "12"
-    minute: "30"
+    hour: "00"
+    minute: "00"
     second: "00"
   end:
-    hour: "12"
-    minute: "30"
-    second: "00"
+    hour: "23"
+    minute: "59"
+    second: "59"
+    initCommission: 40
+    maxFriendsSaleCount: 5
 
 notifications:
   telegramUrl: "https://bacl02xrl3.execute-api.ap-northeast-2.amazonaws.com/v1/message"
 
 task:
   maxRetry: 3
+
+friends:
+  maxSize: 5

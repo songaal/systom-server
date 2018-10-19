@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="userAttribue">
+    <select id="getPaidPlan" parameterType="String" resultType="UserAttribute">
+        SELECT a.user_id
+             , a.is_paid_user
+             , a.is_canceled
+             , a.payment_day
+             , a.due_date
+             , date_add(str_to_date(concat(date_format(now(), '%Y%m') + 1, a.payment_day), '%Y%m%d'), interval +1 month) as end_date
+          FROM user_attribute a
+         WHERE a.user_id = #{param1}
+    </select>
+
+    <insert id="insertPaidPlan" parameterType="UserAttribute">
+        INSERT INTO user_attribute (user_id, is_paid_user, is_canceled, payment_day, create_time)
+        VALUES (
+            #{userId},
+            ${isPaidUser},
+            ${isCanceled},
+            date_format(now(), '%d'),
+            now()
+        )
+    </insert>
+
+    <update id="updatePaidPlan" parameterType="UserAttribute">
+        UPDATE user_attribute
+           SET is_canceled = ${isCanceled}
+        <if test="isCanceled == true">
+            , due_date = (SELECT tab.bue_date
+                            FROM (SELECT date_add(str_to_date(concat(date_format(now(), '%Y%m') + 1, a.payment_day), '%Y%m%d'), interval +1 month) as bue_date
+                                    FROM user_attribute a
+                                   WHERE a.user_id = #{userId}) tab
+            )
+        </if>
+             , is_paid_user = #{isPaidUser}
+        <if test="paymentDay != 0">
+            , payment_day = #{paymentDay}
+        </if>
+             , update_time = now()
+         WHERE user_id = #{userId}
+    </update>
+
+</mapper>

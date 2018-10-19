@@ -75,7 +75,7 @@
     </update>
 
     <delete id="deleteCard" parameterType="Integer">
-        DELETE card
+        DELETE FROM card
          WHERE id = #{param1}
     </delete>
 </mapper>
