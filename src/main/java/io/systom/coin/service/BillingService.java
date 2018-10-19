@@ -23,9 +23,9 @@ public class BillingService {
     private String accessToken;
     private int expiredAt;
 
-    @Value("${billing.impKey}")
+
     private String impKey;
-    @Value("${billing.impSecret}")
+
     private String impSecret;
 
 

@@ -31,6 +31,7 @@ public class CardService {
     public Card registerCard(Card card) {
 
         isValid(card);
+//       TODO 아임포트 카드 등록
 
 //        처음 만들땐 기본카드로 설정
         if (getCardCount(card.getUserId()) == 0) {
@@ -38,6 +39,10 @@ public class CardService {
         }
 
         try {
+
+//        db 저장은 카드 마지막 4자리
+            card.setCardNo(card.getCardNo().substring(12));
+
             int changeRow = sqlSession.insert("card.registerCard", card);
             if (changeRow != 1) {
                 throw new OperationException("[FAIL] SQL Execute. change row: " + changeRow);
@@ -129,15 +134,6 @@ public class CardService {
         }
         if (StringUtils.isBlank(card.getBirthDate()) || StringUtils.isEmpty(card.getBirthDate())) {
             throw new ParameterException("BirthDate");
-        }
-        if (StringUtils.isBlank(card.getName()) || StringUtils.isEmpty(card.getName())) {
-            throw new ParameterException("Name");
-        }
-        if (StringUtils.isBlank(card.getAddress()) || StringUtils.isEmpty(card.getAddress())) {
-            throw new ParameterException("Address");
-        }
-        if (StringUtils.isBlank(card.getPhone()) || StringUtils.isEmpty(card.getPhone())) {
-            throw new ParameterException("Phone");
         }
     }
 

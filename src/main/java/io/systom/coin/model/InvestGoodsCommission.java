@@ -8,6 +8,7 @@ public class InvestGoodsCommission extends InvestGoods{
     private float returns;
     private float returnPct;
     private float commission;
+    private float commissionPct;
     private float totalReturns;
     private String cashUnit;
     private String commUnit;
@@ -82,6 +83,14 @@ public class InvestGoodsCommission extends InvestGoods{
 
     public void setCommUnit(String commUnit) {
         this.commUnit = commUnit;
+    }
+
+    public float getCommissionPct() {
+        return commissionPct;
+    }
+
+    public void setCommissionPct(float commissionPct) {
+        this.commissionPct = commissionPct;
     }
 
     @Override
