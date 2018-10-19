@@ -38,7 +38,7 @@ backtest:
 
 scheduler:
   isMonthCalculation: "false"
-  isInvoiceCreate: "false"
+  isPaymentDelayStatus: "false"
   isLiveTaskObserve: "true"
   isNotification: "false"
   isCurrencyRateUpdate: "false"

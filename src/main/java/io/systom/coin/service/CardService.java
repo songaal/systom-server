@@ -23,8 +23,6 @@ public class CardService {
 
     @Autowired
     private SqlSession sqlSession;
-    @Autowired
-    private BillingService billingService;
 
     public int getCardCount(String userId) {
         return sqlSession.selectOne("card.getCardCount", userId);

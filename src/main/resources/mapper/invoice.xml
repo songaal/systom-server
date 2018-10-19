@@ -5,64 +5,23 @@
 
 <mapper namespace="invoice">
 
-    <select id="retrieveInvoiceTarget" resultType="Invoice">
-        <![CDATA[
-        SELECT a.id as goods_id
-             , a.name
-             , a.cash_unit
-             , a.coin_unit
-             , a.base_unit
-             , b.id as invest_id
-             , b.user_id
-             , c.init_cash
-             , c.equity
-             , c.returns
-             , if (c.returns > 0, round(c.returns / 49, 2), 0) as payment_price
-             , if (c.returns <= 0, 'OK', null) as status
-          FROM goods a
-          JOIN invest_goods b on a.id = b.goods_id
-          JOIN performance_summary c on b.id = c.invest_id
-         WHERE b.is_paper = false
-           AND date_add(date_format(a.invest_end, '%Y%m%d'), INTERVAL 1 DAY) = date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m%d')
-           AND 14 <= date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%H')
-         ]]>
-    </select>
-
-    <select id="findInvoiceByInvestId" resultType="Invoice">
-        SELECT id
-             , invest_id
-             , init_cash
-             , returns
-             , payment_price
-             , status
-             , payment_time
-             , create_time
-          FROM invoice
-         WHERE invest_id in
-        <foreach collection="list" item="item" separator="," open="(" close=")">
-            #{item.investId}
-        </foreach>
-    </select>
-
     <insert id="createInvoice" parameterType="Invoice" keyProperty="id" useGeneratedKeys="true">
-        INSERT INTO invoice (invest_id, init_cash, returns, payment_price, status, payment_time)
-        VALUES
-        <foreach collection="list" item="item" separator=",">
-            ( ${item.investId}
-            , ${item.initCash}
-            , ${item.returns}
-            , ${item.paymentPrice}
-            , #{item.status,jdbcType=VARCHAR}
-            <choose>
-                <when test="item.status != null and item.status != ''">
-                    , convert_tz(now(), @@session.time_zone, '${standardOffset}')
-                </when>
-                <otherwise>
-                    , null
-                </otherwise>
-            </choose>
-            )
-        </foreach>
+        INSERT INTO invoice (invest_id, init_cash, returns, payment_price, commission_rate, status, payment_time)
+        VALUES ( ${investId}
+               , ${initCash}
+               , ${returns}
+               , ${paymentPrice}
+               , #{status,jdbcType=VARCHAR}
+               , ${commissionRate}
+               <choose>
+                   <when test="status != null and status != ''">
+                       , convert_tz(now(), @@session.time_zone, '${standardOffset}')
+                   </when>
+                   <otherwise>
+                       , null
+                   </otherwise>
+               </choose>
+        )
     </insert>
 
     <update id="updateInvoice" parameterType="Invoice">
@@ -97,6 +56,7 @@
              , a.payment_time
              , a.payment_price
              , a.returns
+             , a.commission_rate
              , b.user_id
              , c.name
              , c.id as goods_id

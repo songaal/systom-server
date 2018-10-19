@@ -41,6 +41,8 @@ public class InvestGoodsService {
     private UserMonthInvestService userMonthInvestService;
     @Autowired
     private InvitationService invitationService;
+    @Autowired
+    private InvoiceService invoiceService;
 
     @Value("${invest.start.hour}")
     private String startHour;
@@ -168,6 +170,9 @@ public class InvestGoodsService {
             throw new OperationException();
         }
         userMonthInvestService.updateMonthlyCalculation(userId);
+
+        invoiceService.createInvoice(investGoods);
+
         return investGoods;
     }
 

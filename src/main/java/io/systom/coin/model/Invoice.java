@@ -19,6 +19,8 @@ public class Invoice {
     private String status;
     private Date paymentTime;
     private Date createTime;
+    private Float commissionRate;
+
 
     public String getUserId() {
         return userId;
@@ -114,6 +116,14 @@ public class Invoice {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Float getCommissionRate() {
+        return commissionRate;
+    }
+
+    public void setCommissionRate(Float commissionRate) {
+        this.commissionRate = commissionRate;
     }
 
     @Override
