@@ -9,9 +9,6 @@ public class Card {
     private String month;
     private String year;
     private String birthDate;
-    private String name;
-    private String address;
-    private String phone;
     private boolean isDefault;
     private String type;
     private String password2; //비밀번호 앞2자리.
@@ -80,22 +77,6 @@ public class Card {
         this.birthDate = birthDate;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
     public boolean isDefault() {
         return isDefault;
     }
@@ -104,13 +85,6 @@ public class Card {
         isDefault = aDefault;
     }
 
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
 
     public String getPassword2() {
         return password2;
@@ -130,9 +104,6 @@ public class Card {
                 ", month='" + month + '\'' +
                 ", year='" + year + '\'' +
                 ", birthDate='" + birthDate + '\'' +
-                ", name='" + name + '\'' +
-                ", address='" + address + '\'' +
-                ", phone='" + phone + '\'' +
                 ", isDefault=" + isDefault +
                 '}';
     }

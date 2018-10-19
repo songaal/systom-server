@@ -18,7 +18,7 @@
                 aes_encrypt(#{owner}, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{userId})),
                 #{month},
                 #{year},
-                aes_encrypt(#{birthDate}, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{userId}))
+                aes_encrypt(#{birthDate}, concat('ytCvvWEKB3DsHmeg7Almr26MWeoyCjLkfd', #{userId})),
                 #{isDefault},
                 #{type}
         )
