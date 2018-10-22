@@ -132,11 +132,13 @@ public class CardController extends AbstractController{
                 //merchant_uid 가 가장중요하다. merchant_uid 로 db를 조회해서 결제완료로 업데이트 해준다.
                 String merchant_uid = (String) response.get("merchant_uid");
                 String status = (String) response.get("status");
-
-                MembershipInvoice invoice = invoiceService.getWaitMembershipInvoice(merchant_uid);
-                if (invoice == null) {
+                MembershipInvoice invoice;
+                synchronized (this) {
+                    invoice = invoiceService.getWaitMembershipInvoice(merchant_uid);
+                    if (invoice == null) {
 //                    결제 대기 상태가 아니면 진행 안함.
-                    return success();
+                        return success();
+                    }
                 }
                 invoice.setPaymentTime(new Date());
                 invoice.setPaymentImpUid(impUid);
@@ -156,18 +158,17 @@ public class CardController extends AbstractController{
 //              1달후에 또 걸기.
                 UserAttribute userAttribute = userAttributeService.getPaidPlan(invoice.getUserId());
                 Calendar nextDateTime = Calendar.getInstance();
-                if (nextDateTime == null) {
-                    nextDateTime = Calendar.getInstance();
-                    if ("MONTH".equalsIgnoreCase(memberShipTermUnit)) {
-                        nextDateTime.add(Calendar.MONTH, memberShipTerm);
-                    } else if ("DATE".equalsIgnoreCase(memberShipTermUnit)) {
-                        nextDateTime.add(Calendar.DATE, memberShipTerm);
-                    } else if ("MINUTE".equalsIgnoreCase(memberShipTermUnit)) {
-                        nextDateTime.add(Calendar.MINUTE, memberShipTerm);
-                    }
+                nextDateTime.setTime(new Date());
+                if ("MONTH".equalsIgnoreCase(memberShipTermUnit)) {
+                    nextDateTime.add(Calendar.MONTH, memberShipTerm);
+                } else if ("DATE".equalsIgnoreCase(memberShipTermUnit)) {
+                    nextDateTime.add(Calendar.DATE, memberShipTerm);
+                } else if ("MINUTE".equalsIgnoreCase(memberShipTermUnit)) {
+                    nextDateTime.add(Calendar.MINUTE, memberShipTerm);
                 }
                 nextDateTime.set(Calendar.DATE, userAttribute.getPaymentDay());
-                paymentLogger.info("결재 스케쥴러 재신청: {}", nextDateTime);
+
+                paymentLogger.info("결재 스케쥴러 재신청: {}", nextDateTime.getTime());
                 userAttributeService.addPaymentSchedule(userAttribute.getUserId(), invoice.getCustomerUid(), nextDateTime);
             } else {
                 //호출실패.

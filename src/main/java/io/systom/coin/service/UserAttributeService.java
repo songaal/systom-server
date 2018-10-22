@@ -115,6 +115,7 @@ public class UserAttributeService {
         //        예약 DB ROW 생성
         if (nextDateTime == null) {
             nextDateTime = Calendar.getInstance();
+            nextDateTime.setTime(new Date());
             if ("MONTH".equalsIgnoreCase(memberShipTermUnit)) {
                 nextDateTime.add(Calendar.MONTH, memberShipTerm);
             } else if ("DATE".equalsIgnoreCase(memberShipTermUnit)) {

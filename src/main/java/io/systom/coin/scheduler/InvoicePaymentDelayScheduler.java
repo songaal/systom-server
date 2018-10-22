@@ -36,7 +36,8 @@ public class InvoicePaymentDelayScheduler {
         logger.debug("==== 결재 지연 상태 변경 스케쥴러 시작 ====");
 //       TODO 납부 확인 기능
 
-        int cnt = sqlSession.update("invoice.updateDelayStatus");
+        int cnt = sqlSession.update("invoice.updatePaymentMembershipDelay");
+        cnt += sqlSession.update("invoice.updateDelayStatus");
         logger.debug("연체 인보이스 수: {} ", cnt);
 
         logger.debug("==== 결재 지연 상태 변경 스케쥴러 종료 ====");

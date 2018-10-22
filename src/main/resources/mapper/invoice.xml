@@ -137,4 +137,13 @@
          WHERE user_id = #{param1}
            AND is_wait = true
     </delete>
+
+    <update id="updatePaymentMembershipDelay">
+        <![CDATA[
+        UPDATE membership_invoice
+           SET status = 'DELAY'
+         WHERE date_format(next_payment_time, '%Y%m%d%H') < date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m%d%H')
+           AND status is null
+         ]]>
+    </update>
 </mapper>
