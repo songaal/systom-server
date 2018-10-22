@@ -69,19 +69,9 @@
            JOIN invest_goods b on a.invest_id = b.id
            JOIN goods c on b.goods_id = c.id
 		  WHERE b.user_id = #{param1}
-		    AND (cast(c.invest_start as decimal) <= cast(date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m%d') as decimal)
-            AND cast(c.invest_end as decimal) >= cast(date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m%d') as decimal))
-        ]]>
-    </select>
-
-    <select id="retrieveUpdateTargetUserList" resultType="String">
-        <![CDATA[
-        SELECT bb.user_id
-          FROM goods aa
-          JOIN invest_goods bb on aa.id = bb.goods_id
-         WHERE (cast(substring(aa.collect_start, 1, 6) as decimal) <= cast(date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m') as decimal)
-           AND cast(substring(aa.invest_end, 1, 6) as decimal) >= cast(date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m') as decimal) )
-         GROUP BY bb.user_id
+		    AND b.is_paper = false
+		    AND b.is_finished = false
+		    AND date_format(b.create_time, '%Y%m%d') = date_format(now(), '%Y%m%d')
         ]]>
     </select>
 

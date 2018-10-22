@@ -26,7 +26,7 @@ public class UserMonthInvestService {
     private SqlSession sqlSession;
 
     public List<UserMonthlyInvest> retrieveUserMonthInvestList(String userId) {
-        List<UserMonthlyInvest> tmpMonthInvest = null;
+        List<UserMonthlyInvest> tmpMonthInvest;
         try {
             tmpMonthInvest = sqlSession.selectList("userMonthlyInvest.retrieveUserMonthInvestList", userId);
         } catch (Exception e){
@@ -82,7 +82,7 @@ public class UserMonthInvestService {
     }
 
     public Map<String, Object> getDailyInvest(String userId) {
-        List<DailyInvestState> DailyInvestStateList = null;
+        List<DailyInvestState> DailyInvestStateList;
         Map<String, Object> investState = new HashMap<>();
         try {
             DailyInvestStateList = sqlSession.selectList("userMonthlyInvest.getDailyInvest", userId);
@@ -156,6 +156,7 @@ public class UserMonthInvestService {
 
 //          1.2 전월 수익정보 있을경우 제외
             Calendar prevDate = Calendar.getInstance();
+            prevDate.setTime(new Date());
             prevDate.add(Calendar.MONTH, -1);
             UserMonthlyInvest prevMonthlyInvest = new UserMonthlyInvest();
             prevMonthlyInvest.setDate(new SimpleDateFormat("yyyyMM").format(prevDate.getTime()));
