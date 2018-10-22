@@ -30,6 +30,7 @@
         <typeAlias alias="DailyInvestState" type="io.systom.coin.model.DailyInvestState"/>
         <typeAlias alias="Card" type="io.systom.coin.model.Card"/>
         <typeAlias alias="UserAttribute" type="io.systom.coin.model.UserAttribute"/>
+        <typeAlias alias="MembershipInvoice" type="io.systom.coin.model.MembershipInvoice"/>
     </typeAliases>
 
 </configuration>

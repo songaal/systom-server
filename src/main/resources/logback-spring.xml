@@ -43,6 +43,18 @@
         </rollingPolicy>
     </appender>
 
+    <appender name="paymentlog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/payment.log</file>
+
+        <encoder>
+            <pattern>[%date %level] \(%file:%line\) %msg%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>${log.path}/payment.%d{yyyy-MM-dd}.log</FileNamePattern>
+            <MaxHistory>30</MaxHistory>
+        </rollingPolicy>
+    </appender>
+
     <logger name="org.springframework" level="INFO" additivity="false" />
 
     <logger name="org.apache" level="INFO" additivity="false" />
@@ -59,6 +71,10 @@
 
     <logger name="backtestLogger" level="DEBUG" additivity="false" >
         <appender-ref ref="backtestlog" />
+    </logger>
+
+    <logger name="paymentLogger" level="DEBUG" additivity="false" >
+        <appender-ref ref="paymentlog" />
     </logger>
 
     <root level="debug">

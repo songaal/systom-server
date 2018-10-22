@@ -20,6 +20,7 @@ public class Invoice {
     private Date paymentTime;
     private Date createTime;
     private Float commissionRate;
+    private String paymentResult;
 
 
     public String getUserId() {
@@ -124,6 +125,14 @@ public class Invoice {
 
     public void setCommissionRate(Float commissionRate) {
         this.commissionRate = commissionRate;
+    }
+
+    public String getPaymentResult() {
+        return paymentResult;
+    }
+
+    public void setPaymentResult(String paymentResult) {
+        this.paymentResult = paymentResult;
     }
 
     @Override

@@ -1,17 +1,28 @@
 package io.systom.coin.api;
 
+import com.google.gson.Gson;
 import io.systom.coin.exception.AbstractException;
+import io.systom.coin.exception.BillingException;
 import io.systom.coin.exception.OperationException;
 import io.systom.coin.model.Card;
+import io.systom.coin.model.MembershipInvoice;
+import io.systom.coin.model.UserAttribute;
 import io.systom.coin.service.BillingService;
 import io.systom.coin.service.CardService;
+import io.systom.coin.service.InvoiceService;
+import io.systom.coin.service.UserAttributeService;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -19,12 +30,24 @@ import java.util.Map;
 @RequestMapping("/v1/cards")
 public class CardController extends AbstractController{
     private static Logger logger = LoggerFactory.getLogger(CardController.class);
+    private static Logger paymentLogger = LoggerFactory.getLogger("paymentLogger");
 
     @Autowired
     private CardService cardService;
 
     @Autowired
     private BillingService billingService;
+
+    @Autowired
+    private InvoiceService invoiceService;
+
+    @Autowired
+    private UserAttributeService userAttributeService;
+
+    @Value("${membership.termUnit}")
+    private String memberShipTermUnit;
+    @Value("${membership.term}")
+    private Integer memberShipTerm;
 
     @PostMapping
     public ResponseEntity<?> registerCard(@RequestAttribute String userId,
@@ -97,29 +120,11 @@ public class CardController extends AbstractController{
      */
     @PostMapping("/iamport-callback/schedule")
     public ResponseEntity<?> onIamportWebhook(Map<String, Object> payload) {
+        paymentLogger.info("API 콜백 응답받음. >> {}", payload);
         try {
             String impUid = (String) payload.get("imp_uid");
             Map paymentInfo = billingService.getPayment(impUid);
-            /*
-            * << PaymentInfo 예시 >>
-            * {code=0, message=null,
-            *   response={
-            *      amount=100, apply_num=59102455, bank_code=null, bank_name=null, buyer_addr=null, buyer_email=null,
-            *      buyer_name=null, buyer_postcode=null, buyer_tel=null,
-            *      cancel_amount=0, cancel_history=[], cancel_reason=null, cancel_receipt_urls=[], cancelled_at=0,
-            *      card_code=361, card_name=BC카드, card_quota=0, cash_receipt_issued=false, channel=api, currency=KRW,
-            *      custom_data=null, escrow=false, fail_reason=null, failed_at=0,
-            *      imp_uid=imps_370951057727,
-            *      merchant_uid=systom-12850260841578,
-            *      name=유료플랜 1000,
-            *      paid_at=1539919951,
-            *      pay_method=card, pg_id=nictest04m, pg_provider=nice, pg_tid=nictest04m01161810191232297140,
-            *      receipt_url=https://pg.nicepay.co.kr/issue/IssueLoader.jsp?TID=nictest04m01161810191232297140&type=0,
-            *      status=paid, user_agent=sorry_not_supported_anymore, vbank_code=null, vbank_date=0, vbank_holder=null,
-            *      vbank_name=null, vbank_num=null
-            *   }
-            * }
-            * */
+
             int code = (int) paymentInfo.get("code");
             //호출상태 ok 여부
             if (code == 0) {
@@ -127,24 +132,47 @@ public class CardController extends AbstractController{
                 //merchant_uid 가 가장중요하다. merchant_uid 로 db를 조회해서 결제완료로 업데이트 해준다.
                 String merchant_uid = (String) response.get("merchant_uid");
                 String status = (String) response.get("status");
-                String amount = (String) response.get("amount"); //금액
-                String currency = (String) response.get("currency"); // 통화. 대부분 KRW
-                String fail_reason = (String) response.get("fail_reason");
-                String cancel_reason = (String) response.get("cancel_reason");
+
+                MembershipInvoice invoice = invoiceService.getWaitMembershipInvoice(merchant_uid);
+                invoice.setPaymentTime(new Date());
+                invoice.setPaymentImpUid(impUid);
+                invoice.setWait(false);
+                invoice.setPaymentImpUid(impUid);
+
                 if (status.equals("paid")) {
-                    //TODO  merchant_uid 로 db를 조회해서 결제완료로 업데이트 해준다.
-
-
-
-                    ///1달후에 또 걸기.
+                    invoice.setStatus("OK");
+                    invoice.setPaymentResult(new Gson().toJson(response));
+                    invoiceService.updateMembershipInvoice(invoice);
                 } else {
-
+                    invoice.setStatus("DELAY");
+                    invoice.setWait(false);
+                    invoiceService.updateMembershipInvoice(invoice);
                 }
+
+//              1달후에 또 걸기.
+                UserAttribute userAttribute = userAttributeService.getPaidPlan(invoice.getUserId());
+                Calendar nextDateTime = Calendar.getInstance();
+                if (nextDateTime == null) {
+                    nextDateTime = Calendar.getInstance();
+                    if ("MONTH".equalsIgnoreCase(memberShipTermUnit)) {
+                        nextDateTime.add(Calendar.MONTH, memberShipTerm);
+                    } else if ("DATE".equalsIgnoreCase(memberShipTermUnit)) {
+                        nextDateTime.add(Calendar.DATE, memberShipTerm);
+                    } else if ("MINUTE".equalsIgnoreCase(memberShipTermUnit)) {
+                        nextDateTime.add(Calendar.MINUTE, memberShipTerm);
+                    }
+                }
+                nextDateTime.set(Calendar.DATE, userAttribute.getPaymentDay());
+                paymentLogger.info("결재 스케쥴러 재신청: {}", nextDateTime);
+                userAttributeService.addPaymentSchedule(userAttribute.getUserId(), invoice.getCustomerUid(), nextDateTime);
             } else {
                 //호출실패.
+                paymentLogger.error("============== 결제 실패 ================");
+                paymentLogger.error("[ 결제 내용 ]", payload);
+                paymentLogger.error("============== 결제 실패 ================");
             }
 
-            return null;
+            return success();
         } catch (AbstractException e) {
             logger.error("", e);
             return e.response();

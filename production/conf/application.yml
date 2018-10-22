@@ -28,10 +28,12 @@ backtest:
   container:
     readTimeout: 300000
     connectTimeout: 10000
+  initCashKrw: 100000000
+  initCashUsdt: 10000
 
 scheduler:
   isMonthCalculation: "true"
-  isPaymentDelayStatus: "false"
+  isInvoiceCreate: "false"
   isLiveTaskObserve: "false"
   isNotification: "false"
   isCurrencyRateUpdate: "true"
@@ -48,8 +50,6 @@ invest:
     hour: "23"
     minute: "59"
     second: "59"
-    initCommission: 40
-    maxFriendsSaleCount: 5
 
 notifications:
   telegramUrl: "https://bacl02xrl3.execute-api.ap-northeast-2.amazonaws.com/v1/message"
@@ -59,3 +59,12 @@ task:
 
 friends:
   maxSize: 5
+
+billing:
+  impKey: 7173788573360317
+  impSecret: uuvKahDJzr2VEnIp3acBpwGzJ0tufZTJuotFF7pfzradPTDT4Pvtmb25cwzrwsa0REFxL4MkwXymQbfU
+
+membership:
+  termUnit: "MONTH"
+  term: 1
+  price: "100"

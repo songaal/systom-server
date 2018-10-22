@@ -69,4 +69,37 @@
          ORDER BY a.create_time DESC
     </select>
 
+    <insert id="createMembershipInvoice" parameterType="MembershipInvoice" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO membership_invoice (name, user_id, customer_uid, merchant_uid, is_wait)
+        VALUES ( #{name}
+               , #{userId}
+               , #{customerUid}
+               , #{merchantUid}
+               , true
+        )
+    </insert>
+
+    <update id="updateMembershipInvoice" parameterType="MembershipInvoice">
+        UPDATE membership_invoice
+           SET status = #{status}
+             , payment_time = #{paymentTime}
+             , payment_imp_uid = #{paymentImpUid}
+             , payment_result = #{paymentResult}
+             , is_wait = ${isWait}
+         WHERE id = #{id}
+    </update>
+
+    <select id="getWaitMembershipInvoice" parameterType="String" resultType="MembershipInvoice">
+        SELECT id
+             , name
+             , user_id
+             , status
+             , customer_uid
+             , merchant_uid
+             , create_time
+             , is_wait
+          FROM membership_invoice
+         WHERE merchant_uid = #{param1}
+          AND is_wait = true
+    </select>
 </mapper>

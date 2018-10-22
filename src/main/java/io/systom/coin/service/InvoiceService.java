@@ -1,10 +1,7 @@
 package io.systom.coin.service;
 
 import io.systom.coin.exception.OperationException;
-import io.systom.coin.model.Goods;
-import io.systom.coin.model.InvestGoods;
-import io.systom.coin.model.Invoice;
-import io.systom.coin.model.PerformanceSummary;
+import io.systom.coin.model.*;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,12 +32,14 @@ public class InvoiceService {
     private int maxFriendsSaleCount;
     @Value("${invest.initCommission}")
     private float initCommission;
+    @Value("${membership.price}")
+    private String memberShipPrice;
 
     public List<Invoice> retrieveInvoice(String userId) {
         return sqlSession.selectList("invoice.retrieveInvoice", userId);
     }
 
-    public void createInvoice(InvestGoods investor) {
+    public void createGoodsInvoice(InvestGoods investor) {
 //        모의투자는 과금발생안함.
         if (investor.isPaper()) {
             return;
@@ -69,7 +68,7 @@ public class InvoiceService {
         }
 
         try {
-            int changeRow = sqlSession.insert("invoice.createInvoice", invoice);
+            int changeRow = sqlSession.insert("invoice.createGoodsInvoice", invoice);
             if (changeRow != 1) {
                 throw new OperationException("[FAIL] SQL Execute. change row: " + changeRow);
             }
@@ -79,4 +78,34 @@ public class InvoiceService {
         }
     }
 
+    public MembershipInvoice createMembershipInvoice(MembershipInvoice invoice) {
+        logger.debug("Create MemberShip Invoice :{}", invoice);
+        try {
+            int changeRow = sqlSession.insert("invoice.createMembershipInvoice", invoice);
+            if (changeRow != 1) {
+                throw new OperationException("[FAIL] SQL Execute. change row: " + changeRow);
+            }
+        } catch (Exception e){
+            logger.error("", e);
+            throw new OperationException("[FAIL] SQL Execute.");
+        }
+        return invoice;
+    }
+
+    public void updateMembershipInvoice(MembershipInvoice invoice) {
+        logger.debug("Create MemberShip Invoice :{}", invoice);
+        try {
+            int changeRow = sqlSession.update("invoice.updateMembershipInvoice", invoice);
+            if (changeRow != 1) {
+                throw new OperationException("[FAIL] SQL Execute. change row: " + changeRow);
+            }
+        } catch (Exception e){
+            logger.error("", e);
+            throw new OperationException("[FAIL] SQL Execute.");
+        }
+    }
+
+    public MembershipInvoice getWaitMembershipInvoice(String merchantUid) {
+        return sqlSession.selectOne("invoice.getWaitMembershipInvoice", merchantUid);
+    }
 }

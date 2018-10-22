@@ -70,4 +70,6 @@ billing:
   impSecret: uuvKahDJzr2VEnIp3acBpwGzJ0tufZTJuotFF7pfzradPTDT4Pvtmb25cwzrwsa0REFxL4MkwXymQbfU
 
 membership:
-  price: "1000"
+  termUnit: "MONTH"
+  term: 1
+  price: "100"

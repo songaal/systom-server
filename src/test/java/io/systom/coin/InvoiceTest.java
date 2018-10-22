@@ -38,7 +38,7 @@ public class InvoiceTest {
 
 
         if (investors.size() > 0) {
-            int cnt = sqlSession.insert("invoice.createInvoice", investors);
+            int cnt = sqlSession.insert("invoice.createGoodsInvoice", investors);
             logger.debug("발급 인보이스 수: {}", cnt);
         }
 

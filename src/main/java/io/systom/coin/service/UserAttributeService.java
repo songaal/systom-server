@@ -1,12 +1,12 @@
 package io.systom.coin.service;
 
-import io.systom.coin.exception.AuthenticationException;
+import com.google.gson.Gson;
 import io.systom.coin.exception.BillingException;
 import io.systom.coin.exception.OperationException;
 import io.systom.coin.exception.ParameterException;
 import io.systom.coin.model.Card;
+import io.systom.coin.model.MembershipInvoice;
 import io.systom.coin.model.UserAttribute;
-import io.systom.coin.utils.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,16 +22,21 @@ import java.util.*;
 public class UserAttributeService {
 
     private static Logger logger = LoggerFactory.getLogger(UserAttributeService.class);
-
+    private static Logger paymentLogger = LoggerFactory.getLogger("paymentLogger");
     @Autowired
     private SqlSession sqlSession;
     @Autowired
     private BillingService billingService;
     @Autowired
     private CardService cardService;
-
+    @Autowired
+    private InvoiceService invoiceService;
     @Value("${membership.price}")
     private String memberShipPrice;
+    @Value("${membership.termUnit}")
+    private String memberShipTermUnit;
+    @Value("${membership.term}")
+    private Integer memberShipTerm;
 
     public UserAttribute getPaidPlan(String userId) {
         if (userId == null || "".equalsIgnoreCase(userId)) {
@@ -72,29 +77,75 @@ public class UserAttributeService {
 //      결재 진행.
         String customerUid = defaultCard.getCustomerUid();
         String merchantUid = "systom-" + System.nanoTime();
+        String description = String.format("%s월 멤버십비용", new SimpleDateFormat("M").format(new Date()));
+
+//        DB ROW 생성
+        MembershipInvoice invoice = new MembershipInvoice();
+        invoice.setName(description);
+        invoice.setPaymentPrice(Float.parseFloat(memberShipPrice));
+        invoice.setUserId(userAttribute.getUserId());
+        invoice.setCustomerUid(customerUid);
+        invoice.setMerchantUid(merchantUid);
+        invoice.setWait(true);
+        invoice = invoiceService.createMembershipInvoice(invoice);
+        paymentLogger.info("인보이스 생성 >> {}", invoice);
+
         try {
             // 즉시결재
-            String description = String.format("%s월 멤버십비용", new SimpleDateFormat("M").format(new Date()));
             Map result = billingService.makePayment(customerUid, merchantUid, memberShipPrice, description);
-            logger.debug("makePayment >> {}", result);
+            paymentLogger.info("즉시결제 결과 >> {}", result);
+            invoice.setStatus("OK");
+            invoice.setPaymentTime(new Date());
+            invoice.setPaymentImpUid(String.valueOf(((Map)result.get("response")).get("imp_uid")));
+            invoice.setPaymentResult(new Gson().toJson(result));
         } catch (BillingException e) {
             logger.error("", e);
+            invoice.setStatus("DELAY");
             throw new OperationException(e.getMessage());
+        } finally {
+//            결제 결과 저장
+            invoice.setWait(false);
+            invoiceService.updateMembershipInvoice(invoice);
+            addPaymentSchedule(userAttribute.getUserId(), customerUid, null);
         }
+    }
+
+    public void addPaymentSchedule (String userId, String customerUid, Calendar nextDateTime) {
+        //        예약 DB ROW 생성
+        if (nextDateTime == null) {
+            nextDateTime = Calendar.getInstance();
+            if ("MONTH".equalsIgnoreCase(memberShipTermUnit)) {
+                nextDateTime.add(Calendar.MONTH, memberShipTerm);
+            } else if ("DATE".equalsIgnoreCase(memberShipTermUnit)) {
+                nextDateTime.add(Calendar.DATE, memberShipTerm);
+            } else if ("MINUTE".equalsIgnoreCase(memberShipTermUnit)) {
+                nextDateTime.add(Calendar.MINUTE, memberShipTerm);
+            }
+        }
+
+        String merchantUid = "systom-" + System.nanoTime();
+        String description = String.format("%s월 멤버십비용", new SimpleDateFormat("M").format(nextDateTime.getTime()));
+
+        MembershipInvoice waitInvoice = new MembershipInvoice();
+        waitInvoice.setName(description);
+        waitInvoice.setPaymentPrice(Float.parseFloat(memberShipPrice));
+        waitInvoice.setUserId(userId);
+        waitInvoice.setCustomerUid(customerUid);
+        waitInvoice.setMerchantUid(merchantUid);
+        waitInvoice.setWait(true);
+        waitInvoice = invoiceService.createMembershipInvoice(waitInvoice);
+        paymentLogger.info("다음달 결제 정보 저장 >> {}", waitInvoice);
 
         try {
             // 1달후 예약.
-            Calendar nextDateTime = Calendar.getInstance();
-            nextDateTime.add(Calendar.MONTH, 1);
-            merchantUid = "systom-" + System.nanoTime();
-            String description = String.format("%s월 멤버십비용", new SimpleDateFormat("M").format(nextDateTime.getTime()));
-            billingService.schedulePayment(customerUid, merchantUid, memberShipPrice, description, nextDateTime);
+            Map result = billingService.schedulePayment(customerUid, merchantUid, memberShipPrice, description, nextDateTime);
+            paymentLogger.info("다음회차 스케쥴 등록 >> {}", result);
         } catch (BillingException e) {
             logger.error("", e);
             throw new OperationException(e.getMessage());
         }
-
     }
+
 
     @Transactional
     public void updateCancelPlan(UserAttribute userAttribute) {
@@ -118,8 +169,7 @@ public class UserAttributeService {
 //            예약 취소
             try {
                 Map result = billingService.cancelScheduledPayment(customerUid);
-                logger.debug("cancelScheduledPayment >> {}", result);
-                logger.debug("카드 {}의 모든 스케줄이 취소되었습니다.", customerUid);
+                paymentLogger.info("카드 {}의 모든 스케줄이 취소되었습니다. {}", customerUid, result);
             } catch (BillingException e) {
                 if (!e.getMessage().equalsIgnoreCase("취소할 예약결제 기록이 존재하지 않습니다.")) {
                     logger.error("", e);
@@ -146,18 +196,11 @@ public class UserAttributeService {
             }
 
 //            다시 진행
-            try {
-                // 1달후 예약.
-                Calendar nextDateTime = Calendar.getInstance();
-                nextDateTime.add(Calendar.MONTH, 1);
-                nextDateTime.set(Calendar.DATE, registerUserAttr.getPaymentDay());
-                String merchantUid = "systom-" + System.nanoTime();
-                String description = String.format("%s월 멤버십비용", new SimpleDateFormat("M").format(nextDateTime.getTime()));
-                billingService.schedulePayment(customerUid, merchantUid, memberShipPrice, description, nextDateTime);
-            } catch (BillingException e) {
-                logger.error("", e);
-                throw new OperationException(e.getMessage());
-            }
+            Calendar nextDateTime = Calendar.getInstance();
+            nextDateTime.add(Calendar.MONTH, 1);
+            nextDateTime.set(Calendar.DATE, registerUserAttr.getPaymentDay());
+            paymentLogger.info("결재 스케쥴러 재신청: {}", nextDateTime);
+            addPaymentSchedule(userAttribute.getUserId(), customerUid, nextDateTime);
         }
     }
 

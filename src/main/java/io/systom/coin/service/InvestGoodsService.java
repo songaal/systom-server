@@ -171,7 +171,7 @@ public class InvestGoodsService {
         }
         userMonthInvestService.updateMonthlyCalculation(userId);
 
-        invoiceService.createInvoice(investGoods);
+        invoiceService.createGoodsInvoice(investGoods);
 
         return investGoods;
     }
