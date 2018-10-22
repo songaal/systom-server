@@ -6,30 +6,17 @@ import java.util.Date;
 
 public class MembershipInvoice extends Invoice {
 
-    private String name;
     private String customerUid;
     private String merchantUid;
     private String paymentImpUid;
     private String paymentResult;
     private boolean isWait;
+    private Date nextPaymentTime;
 
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
     public String getPaymentResult() {
         return paymentResult;
     }
 
-    @Override
     public void setPaymentResult(String paymentResult) {
         this.paymentResult = paymentResult;
     }
@@ -66,15 +53,23 @@ public class MembershipInvoice extends Invoice {
         isWait = wait;
     }
 
+    public Date getNextPaymentTime() {
+        return nextPaymentTime;
+    }
+
+    public void setNextPaymentTime(Date nextPaymentTime) {
+        this.nextPaymentTime = nextPaymentTime;
+    }
+
     @Override
     public String toString() {
         return "MembershipInvoice{" +
-                "name='" + name + '\'' +
                 ", customerUid='" + customerUid + '\'' +
                 ", merchantUid='" + merchantUid + '\'' +
                 ", paymentImpUid='" + paymentImpUid + '\'' +
                 ", paymentResult='" + paymentResult + '\'' +
                 ", isWait=" + isWait +
+                ", nextPaymentTime=" + nextPaymentTime +
                 '}';
     }
 }

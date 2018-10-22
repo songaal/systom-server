@@ -119,7 +119,7 @@ public class CardController extends AbstractController{
      * @return
      */
     @PostMapping("/iamport-callback/schedule")
-    public ResponseEntity<?> onIamportWebhook(Map<String, Object> payload) {
+    public ResponseEntity<?> onIamportWebhook(@RequestBody Map<String, Object> payload) {
         paymentLogger.info("API 콜백 응답받음. >> {}", payload);
         try {
             String impUid = (String) payload.get("imp_uid");
@@ -134,6 +134,10 @@ public class CardController extends AbstractController{
                 String status = (String) response.get("status");
 
                 MembershipInvoice invoice = invoiceService.getWaitMembershipInvoice(merchant_uid);
+                if (invoice == null) {
+//                    결제 대기 상태가 아니면 진행 안함.
+                    return success();
+                }
                 invoice.setPaymentTime(new Date());
                 invoice.setPaymentImpUid(impUid);
                 invoice.setWait(false);

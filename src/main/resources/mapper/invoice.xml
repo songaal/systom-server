@@ -48,8 +48,8 @@
     </update>
 
     <select id="retrieveInvoice" parameterType="String" resultType="Invoice">
-        SELECT a.id
-             , a.create_time
+        <![CDATA[
+        SELECT a.create_time
              , a.invest_id
              , a.status
              , a.init_cash
@@ -61,30 +61,58 @@
              , c.name
              , c.id as goods_id
              , c.cash_unit
+             , 'goods' as type
           FROM invoice a
           JOIN invest_goods b on a.invest_id = b.id
           JOIN goods c on b.goods_id = c.id
          WHERE b.is_paper = false
            AND b.user_id = #{param1}
-         ORDER BY a.create_time DESC
+         UNION ALL
+        SELECT aa.create_time
+             , aa.id
+             , aa.status
+             , 0
+             , aa.payment_time
+             , aa.payment_price
+             , 0
+             , 0
+             , aa.user_id
+             , aa.name
+             , null
+             , 'KRW'
+             , 'memebership'
+          FROM membership_invoice aa
+         WHERE (aa.next_payment_time <= now()
+            OR aa.status in ('OK', 'DELAY'))
+           AND aa.user_id = #{param1}
+         ORDER BY create_time DESC
+         ]]>
     </select>
 
     <insert id="createMembershipInvoice" parameterType="MembershipInvoice" keyProperty="id" useGeneratedKeys="true">
-        INSERT INTO membership_invoice (name, user_id, customer_uid, merchant_uid, is_wait)
+        INSERT INTO membership_invoice (name, user_id, customer_uid, merchant_uid, is_wait, next_payment_time, payment_price)
         VALUES ( #{name}
                , #{userId}
                , #{customerUid}
                , #{merchantUid}
                , true
+               , #{nextPaymentTime}
+               , ${paymentPrice}
         )
     </insert>
 
     <update id="updateMembershipInvoice" parameterType="MembershipInvoice">
         UPDATE membership_invoice
            SET status = #{status}
-             , payment_time = #{paymentTime}
-             , payment_imp_uid = #{paymentImpUid}
-             , payment_result = #{paymentResult}
+            <if test="paymentTime != null">
+                , payment_time = #{paymentTime}
+            </if>
+            <if test="paymentImpUid != null and paymentImpUid != ''">
+                , payment_imp_uid = #{paymentImpUid}
+            </if>
+            <if test="paymentResult != null and paymentResult != ''">
+                , payment_result = #{paymentResult}
+            </if>
              , is_wait = ${isWait}
          WHERE id = #{id}
     </update>
@@ -98,8 +126,15 @@
              , merchant_uid
              , create_time
              , is_wait
+             , next_payment_time
           FROM membership_invoice
          WHERE merchant_uid = #{param1}
           AND is_wait = true
     </select>
+
+    <delete id="deleteWaitMembershipInvoice" parameterType="String">
+        DELETE FROM membership_invoice
+         WHERE user_id = #{param1}
+           AND is_wait = true
+    </delete>
 </mapper>

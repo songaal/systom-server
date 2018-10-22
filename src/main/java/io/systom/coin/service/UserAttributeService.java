@@ -98,14 +98,15 @@ public class UserAttributeService {
             invoice.setPaymentTime(new Date());
             invoice.setPaymentImpUid(String.valueOf(((Map)result.get("response")).get("imp_uid")));
             invoice.setPaymentResult(new Gson().toJson(result));
+            invoice.setWait(false);
+            invoiceService.updateMembershipInvoice(invoice);
         } catch (BillingException e) {
             logger.error("", e);
             invoice.setStatus("DELAY");
+            invoice.setWait(true);
+            invoiceService.updateMembershipInvoice(invoice);
             throw new OperationException(e.getMessage());
         } finally {
-//            결제 결과 저장
-            invoice.setWait(false);
-            invoiceService.updateMembershipInvoice(invoice);
             addPaymentSchedule(userAttribute.getUserId(), customerUid, null);
         }
     }
@@ -133,6 +134,7 @@ public class UserAttributeService {
         waitInvoice.setCustomerUid(customerUid);
         waitInvoice.setMerchantUid(merchantUid);
         waitInvoice.setWait(true);
+        waitInvoice.setNextPaymentTime(nextDateTime.getTime());
         waitInvoice = invoiceService.createMembershipInvoice(waitInvoice);
         paymentLogger.info("다음달 결제 정보 저장 >> {}", waitInvoice);
 
@@ -177,6 +179,13 @@ public class UserAttributeService {
                 } else {
                     logger.debug("customerUid:{}, error: {}", customerUid, e.getMessage());
                 }
+            }
+//            DB도 예약 인보이스 정보 삭제.
+            try {
+                sqlSession.delete("invoice.deleteWaitMembershipInvoice", registerUserAttr.getUserId());
+            } catch (Exception e){
+                logger.error("", e);
+                throw new OperationException("[FAIL] SQL Execute.");
             }
         }
 

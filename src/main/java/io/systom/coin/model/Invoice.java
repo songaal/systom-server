@@ -20,7 +20,7 @@ public class Invoice {
     private Date paymentTime;
     private Date createTime;
     private Float commissionRate;
-    private String paymentResult;
+    private String type;
 
 
     public String getUserId() {
@@ -127,12 +127,12 @@ public class Invoice {
         this.commissionRate = commissionRate;
     }
 
-    public String getPaymentResult() {
-        return paymentResult;
+    public String getType() {
+        return type;
     }
 
-    public void setPaymentResult(String paymentResult) {
-        this.paymentResult = paymentResult;
+    public void setType(String type) {
+        this.type = type;
     }
 
     @Override
@@ -142,13 +142,16 @@ public class Invoice {
                 ", goodsId=" + goodsId +
                 ", name='" + name + '\'' +
                 ", investId=" + investId +
+                ", userId='" + userId + '\'' +
                 ", initCash=" + initCash +
-                ", cashUnit=" + cashUnit +
+                ", cashUnit='" + cashUnit + '\'' +
                 ", returns=" + returns +
                 ", paymentPrice=" + paymentPrice +
                 ", status='" + status + '\'' +
                 ", paymentTime=" + paymentTime +
                 ", createTime=" + createTime +
+                ", commissionRate=" + commissionRate +
+                ", type='" + type + '\'' +
                 '}';
     }
 }
