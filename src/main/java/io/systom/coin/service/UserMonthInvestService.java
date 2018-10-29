@@ -3,8 +3,8 @@ package io.systom.coin.service;
 import com.google.gson.Gson;
 import io.systom.coin.exception.OperationException;
 import io.systom.coin.model.DailyInvestState;
-import io.systom.coin.model.MonthlyPerformanceSummary;
 import io.systom.coin.model.UserMonthlyInvest;
+import io.systom.coin.model.UserMonthlySum;
 import io.systom.coin.utils.CurrencyUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.LoggerFactory;
@@ -129,76 +129,51 @@ public class UserMonthInvestService {
     }
     public void updateMonthlyCalculation(List<String> userList) {
         float currencyRate = CurrencyUtils.getCurrencyRate("KRW");
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        String month = new SimpleDateFormat("YYYYMM").format(calendar.getTime());
 
-        int userSize = userList.size();
-        for(int i=0; i<userSize; i++) {
-            List<MonthlyPerformanceSummary> performanceSummaryList = sqlSession.selectList("userMonthlyInvest.getUserMonthlyInvest", userList.get(i));
+        Map<String, Object> nowMonthParam = new HashMap<>();
+        nowMonthParam.put("date", month);
+        calendar.add(Calendar.MONTH, -1);
+        String prevMonth = new SimpleDateFormat("YYYYMM").format(calendar.getTime());
+        Map<String, Object> prevMonthParam = new HashMap<>();
+        prevMonthParam.put("date", prevMonth);
 
-            Iterator<MonthlyPerformanceSummary> iterator = performanceSummaryList.iterator();
+        for(int i=0; i<userList.size(); i++) {
+            nowMonthParam.put("userId", userList.get(i));
+            prevMonthParam.put("userId", userList.get(i));
+//            현재 월
+            UserMonthlySum nowMonthlySum = sqlSession.selectOne("userMonthlyInvest.getSumUserNowMonthly", nowMonthParam);
 
-            float usdtInitCash = 0;
-            float usdtEquity = 0;
-            int krwInitCash = 0;
-            int krwEquity = 0;
-            String monthly = new SimpleDateFormat("yyyyMM").format(new Date());
-//          1.1  cash_unit별로 투자금액, 수익금액을 합한다.
-            while(iterator.hasNext()) {
-                MonthlyPerformanceSummary summary = iterator.next();
-                String currencyKey = summary.getCashUnit();
-                if ("USDT".equalsIgnoreCase(currencyKey)) {
-                    usdtInitCash += summary.getInitCash();
-                    usdtEquity += summary.getEquity();
-                } else if ("KRW".equalsIgnoreCase(currencyKey)){
-                    krwInitCash += summary.getInitCash();
-                    krwEquity += summary.getEquity();
-                }
-            }
+            Float usdtInitCash = nowMonthlySum.getUsdtInitCash();
+            Float krwInitCash = nowMonthlySum.getKrwInitCash();
+            Float usdtRetrun = nowMonthlySum.getUsdtReturn();
+            Float krwRetrun = nowMonthlySum.getKrwReturn();
 
-//          1.2 전월 수익정보 있을경우 제외
-            Calendar prevDate = Calendar.getInstance();
-            prevDate.setTime(new Date());
-            prevDate.add(Calendar.MONTH, -1);
-            UserMonthlyInvest prevMonthlyInvest = new UserMonthlyInvest();
-            prevMonthlyInvest.setDate(new SimpleDateFormat("yyyyMM").format(prevDate.getTime()));
-            prevMonthlyInvest.setUserId(userList.get(i));
-            prevMonthlyInvest = sqlSession.selectOne("userMonthlyInvest.getUserMonthInvest", prevMonthlyInvest);
-            if (prevMonthlyInvest != null) {
-                Map<String, Double> prevMonthInitCash = new Gson().fromJson(prevMonthlyInvest.getInitCash(), Map.class);
-                usdtInitCash = usdtInitCash - prevMonthInitCash.get("USDT").floatValue();
-                krwInitCash = krwInitCash - prevMonthInitCash.get("KRW").intValue();
+//            환율 적용.
+            Float totalUsdtInitCash = usdtInitCash + (krwInitCash / currencyRate);
+            Float totalKrwInitCash = krwInitCash + (usdtInitCash * currencyRate);
+            Float totalUsdtRetrun = usdtRetrun + (krwRetrun / currencyRate);
+            Float totalKrwRetrun = krwRetrun + (usdtRetrun * currencyRate);
 
-                Map<String, Double> prevMonthReturn = new Gson().fromJson(prevMonthlyInvest.getMonthlyReturn(), Map.class);
-                usdtEquity = usdtEquity - prevMonthReturn.get("USDT").floatValue();
-                krwEquity = krwEquity - prevMonthReturn.get("KRW").intValue();
-            }
+//            전월 차감
+            UserMonthlySum prevMonthSum = sqlSession.selectOne("userMonthlyInvest.getUserMonthlyInvest", prevMonthParam);
+            totalUsdtRetrun = totalUsdtRetrun - prevMonthSum.getUsdtReturn();
+            totalKrwRetrun = totalKrwRetrun - prevMonthSum.getKrwReturn();
 
-//          2. 환율 적용.
-//            - USDT
-            float totalUsdtInitCash = usdtInitCash;
-            totalUsdtInitCash += krwInitCash / currencyRate;
-            float totalUsdtEquity = usdtEquity;
-            totalUsdtEquity += krwEquity / currencyRate;
-//            - KRW
-            float totalKrwInitCash = krwInitCash;
-            totalKrwInitCash += usdtInitCash * currencyRate;
-            float totalKrwEquity = krwEquity;
-            totalKrwEquity += usdtEquity * currencyRate;
+//            퍼센트 계산.
+            float usdtPct = calculateReturnPct(totalUsdtInitCash, totalUsdtRetrun);
+            float krwPct = calculateReturnPct(totalKrwInitCash, totalKrwRetrun);
 
-
-            float usdtPct = calculateReturnPct(totalUsdtInitCash, totalUsdtEquity);
-            float krwPct = calculateReturnPct(totalKrwInitCash, totalKrwEquity);
-
+//            DB 업데이트.
             Map<String, Float> monthlyInitCash = new HashMap<>();
             monthlyInitCash.put("USDT", totalUsdtInitCash);
             monthlyInitCash.put("KRW", totalKrwInitCash);
 
-            Map<String, Float> monthlyEquity = new HashMap<>();
-            monthlyEquity.put("USDT", totalUsdtEquity);
-            monthlyEquity.put("KRW", totalKrwEquity);
-
             Map<String, Float> monthlyReturn = new HashMap<>();
-            monthlyReturn.put("USDT", totalUsdtEquity - totalUsdtInitCash);
-            monthlyReturn.put("KRW", totalKrwEquity - totalKrwInitCash);
+            monthlyReturn.put("USDT", totalUsdtRetrun);
+            monthlyReturn.put("KRW", totalKrwRetrun);
 
             Map<String, Float> monthlyReturnPct = new HashMap<>();
             monthlyReturnPct.put("USDT", usdtPct);
@@ -209,9 +184,8 @@ public class UserMonthInvestService {
                 Gson gson = new Gson();
                 UserMonthlyInvest userMonthlyInvest = new UserMonthlyInvest();
                 userMonthlyInvest.setUserId(userList.get(i));
-                userMonthlyInvest.setDate(monthly);
+                userMonthlyInvest.setDate(month);
                 userMonthlyInvest.setInitCash(gson.toJson(monthlyInitCash));
-                userMonthlyInvest.setEquity(gson.toJson(monthlyEquity));
                 userMonthlyInvest.setMonthlyReturn(gson.toJson(monthlyReturn));
                 userMonthlyInvest.setMonthlyReturnPct(usdtPct);
 
@@ -228,17 +202,18 @@ public class UserMonthInvestService {
         }
     }
 
-    protected float calculateReturnPct(float initCash, float equity) {
-        float pct;
+    protected float calculateReturnPct(float initCash, float returns) {
+        logger.debug("initCash: {}, returns: {}", initCash, returns);
+        float pct = 0;
         try {
-            pct = (equity - initCash) / initCash * 100;
+//            pct = (returns / initCash) * 100;
+            pct = (returns * 100) / initCash;
             if (Double.isNaN(pct)) {
                 pct = 0;
             }
         } catch (Exception e){
             // ignore
-            logger.warn("[월 계산 수식 에러] initCash:{}, equity: {}", initCash, equity);
-            pct = 0;
+            logger.warn("[월 계산 수식 에러] initCash:{}, returns: {}", initCash, returns);
         }
         return pct;
     }

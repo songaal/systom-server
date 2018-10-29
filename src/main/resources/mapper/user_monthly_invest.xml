@@ -60,11 +60,95 @@
         ]]>
     </select>
 
-    <select id="getDailyInvest" parameterType="String" resultType="DailyInvestState">
+    <update id="updateMonthlyInvest" parameterType="UserMonthlyInvest">
+        INSERT INTO user_monthly_invest (user_id, date, init_cash, monthly_return, monthly_return_pct)
+        VALUES ( #{userId}
+        , #{date}
+        , #{initCash}
+        , #{monthlyReturn}
+        , ${monthlyReturnPct}
+        )
+        ON DUPLICATE KEY
+        UPDATE init_cash = #{initCash}
+        , monthly_return = #{monthlyReturn}
+        , monthly_return_pct = ${monthlyReturnPct}
+        , update_time = convert_tz(now(), @@session.time_zone, '${standardOffset}')
+    </update>
+
+
+    <select id="getSumUserNowMonthly" parameterType="UserMonthlySum" resultType="UserMonthlySum">
+        select
+        ( select ifnull(sum(a.invest_cash), 0)
+            from invest_goods a
+            join goods b on b.id = a.goods_id
+            where date_format(a.create_time, '%Y%m') = #{date}
+            and upper(b.cash_unit) = 'USDT'
+            and a.user_id = #{userId}
+            and a.is_paper = false
+        ) as usdt_init_cash
+        , ( select ifnull(sum(a.invest_cash), 0)
+            from invest_goods a
+            join goods b on b.id = a.goods_id
+            where date_format(a.create_time, '%Y%m') = #{date}
+            and upper(b.cash_unit) = 'KRW'
+            and a.user_id = #{userId}
+            and a.is_paper = false
+        ) as krw_init_cash
+        , ( select ifnull(sum(c.returns), 0)
+            from invest_goods a
+            join goods b on b.id = a.goods_id
+            join performance_summary c on c.invest_id = a.id
+            where
+            (a.is_finished = false
+            or date_format(a.end_time, '%Y%m') = #{date}
+            or date_format(a.create_time, '%Y%m') = #{date})
+            and upper(b.cash_unit) = 'USDT'
+            and a.user_id = #{userId}
+            and a.is_paper = false
+        ) as usdt_return
+            , ( select ifnull(sum(c.returns), 0)
+            from invest_goods a
+            join goods b on b.id = a.goods_id
+            join performance_summary c on c.invest_id = a.id
+            where
+            (a.is_finished = false
+            or date_format(a.end_time, '%Y%m') = #{date}
+            or date_format(a.create_time, '%Y%m') = #{date})
+            and upper(b.cash_unit) = 'KRW'
+            and a.user_id = #{userId}
+            and a.is_paper = false
+        ) as krw_return
+    </select>
+
+    <select id="getUserMonthlyInvest" resultType="UserMonthlySum" parameterType="HashMap">
         <![CDATA[
+        SELECT (SELECT IFNULL(SUM( SUBSTRING_INDEX(
+                            SUBSTRING_INDEX(
+                            SUBSTRING_INDEX(b.monthly_return, '"USDT":', -1)
+                                                            , ',', 1)
+                                                            , '}', 1)), 0)
+                  FROM user_monthly_invest b
+                 WHERE b.date = #{date}
+                   AND b.user_id = #{userId}
+             ) as usdt_return
+
+             , (SELECT IFNULL(SUM( SUBSTRING_INDEX(
+                            SUBSTRING_INDEX(
+                            SUBSTRING_INDEX(b.monthly_return, '"KRW":', -1)
+                                                            , ',', 1)
+                                                            , '}', 1)), 0)
+                  FROM user_monthly_invest b
+                 WHERE b.date = #{date}
+                   AND b.user_id = #{userId}
+             ) as krw_return
+        ]]>
+    </select>
+
+    <select id="getDailyInvest" parameterType="String" resultType="DailyInvestState">
          SELECT a.init_cash
               , a.equity
               , c.cash_unit
+              , date_format(now(), '%Y%m%d')
            FROM performance_summary a
            JOIN invest_goods b on a.invest_id = b.id
            JOIN goods c on b.goods_id = c.id
@@ -72,49 +156,7 @@
 		    AND b.is_paper = false
 		    AND b.is_finished = false
 		    AND date_format(b.create_time, '%Y%m%d') = date_format(now(), '%Y%m%d')
-        ]]>
     </select>
 
-    <select id="getUserMonthlyInvest" parameterType="String" resultType="MonthlyPerformanceSummary">
-        <![CDATA[
-        SELECT aa.init_cash
-             , aa.equity
-             , cc.cash_unit
-             , date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m') as date
-          FROM performance_summary aa
-          JOIN invest_goods bb on aa.invest_id = bb.id
-          JOIN goods cc on bb.goods_id = cc.id
-         WHERE cast(date_format(bb.create_time, '%Y%m') as decimal) <= cast(date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m') as decimal)
-           AND cast(date_format(bb.end_time, '%Y%m') as decimal) >= cast(date_format(convert_tz(now(), @@session.time_zone, '${standardOffset}'), '%Y%m') as decimal)
-           AND bb.is_paper = false
-        ]]>
-    </select>
 
-    <update id="updateMonthlyInvest" parameterType="UserMonthlyInvest">
-        INSERT INTO user_monthly_invest (user_id, date, init_cash, monthly_return, monthly_return_pct)
-        VALUES ( #{userId}
-               , #{date}
-               , #{initCash}
-               , #{monthlyReturn}
-               , ${monthlyReturnPct}
-        )
-        ON DUPLICATE KEY
-        UPDATE init_cash = #{initCash}
-             , monthly_return = #{monthlyReturn}
-             , monthly_return_pct = ${monthlyReturnPct}
-             , update_time = convert_tz(now(), @@session.time_zone, '${standardOffset}')
-    </update>
-
-
-    <select id="getUserMonthInvest" resultType="UserMonthlyInvest" parameterType="UserMonthlyInvest">
-        <![CDATA[
-        SELECT a.user_id
-             , a.date
-             , a.init_cash
-             , a.monthly_return
-          FROM user_monthly_invest a
-         WHERE a.user_id = #{userId}
-           AND a.date = #{date}
-        ]]>
-    </select>
 </mapper>

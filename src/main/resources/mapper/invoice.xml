@@ -5,7 +5,7 @@
 
 <mapper namespace="invoice">
 
-    <insert id="createInvoice" parameterType="Invoice" keyProperty="id" useGeneratedKeys="true">
+    <insert id="createGoodsInvoice" parameterType="Invoice" keyProperty="id" useGeneratedKeys="true">
         INSERT INTO invoice (invest_id, init_cash, returns, payment_price, status, commission_rate, payment_time)
         VALUES ( ${investId}
                , ${initCash}
