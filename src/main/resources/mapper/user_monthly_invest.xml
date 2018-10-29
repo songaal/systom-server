@@ -145,17 +145,17 @@
     </select>
 
     <select id="getDailyInvest" parameterType="String" resultType="DailyInvestState">
-         SELECT a.init_cash
-              , a.equity
-              , c.cash_unit
-              , date_format(now(), '%Y%m%d')
-           FROM performance_summary a
-           JOIN invest_goods b on a.invest_id = b.id
-           JOIN goods c on b.goods_id = c.id
-		  WHERE b.user_id = #{param1}
-		    AND b.is_paper = false
-		    AND b.is_finished = false
-		    AND date_format(b.create_time, '%Y%m%d') = date_format(now(), '%Y%m%d')
+        SELECT a.invest_cash as init_cash
+            , b.equity as equity
+            , b.date
+            , c.cash_unit
+        FROM invest_goods a
+        join performance_daily b on b.invest_id = a.id
+        join goods c on c.id = a.goods_id
+        where a.is_paper = false
+        and a.is_finished = false
+        and b.date = date_format(now(), '%Y%m%d')
+        and a.user_id = #{param1}
     </select>
 
 

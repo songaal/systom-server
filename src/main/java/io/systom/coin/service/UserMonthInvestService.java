@@ -168,8 +168,8 @@ public class UserMonthInvestService {
 
 //            DB 업데이트.
             Map<String, Float> monthlyInitCash = new HashMap<>();
-            monthlyInitCash.put("USDT", totalUsdtInitCash);
-            monthlyInitCash.put("KRW", totalKrwInitCash);
+            monthlyInitCash.put("USDT", totalUsdtInitCash <= 0 ? 0 : totalUsdtInitCash);
+            monthlyInitCash.put("KRW", totalKrwInitCash <= 0 ? 0 : totalKrwInitCash);
 
             Map<String, Float> monthlyReturn = new HashMap<>();
             monthlyReturn.put("USDT", totalUsdtRetrun);
