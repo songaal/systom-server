@@ -35,6 +35,8 @@ public class UserMonthlyInvestController extends AbstractController {
             Map<String, Object> response = userMonthInvestService.getDailyInvest(userId);
             List<UserMonthlyInvest> userMonthlyInvestList = userMonthInvestService.retrieveUserMonthInvestList(userId);
             response.put("userMonthlyInvestList", userMonthlyInvestList);
+            Map<String, Float> sumInitCash = userMonthInvestService.getUserTotalInitCash(userId);
+            response.putAll(sumInitCash);
             return success(response);
         } catch (AbstractException e) {
             logger.error("", e);

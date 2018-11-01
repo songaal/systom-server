@@ -32,8 +32,6 @@ public class InvoiceService {
     private int maxFriendsSaleCount;
     @Value("${invest.initCommission}")
     private float initCommission;
-    @Value("${membership.price}")
-    private String memberShipPrice;
 
     public List<Invoice> retrieveInvoice(String userId) {
         return sqlSession.selectList("invoice.retrieveInvoice", userId);

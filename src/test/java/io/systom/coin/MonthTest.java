@@ -27,6 +27,14 @@ public class MonthTest {
     private UserMonthInvestService userMonthInvestService;
 
     @Test
+    public void aaa() {
+        List<String> userList = sqlSession.selectList("userMonthlyInvest.retrieveMonthlyUser");
+        logger.debug("사용자 수: {}", userList.size());
+        userMonthInvestService.updateMonthlyCalculation(userList);
+    }
+
+
+    @Test
     public void monthTest() {
 //        retrieveUpdateTargetUserList
 

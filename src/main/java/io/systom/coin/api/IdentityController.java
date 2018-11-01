@@ -5,10 +5,10 @@ import io.systom.coin.exception.AbstractException;
 import io.systom.coin.exception.OperationException;
 import io.systom.coin.exception.RequestException;
 import io.systom.coin.model.*;
+import io.systom.coin.service.CertificationService;
 import io.systom.coin.service.ExchangeService;
 import io.systom.coin.service.IdentityService;
 import io.systom.coin.service.InvitationService;
-import io.systom.coin.service.UserAttributeService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -41,7 +41,9 @@ public class IdentityController {
     @Autowired
     private InvitationService invitationService;
     @Autowired
-    private UserAttributeService userAttributeService;
+    private CertificationService certificationService;
+//    @Autowired
+//    private UserAttributeService userAttributeService;
     /**
      * 회원가입
      * */
@@ -126,7 +128,8 @@ public class IdentityController {
         Map<String, String> payload = identityService.parsePayload(idToken);
         payload.putAll(identityService.parsePayload(accessToken));
         payload.put("isManager", String.valueOf(identityService.isManager(userId)));
-        payload.put("isPaidPlan", String.valueOf(userAttributeService.isPaidPlan(userId)));
+        payload.put("isCertification", certificationService.getCertification(userId) != null ? "true" : "false");
+//        payload.put("isPaidPlan", String.valueOf(userAttributeService.isPaidPlan(userId)));
         return new ResponseEntity<>(payload, HttpStatus.OK);
     }
 

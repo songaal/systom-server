@@ -28,10 +28,11 @@
         <typeAlias alias="Telegram" type="io.systom.coin.model.Telegram"/>
         <typeAlias alias="MonthlyPerformanceSummary" type="io.systom.coin.model.MonthlyPerformanceSummary"/>
         <typeAlias alias="DailyInvestState" type="io.systom.coin.model.DailyInvestState"/>
-        <typeAlias alias="Card" type="io.systom.coin.model.Card"/>
         <typeAlias alias="UserAttribute" type="io.systom.coin.model.UserAttribute"/>
         <typeAlias alias="MembershipInvoice" type="io.systom.coin.model.MembershipInvoice"/>
         <typeAlias alias="UserMonthlySum" type="io.systom.coin.model.UserMonthlySum"/>
+        <typeAlias alias="Certification" type="io.systom.coin.model.Certification"/>
+
     </typeAliases>
 
 </configuration>

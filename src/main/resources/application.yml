@@ -69,7 +69,7 @@ billing:
   impKey: 7173788573360317
   impSecret: uuvKahDJzr2VEnIp3acBpwGzJ0tufZTJuotFF7pfzradPTDT4Pvtmb25cwzrwsa0REFxL4MkwXymQbfU
 
-membership:
-  termUnit: "MONTH"
-  term: 1
-  price: "100"
+#membership:
+#  termUnit: "MONTH"
+#  term: 1
+#  price: "100"

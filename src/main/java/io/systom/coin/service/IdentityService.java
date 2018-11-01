@@ -360,4 +360,11 @@ public class IdentityService {
     public String getGestUserId() {
         return gestUserId;
     }
+
+    public List<String> retrieveUserList() {
+
+
+
+        return null;
+    }
 }

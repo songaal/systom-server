@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class CurrencyUtils {
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(CurrencyUtils.class);
-    private static Map<String, Float> currencyRateMap = Collections.synchronizedMap(new HashMap<String, Float>());
+    private static Map<String, Float> currencyRateMap = Collections.synchronizedMap(new HashMap<>());
 
     public static float getCurrencyRate(String currency) {
         return currencyRateMap.get(currency);

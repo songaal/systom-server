@@ -218,4 +218,16 @@ public class UserMonthInvestService {
         return pct;
     }
 
+    public Map<String, Float> getUserTotalInitCash(String userId) {
+        Map<String, Object> initCash = sqlSession.selectOne("userMonthlyInvest.getSumInitCash", userId);
+        float sumUsdtInitCash = Float.parseFloat(initCash.get("sum_usdt_init_cash").toString());
+        float sumKrwInitCash = Float.parseFloat(initCash.get("sum_krw_init_cash").toString());
+        float totalSumUsdtInitCash = sumUsdtInitCash + (sumKrwInitCash / CurrencyUtils.getCurrencyRate("KRW"));
+        float totalSumKrwInitCash = sumKrwInitCash + (sumUsdtInitCash * CurrencyUtils.getCurrencyRate("KRW"));
+        Map<String, Float> result = new HashMap<>();
+        result .put("sumUsdtInitCash", totalSumUsdtInitCash);
+        result .put("sumKrwInitCash", totalSumKrwInitCash);
+        return result;
+    }
+
 }

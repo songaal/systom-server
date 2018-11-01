@@ -20,8 +20,7 @@
                                                        , ',', 1)
                                                        , '}', 1))
                   FROM user_monthly_invest b
-                 WHERE b.date <= a.date
-                   AND b.user_id = #{param1}
+                 WHERE b.user_id = #{param1}
              ) as sum_usdt_init_cash
 
              , (SELECT SUM( SUBSTRING_INDEX(
@@ -30,8 +29,7 @@
                                                        , ',', 1)
                                                        , '}', 1))
                   FROM user_monthly_invest b
-                 WHERE b.date <= a.date
-                   AND b.user_id = #{param1}
+                 WHERE b.user_id = #{param1}
              ) as sum_krw_init_cash
 
              , (SELECT SUM( SUBSTRING_INDEX(
@@ -158,5 +156,31 @@
         and a.user_id = #{param1}
     </select>
 
+    <select id="getSumInitCash" parameterType="String" resultType="HashMap">
+        SELECT (
+                SELECT ifnull(sum(a.invest_cash), 0)
+                  FROM invest_goods a
+                  JOIN goods b on a.goods_id = b.id
+                 WHERE a.user_id = #{param1}
+                   AND a.is_paper = false
+                   AND upper(b.cash_unit) = 'USDT'
+                ) AS sum_usdt_init_cash
+                ,(SELECT ifnull(sum(a.invest_cash), 0)
+                  FROM invest_goods a
+                  JOIN goods b on a.goods_id = b.id
+                 WHERE a.user_id = #{param1}
+                   AND a.is_paper = false
+                   AND upper(b.cash_unit) = 'KRW'
+                ) AS sum_krw_init_cash
+    </select>
 
+    <select id="retrieveMonthlyUser" resultType="String">
+        select a.user_id
+        from invest_goods a
+        where a.is_paper = false
+        and (a.is_finished = false
+        or date_format(a.create_time, '%Y%m') = date_format(now(), '%Y%m')
+        or date_format(a.end_time, '%Y%m') = date_format(now(), '%Y%m') )
+        group by a.user_id
+    </select>
 </mapper>
