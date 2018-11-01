@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'io.systom.coin'
-version '1.2.49'
+version '1.2.50'
 
 apply plugin: 'java'
 

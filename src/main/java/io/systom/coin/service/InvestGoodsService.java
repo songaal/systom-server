@@ -223,18 +223,18 @@ public class InvestGoodsService {
         investGoodsCommission.setEntity(perf.getEquity());
         investGoodsCommission.setReturns(perf.getReturns());
         investGoodsCommission.setReturnPct(perf.getReturnsPct());
-        investGoodsCommission.setCommission(0);
         investGoodsCommission.setCashUnit(registerGoods.getCashUnit());
         investGoodsCommission.setCommUnit(registerGoods.getCashUnit());
-        investGoodsCommission.setCommissionPct(initCommission);
-        investGoodsCommission.setCommission(0f);
+
+        int friendCount = invitationService.getFriendsCount(investGoodsInfo.getUserId());
+        float discount  = friendCount > maxFriendsSaleCount ? 5 : friendCount;
+        float commissionRate = ((initCommission - discount) / 100);
+        investGoodsCommission.setCommissionPct(commissionRate * 100);
+        investGoodsCommission.setCommission(0);
+
 //        1. 수익 0이상 처음 40%에서 친구초대시 한명당 1% 할인 최대 5%
         if (perf.getEquity() > perf.getInitCash()) {
-            int friendCount = invitationService.getFriendsCount(investGoodsInfo.getUserId());
-            float discount  = friendCount > maxFriendsSaleCount ? 5 : friendCount;
-            float commissionRate = ((initCommission - discount) / 100);
             float paymentPrice = (perf.getEquity() - perf.getInitCash()) * commissionRate;
-            investGoodsCommission.setCommissionPct(commissionRate * 100);
             investGoodsCommission.setCommission(paymentPrice);
         }
         investGoodsCommission.setTotalReturns((perf.getEquity() - perf.getInitCash()) - investGoodsCommission.getCommission());

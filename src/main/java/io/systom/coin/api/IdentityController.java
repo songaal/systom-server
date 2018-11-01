@@ -42,8 +42,7 @@ public class IdentityController {
     private InvitationService invitationService;
     @Autowired
     private CertificationService certificationService;
-//    @Autowired
-//    private UserAttributeService userAttributeService;
+
     /**
      * 회원가입
      * */
@@ -58,7 +57,12 @@ public class IdentityController {
         }
         AdminCreateUserResult result = identityService.signUp(identity.getUserId(), identity.getEmail());
         UserType user = result.getUser();
-        invitationService.updateRefUser(identity.getUserId(), identity.getRef());
+        if (identity.getRef() != null) {
+            Invitation registerInvitation = invitationService.findInvitationByRefCode(identity.getRef());
+            if (registerInvitation != null) {
+                invitationService.updateRefUser(identity.getUserId(), identity.getRef());
+            }
+        }
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
     /**
