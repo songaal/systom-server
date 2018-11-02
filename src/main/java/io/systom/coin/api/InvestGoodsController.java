@@ -11,7 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /*
  * create joonwoo 2018. 7. 6.
@@ -61,7 +63,11 @@ public class InvestGoodsController extends AbstractController{
                                             @PathVariable Integer investId) {
         try {
             Goods registerGoodsDetail = investGoodsService.getInvestGoodsDetail(investId, userId);
-            return success(registerGoodsDetail);
+            String exchangeKeyName = investGoodsService.getExchangeKeyName(investId);
+            Map<String, Object> response = new HashMap<>();
+            response.put("goodsDetail", registerGoodsDetail);
+            response.put("exchangeKeyName", exchangeKeyName);
+            return success(response);
         } catch (AbstractException e) {
             logger.error("", e);
             return e.response();

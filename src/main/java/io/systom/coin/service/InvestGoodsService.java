@@ -149,6 +149,10 @@ public class InvestGoodsService {
         return registerGoods;
     }
 
+    public String getExchangeKeyName (Integer investId) {
+        return sqlSession.selectOne("investGoods.getExchangeKeyName", investId);
+    }
+
     public InvestGoods removeInvestor(int investId, String userId) {
         InvestGoods investGoods = getInvestGoods(investId);
         if (investGoods == null){

@@ -28,7 +28,7 @@ public class MonthlyCalculateScheduler {
     private String isMonthCalculation;
 
 //    6 시간마다.
-    @Scheduled(cron = "* * 12 * * *")
+    @Scheduled(cron = "0 0 12 * * *")
     @Transactional
     public void task() {
         if (!"true".equalsIgnoreCase(isMonthCalculation)) {

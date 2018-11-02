@@ -101,4 +101,11 @@
          WHERE b.user_id = #{param1}
     </select>
 
+    <select id="getExchangeKeyName" resultType="String" parameterType="Integer">
+        SELECT b.name
+          FROM systom.invest_goods a
+          JOIN exchange_key b on a.exchange_key_id = b.id
+         WHERE a.id = #{param1}
+    </select>
+
 </mapper>
