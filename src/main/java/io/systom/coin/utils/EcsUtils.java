@@ -1,18 +1,29 @@
 package io.systom.coin.utils;
 
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
+import com.amazonaws.services.ec2.AmazonEC2;
+import com.amazonaws.services.ec2.AmazonEC2ClientBuilder;
+import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
+import com.amazonaws.services.ec2.model.DescribeInstancesResult;
 import com.amazonaws.services.ecs.AmazonECS;
 import com.amazonaws.services.ecs.AmazonECSClientBuilder;
 import com.amazonaws.services.ecs.model.*;
+import com.google.gson.Gson;
 import io.systom.coin.config.Env;
 import io.systom.coin.exception.OperationException;
+import io.systom.coin.model.CoinSignal;
+import io.systom.coin.model.DualSignal;
+import io.systom.coin.model.Network;
 import io.systom.coin.model.TraderTask;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
+import java.util.Map;
 
 /*
  * create joonwoo 2018. 3. 21.
@@ -46,10 +57,14 @@ public class EcsUtils {
     private String startSecond;
 
     private AmazonECS client;
+    private AmazonEC2 ec2Client;
 
     @PostConstruct
     public void init(){
         client = AmazonECSClientBuilder.standard()
+                .withCredentials(new ProfileCredentialsProvider(awsProfileName))
+                .build();
+        ec2Client = AmazonEC2ClientBuilder.standard()
                 .withCredentials(new ProfileCredentialsProvider(awsProfileName))
                 .build();
     }
@@ -165,4 +180,64 @@ public class EcsUtils {
 //        stopTaskResult.getTask().getLastStatus();
         return stopTaskResult.getTask();
     }
+
+    public ResponseEntity<String> executorSignal(String ecsTaskId, CoinSignal coinSignal) {
+        String requestBody = new Gson().toJson(coinSignal);
+        return executorRequest(ecsTaskId, requestBody);
+    }
+    public ResponseEntity<String> executorSignal(String ecsTaskId, DualSignal dualSignal) {
+        String requestBody = new Gson().toJson(dualSignal);
+        return executorRequest(ecsTaskId, requestBody);
+    }
+
+    protected ResponseEntity<String> executorRequest(String ecsTaskId, String requestBody) {
+        Network network = getTaskHostNetwork(ecsTaskId);
+        if (network == null) {
+            throw new OperationException("Not Found Task Container Network");
+        }
+        RestTemplate restTemplate = new RestTemplate();
+        String url = String.format("http://%s:%d/signal", network.getIp(), network.getPort());
+
+        return restTemplate.postForEntity(url, requestBody, String.class);
+    }
+
+    protected Network getTaskHostNetwork(String ecsTaskId) {
+        DescribeTasksRequest describeTasksRequest = new DescribeTasksRequest();
+        describeTasksRequest.withTasks(ecsTaskId);
+        describeTasksRequest.withCluster(clusterId);
+        DescribeTasksResult describeTasksResult =  client.describeTasks(describeTasksRequest);
+
+        Integer port = null;
+        String containerInstanceId = null;
+        for (Container container: describeTasksResult.getTasks().get(0).getContainers()) {
+            if ("systom-executor".equals(container.getName())) {
+                port = container.getNetworkBindings().get(0).getHostPort();
+                containerInstanceId = describeTasksResult.getTasks().get(0).getContainerInstanceArn();
+            }
+        }
+
+        if (port == null || containerInstanceId == null) {
+            return null;
+        }
+        logger.debug("executor request containerInstanceId: {}, port: {}", containerInstanceId, containerInstanceId);
+
+        DescribeContainerInstancesRequest describeContainerInstancesRequest = new DescribeContainerInstancesRequest();
+        describeContainerInstancesRequest.withCluster(clusterId);
+        describeContainerInstancesRequest.withContainerInstances(containerInstanceId);
+        DescribeContainerInstancesResult describeContainerInstancesResult = client.describeContainerInstances(describeContainerInstancesRequest);
+        String instanceId = describeContainerInstancesResult.getContainerInstances().get(0).getEc2InstanceId();
+
+        DescribeInstancesRequest describeInstancesRequest = new DescribeInstancesRequest();
+        describeInstancesRequest.withInstanceIds(instanceId);
+        DescribeInstancesResult describeInstancesResult = ec2Client.describeInstances(describeInstancesRequest);
+        String ip = describeInstancesResult.getReservations().get(0).getInstances().get(0).getPublicIpAddress();
+        Network network = new Network();
+        network.setIp(ip);
+        network.setPort(port);
+
+        return network;
+    }
+
+
+
 }

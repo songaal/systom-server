@@ -13,7 +13,7 @@ import java.util.List;
 public class TraderTask {
 
 //    public enum SESSION_TYPE { backtest, paper, live }
-    public enum ACTIONS { start, stop, backtest, reset, hide, show, error }
+    public enum ACTIONS { start, stop, backtest, reset, hide, show, error, bot, sld }
 
     private String id;              // 임시 아이디 발급 (signal model download 용)
     private String sessionType;
@@ -34,6 +34,28 @@ public class TraderTask {
 //  ------ 라이브 전용 필드
     private Integer goodsId;
 //  ------ 라이브 전용 필드
+
+//  ------ 매뉴얼 주문
+    private Float weight;
+    private String message;
+//  ------ 매뉴얼 주문
+
+
+    public Float getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Float weight) {
+        this.weight = weight;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
 
     public String getAction() {
         return action;

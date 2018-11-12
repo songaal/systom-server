@@ -35,8 +35,8 @@ public class GoodsController extends AbstractController{
     private IdentityService identityService;
     @Autowired
     private TaskService taskService;
-    @Autowired
-    private EcsUtils ecsUtils;
+//    @Autowired
+//    private EcsUtils ecsUtils;
 
     public enum GOODS_TYPE { open, close, all }
     // 진행, 종료
@@ -90,7 +90,7 @@ public class GoodsController extends AbstractController{
                     registerGoodsList.addAll(goodsService.retrieveGoodsList(searchGoods));
                 }
                 int goodsSize = registerGoodsList.size();
-                List<String> runTaskList = ecsUtils.getRunningTaskList();
+                List<String> runTaskList = goodsService.getRunningTaskList();
                 for (int i=0; i < goodsSize; i++) {
                     Goods tmpGoods = registerGoodsList.get(i);
                     String goodsTaskArn = tmpGoods.getTaskEcsId();
@@ -220,8 +220,8 @@ public class GoodsController extends AbstractController{
 
     @PostMapping("/{id}/actions")
     public ResponseEntity<?> goodsActions(@PathVariable Integer id,
-                                              @RequestAttribute String userId,
-                                              @RequestBody TraderTask traderTask) {
+                                          @RequestAttribute String userId,
+                                          @RequestBody TraderTask traderTask) {
         try {
             traderTask.setGoodsId(id);
             traderTask.setUserId(userId);
@@ -244,6 +244,12 @@ public class GoodsController extends AbstractController{
                 Goods registerGoods = goodsService.resetGoodsTestResult(id);
                 registerGoods.setTaskRunning(isEcsTaskRunning(registerGoods.getTaskEcsId()));
                 return success(registerGoods);
+            } else if (TraderTask.ACTIONS.bot.name().equals(traderTask.getAction())) {
+                String response = goodsService.order(id, "BOT", traderTask.getWeight(), traderTask.getMessage(), userId);
+                return success(response);
+            } else if (TraderTask.ACTIONS.sld.name().equals(traderTask.getAction())) {
+                String response = goodsService.order(id, "SLD", traderTask.getWeight(), traderTask.getMessage(), userId);
+                return success(response);
             } else {
                 throw new ParameterException("action");
             }
@@ -260,8 +266,7 @@ public class GoodsController extends AbstractController{
         if (taskEcsId == null) {
             return false;
         }
-
-        Task task = ecsUtils.getDescribeTasks(taskEcsId);
+        Task task = goodsService.getDescribeTasks(taskEcsId);
         return "RUNNING".equalsIgnoreCase(task.getLastStatus());
     }
 
@@ -269,29 +274,29 @@ public class GoodsController extends AbstractController{
 
 
 
-//    TODO 개발중
-    public ResponseEntity<?> tmpGoodsActions(@PathVariable Integer id,
-                                          @RequestAttribute String userId,
-                                          @RequestBody TraderTask traderTask) {
-        try {
-            traderTask.setGoodsId(id);
-            traderTask.setUserId(userId);
-            if (TraderTask.ACTIONS.show.name().equals(traderTask.getAction())) {
-                Goods registerGoods = goodsService.updateGoodsHide(id, userId);
-                return success(registerGoods);
-            } else if (TraderTask.ACTIONS.hide.name().equals(traderTask.getAction())) {
-                Goods registerGoods = goodsService.updateGoodsShow(id, userId);
-                return success(registerGoods);
-            } else {
-                throw new ParameterException("action");
-            }
-        } catch (AbstractException e) {
-            logger.error("", e);
-            return e.response();
-        } catch (Throwable t) {
-            logger.error("Throwable: ", t);
-            return new OperationException().response();
-        }
-    }
+////    TODO 개발중
+//    public ResponseEntity<?> tmpGoodsActions(@PathVariable Integer id,
+//                                          @RequestAttribute String userId,
+//                                          @RequestBody TraderTask traderTask) {
+//        try {
+//            traderTask.setGoodsId(id);
+//            traderTask.setUserId(userId);
+//            if (TraderTask.ACTIONS.show.name().equals(traderTask.getAction())) {
+//                Goods registerGoods = goodsService.updateGoodsHide(id, userId);
+//                return success(registerGoods);
+//            } else if (TraderTask.ACTIONS.hide.name().equals(traderTask.getAction())) {
+//                Goods registerGoods = goodsService.updateGoodsShow(id, userId);
+//                return success(registerGoods);
+//            } else {
+//                throw new ParameterException("action");
+//            }
+//        } catch (AbstractException e) {
+//            logger.error("", e);
+//            return e.response();
+//        } catch (Throwable t) {
+//            logger.error("Throwable: ", t);
+//            return new OperationException().response();
+//        }
+//    }
 
 }

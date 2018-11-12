@@ -1,22 +1,23 @@
 package io.systom.coin.service;
 
+import com.amazonaws.services.ecs.model.Task;
 import com.google.gson.Gson;
 import io.systom.coin.exception.AuthenticationException;
 import io.systom.coin.exception.OperationException;
 import io.systom.coin.exception.ParameterException;
 import io.systom.coin.exception.RequestException;
 import io.systom.coin.model.*;
+import io.systom.coin.utils.EcsUtils;
 import io.systom.coin.utils.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import static io.systom.coin.utils.DateUtils.formatDate;
 
@@ -39,6 +40,8 @@ public class GoodsService {
     private ExchangeService exchangeService;
     @Autowired
     private InvestGoodsService investGoodsService;
+    @Autowired
+    private EcsUtils ecsUtils;
 
 //    public static final String DATE_FORMAT = "yyyyMMdd";
 //    public static final String TIME_FORMAT = "HHmmss";
@@ -307,5 +310,67 @@ public class GoodsService {
 
     public int updateChangeUsers(int goodsId) {
         return sqlSession.update("goods.updateChangeUsers", goodsId);
+    }
+
+    public List<String> getRunningTaskList () {
+        return ecsUtils.getRunningTaskList();
+    }
+
+    public Task getDescribeTasks(String taskEcsId) {
+        return ecsUtils.getDescribeTasks(taskEcsId);
+    }
+
+    public String order (Integer goodsId, String action, Float weight, String message, String userId) {
+
+        if (!identityService.isManager(userId)) {
+            throw new AuthenticationException();
+        }
+
+        Goods goods = getGoods(goodsId);
+        if (goods == null || goods.getTaskEcsId() == null) {
+            throw new OperationException("TASK ECS ID IS NULL");
+        }
+        boolean isDual = !goods.getCashUnit().equals(goods.getBaseUnit());
+
+        String symbol = String.format("%s/%s", goods.getCoinUnit(), goods.getBaseUnit());
+        CoinSignal coinSignal = new CoinSignal();
+        coinSignal.setType("SIGNAL");
+        coinSignal.setAction(action);
+        coinSignal.setTime((int) new Date().getTime());
+        coinSignal.setSymbol(symbol);
+        coinSignal.setWeight(isDual ? 1 : weight);
+        CoinSignal.Reason coinReason = new CoinSignal.Reason();
+        coinReason.setAuthor(userId);
+        coinReason.setMessage(message);
+        coinSignal.setReason(coinReason);
+
+        ResponseEntity<String> response;
+        if (isDual) {
+//            dual
+            String baseSymbol = String.format("%s/%s", goods.getBaseUnit(), goods.getCashUnit());
+            CoinSignal baseSignal = new CoinSignal();
+            baseSignal.setType("SIGNAL");
+            baseSignal.setAction(action);
+            baseSignal.setTime((int) new Date().getTime());
+            baseSignal.setSymbol(baseSymbol);
+            baseSignal.setWeight(weight);
+            CoinSignal.Reason baseReason = new CoinSignal.Reason();
+            baseReason.setAuthor(userId);
+            baseReason.setMessage(message);
+            baseSignal.setReason(baseReason);
+
+            DualSignal dualSignal = new DualSignal();
+            dualSignal.setType("SIGNAL");
+            dualSignal.setTime(new SimpleDateFormat("YYYY-MM-dd hh:mm:ss").format(new Date()));
+            dualSignal.setCoin_signal(coinSignal);
+            dualSignal.setBase_signal(baseSignal);
+            response = ecsUtils.executorSignal(goods.getTaskEcsId(), dualSignal);
+        } else {
+//             single
+            response = ecsUtils.executorSignal(goods.getTaskEcsId(), coinSignal);
+        }
+
+        logger.debug("{}", response.getBody());
+        return response.getBody();
     }
 }
