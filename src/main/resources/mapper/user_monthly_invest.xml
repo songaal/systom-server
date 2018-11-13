@@ -82,7 +82,7 @@
             where date_format(a.create_time, '%Y%m') = #{date}
             and upper(b.cash_unit) = 'USDT'
             and a.user_id = #{userId}
-            and a.is_paper = false
+            <!--and a.is_paper = false-->
         ) as usdt_init_cash
         , ( select ifnull(sum(a.invest_cash), 0)
             from invest_goods a
@@ -90,7 +90,7 @@
             where date_format(a.create_time, '%Y%m') = #{date}
             and upper(b.cash_unit) = 'KRW'
             and a.user_id = #{userId}
-            and a.is_paper = false
+            <!--and a.is_paper = false-->
         ) as krw_init_cash
         , ( select ifnull(sum(c.returns), 0)
             from invest_goods a
@@ -102,7 +102,7 @@
             or date_format(a.create_time, '%Y%m') = #{date})
             and upper(b.cash_unit) = 'USDT'
             and a.user_id = #{userId}
-            and a.is_paper = false
+            <!--and a.is_paper = false-->
         ) as usdt_return
             , ( select ifnull(sum(c.returns), 0)
             from invest_goods a
@@ -114,7 +114,7 @@
             or date_format(a.create_time, '%Y%m') = #{date})
             and upper(b.cash_unit) = 'KRW'
             and a.user_id = #{userId}
-            and a.is_paper = false
+            <!--and a.is_paper = false-->
         ) as krw_return
     </select>
 
@@ -150,7 +150,7 @@
         FROM invest_goods a
         join performance_daily b on b.invest_id = a.id
         join goods c on c.id = a.goods_id
-        where a.is_paper = false
+        <!--where a.is_paper = false-->
         and a.is_finished = false
         and b.date = date_format(now(), '%Y%m%d')
         and a.user_id = #{param1}
@@ -162,14 +162,14 @@
                   FROM invest_goods a
                   JOIN goods b on a.goods_id = b.id
                  WHERE a.user_id = #{param1}
-                   AND a.is_paper = false
+                   <!--AND a.is_paper = false-->
                    AND upper(b.cash_unit) = 'USDT'
                 ) AS sum_usdt_init_cash
                 ,(SELECT ifnull(sum(a.invest_cash), 0)
                   FROM invest_goods a
                   JOIN goods b on a.goods_id = b.id
                  WHERE a.user_id = #{param1}
-                   AND a.is_paper = false
+                   <!--AND a.is_paper = false-->
                    AND upper(b.cash_unit) = 'KRW'
                 ) AS sum_krw_init_cash
     </select>
@@ -177,7 +177,7 @@
     <select id="retrieveMonthlyUser" resultType="String">
         select a.user_id
         from invest_goods a
-        where a.is_paper = false
+        <!--where a.is_paper = false-->
         and (a.is_finished = false
         or date_format(a.create_time, '%Y%m') = date_format(now(), '%Y%m')
         or date_format(a.end_time, '%Y%m') = date_format(now(), '%Y%m') )
