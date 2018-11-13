@@ -223,4 +223,10 @@
            SET a.change_users = true
          WHERE a.id = #{param1}
     </update>
+
+    <update id="updatePublicInvestId" parameterType="Integer">
+        UPDATE goods
+        SET public_invest_id = #{publicInvestId}
+        WHERE id = #{id}
+    </update>
 </mapper>

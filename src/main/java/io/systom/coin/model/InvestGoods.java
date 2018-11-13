@@ -19,11 +19,25 @@ public class InvestGoods {
 
     public InvestGoods() {}
 
-    public InvestGoods(Integer goodsId, String userId, Float investCash, Integer exchangeKeyId) {
+    public InvestGoods(Integer goodsId, String userId, Float investCash, Integer exchangeKeyId, Boolean isPaper) {
         this.goodsId = goodsId;
         this.userId = userId;
         this.investCash = investCash;
         this.exchangeKeyId = exchangeKeyId;
+        this.isPaper = isPaper;
+    }
+
+    public static InvestGoods createInvestGoods(Goods goods) {
+        String cashUnit = goods.getCashUnit();
+        Float investCash = 0f;
+        if(cashUnit.equalsIgnoreCase("USDT")){
+            //1000달러. 한화로 약 100만원.
+            investCash = 1000.0f;
+        }else if(cashUnit.equalsIgnoreCase("KRW")){
+            //한화 100만원.
+            investCash = 1000000.0f;
+        }
+        return new InvestGoods(goods.getId(), goods.getUserId(), investCash, -1, true);
     }
 
     public Integer getId() {

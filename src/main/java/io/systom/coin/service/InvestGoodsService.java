@@ -63,9 +63,13 @@ public class InvestGoodsService {
 
 
 
-    public InvestGoods registrationInvestor(InvestGoods investor) {
+    public InvestGoods registerInvestor(InvestGoods investor) {
         Goods registerGoods = goodsService.getGoods(investor.getGoodsId());
-        if (registerGoods == null || !registerGoods.getDisplay()) {
+//        if (registerGoods == null || !registerGoods.getDisplay()) {
+//            throw new RequestException("invalid goods");
+//        }
+        //2018-11-13 swsong 안보이는 상품 제약조건 없앰.
+        if (registerGoods == null) {
             throw new RequestException("invalid goods");
         }
         else if (investor.getInvestCash() == null
@@ -91,7 +95,7 @@ public class InvestGoodsService {
         }
 
         try {
-            int changeRow = sqlSession.insert("investGoods.registrationInvestor", investor);
+            int changeRow = sqlSession.insert("investGoods.registerInvestor", investor);
             if (changeRow != 1) {
                 throw new OperationException("[FAIL] SQL Execute. change row: " + changeRow);
             }

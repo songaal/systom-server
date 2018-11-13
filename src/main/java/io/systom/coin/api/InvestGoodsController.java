@@ -28,11 +28,11 @@ public class InvestGoodsController extends AbstractController{
     private InvestGoodsService investGoodsService;
 
     @PostMapping
-    public ResponseEntity<?> registrationInvestor(@RequestAttribute String userId,
-                                                  @RequestBody InvestGoods investor) {
+    public ResponseEntity<?> registerInvestor(@RequestAttribute String userId,
+                                              @RequestBody InvestGoods investor) {
         try {
             investor.setUserId(userId);
-            InvestGoods investGoods = investGoodsService.registrationInvestor(investor);
+            InvestGoods investGoods = investGoodsService.registerInvestor(investor);
             return success(investGoods);
         } catch (AbstractException e) {
             logger.error("", e);

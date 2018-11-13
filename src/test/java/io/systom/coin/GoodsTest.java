@@ -159,7 +159,7 @@ public class GoodsTest {
         investor.setGoodsId(investGoods.getId());
         investor.setExchangeKeyId(3);
         investor.setInvestCash(500f);
-        logger.info("투자 등록[{}] {}" , investor.getUserId(), investGoodsService.registrationInvestor(investor));
+        logger.info("투자 등록[{}] {}" , investor.getUserId(), investGoodsService.registerInvestor(investor));
 
         logger.info("상품 정보 조회 {}" , goodsService.getGoods(investor.getGoodsId()));
 
