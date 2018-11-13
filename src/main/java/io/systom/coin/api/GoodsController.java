@@ -25,7 +25,7 @@ import java.util.List;
  * 
  */
 @RestController
-@RequestMapping("g")
+@RequestMapping("/v1/goods")
 public class GoodsController extends AbstractController{
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(GoodsController.class);
     private static org.slf4j.Logger goodsErrorLogger = LoggerFactory.getLogger("goodsError");

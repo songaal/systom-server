@@ -37,7 +37,7 @@ public class InvestGoods {
             //한화 100만원.
             investCash = 1000000.0f;
         }
-        return new InvestGoods(goods.getId(), goods.getUserId(), investCash, -1, true);
+        return new InvestGoods(goods.getId(), goods.getAuthorId(), investCash, -1, true);
     }
 
     public Integer getId() {

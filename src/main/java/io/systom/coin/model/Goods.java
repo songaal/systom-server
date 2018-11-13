@@ -302,6 +302,14 @@ public class Goods {
         this.endTime = endTime;
     }
 
+    public Integer getPublicInvestId() {
+        return publicInvestId;
+    }
+
+    public void setPublicInvestId(Integer publicInvestId) {
+        this.publicInvestId = publicInvestId;
+    }
+
     @Override
     public String toString() {
         return "Goods{" +
