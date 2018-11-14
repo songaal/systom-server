@@ -5,11 +5,12 @@ import io.systom.coin.exception.AbstractException;
 import io.systom.coin.exception.OperationException;
 import io.systom.coin.exception.ParameterException;
 import io.systom.coin.model.Goods;
+import io.systom.coin.model.InvestGoods;
 import io.systom.coin.model.TraderTask;
 import io.systom.coin.service.GoodsService;
 import io.systom.coin.service.IdentityService;
+import io.systom.coin.service.InvestGoodsService;
 import io.systom.coin.service.TaskService;
-import io.systom.coin.utils.EcsUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -31,12 +32,15 @@ public class GoodsController extends AbstractController{
 
     @Autowired
     private GoodsService goodsService;
+
+    @Autowired
+    private InvestGoodsService investGoodsService;
+
     @Autowired
     private IdentityService identityService;
+
     @Autowired
     private TaskService taskService;
-//    @Autowired
-//    private EcsUtils ecsUtils;
 
     public enum GOODS_TYPE { open, close, all }
     // 진행, 종료
@@ -47,6 +51,12 @@ public class GoodsController extends AbstractController{
         try {
             target.setAuthorId(userId);
             Goods registerGoods = goodsService.registerGoods(target);
+            InvestGoods investor = InvestGoods.createInvestGoods(registerGoods);
+            InvestGoods investGoods = investGoodsService.registerInvestor(investor);
+            int goodsId = registerGoods.getId();
+            int investorId = investGoods.getId();
+            // goods 테이블에 public invest id 를 등록해준다.
+            goodsService.updatePublicInvestId(goodsId, investorId);
             return success(registerGoods);
         } catch (AbstractException e) {
             logger.error("", e);

@@ -25,6 +25,8 @@ public class Goods {
     private String authorId;
     private Date createTime;
     private String testResult;
+    /* 가상투자자. 상품생성시 자동으로 참가하는 invest_id */
+    private Integer publicInvestId;
     private String userId;
     private float investCash;
     private Integer investId;
@@ -298,6 +300,14 @@ public class Goods {
 
     public void setEndTime(Date endTime) {
         this.endTime = endTime;
+    }
+
+    public Integer getPublicInvestId() {
+        return publicInvestId;
+    }
+
+    public void setPublicInvestId(Integer publicInvestId) {
+        this.publicInvestId = publicInvestId;
     }
 
     @Override

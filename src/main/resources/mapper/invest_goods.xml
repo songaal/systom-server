@@ -10,7 +10,7 @@
         <association property="performanceSummary" column="invest_id" select="performance.getPerformanceSummary" />
     </resultMap>
 
-    <insert id="registrationInvestor" parameterType="InvestGoods" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    <insert id="registerInvestor" parameterType="InvestGoods" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO invest_goods (goods_id, user_id, exchange_key_id, invest_cash, is_paper, is_finished)
         VALUES (${goodsId},
                 #{userId},

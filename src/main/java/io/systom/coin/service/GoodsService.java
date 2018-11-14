@@ -312,6 +312,13 @@ public class GoodsService {
         return sqlSession.update("goods.updateChangeUsers", goodsId);
     }
 
+    public int updatePublicInvestId(int goodsId, int publicInvestId) {
+        Map<String, Object> param = new HashMap<>();
+        param.put("id", goodsId);
+        param.put("publicInvestId", publicInvestId);
+        return sqlSession.update("goods.updatePublicInvestId", param);
+    }
+
     public List<String> getRunningTaskList () {
         return ecsUtils.getRunningTaskList();
     }
