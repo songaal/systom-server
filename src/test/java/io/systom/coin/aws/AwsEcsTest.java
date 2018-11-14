@@ -59,7 +59,7 @@ public class AwsEcsTest {
         coinSignal.setAction("SLD");
         coinSignal.setSymbol("FUN/BTC");
         coinSignal.setType("SIGNAL");
-        coinSignal.setWeight(1);
+        coinSignal.setWeight(1f);
         CoinSignal.Reason coinReason = new CoinSignal.Reason();
         coinReason.setAuthor("joonwoo");
         coinReason.setMessage("testtest");
@@ -70,7 +70,7 @@ public class AwsEcsTest {
         baseSignal.setAction("SLD");
         baseSignal.setSymbol("BTC/USDT");
         baseSignal.setType("SIGNAL");
-        baseSignal.setWeight(1);
+        baseSignal.setWeight(1f);
         CoinSignal.Reason baseReason = new CoinSignal.Reason();
         baseReason.setAuthor("joonwoo");
         baseReason.setMessage("basetestestset");

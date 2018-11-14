@@ -12,6 +12,7 @@ import io.systom.coin.exception.ParameterException;
 import io.systom.coin.exception.RequestException;
 import io.systom.coin.model.ChangePassword;
 import io.systom.coin.model.ForgotPassword;
+import io.systom.coin.model.InvestGoods;
 import io.systom.coin.model.UserNotification;
 import io.systom.coin.utils.CognitoPubKeyStore;
 import io.systom.coin.utils.CredentialsCache;
@@ -50,6 +51,23 @@ public class IdentityService {
 
     @Autowired
     private SqlSession sqlSession;
+
+    @Autowired
+    private PerformanceService performanceService;
+    @Autowired
+    private BillingService billingService;
+    @Autowired
+    private InvestGoodsService investGoodsService;
+    @Autowired
+    private UserMonthInvestService userMonthInvestService;
+    @Autowired
+    private InvitationService invitationService;
+    @Autowired
+    private InvoiceService invoiceService;
+    @Autowired
+    private ExchangeService exchangeService;
+    @Autowired
+    private TradeService tradeService;
 
     private List<String> manager = Arrays.asList("joonwoo", "songaal");
 
@@ -361,10 +379,9 @@ public class IdentityService {
         return gestUserId;
     }
 
-    public List<String> retrieveUserList() {
+    public void unRegister(String userId, String message) {
 
 
 
-        return null;
     }
 }

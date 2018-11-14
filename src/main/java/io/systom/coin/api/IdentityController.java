@@ -5,10 +5,7 @@ import io.systom.coin.exception.AbstractException;
 import io.systom.coin.exception.OperationException;
 import io.systom.coin.exception.RequestException;
 import io.systom.coin.model.*;
-import io.systom.coin.service.CertificationService;
-import io.systom.coin.service.ExchangeService;
-import io.systom.coin.service.IdentityService;
-import io.systom.coin.service.InvitationService;
+import io.systom.coin.service.*;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -180,6 +177,20 @@ public class IdentityController {
         }
     }
 
+    /**
+     * TODO 회원탈퇴
+     */
+    @RequestMapping(value = "/changePassword", method = RequestMethod.DELETE)
+    public ResponseEntity<?> unRegister(@CookieValue(ACCESS_TOKEN) String accessToken) {
+        try {
+            // 회원탈퇴.. 모든 정보 삭제..
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (RequestException e){
+            return e.response();
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
 
     /**
      * 거래소 키 조회
