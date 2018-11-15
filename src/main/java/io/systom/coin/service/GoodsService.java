@@ -327,8 +327,7 @@ public class GoodsService {
         return ecsUtils.getDescribeTasks(taskEcsId);
     }
 
-    public String order (Integer goodsId, String action, Float weight, String message, String userId) {
-
+    public String order (Integer goodsId, Float coinWeight, String coinAction, Float baseWeight, String baseAction, String message, String userId) {
         if (!identityService.isManager(userId)) {
             throw new AuthenticationException();
         }
@@ -342,10 +341,10 @@ public class GoodsService {
         String symbol = String.format("%s/%s", goods.getCoinUnit(), goods.getBaseUnit());
         CoinSignal coinSignal = new CoinSignal();
         coinSignal.setType("SIGNAL");
-        coinSignal.setAction(action);
+        coinSignal.setAction(coinAction);
         coinSignal.setTime((int) new Date().getTime());
         coinSignal.setSymbol(symbol);
-        coinSignal.setWeight(isDual ? 1 : weight);
+        coinSignal.setWeight(coinWeight);
         CoinSignal.Reason coinReason = new CoinSignal.Reason();
         coinReason.setAuthor(userId);
         coinReason.setMessage(message);
@@ -357,10 +356,10 @@ public class GoodsService {
             String baseSymbol = String.format("%s/%s", goods.getBaseUnit(), goods.getCashUnit());
             CoinSignal baseSignal = new CoinSignal();
             baseSignal.setType("SIGNAL");
-            baseSignal.setAction(action);
+            baseSignal.setAction(baseAction);
             baseSignal.setTime((int) new Date().getTime());
             baseSignal.setSymbol(baseSymbol);
-            baseSignal.setWeight(weight);
+            baseSignal.setWeight(baseWeight);
             CoinSignal.Reason baseReason = new CoinSignal.Reason();
             baseReason.setAuthor(userId);
             baseReason.setMessage(message);
@@ -377,7 +376,7 @@ public class GoodsService {
             response = ecsUtils.executorSignal(goods.getTaskEcsId(), coinSignal);
         }
 
-        logger.debug("{}", response.getBody());
+        logger.debug("Order result >> {}", response.getBody());
         return response.getBody();
     }
 }

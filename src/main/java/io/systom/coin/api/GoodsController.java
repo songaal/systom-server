@@ -254,11 +254,9 @@ public class GoodsController extends AbstractController{
                 Goods registerGoods = goodsService.resetGoodsTestResult(id);
                 registerGoods.setTaskRunning(isEcsTaskRunning(registerGoods.getTaskEcsId()));
                 return success(registerGoods);
-            } else if (TraderTask.ACTIONS.bot.name().equals(traderTask.getAction())) {
-                String response = goodsService.order(id, "BOT", traderTask.getWeight(), traderTask.getMessage(), userId);
-                return success(response);
-            } else if (TraderTask.ACTIONS.sld.name().equals(traderTask.getAction())) {
-                String response = goodsService.order(id, "SLD", traderTask.getWeight(), traderTask.getMessage(), userId);
+            } else if(TraderTask.ACTIONS.order.name().equals(traderTask.getAction())) {
+                String response = goodsService.order(id, traderTask.getCoinWeight(), traderTask.getCoinAction(),
+                        traderTask.getBaseWeight(), traderTask.getBaseAction(), traderTask.getMessage(), userId);
                 return success(response);
             } else {
                 throw new ParameterException("action");
