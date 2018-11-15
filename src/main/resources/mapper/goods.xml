@@ -44,6 +44,7 @@
              , a.create_time
              , a.task_ecs_id
              , a.timezone
+             , a.public_invest_id
              , ifnull(b.invest_cash, 0) as invest_cash
             <if test="userId != null and userId != ''">
              , c.invest_id

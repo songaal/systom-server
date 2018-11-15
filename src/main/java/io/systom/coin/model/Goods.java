@@ -37,6 +37,7 @@ public class Goods {
     private String timezone;
 
     private List<TraderTaskResult.Result.Trade> tradeHistory;
+    private List<TraderTaskResult.Result.Trade> publicTradeHistory;
     private PerformanceSummary performanceSummary;
     private List<PerformanceDaily> performanceDaily;
     private TradeStat tradeStat;
@@ -45,6 +46,14 @@ public class Goods {
     private boolean isPaper;
     private boolean isFinished;
     private Date endTime;
+
+    public List<TraderTaskResult.Result.Trade> getPublicTradeHistory() {
+        return publicTradeHistory;
+    }
+
+    public void setPublicTradeHistory(List<TraderTaskResult.Result.Trade> publicTradeHistory) {
+        this.publicTradeHistory = publicTradeHistory;
+    }
 
     public Integer getId() {
         return id;

@@ -1,6 +1,7 @@
 package io.systom.coin.service;
 
 import com.amazonaws.services.ecs.model.Task;
+import com.amazonaws.util.json.Jackson;
 import com.google.gson.Gson;
 import io.systom.coin.exception.AuthenticationException;
 import io.systom.coin.exception.OperationException;
@@ -42,6 +43,8 @@ public class GoodsService {
     private InvestGoodsService investGoodsService;
     @Autowired
     private EcsUtils ecsUtils;
+    @Autowired
+    private TradeService tradeService;
 
 //    public static final String DATE_FORMAT = "yyyyMMdd";
 //    public static final String TIME_FORMAT = "HHmmss";
@@ -88,12 +91,16 @@ public class GoodsService {
         Goods searchGoods = new Goods();
         searchGoods.setId(goodsId);
         searchGoods.setUserId(userId);
-        Goods registerGoods = null;
+        Goods registerGoods;
 
         try {
             registerGoods = sqlSession.selectOne("goods.getGoods", searchGoods);
             if (registerGoods == null) {
                 throw new ParameterException("goodsId");
+            }
+//
+            if (registerGoods.getPublicInvestId() != null) {
+                registerGoods.setPublicTradeHistory(tradeService.getTradeHistory(registerGoods.getPublicInvestId()));
             }
         } catch (Exception e) {
             logger.error("", e);
