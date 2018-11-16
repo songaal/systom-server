@@ -46,6 +46,8 @@ public class GoodsService {
     private TradeService tradeService;
     @Autowired
     private UserMonthInvestService userMonthInvestService;
+    @Autowired
+    private PerformanceService performanceService;
 
 //    public static final String DATE_FORMAT = "yyyyMMdd";
 //    public static final String TIME_FORMAT = "HHmmss";
@@ -103,6 +105,9 @@ public class GoodsService {
             if (registerGoods.getPublicInvestId() != null) {
                 registerGoods.setPublicTradeHistory(tradeService.getTradeHistory(registerGoods.getPublicInvestId()));
                 registerGoods.setPublicMonthlyReturnsPct(userMonthInvestService.getDailyToMonthlyList(registerGoods.getPublicInvestId()));
+                PerformanceSummary perf = performanceService.getPerformanceSummary(registerGoods.getPublicInvestId());
+                registerGoods.setPublicReturnsPct(perf.getReturnsPct());
+                registerGoods.setPublicMdd(perf.getMdd());
             }
         } catch (Exception e) {
             logger.error("", e);

@@ -39,6 +39,9 @@ public class Goods {
     private List<TraderTaskResult.Result.Trade> tradeHistory;
     private List<TraderTaskResult.Result.Trade> publicTradeHistory;
     private List<MonthlyReturn> publicMonthlyReturnsPct;
+    private float publicReturnsPct;
+    private float publicMdd;
+
     private PerformanceSummary performanceSummary;
     private List<PerformanceDaily> performanceDaily;
     private TradeStat tradeStat;
@@ -48,6 +51,22 @@ public class Goods {
     private boolean isFinished;
     private Date endTime;
     private boolean isExecuting;
+
+    public float getPublicReturnsPct() {
+        return publicReturnsPct;
+    }
+
+    public void setPublicReturnsPct(float publicReturnsPct) {
+        this.publicReturnsPct = publicReturnsPct;
+    }
+
+    public float getPublicMdd() {
+        return publicMdd;
+    }
+
+    public void setPublicMdd(float publicMdd) {
+        this.publicMdd = publicMdd;
+    }
 
     public List<MonthlyReturn> getPublicMonthlyReturnsPct() {
         return publicMonthlyReturnsPct;
