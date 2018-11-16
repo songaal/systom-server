@@ -237,4 +237,54 @@
           FROM goods
          WHERE id = #{param1}
     </select>
+
+    <select id="getDailyToMonthlyReturns" resultType="HashMap" parameterType="Integer">
+        SELECT ifnull(a.cum_returns, 0) as cum_returns
+             , b.monthly
+             , ifnull(if(b.monthly = (SELECT date_format(create_time, '%Y%m')
+                                        FROM invest_goods
+                                       WHERE id = #{param1} )
+                         , ( SELECT prev_equity
+                               FROM performance_daily
+                              WHERE invest_id = #{param1}
+                                AND date = 'START' )
+                         , ( SELECT equity
+                               FROM performance_daily
+                              WHERE invest_id = #{param1}
+                                AND date = REPLACE(LAST_DAY(DATE_SUB(CONCAT(b.monthly, '01'), INTERVAL 1 MONTH)), '-', '')))
+                      , 0) as prev_equity
+          FROM ( ( SELECT d.cum_returns
+                        , SUBSTR(d.date,  1, 6) as monthly
+                        , d.prev_equity
+                        , d.date
+                     FROM performance_daily d
+                    WHERE invest_id = #{param1}
+                      AND ( REPLACE(LAST_DAY(d.`date`), '-', '') = d.date
+                       OR REPLACE(SUBSTR(now(), 1,10), '-', '') = d.date )
+                    GROUP BY d.date )
+                 UNION DISTINCT
+                 ( SELECT d.cum_returns
+                        , SUBSTR(d.date,  1, 6) as monthly
+                        , d.prev_equity
+                        , d.date
+                     FROM performance_daily d
+                    WHERE invest_id = #{param1}
+                    GROUP BY d.date
+                    LIMIT 1 )
+             ) a
+        RIGHT JOIN ( SELECT DATE_FORMAT(DATE_SUB(now() , INTERVAL 5 MONTH), '%Y%m') as monthly
+                     UNION
+                     SELECT DATE_FORMAT(DATE_SUB(now() , INTERVAL 4 MONTH), '%Y%m')
+                     UNION
+                     SELECT DATE_FORMAT(DATE_SUB(now() , INTERVAL 3 MONTH), '%Y%m')
+                     UNION
+                     SELECT DATE_FORMAT(DATE_SUB(now() , INTERVAL 2 MONTH), '%Y%m')
+                     UNION
+                     SELECT DATE_FORMAT(DATE_SUB(now() , INTERVAL 1 MONTH), '%Y%m')
+                     UNION
+                     SELECT DATE_FORMAT(now(), '%Y%m') as date
+            ) b on a.monthly = b.monthly
+        GROUP BY b.monthly
+        ORDER BY monthly
+    </select>
 </mapper>

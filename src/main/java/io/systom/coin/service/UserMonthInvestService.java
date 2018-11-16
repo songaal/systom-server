@@ -3,6 +3,7 @@ package io.systom.coin.service;
 import com.google.gson.Gson;
 import io.systom.coin.exception.OperationException;
 import io.systom.coin.model.DailyInvestState;
+import io.systom.coin.model.MonthlyReturn;
 import io.systom.coin.model.UserMonthlyInvest;
 import io.systom.coin.model.UserMonthlySum;
 import io.systom.coin.utils.CurrencyUtils;
@@ -230,4 +231,20 @@ public class UserMonthInvestService {
         return result;
     }
 
+    public List<MonthlyReturn> getDailyToMonthlyList(Integer investId) {
+        List<Map<String, String>> monthlyReturns = sqlSession.selectList("goods.getDailyToMonthlyReturns", investId);
+        int monthCumRetSize = monthlyReturns.size();
+        List<MonthlyReturn> monthlyReturnList = new ArrayList<>();
+        for (int i=0; i < monthCumRetSize; i++) {
+            String monthly = monthlyReturns.get(i).get("monthly");
+            float cumReturns = Float.parseFloat(String.valueOf(monthlyReturns.get(i).get("cum_returns")));
+            float prevEquity = Float.parseFloat(String.valueOf(monthlyReturns.get(i).get("prev_equity")));
+            float monthlyReturnsPct = 0;
+            if (cumReturns != 0 && prevEquity != 0) {
+                monthlyReturnsPct = ((cumReturns + prevEquity) - prevEquity) / prevEquity * 100;
+            }
+            monthlyReturnList.add(new MonthlyReturn(monthly, monthlyReturnsPct));
+        }
+        return monthlyReturnList;
+    }
 }

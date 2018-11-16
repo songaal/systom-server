@@ -1,7 +1,6 @@
 package io.systom.coin.service;
 
 import com.amazonaws.services.ecs.model.Task;
-import com.amazonaws.util.json.Jackson;
 import com.google.gson.Gson;
 import io.systom.coin.exception.AuthenticationException;
 import io.systom.coin.exception.OperationException;
@@ -45,6 +44,8 @@ public class GoodsService {
     private EcsUtils ecsUtils;
     @Autowired
     private TradeService tradeService;
+    @Autowired
+    private UserMonthInvestService userMonthInvestService;
 
 //    public static final String DATE_FORMAT = "yyyyMMdd";
 //    public static final String TIME_FORMAT = "HHmmss";
@@ -98,9 +99,10 @@ public class GoodsService {
             if (registerGoods == null) {
                 throw new ParameterException("goodsId");
             }
-//
+
             if (registerGoods.getPublicInvestId() != null) {
                 registerGoods.setPublicTradeHistory(tradeService.getTradeHistory(registerGoods.getPublicInvestId()));
+                registerGoods.setPublicMonthlyReturnsPct(userMonthInvestService.getDailyToMonthlyList(registerGoods.getPublicInvestId()));
             }
         } catch (Exception e) {
             logger.error("", e);
@@ -392,4 +394,5 @@ public class GoodsService {
         logger.debug("Order result >> {}", response.getBody());
         return response.getBody();
     }
+
 }
