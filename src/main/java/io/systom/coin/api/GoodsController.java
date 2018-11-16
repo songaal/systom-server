@@ -147,6 +147,18 @@ public class GoodsController extends AbstractController{
             return new OperationException().response();
         }
     }
+    @GetMapping("/{id}/isExecute")
+    public ResponseEntity<?> getGoodsExecute(@PathVariable Integer id) {
+        try {
+            return success(goodsService.isOrderExecute(id));
+        } catch (AbstractException e) {
+            logger.error("", e);
+            return e.response();
+        } catch (Throwable t) {
+            logger.error("Throwable: ", t);
+            return new OperationException().response();
+        }
+    }
 
     @PutMapping("/{id}/hide")
     public ResponseEntity<?> updateGoodsHide(@RequestAttribute String userId,

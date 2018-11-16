@@ -46,6 +46,7 @@
              , a.timezone
              , a.public_invest_id
              , ifnull(b.invest_cash, 0) as invest_cash
+             , a.is_executing
             <if test="userId != null and userId != ''">
              , c.invest_id
             </if>
@@ -230,4 +231,10 @@
         SET public_invest_id = #{publicInvestId}
         WHERE id = #{id}
     </update>
+
+    <select id="isOrderExecute" parameterType="Integer" resultType="Boolean">
+        SELECT is_executing
+          FROM goods
+         WHERE id = #{param1}
+    </select>
 </mapper>

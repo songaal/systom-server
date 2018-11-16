@@ -110,6 +110,12 @@ public class GoodsService {
         return registerGoods;
     }
 
+    public boolean isOrderExecute(Integer goodsId) {
+        boolean isExecuting = sqlSession.selectOne("goods.isOrderExecute", goodsId);
+        logger.debug("isExecuting: {}", isExecuting);
+        return isExecuting;
+    }
+
     public List<Goods> retrieveGoodsList(Goods searchGoods) {
         try {
             return sqlSession.selectList("goods.retrieveGoodsList", searchGoods);

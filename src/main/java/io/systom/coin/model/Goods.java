@@ -46,6 +46,15 @@ public class Goods {
     private boolean isPaper;
     private boolean isFinished;
     private Date endTime;
+    private boolean isExecuting;
+
+    public boolean isExecuting() {
+        return isExecuting;
+    }
+
+    public void setExecuting(boolean executing) {
+        isExecuting = executing;
+    }
 
     public List<TraderTaskResult.Result.Trade> getPublicTradeHistory() {
         return publicTradeHistory;
