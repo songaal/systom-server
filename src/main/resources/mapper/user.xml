@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="user">
+
+    <select id="getInvestGoodsCount" parameterType="String" resultType="Integer">
+        select count(1) as invest_count
+          from invest_goods a
+         right join invoice b on a.id = b.invest_id
+         where a.user_id = #{param1}
+           and (b.status is null
+            OR b.status in ('DELAY'))
+            or ( a.is_finished = false
+           and a.is_paper = false )
+    </select>
+
+
+</mapper>

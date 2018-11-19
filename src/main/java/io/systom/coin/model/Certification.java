@@ -1,14 +1,43 @@
 package io.systom.coin.model;
 
+import java.util.Date;
+
 public class Certification {
 
     private String userId;
+    private String impUid;
     private String uniqueKey;
     private String uniqueInSite;
     private String name;
     private String gender;
     private String birth;
     private String phone;
+    private String merchantUid;
+    private Date updateTime;
+
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
+    }
+
+    public String getMerchantUid() {
+        return merchantUid;
+    }
+
+    public void setMerchantUid(String merchantUid) {
+        this.merchantUid = merchantUid;
+    }
+
+    public String getImpUid() {
+        return impUid;
+    }
+
+    public void setImpUid(String impUid) {
+        this.impUid = impUid;
+    }
 
     public String getUserId() {
         return userId;

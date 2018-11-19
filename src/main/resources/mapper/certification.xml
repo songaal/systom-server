@@ -14,25 +14,28 @@
              , gender
              , birth
              , phone
+             , update_time
           FROM user_attribute
          WHERE user_id = #{param1}
     </select>
 
     <insert id="insertCertification" parameterType="Certification">
-        INSERT INTO user_attribute (user_id, unique_key, unique_in_site, name, gender, birth, phone)
+        INSERT INTO user_attribute (user_id, unique_key, unique_in_site, name, gender, birth, merchant_uid, update_time)
         VALUES ( #{userId}
                , #{uniqueKey}
                , #{uniqueInSite}
                , #{name}
                , #{gender}
                , #{birth}
-               , #{phone}
+               , #{merchantUid}
+               , now()
         )
         ON DUPLICATE KEY UPDATE
                 name = #{name}
               , gender = #{gender}
               , birth = #{birth}
-              , phone = #{phone}
+              , merchant_uid = #{merchantUid}
+              , update_time = now()
     </insert>
 
 </mapper>

@@ -54,8 +54,8 @@ public class IdentityService {
 
     @Autowired
     private PerformanceService performanceService;
-    @Autowired
-    private BillingService billingService;
+//    @Autowired
+//    private BillingService billingService;
     @Autowired
     private InvestGoodsService investGoodsService;
     @Autowired
@@ -379,9 +379,11 @@ public class IdentityService {
         return gestUserId;
     }
 
+    public int getInvestGoodsCount(String userId) {
+        return sqlSession.selectOne("user.getInvestGoodsCount", userId);
+    }
     public void unRegister(String userId, String message) {
-
-
-
+//        TODO 회원의 모든 정보 삭제.
+//        대신 미결제 상품, 투자 상품있을 경우 탈퇴 못함.
     }
 }
