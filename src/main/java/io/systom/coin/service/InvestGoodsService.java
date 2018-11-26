@@ -161,7 +161,7 @@ public class InvestGoodsService {
         InvestGoods investGoods = getInvestGoods(investId);
         if (investGoods == null){
             throw new ParameterException("investId");
-        } else if (!investGoods.getUserId().equals(userId)) {
+        } else if (!investGoods.getUserId().equals(userId) && !identityService.isManager(userId)) {
             throw new AuthenticationException();
         }
         try {
@@ -193,9 +193,10 @@ public class InvestGoodsService {
         }
     }
 
-    public List<InvestGoods> findInvestGoodsByUserList(Integer goodsId) {
+    public List<InvestGoods> findInvestGoodsByUserList(Integer goodsId, boolean isFinished) {
         InvestGoods investGoods = new InvestGoods();
         investGoods.setGoodsId(goodsId);
+        investGoods.setFinished(isFinished);
         try {
             return sqlSession.selectList("investGoods.findInvestGoodsByUserList", investGoods);
         } catch (Exception e) {
@@ -249,4 +250,5 @@ public class InvestGoodsService {
         logger.info("투자 종료 수수료 계산: {}", investGoodsCommission);
         return investGoodsCommission;
     }
+
 }

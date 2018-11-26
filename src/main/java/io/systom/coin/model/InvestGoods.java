@@ -17,6 +17,11 @@ public class InvestGoods {
     private boolean isFinished;
     private Date endTime;
 
+    private Float returnsPct;
+    private Float equity;
+    private String positions;
+    private Float cash;
+
     public InvestGoods() {}
 
     public InvestGoods(Integer goodsId, String userId, Float investCash, Integer exchangeKeyId, Boolean isPaper) {
@@ -38,6 +43,38 @@ public class InvestGoods {
             investCash = 1000000.0f;
         }
         return new InvestGoods(goods.getId(), goods.getAuthorId(), investCash, -1, true);
+    }
+
+    public Float getCash() {
+        return cash;
+    }
+
+    public void setCash(Float cash) {
+        this.cash = cash;
+    }
+
+    public Float getReturnsPct() {
+        return returnsPct;
+    }
+
+    public void setReturnsPct(Float returnsPct) {
+        this.returnsPct = returnsPct;
+    }
+
+    public Float getEquity() {
+        return equity;
+    }
+
+    public void setEquity(Float equity) {
+        this.equity = equity;
+    }
+
+    public String getPositions() {
+        return positions;
+    }
+
+    public void setPositions(String positions) {
+        this.positions = positions;
     }
 
     public Integer getId() {

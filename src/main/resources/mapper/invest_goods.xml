@@ -52,10 +52,18 @@
              , a.is_finished
              , a.end_time
              , a.is_paper
+             , a.create_time
+             , a.end_time
+             , b.returns_pct
+             , b.equity
+             , b.positions
+             , b.cash
           FROM invest_goods a
+          JOIN performance_summary b on a.id = b.invest_id
          WHERE 1=1
            AND a.goods_id = ${goodsId}
            AND a.is_finished = ${finished}
+         ORDER BY create_time desc
     </select>
 
     <select id="findInvestGoodsByUser" parameterType="InvestGoods" resultType="InvestGoods">

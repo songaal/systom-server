@@ -52,6 +52,43 @@ public class Goods {
     private Date endTime;
     private boolean isExecuting;
 
+    private Integer paperCount;
+    private Integer investCount;
+    private Integer totalCount;
+    private List<InvestGoods> investors;
+
+    public List<InvestGoods> getInvestors() {
+        return investors;
+    }
+
+    public void setInvestors(List<InvestGoods> investors) {
+        this.investors = investors;
+    }
+
+    public Integer getPaperCount() {
+        return paperCount;
+    }
+
+    public void setPaperCount(Integer paperCount) {
+        this.paperCount = paperCount;
+    }
+
+    public Integer getInvestCount() {
+        return investCount;
+    }
+
+    public void setInvestCount(Integer investCount) {
+        this.investCount = investCount;
+    }
+
+    public Integer getTotalCount() {
+        return totalCount;
+    }
+
+    public void setTotalCount(Integer totalCount) {
+        this.totalCount = totalCount;
+    }
+
     public float getPublicReturnsPct() {
         return publicReturnsPct;
     }

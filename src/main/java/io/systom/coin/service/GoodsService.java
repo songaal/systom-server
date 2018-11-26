@@ -101,7 +101,10 @@ public class GoodsService {
             if (registerGoods == null) {
                 throw new ParameterException("goodsId");
             }
-
+//            registerGoods
+            List<InvestGoods> investor = investGoodsService.findInvestGoodsByUserList(registerGoods.getId(), false);
+            investor.addAll(investGoodsService.findInvestGoodsByUserList(registerGoods.getId(), true));
+            registerGoods.setInvestors(investor);
             if (registerGoods.getPublicInvestId() != null) {
                 registerGoods.setPublicTradeHistory(tradeService.getTradeHistory(registerGoods.getPublicInvestId()));
                 registerGoods.setPublicMonthlyReturnsPct(userMonthInvestService.getDailyToMonthlyList(registerGoods.getPublicInvestId()));
@@ -170,7 +173,6 @@ public class GoodsService {
         return getGoods(id);
     }
 
-    @Transactional
     public Goods deleteGoods(Integer id, String userId) {
         Goods registerGoods = getGoods(id);
         if (registerGoods == null) {
@@ -180,7 +182,7 @@ public class GoodsService {
             throw new AuthenticationException();
         }
 
-        List<InvestGoods> registerInvestGoodsList = investGoodsService.findInvestGoodsByUserList(id);
+        List<InvestGoods> registerInvestGoodsList = investGoodsService.findInvestGoodsByUserList(id, false);
         if (registerInvestGoodsList == null || registerInvestGoodsList.size() >= 1) {
             throw new RequestException("not empty");
         }
@@ -199,7 +201,6 @@ public class GoodsService {
         return registerGoods;
     }
 
-    @Transactional
     public Goods updateGoods(Goods target) {
         Goods registerGoods = getGoods(target.getId());
         if (registerGoods == null) {

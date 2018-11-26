@@ -92,6 +92,27 @@
              , a.task_ecs_id
              , ifnull(b.invest_cash, 0) as invest_cash
              , c.invest_id
+             , (SELECT count(1)
+                  FROM invest_goods aa
+                 WHERE aa.goods_id = a.id
+                   AND aa.is_paper = true
+                   AND aa.is_finished = false) as paper_count
+            , (SELECT count(1)
+                 FROM invest_goods aa
+                WHERE aa.goods_id = a.id
+                  AND aa.is_paper = false
+                  AND aa.is_finished = false) as invest_count
+            , (SELECT count(1)
+                 FROM invest_goods aa
+                WHERE aa.goods_id = a.id
+                  AND aa.is_finished = false) as total_count
+            , (SELECT aa.returns_pct
+                 FROM performance_summary aa
+                WHERE aa.invest_id = a.public_invest_id) as public_returns_pct
+            , (SELECT aa.mdd
+                 FROM performance_summary aa
+                WHERE aa.invest_id = a.public_invest_id) as public_mdd
+            , a.public_invest_id
           FROM goods a
           LEFT JOIN (SELECT aa.goods_id
                           , sum(aa.invest_cash) as invest_cash
