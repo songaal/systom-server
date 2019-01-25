@@ -1,5 +1,9 @@
 package io.systom.coin.aws;
 
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.internal.StaticCredentialsProvider;
 import com.amazonaws.services.cognitoidp.AWSCognitoIdentityProvider;
 import com.amazonaws.services.cognitoidp.AWSCognitoIdentityProviderClientBuilder;
 import com.amazonaws.services.cognitoidp.model.*;
@@ -7,6 +11,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.gson.Gson;
 import io.systom.coin.utils.RestUtils;
+import org.apache.catalina.authenticator.BasicAuthenticator;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +26,32 @@ public class AwsCognitoTest {
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(AwsCognitoTest.class);
 
     AWSCognitoIdentityProvider cognitoClient;
+
+    @Test
+    public void logTest(){
+        AWSCredentials awsCredentials = new BasicAWSCredentials("AKIAIQHX4ESIPGI7YDJA", "8Vuepge65Sp/GnwyxIp3c7Ry0SEwVJsRpKmvyHdf");
+        StaticCredentialsProvider staticCredentialsProvider = new StaticCredentialsProvider(awsCredentials);
+
+        cognitoClient = AWSCognitoIdentityProviderClientBuilder.standard().withCredentials(staticCredentialsProvider)
+                .withRegion("ap-northeast-2")
+                .build();
+        ListUsersRequest request = new ListUsersRequest()
+                .withUserPoolId("ap-northeast-2_8UlVuFFva");
+        cognitoClient.listUsers(request);
+
+//        Map<String, String> authParams = new HashMap<>();
+//        authParams.put("USERNAME", "joonwoo88");
+//        authParams.put("PASSWORD", "142085");
+//
+//        AdminInitiateAuthRequest authRequest = new AdminInitiateAuthRequest()
+//                .withAuthFlow(AuthFlowType.ADMIN_NO_SRP_AUTH)
+//                .withAuthParameters(authParams)
+//                .withClientId("4km83jbt1d6pg415q4ieqt41b0")
+//                .withUserPoolId("ap-northeast-2_8UlVuFFva");
+//
+//        AdminInitiateAuthResult authResult = cognitoClient.adminInitiateAuth(authRequest);
+
+    }
 
 
     @Test
